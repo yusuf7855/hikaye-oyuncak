@@ -72,6 +72,18 @@ def cezalar(metin, kimlikler, n_token=0, n_max=240, bitti=None):
     return c
 
 
+# 3-6 yaşa uygun olmayan içerik (tam veri denetiminde bozukların ~yarısı): yaralanma, boğulma, derin su, tehlike.
+# "gözyaşlarına boğuldu" deyimi hariç. Ürün yolunda (arayüz, kart) her zaman açık; hakem deneylerinde karşılaştırma
+# tutarlılığı için isteğe bağlı (puanla(guvenlik=True)).
+GUVENLIK = re.compile(r"(?<![a-zçğıöşü])(?:incit\w*|yaral\w*|(?<!gözyaşlarına )boğul\w*|kanıyor\w*|kanama\w*"
+                      r"|acıyor\w*|derin su\w*|tehlike\w*)")
+
+
+def guvenlik_cezasi(metin):
+    bul = sorted(set(GUVENLIK.findall(kucuk(metin))))
+    return (4.0, f"çocuğa uygun olmayan: {', '.join(bul[:3])}") if bul else None
+
+
 YER_KELIME = {"orman": r"\borman", "deniz": r"\b(?:deniz|kumsal|sahil|kıyı)", "ev": r"\bev(?:de|e|in|i|den|imiz)?\b",
               "park": r"\bpark", "sato": r"\bşato", "dag": r"\bda(?:ğ|ğı|ğa|ğda|ğın)\b"}
 
@@ -84,6 +96,8 @@ def yer_cezasi(metin, yer):
     return 1.5 if kendi == 0 or baska > kendi else 0
 
 
-def puanla(metin, kimlikler, ort_logp=0.0, n_token=0, yer=None, bitti=None):
+def puanla(metin, kimlikler, ort_logp=0.0, n_token=0, yer=None, bitti=None, guvenlik=False):
     ceza = sum(p for p, _ in cezalar(metin, kimlikler, n_token, bitti=bitti)) + (yer_cezasi(metin, yer) if yer else 0)
+    if guvenlik and (g := guvenlik_cezasi(metin)):
+        ceza += g[0]
     return -ceza + 2 * ort_logp

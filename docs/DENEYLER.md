@@ -37,3 +37,19 @@ hakeme gitmez).
   (E0 tabanı %64/%46/%50 → %83/%62/%71; farklı hakemler, dikkatli yorumlanmalı).
 - Sonraki: R tabanı temasız başlıkla (+ sabit bölme, blok EOT). Tema, tam ön-eğitimli modelde ve/veya yalnız "kolay"
   temalardan oluşan bir desteyle yeniden denenebilir. E3 (model önce kendi planını yazar) temaya bağlı değil.
+
+## R — tam ön-eğitim (24 000 adım) + sabit bölme + blok EOT; R-temiz — aynısı, denetimde bozuk 289 hikâye çıkarılmış
+
+| Kol | Rubrik | S1 / S2 / S3 | mantıksız olay/hikâye | İkili tercih | Karar |
+|---|---|---|---|---|---|
+| c2ara_NE (v1, ön-eğitim 6000 adım) | 4.74 | %83 / %62 / %71 | 1.22 | — | — |
+| c2ft_NE (R) | 4.58 | %88 / %71 / %82 | 1.35 | v1'e karşı 21.25/36 (Eşit, p=0.20) | **yeni taban** |
+| c2ft_temiz_NE (R-temiz) | 4.33 | %86 / %54 / %69 | 1.75 | R'ye karşı 12.75/36 (**Kaybetti**) | reddedildi |
+
+- Tam ön-eğitim olay örgüsü sorularını belirgin yükseltti (S2 %62→%71, S3 %71→%82); toplam puan ve ikili tercih
+  anlamlı fark göstermedi. Bozuk dil en sık kusur olarak kaldı (32.5/36 vaka).
+- Bozuk hikâyeleri çıkarmak (%12 veri) sonucu kötüleştirdi; iki ikili hakemin uyumu %92. Her kol tek eğitim koşusu,
+  farkın bir kısmı eğitim rastlantısallığı olabilir. Bozukların yarısı güvenlik içerikliydi (yaralanma, boğulma,
+  derin su); bunlar artık seçicide ele alınıyor: `sec.GUVENLIK` + `puanla(guvenlik=True)` (arayüzde/kartta her zaman
+  açık, −4 ceza). R'nin 288 adayından 10'unda bu kelimeler var; seçilen 36 hikâyede 0 (v1'de 3/36).
+- Sonraki: E2 (hizalı pencereler) ve E3 (önce plan) R'nin ayarlarıyla (bütün veri) eğitiliyor.

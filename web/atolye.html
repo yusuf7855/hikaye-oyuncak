@@ -584,8 +584,9 @@ onmessage = (e) => {
   "degisiklik": ["Ön-eğitimin tamamı (24 000 adım) üzerine oyuncak hikâyeleriyle 3000 adım ince ayar. Yeni temel sürüm.",
                  "Doğrulama hikâyelerinin isim değiştirilmiş kopyaları (124 hikâye) eğitimden çıkarıldı; ölçüm daha dürüst.",
                  "Temasız başlık, satır sonu yasağı, metin sonu öneki (E0 kararları).",
-                 "Hakem puanı ölçülüyor; v1 ile “Karşılaştır”dan yan yana dinleyebilirsiniz."],
-  "olcum": {"oyuncak doğrulama ppl": "11.00 (daha zor, sızıntısız bölme)", "eğitim": "24 000 + 3000 adım"}},
+                 "Hakemler: olay örgüsü belirgin daha iyi (sonda çözülen sorun %62 → %71, bağlı olaylar %71 → %82); toplam puan v1 ile benzer (4.58 / 4.74).",
+                 "Seçici artık çocuğa uygun olmayan içeriği (yaralanma, boğulma, derin su, tehlike) eliyor."],
+  "olcum": {"hakem": "4.58/10", "sorun var / çözülüyor / olaylar bağlı": "%88 / %71 / %82"}},
  {"id": "c2ara_tema", "ad": "v2 · tema (E1, reddedildi)", "tarih": "24 Eylül 2026", "baslik": "tema",
   "degisiklik": ["SONUÇ: hakemler temasız v1'i açıkça daha mantıklı buldu (36 vakanın 24'ünde; puan 4.74'e karşı 4.17). Model temayı kullanıyor ama “uyku vakti”, “kaybolan bir şeyi bulmak” gibi temalarda olay örgüsünü henüz kuramıyor; “yeni arkadaş edinmek” gibi kolay temalarda iyi. Karşılaştırma için sayfada duruyor.","v1'in birebir aynısı, tek fark: başlıkta hikâyenin teması var (“Tema: kaybolan bir şeyi bulmak”). Model hangi sorunu çözeceğini baştan biliyor.",
                  "Tema kutusundan bir tema seçin ya da “rastgele” bırakın; oyuncak da temayı böyle, karışık bir desteden çekecek.",
@@ -686,8 +687,14 @@ function yerCezasi(metin, yer) {
   for (const [y, p] of Object.entries(YER_KELIME)) if (y !== yer) baska = Math.max(baska, say(new RegExp(p, "gu"), son));
   return (kendi === 0 || baska > kendi) ? [[1.5, "yer kayması"]] : [];
 }
+// Çocuğa uygun olmayan içerik (sec.py GUVENLIK ile aynı): oyuncakta her zaman açık
+const GUVENLIK = /(?<![a-zçğıöşü])(?:incit[\p{L}]*|yaral[\p{L}]*|(?<!gözyaşlarına )boğul[\p{L}]*|kanıyor[\p{L}]*|kanama[\p{L}]*|acıyor[\p{L}]*|derin su[\p{L}]*|tehlike[\p{L}]*)/gu;
+function guvenlikCezasi(metin) {
+  const bul = [...new Set(kucuk(metin).match(GUVENLIK) || [])];
+  return bul.length ? [[4, `çocuğa uygun olmayan: ${bul.slice(0, 3).join(", ")}`]] : [];
+}
 function puanla(metin, kim, yer, ortLogp, bitti) {
-  const liste = cezalar(metin, kim, bitti).concat(yerCezasi(metin, yer));
+  const liste = cezalar(metin, kim, bitti).concat(yerCezasi(metin, yer), guvenlikCezasi(metin));
   return { puan: -liste.reduce((a, [p]) => a + p, 0) + 2 * ortLogp, liste };
 }
 
