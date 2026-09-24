@@ -53,3 +53,22 @@ hakeme gitmez).
   derin su); bunlar artık seçicide ele alınıyor: `sec.GUVENLIK` + `puanla(guvenlik=True)` (arayüzde/kartta her zaman
   açık, −4 ceza). R'nin 288 adayından 10'unda bu kelimeler var; seçilen 36 hikâyede 0 (v1'de 3/36).
 - Sonraki: E2 (hizalı pencereler) ve E3 (önce plan) R'nin ayarlarıyla (bütün veri) eğitiliyor.
+
+## E2 — hikâyeye hizalı eğitim pencereleri (c2ft_hiz) ve E3 — model önce Sorun/Çözüm planı yazar (c2ft_plan)
+
+Taban: R (c2ft_NE). E3 modeli iki biçimde ölçüldü: planlı (b) ve plansız başlıkla (a).
+
+| Kol | Rubrik | S1 / S2 / S3 | mantıksız olay/hikâye | İkili tercih (R'ye karşı) | Karar |
+|---|---|---|---|---|---|
+| c2ft_NE (R) | 4.58 | %88 / %71 / %82 | 1.35 | — | — |
+| c2ft_hiz (E2) | 4.85 | %78 / %61 / %69 | 1.18 | 15/36 (Eşit, R önde) | benimsenmedi (olay örgüsü soruları düştü) |
+| c2ft_plan (E3, planlı) | **4.89** | **%90 / %76** / %78 | 1.35 | **21/36** (Eşit, p=0.20) | **şimdilik en iyi: v4** |
+| c2ft_plan_a (E3 modeli, plansız) | 4.46 | %85 / %61 / %72 | 1.40 | 11.5/36 (Kaybetti) | plan modu zorunlu |
+
+- E3: planların %100'ü doğru biçimde (plan_bozuk 0/36), hikâyelerin %86'sı kendi planına uyuyor. Doğru plan vs aynı
+  temadan başka bir hikâyenin planı: hikâyenin ilk üçte birinde ΔNLL 0.146 nat/token, son üçte birinde yalnızca 0.0075
+  — model sorunu plandan kuruyor ama çözüm/son plana zayıf bağlı. Planın kart maliyeti ~20-30 token (~5 sn).
+- Planın başarı eşiği (ikili ≥24/36) tutmadı; E3 "Eşit" bandında ama ölçülen her şeyde en iyi ya da eşit en iyi.
+- Genel tablo: hiçbir deney belirleyici bir sıçrama vermedi (bütün modeller 4.3–4.9/10). README'deki bulgu duruyor:
+  eğitim verisi 9.8/10, model ~4.9/10; sınır 3M çekirdekli modelin kapasitesi. 36 vakada ~0.3 puanlık farklar
+  gürültü içinde.
