@@ -572,6 +572,8 @@ const saklaYaz = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); }
 // ---- seçici: degerlendirme/sec.py'nin birebir JS karşılığı ----
 const HARF = "[\\p{L}\\p{N}_]";
 const B = `(?<!${HARF})`, E = `(?!${HARF})`;
+// Türkçe küçük harf (sec.kucuk ile aynı): toLowerCase "İ"yi "i" + birleşik nokta yapar
+const kucuk = (s) => s.replace(/I/g, "ı").replace(/İ/g, "i").toLowerCase();
 const kac = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const say = (re, s) => (s.match(re) || []).length;
 const HAYVAN = ["kuş", "sincap", "yengeç", "fare", "tavşan", "kedi", "köpek", "ayı", "tilki", "kurbağa", "balık", "kelebek",
@@ -595,7 +597,7 @@ function cezalar(metin, kim, bitti) {
     if (new RegExp(`${B}${kac(n)}${E}\\s+ve\\s+${kac(n)}${E}`, "u").test(metin)) c.push([3, `'${n} ve ${n}'`]);
   }
   const yari = Math.floor(metin.length / 2);
-  const ilk = metin.slice(0, yari).toLowerCase(), ikinci = metin.slice(yari).toLowerCase();
+  const ilk = kucuk(metin.slice(0, yari)), ikinci = kucuk(metin.slice(yari));
   const turler = new Set(kim.map(k => KAR[k].tur));
   const yeni = HAYVAN.filter(h => new RegExp(`${B}${h}`, "u").test(ikinci) && !new RegExp(`${B}${h}`, "u").test(ilk) && !turler.has(h));
   if (yeni.length) c.push([1.5 * yeni.length, `sonradan beliren karakter: ${yeni.join(", ")}`]);
@@ -608,7 +610,7 @@ function cezalar(metin, kim, bitti) {
   if (cumleler.length !== new Set(cumleler).size) c.push([1, "tekrarlanan cümle"]);
   if (!/[.!"”]$/u.test(metin.trimEnd()) || !bitti) c.push([2, "yarım son"]);
   if (metin.split(/\s+/).filter(Boolean).length < 50) c.push([2, "çok kısa"]);
-  const kelimeler = metin.toLowerCase().match(/[a-zçğıöşüâîû]+/gu) || [];
+  const kelimeler = kucuk(metin).match(/[a-zçğıöşüâîû]+/gu) || [];
   if (SOZLUK) {
     const bil = kelimeler.filter(w => !SOZLUK.has(w));
     if (bil.length) c.push([1.5 * bil.length, `uydurma kelime: ${bil.slice(0, 4).join(", ")}`]);
@@ -619,7 +621,7 @@ function cezalar(metin, kim, bitti) {
   return c;
 }
 function yerCezasi(metin, yer) {
-  const son = metin.slice(Math.floor(metin.length * 0.5)).toLowerCase(), alt = metin.toLowerCase();
+  const son = kucuk(metin.slice(Math.floor(metin.length * 0.5))), alt = kucuk(metin);
   const kendi = say(new RegExp(YER_KELIME[yer], "gu"), alt);
   let baska = 0;
   for (const [y, p] of Object.entries(YER_KELIME)) if (y !== yer) baska = Math.max(baska, say(new RegExp(p, "gu"), son));

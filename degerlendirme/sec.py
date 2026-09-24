@@ -13,6 +13,12 @@ from baslangic import KAR, YABANCI  # noqa: E402
 TUM_ISIM = {k["isim"] for k in KAR.values()}
 _SOZLUK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sozluk.pkl")
 SOZLUK = pickle.load(open(_SOZLUK, "rb")) if os.path.exists(_SOZLUK) else None  # kartta ~700 KB flash'ta
+def kucuk(s):
+    """Türkçe küçük harf: str.lower() "İ"yi "i" + birleşik nokta yapar ("İkisi" -> "i̇kisi"), kelime
+    düzenli ifadesi onu "kisi" diye böler; "I" da "ı" olmalı."""
+    return s.replace("I", "ı").replace("İ", "i").lower()
+
+
 BUYUK = re.compile(r"[A-ZÇĞİÖŞÜ][a-zçğıöşü]+")
 HAYVAN = ["kuş", "sincap", "yengeç", "fare", "tavşan", "kedi", "köpek", "ayı", "tilki", "kurbağa", "balık", "kelebek",
           "karınca", "baykuş", "kaplumbağa", "penguen", "dinozor", "ejderha", "aslan",
@@ -35,7 +41,7 @@ def cezalar(metin, kimlikler, n_token=0, n_max=240, bitti=None):
             c.append((3, f"{n} sonda yok"))
         if re.search(rf"\b{n}\b\s+ve\s+{n}\b", metin):
             c.append((3, f"'{n} ve {n}'"))
-    ilk_yari, ikinci_yari = metin[:len(metin) // 2].lower(), metin[len(metin) // 2:].lower()
+    ilk_yari, ikinci_yari = kucuk(metin[:len(metin) // 2]), kucuk(metin[len(metin) // 2:])
     yeni = [h for h in HAYVAN if re.search(rf"\b{h}", ikinci_yari) and not re.search(rf"\b{h}", ilk_yari)
             and h not in {KAR[k]["tur"] for k in kimlikler}]
     if yeni:
@@ -54,7 +60,7 @@ def cezalar(metin, kimlikler, n_token=0, n_max=240, bitti=None):
         c.append((2, "yarım son"))
     if len(metin.split()) < 50:
         c.append((2, "çok kısa"))
-    kelimeler = re.findall(r"[a-zçğıöşüâîû]+", metin.lower())
+    kelimeler = re.findall(r"[a-zçğıöşüâîû]+", kucuk(metin))
     if SOZLUK is not None:
         bilinmeyen = [w for w in kelimeler if w not in SOZLUK]
         if bilinmeyen:
@@ -72,8 +78,8 @@ YER_KELIME = {"orman": r"\borman", "deniz": r"\b(?:deniz|kumsal|sahil|kıyı)", 
 
 def yer_cezasi(metin, yer):
     """Seçilen yer yerine başka bir yerde biten hikâye (hakem: 'şatoda başlayıp ormanda bitiyor')."""
-    son = metin[int(len(metin) * 0.5):].lower()
-    kendi = len(re.findall(YER_KELIME[yer], metin.lower()))
+    son = kucuk(metin[int(len(metin) * 0.5):])
+    kendi = len(re.findall(YER_KELIME[yer], kucuk(metin)))
     baska = max((len(re.findall(p, son)) for y, p in YER_KELIME.items() if y != yer), default=0)
     return 1.5 if kendi == 0 or baska > kendi else 0
 

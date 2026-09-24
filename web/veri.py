@@ -16,7 +16,7 @@ sys.path.insert(0, ROOT)
 from baslangic import KAR  # noqa: E402
 from research.tinystories.prepare_ft2 import kimlik_ver  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, "degerlendirme"))
-from sec import SOZLUK, cezalar, yer_cezasi  # noqa: E402
+from sec import SOZLUK, cezalar, kucuk, yer_cezasi  # noqa: E402
 
 TUR_KIMLIK = {k["tur"]: k["kimlik"] for k in KAR.values()}
 YER_KIMLIK = {"orman": "orman", "deniz": "deniz", "ev": "ev", "park": "park", "şato": "sato", "dağ": "dag"}
@@ -39,7 +39,7 @@ def main():
             # (sözlük dışı kelimeler ayrı: çoğu nadir ama doğru çekimler, arayüz onları metin içinde işaretler)
             c = [re.sub(r"[\[\]']", "", ad) for _, ad in cezalar(h["metin"], k, bitti=True) if not ad.startswith("uydurma")]
             c += ["yer kayması"] if yer_cezasi(h["metin"], y) else []
-            u = sorted({w for w in re.findall(r"[a-zçğıöşüâîû]+", h["metin"].lower()) if SOZLUK and w not in SOZLUK})
+            u = sorted({w for w in re.findall(r"[a-zçğıöşüâîû]+", kucuk(h["metin"])) if SOZLUK and w not in SOZLUK})
             hikayeler.append({"id": h["id"], "k": k, "y": y, "t": h["tema"], "m": h["metin"], "c": c, "u": u})
     json.dump(hikayeler, open(os.path.join(HERE, "veri.json"), "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))

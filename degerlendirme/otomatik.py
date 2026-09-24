@@ -14,7 +14,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from tokenizers import Tokenizer  # noqa: E402
-from sec import SOZLUK, cezalar, puanla, yer_cezasi  # noqa: E402
+from sec import SOZLUK, cezalar, kucuk, puanla, yer_cezasi  # noqa: E402
 from uret import test_seti, uret  # noqa: E402
 
 
@@ -39,7 +39,7 @@ def olc(hikayeler):
             tur = next((t for t in TURLER if t in ad), ad)
             turler[tur] = turler.get(tur, 0) + 1
         if SOZLUK is not None:
-            w = re.findall(r"[a-zçğıöşüâîû]+", h["metin"].lower())
+            w = re.findall(r"[a-zçğıöşüâîû]+", kucuk(h["metin"]))
             kelime += len(w)
             bilinmeyen += sum(x not in SOZLUK for x in w)
     return {
