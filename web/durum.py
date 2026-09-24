@@ -17,6 +17,8 @@ AŞAMALAR = [
     {"ad": "Tema deneyi (E1)", "etiket": "ple-c2ara_tema-s0", "aciklama": "Aynı ara ince ayar, başlıkta hikâyenin teması da var: olay örgüsü daha mantıklı mı?"},
     {"ad": "Yeni taban R (C2)", "etiket": "ple-c2ft-s0", "aciklama": "Tam ön-eğitimden oyuncak hikâyeleri: sabit bölme, sızıntı temizliği, temasız başlık, 4-bit QAT"},
     {"ad": "R-temiz", "etiket": "ple-c2ft_temiz-s0", "aciklama": "R'nin aynısı, denetimde bozuk bulunan 289 hikâye çıkarılmış"},
+    {"ad": "E2 · hizalı pencereler", "etiket": "ple-c2ft_hiz-s0", "aciklama": "R'nin aynısı, eğitim pencereleri hikâye başına hizalı"},
+    {"ad": "E3 · önce plan", "etiket": "ple-c2ft_plan-s0", "aciklama": "R'nin aynısı, model hikâyeden önce Sorun/Çözüm planı yazıyor"},
 ]
 
 
