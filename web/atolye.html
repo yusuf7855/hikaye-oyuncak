@@ -580,24 +580,9 @@ onmessage = (e) => {
 <!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
 <script id="surumler" type="application/json">
 [
- {"id": "c2ft", "ad": "v3 · tam model (R)", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "eski",
-  "degisiklik": ["Ön-eğitimin tamamı (24 000 adım) üzerine oyuncak hikâyeleriyle 3000 adım ince ayar. Yeni temel sürüm.",
-                 "Doğrulama hikâyelerinin isim değiştirilmiş kopyaları (124 hikâye) eğitimden çıkarıldı; ölçüm daha dürüst.",
-                 "Temasız başlık, satır sonu yasağı, metin sonu öneki (E0 kararları).",
-                 "Hakemler: olay örgüsü belirgin daha iyi (sonda çözülen sorun %62 → %71, bağlı olaylar %71 → %82); toplam puan v1 ile benzer (4.58 / 4.74).",
-                 "Seçici artık çocuğa uygun olmayan içeriği (yaralanma, boğulma, derin su, tehlike) eliyor."],
-  "olcum": {"hakem": "4.58/10", "sorun var / çözülüyor / olaylar bağlı": "%88 / %71 / %82"}},
- {"id": "c2ara_tema", "ad": "v2 · tema (E1, reddedildi)", "tarih": "24 Eylül 2026", "baslik": "tema",
-  "degisiklik": ["SONUÇ: hakemler temasız v1'i açıkça daha mantıklı buldu (36 vakanın 24'ünde; puan 4.74'e karşı 4.17). Model temayı kullanıyor ama “uyku vakti”, “kaybolan bir şeyi bulmak” gibi temalarda olay örgüsünü henüz kuramıyor; “yeni arkadaş edinmek” gibi kolay temalarda iyi. Karşılaştırma için sayfada duruyor.","v1'in birebir aynısı, tek fark: başlıkta hikâyenin teması var (“Tema: kaybolan bir şeyi bulmak”). Model hangi sorunu çözeceğini baştan biliyor.",
-                 "Tema kutusundan bir tema seçin ya da “rastgele” bırakın; oyuncak da temayı böyle, karışık bir desteden çekecek.",
-                 "E0'da benimsenen ayarlar: hikâyede satır sonu yasak, istem eğitimdeki gibi metin sonu işaretiyle başlıyor.",
-                 "v1 ile “Karşılaştır”: aynı figür, yer, tema ve seed'le yan yana dinleyip olay örgüsünü işaretleyin."],
-  "olcum": {"oyuncak doğrulama ppl (1250. adım)": "9.40 (v1: 10.45)", "eğitim": "6000 + 1500 adım"}},
- {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "baslik": "eski",
-  "degisiklik": ["Figürleri tanıyan ilk sürüm: ön-eğitimin 6000. adımından (tamamın dörtte biri) oyuncak hikâyeleriyle 1500 adım ince ayar.",
-                 "Başlıkta tema yok. Hakem puanı 4.86/10 (36 vaka, 2 hakem); en sık kusur mantıksız olay.",
-                 "E0'da benimsenen ayarlarla çalışıyor: satır sonu yasak, istem metin sonu işaretiyle başlıyor."],
-  "olcum": {"hakem (yeni ayarlarla)": "4.74/10", "sorun var / çözülüyor / olaylar bağlı": "%83 / %62 / %71"}}
+ {"id": "c2ft_plan", "ad": "v4 · önce plan (E3)", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "plan", "degisiklik": ["v3'ün aynısı; tek fark: model hikâyeden önce iki satırlık kendi planını yazıyor (Sorun: … / Çözüm: …), sonra hikâyeyi o plana göre anlatıyor.", "Plan hikâyenin üstünde gri satırda görünür; sesli okuma yalnızca hikâyeyi okur.", "Otomatik ölçüm: planların %100'ü doğru biçimde, hikâyelerin %86'sı kendi planına uyuyor. Hakem değerlendirmesi sürüyor.", "v3 ile “Karşılaştır”dan aynı figür, yer ve seed'le yan yana dinleyebilirsiniz."], "olcum": {"plan uyumu": "%86", "eğitim": "24 000 + 3000 adım"}},
+ {"id": "c2ft", "ad": "v3 · tam model (R)", "tarih": "24 Eylül 2026", "baslik": "eski", "degisiklik": ["Ön-eğitimin tamamı (24 000 adım) üzerine oyuncak hikâyeleriyle 3000 adım ince ayar. Yeni temel sürüm.", "Doğrulama hikâyelerinin isim değiştirilmiş kopyaları (124 hikâye) eğitimden çıkarıldı; ölçüm daha dürüst.", "Temasız başlık, satır sonu yasağı, metin sonu öneki (E0 kararları).", "Hakemler: olay örgüsü belirgin daha iyi (sonda çözülen sorun %62 → %71, bağlı olaylar %71 → %82); toplam puan v1 ile benzer (4.58 / 4.74).", "Seçici artık çocuğa uygun olmayan içeriği (yaralanma, boğulma, derin su, tehlike) eliyor."], "olcum": {"hakem": "4.58/10", "sorun var / çözülüyor / olaylar bağlı": "%88 / %71 / %82"}},
+ {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "baslik": "eski", "degisiklik": ["Figürleri tanıyan ilk sürüm: ön-eğitimin 6000. adımından (tamamın dörtte biri) oyuncak hikâyeleriyle 1500 adım ince ayar.", "Başlıkta tema yok. Hakem puanı 4.86/10 (36 vaka, 2 hakem); en sık kusur mantıksız olay.", "E0'da benimsenen ayarlarla çalışıyor: satır sonu yasak, istem metin sonu işaretiyle başlıyor."], "olcum": {"hakem (yeni ayarlarla)": "4.74/10", "sorun var / çözülüyor / olaylar bağlı": "%83 / %62 / %71"}}
 ]
 </script>
 
