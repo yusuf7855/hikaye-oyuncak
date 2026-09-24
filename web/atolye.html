@@ -885,6 +885,7 @@ async function calistir(surumId, k, vaka, ayar) {
   }
   k.baslik.textContent = kayit.coz(prompt).replace(/\n/g, "⏎");
   if (vaka.tema && meta.baslik_bicimi !== "tema") k.baslik.textContent += `   (bu sürüm temayı görmez: ${vaka.tema})`;
+  if (meta.eot_on) prompt = [meta.eot].concat(prompt);
   const ban = yasakIdler(meta, vaka.kim).concat(meta.satir_yasak || []), adaylar = [];
   const bar = k.ilerleme.firstChild;
   for (let j = 0; j < ayar.aday; j++) {

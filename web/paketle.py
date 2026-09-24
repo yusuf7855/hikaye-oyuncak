@@ -5,6 +5,7 @@ Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--
   --tema: model "| Tema: <tema>" başlığıyla eğitildi (prepare_ft2 --tema); arayüz tema seçtirir
   --pencere govde: başlık token'ları tekrar cezası penceresine girmez (gen.c -P)
   --satir-yasak: hikâye gövdesinde satır sonu token'ları yasak (gen.c -N)
+  --eot-on: istem, eğitimdeki gibi <|endoftext|> ile başlar (prompt_idler eot=True)
 Çıktı: web/m/<sürüm>/model.b64.txt (gzip + base64 model.bin; yayın yeri ikili dosya sunmuyor) ve meta.json
   meta.json: token tablosu (çözmek için), her figür/yer birleşimi için başlık token'ları
   (baslangic.prompt_idler ile, eğitimdeki gibi), yasaklanacak isim token'ları, katalog.
@@ -43,6 +44,7 @@ def main():
     ap.add_argument("--tema", action="store_true")
     ap.add_argument("--pencere", choices=["tum", "govde"], default="tum")
     ap.add_argument("--satir-yasak", action="store_true")
+    ap.add_argument("--eot-on", action="store_true", help="istem <|endoftext|> ile başlar (E0'da benimsendi)")
     arg = ap.parse_args()
     surum, model_dir = arg.surum, arg.model_dir
     tok = Tokenizer.from_file(os.path.join(model_dir, "tokenizer.json"))
@@ -93,6 +95,7 @@ def main():
         "baslik_bicimi": "tema" if arg.tema else "eski",
         "pencere": arg.pencere,
         "satir_yasak": satir,
+        "eot_on": arg.eot_on,
         **tema_ek,
     }
     json.dump(meta, open(os.path.join(out, "meta.json"), "w", encoding="utf-8"), ensure_ascii=False,
