@@ -5,7 +5,11 @@ __pycache__/
 *.egg-info/
 
 # private training and evaluation data
-/data/
+/data/*
+!/data/karakterler.json
+!/data/oyuncak_hikayeleri/
+!/data/oyuncak_v2/
+!/data/oyuncak_v3/
 
 # training outputs
 runs/
@@ -24,3 +28,16 @@ videos/
 *.mov
 *.MOV
 *.MP4
+
+# --- hikâye oyuncağı: büyük ya da yeniden üretilebilen dosyalar ---
+# dışa aktarılmış modeller (model.bin, tokenizer.json); README'de nasıl üretileceği var
+/hf*/
+# Piper sesi ve Argos en->tr çeviri modeli (indirilir)
+/voices/
+/tr/
+/logs/
+/gen
+/gen_verify
+data/**/*.lock
+# degerlendirme/sozluk_olustur.py ile üretilir
+degerlendirme/sozluk.pkl

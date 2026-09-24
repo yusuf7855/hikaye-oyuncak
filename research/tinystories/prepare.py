@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 # Each vocabulary variant keeps its tokenizer beside the bins it produced.
-DATA = ROOT / "data" / "tinystories"
+DATA = Path(os.environ.get("TS_DATA", ROOT / "data" / "tinystories"))
 URL = "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStories-train.txt"
 RAW = DATA / "raw" / "tinystories-train-first-300MiB.txt"
 DEFAULT_VOCAB = 32768   # what ships; every other size has to be asked for

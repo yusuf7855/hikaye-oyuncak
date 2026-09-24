@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hikâye Oyuncağı</title>
+<style>
+  :root {
+    --bg: #faf7f2; --card: #ffffff; --ink: #2b2620; --muted: #7a7064; --line: #e8e1d6;
+    --accent: #e0692e; --accent-ink: #ffffff; --chip: #f3ede4; --chip-on: #2b2620; --chip-on-ink: #faf7f2;
+    --hl: #fde6d6; --note: #fff4e5; --note-ink: #8a5a1f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1916; --card: #24211d; --ink: #ede6dc; --muted: #9c9285; --line: #38332c;
+      --accent: #f07a3c; --accent-ink: #1b1916; --chip: #2e2a25; --chip-on: #ede6dc; --chip-on-ink: #1b1916;
+      --hl: #4a2e1c; --note: #2e2618; --note-ink: #e0b77a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 60px;
+          display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+  header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 24px; letter-spacing: -0.01em; }
+  header span { color: var(--muted); font-size: 13px; }
+  .note { grid-column: 1 / -1; background: var(--note); color: var(--note-ink); border-radius: 10px;
+          padding: 9px 13px; font-size: 13px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .panel + .panel { margin-top: 16px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+       margin: 0 0 10px; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .chip { border: 0; background: var(--chip); color: var(--ink); padding: 7px 11px; border-radius: 999px;
+          font: inherit; font-size: 14px; cursor: pointer; }
+  .chip.on { background: var(--chip-on); color: var(--chip-on-ink); }
+  textarea, input[type=number] { width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+          border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
+  textarea { resize: vertical; min-height: 56px; font-size: 13px; }
+  details summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  details textarea { margin-top: 8px; }
+  label.row { display: flex; justify-content: space-between; align-items: center; font-size: 14px;
+              margin: 12px 0 4px; }
+  label.row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .check { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 14px; }
+  .btns { display: flex; gap: 8px; margin-top: 18px; }
+  button.main { flex: 1; border: 0; background: var(--accent); color: var(--accent-ink); font: inherit;
+                font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; }
+  button.sec { border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit;
+               padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: default; }
+  .story { min-height: 300px; font-family: Georgia, "Times New Roman", serif; font-size: 20px; line-height: 1.7; }
+  .story.empty { color: var(--muted); font-family: inherit; font-size: 15px; }
+  .s { border-radius: 4px; padding: 1px 2px; transition: background .2s; }
+  .s.speaking { background: var(--hl); }
+  .s .en { display: none; font-family: -apple-system, sans-serif; font-size: 13px; color: var(--muted); }
+  .show-en .s { display: block; margin-bottom: 8px; }
+  .show-en .s .en { display: block; }
+  .cursor { display: inline-block; width: .5em; height: 1em; background: var(--accent);
+            vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .stats { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 16px; padding-top: 14px;
+           border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .stats b { display: block; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .toolbar .check { margin: 0 0 0 auto; font-size: 13px; }
+  .hist { list-style: none; margin: 0; padding: 0; }
+  .hist li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; cursor: pointer;
+             display: flex; gap: 10px; }
+  .hist li:first-child { border-top: 0; }
+  .hist li span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist li small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .reader { min-height: 64px; border: 2px dashed var(--line); border-radius: 14px; display: flex; gap: 10px;
+            align-items: center; justify-content: center; padding: 8px; transition: border-color .2s, background .2s; }
+  .reader.on { border-color: var(--accent); background: var(--hl); }
+  .rhint { color: var(--muted); font-size: 13px; text-align: center; }
+  .rtag { display: flex; flex-direction: column; align-items: center; font-size: 12px; animation: pop .25s ease-out; }
+  .rtag span { font-size: 30px; line-height: 1.1; }
+  @keyframes pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .rbar { height: 4px; margin: 6px 0 12px; border-radius: 99px; overflow: hidden; background: transparent; }
+  .rbar div { height: 100%; width: 0; background: var(--accent); }
+  .shelf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+  .fig { border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 5px 2px; cursor: pointer;
+         font: inherit; font-size: 10.5px; color: var(--muted); display: flex; flex-direction: column; align-items: center; }
+  .fig span { font-size: 22px; line-height: 1.2; }
+  .fig.used { opacity: .35; }
+  .fig.new { border-style: dashed; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Hikâye Oyuncağı</h1>
+    <span>Offline · cümle cümle üretir ve Piper Türkçe sesiyle okur</span>
+  </header>
+  <div class="note" id="note"></div>
+
+  <aside>
+    <div class="panel" id="nfcPanel">
+      <h2>📡 Figür okuyucu (NFC simülasyonu)</h2>
+      <div id="reader" class="reader"><span class="rhint">Bir figürü okuyucuya yaklaştır (tıkla)</span></div>
+      <div class="rbar"><div id="rcount"></div></div>
+      <div class="shelf" id="shelf"></div>
+      <div class="shelf places" id="placeShelf"></div>
+      <div class="hint" id="nfcHint">En fazla 2 figür + isteğe bağlı 1 yer kartı. Son okutmadan 3 sn sonra hikâye başlar.
+        Yer kartı okutulmazsa yer rastgele seçilir.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Karakter</h2>
+      <div class="chips" id="chars"></div>
+      <h2>Yer</h2>
+      <div class="chips" id="places"></div>
+      <details>
+        <summary>Modele giden başlangıç cümlesi</summary>
+        <textarea id="prompt">Once upon a time</textarea>
+      </details>
+    </div>
+
+    <div class="panel">
+      <h2>Ses</h2>
+      <label class="check"><input type="checkbox" id="auto" checked> Üretirken otomatik oku</label>
+      <label class="check"><input type="checkbox" id="speaker" checked> Oyuncak hoparlörü simülasyonu</label>
+      <div class="hint">Küçük 3W hoparlörün bası veremeyişini ve dar frekans aralığını taklit eder.</div>
+      <label class="row">Okuma hızı <b id="speedV"></b></label>
+      <input type="range" id="speed" min="0.7" max="1.4" step="0.05" value="1">
+      <div class="hint">Çocuklar için biraz yavaş okuma (0.9 civarı) genelde daha iyi.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Model ayarları</h2>
+      <label class="row">Model</label>
+      <select id="model" style="width:100%;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">
+        <option value="oyuncak2">Oyuncak v2 (12 figür, büyük model)</option>
+        <option value="oyuncak">Oyuncak v1 (8 karakter, küçük model)</option>
+        <option value="tr">Türkçe model (çevirisiz)</option>
+        <option value="en">İngilizce model + çeviri</option>
+      </select>
+      <label class="row">Yaratıcılık <b id="tempV"></b></label>
+      <input type="range" id="temp" min="0.1" max="1.5" step="0.05" value="0.7">
+      <div class="hint">Düşük: tutarlı ama sıkıcı · Yüksek: yaratıcı ama dağınık</div>
+      <label class="row">Tekrar cezası <b id="repV"></b></label>
+      <input type="range" id="rep" min="1" max="2" step="0.05" value="1.15">
+      <div class="hint">1 = kapalı. Yükseldikçe model aynı kelimeleri daha az tekrarlar.</div>
+      <label class="row">Top-k <b id="topkV"></b></label>
+      <input type="range" id="topk" min="1" max="200" step="1" value="40">
+      <label class="row">Maksimum uzunluk (token) <b id="tokV"></b></label>
+      <input type="range" id="tokens" min="50" max="480" step="10" value="250">
+      <label class="row">Seed</label>
+      <input type="number" id="seed" placeholder="boş = rastgele">
+      <label class="check"><input type="checkbox" id="greedy"> Kartın şu anki hali (greedy, hep aynı hikâye)</label>
+    </div>
+  </aside>
+
+  <main>
+    <div class="panel">
+      <div id="story" class="story empty">Bir karakter seç ve “Hikâye anlat”a bas.</div>
+      <div class="btns">
+        <button class="main" id="go">Hikâye anlat</button>
+        <button class="sec" id="stop" disabled>Durdur</button>
+      </div>
+      <div class="toolbar">
+        <button class="sec" id="replay" disabled>🔊 Baştan oku</button>
+        <button class="sec" id="copy" disabled>Kopyala</button>
+        <label class="check" id="showEnWrap"><input type="checkbox" id="showEn"> İngilizce aslını göster</label>
+      </div>
+      <div class="stats">
+        <div><b id="sTok">–</b>token</div>
+        <div><b id="sTps">–</b>tok/s (PC)</div>
+        <div><b id="sAudio">–</b>ses süresi</div>
+        <div><b id="sSeed">–</b>seed</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Geçmiş</h2>
+      <ul class="hist" id="hist"><li><span style="color:var(--muted)">Henüz hikâye yok.</span></li></ul>
+    </div>
+  </main>
+</div>
+
+<script>
+// [etiket, İngilizce, Türkçe]
+const CHARS = [["🐰 Tavşan","a little bunny","küçük bir tavşan"],["🐱 Kedi","a little cat","küçük bir kedi"],
+  ["🐻 Ayı","a big brown bear","kocaman kahverengi bir ayı"],["🐶 Köpek","a happy dog","neşeli bir köpek"],
+  ["🐉 Ejderha","a small dragon","küçük bir ejderha"],["👧 Kız","a little girl named Lily","Elif adında küçük bir kız"],
+  ["👦 Oğlan","a little boy named Tim","Can adında küçük bir oğlan"],["🐦 Kuş","a little bird","küçük bir kuş"]];
+const PLACES = [["🌲 Orman","in the forest","ormanda"],["🌊 Deniz","by the sea","deniz kenarında"],
+  ["🏡 Ev","in a small house","küçük bir evde"],["🌳 Park","in the park","parkta"],
+  ["🏰 Şato","in a big castle","büyük bir şatoda"],["⛰️ Dağ","on a tall mountain","yüksek bir dağda"]];
+const tr = () => $("model").value !== "en";
+const KARAKTER = { "a little bunny": "tavşan", "a little cat": "kedi", "a big brown bear": "ayı", "a happy dog": "köpek",
+  "a small dragon": "ejderha", "a little girl named Lily": "kız", "a little boy named Tim": "oğlan", "a little bird": "kuş" };
+const YER = { "in the forest": "orman", "by the sea": "deniz", "in a small house": "ev", "in the park": "park",
+  "in a big castle": "şato", "on a tall mountain": "dağ" };
+const $ = id => document.getElementById(id);
+let ch = null, pl = null, es = null, hist = [];
+
+// ---------- seçim düğmeleri ----------
+function chips(el, list, get, set) {
+  list.forEach(([label, v]) => {  // v: İngilizce anahtar; Türkçesi listeden bulunur
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = label; b.dataset.v = v;
+    b.onclick = () => { set(get() === v ? null : v); render(); buildPrompt(); };
+    el.appendChild(b);
+  });
+}
+function render() {
+  document.querySelectorAll("#chars .chip").forEach(b => b.classList.toggle("on", b.dataset.v === ch));
+  document.querySelectorAll("#places .chip").forEach(b => b.classList.toggle("on", b.dataset.v === pl));
+}
+function buildPrompt() {
+  if ($("model").value.startsWith("oyuncak")) {  // ince ayarda kullanılan başlık biçimi
+    const pick = o => o[Object.keys(o)[Math.floor(Math.random() * Object.keys(o).length)]];
+    $("prompt").value = `Karakter: ${ch ? KARAKTER[ch] : pick(KARAKTER)} | Yer: ${pl ? YER[pl] : pick(YER)}\n\n`;
+    return;
+  }
+  if (tr()) {
+    const c = ch && CHARS.find(x => x[1] === ch)[2], p = pl && PLACES.find(x => x[1] === pl)[2];
+    $("prompt").value = !c && !p ? "Bir zamanlar" : `Bir zamanlar ${p || "küçük bir kasabada"} ${c || "küçük bir kız"} yaşarmış.`;
+    return;
+  }
+  if (!ch && !pl) { $("prompt").value = "Once upon a time"; return; }
+  $("prompt").value = `Once upon a time, ${ch || "there was a little girl"}${ch ? " lived" : " who lived"} ${pl || "in a small town"}.`;
+}
+function modelChanged() {
+  $("note").textContent = $("model").value === "oyuncak2"
+    ? "Oyuncak v2: 1.7M çekirdekli büyük model + 1248 sabit isimli figür hikâyesiyle ince ayar (4-bit, kartta çalışacak hali). Tek ve iki figürlü hikâye."
+    : $("model").value === "oyuncak"
+    ? "Oyuncak modeli: Türkçe model, Claude Code'un yazdığı 960 oyuncak hikâyesiyle ince ayar yapıldı. Düğmeler doğrudan karakter/yer başlığı gönderir; seçilmeyen rastgele gelir."
+    : tr()
+    ? "Türkçe model: TinyStories_Turkish verisiyle eğitildi, doğrudan Türkçe üretiyor. Kartta çalışacak modelin aynısı."
+    : "Önizleme: İngilizce model, her cümle offline bir modelle Türkçe'ye çevriliyor. Çeviri kaynaklı hatalar olabilir.";
+  $("showEnWrap").style.display = tr() ? "none" : "";
+  buildPrompt();
+}
+$("model").onchange = modelChanged;
+fetch("/api/modeller").then(r => r.json()).then(list => {
+  for (const v of ["oyuncak2", "oyuncak", "tr"]) if (!list.includes(v)) {
+    const o = $("model").querySelector(`[value=${v}]`); o.disabled = true; o.textContent += " — eğitim bitince"; }
+  $("model").value = list[0] || "en";
+  modelChanged();
+});
+chips($("chars"), CHARS, () => ch, v => ch = v);
+chips($("places"), PLACES, () => pl, v => pl = v);
+for (const [id, out] of [["temp","tempV"],["topk","topkV"],["tokens","tokV"],["speed","speedV"],["rep","repV"]]) {
+  const f = () => $(out).textContent = $(id).value; $(id).oninput = f; f();
+}
+$("greedy").onchange = () => { $("temp").disabled = $("topk").disabled = $("greedy").checked; };
+$("showEn").onchange = () => $("story").classList.toggle("show-en", $("showEn").checked);
+
+// ---------- ses: cümle kuyruğu + oyuncak hoparlörü ----------
+let ctx = null, queue = [], playing = false, current = null, playGen = 0, audioSecs = 0;
+function audioCtx() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === "suspended") ctx.resume();
+  return ctx;
+}
+function chain(ac) {
+  if (!$("speaker").checked) return ac.destination;
+  // Küçük hoparlör: bas yok (yüksek geçiren), tiz sınırlı, 2 kHz civarı "kutu" rezonansı, hafif sıkıştırma
+  const hp = ac.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 380; hp.Q.value = 0.9;
+  const pk = ac.createBiquadFilter(); pk.type = "peaking"; pk.frequency.value = 2200; pk.gain.value = 5; pk.Q.value = 1.2;
+  const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6500;
+  const cp = ac.createDynamicsCompressor(); cp.threshold.value = -20; cp.ratio.value = 4;
+  hp.connect(pk); pk.connect(lp); lp.connect(cp); cp.connect(ac.destination);
+  return hp;
+}
+function fetchAudio(tr) {
+  const q = new URLSearchParams({ text: tr, length: (1 / +$("speed").value).toFixed(3) });
+  return fetch("/tts?" + q).then(r => r.arrayBuffer()).then(b => audioCtx().decodeAudioData(b));
+}
+function enqueue(item) {
+  item.audio = fetchAudio(item.tr).then(buf => { audioSecs += buf.duration;
+    $("sAudio").textContent = Math.round(audioSecs) + " sn"; return buf; });
+  queue.push(item);
+  if (!playing) playNext(playGen);
+}
+async function playNext(gen) {
+  if (gen !== playGen) return;
+  const item = queue.shift();
+  if (!item) { playing = false; mark(null); return; }
+  playing = true;
+  let buf; try { buf = await item.audio; } catch { return playNext(gen); }
+  if (gen !== playGen) return;
+  const ac = audioCtx(), src = ac.createBufferSource();
+  src.buffer = buf; src.connect(chain(ac)); current = src;
+  mark(item.el);
+  src.onended = () => setTimeout(() => playNext(gen), 180);   // cümleler arası kısa nefes
+  src.start();
+}
+function stopAudio() {
+  playGen++; queue = []; playing = false;
+  if (current) { try { current.stop(); } catch {} current = null; }
+  mark(null);
+}
+function mark(el) {
+  document.querySelectorAll(".s.speaking").forEach(e => e.classList.remove("speaking"));
+  if (el) el.classList.add("speaking");
+}
+
+// ---------- üretim ----------
+let sentences = [];
+function addSentence(en, tr) {
+  const st = $("story"), cur = st.querySelector(".cursor");
+  const el = document.createElement("span"); el.className = "s";
+  el.innerHTML = '<span class="tr"></span> <span class="en"></span>';
+  el.querySelector(".tr").textContent = tr; el.querySelector(".en").textContent = en;
+  st.insertBefore(el, cur); st.insertBefore(document.createTextNode(" "), cur);
+  const item = { en, tr, el }; sentences.push(item);
+  if ($("auto").checked) enqueue({ ...item });
+}
+function busy(on) {
+  $("go").disabled = on; $("stop").disabled = !on;
+  $("replay").disabled = $("copy").disabled = on || !sentences.length;
+}
+$("go").onclick = () => {
+  audioCtx(); stopAudio(); audioSecs = 0; sentences = [];
+  const q = new URLSearchParams({ prompt: $("prompt").value, temp: $("temp").value, topk: $("topk").value,
+    tokens: $("tokens").value, seed: $("seed").value, greedy: $("greedy").checked ? "1" : "0", model: $("model").value, rep: $("rep").value });
+  const st = $("story"); st.className = "story" + ($("showEn").checked && !tr() ? " show-en" : "");
+  st.innerHTML = '<span class="cursor"></span>';
+  ["sTok","sTps","sAudio"].forEach(i => $(i).textContent = "…");
+  let seed, n = 0, t0 = performance.now();
+  busy(true);
+  es = new EventSource("/generate?" + q);
+  es.onmessage = e => {
+    const d = JSON.parse(e.data);
+    if (d.done) return finish(d.tokens, d.tps, seed);
+    if (d.seed !== undefined) { seed = d.seed; $("sSeed").textContent = seed; }
+    if (d.tokens) { n = d.tokens; $("sTok").textContent = n; }
+    if (d.tr) addSentence(d.en, d.tr);
+  };
+  es.onerror = () => finish(n, n / ((performance.now() - t0) / 1000), seed);
+};
+function finish(tokens, tps, seed) {
+  if (!es) return;
+  es.close(); es = null;
+  document.querySelector(".cursor")?.remove();
+  $("sTok").textContent = tokens; $("sTps").textContent = Math.round(tps) || "–";
+  busy(false);
+  if (!sentences.length) return;
+  hist.unshift({ sentences: sentences.map(({ en, tr }) => ({ en, tr })), seed });
+  renderHist();
+}
+$("stop").onclick = () => { stopAudio(); finish(+$("sTok").textContent || 0, 0, $("sSeed").textContent); };
+
+function showStory(list) {
+  const st = $("story"); st.className = "story" + ($("showEn").checked ? " show-en" : "");
+  st.innerHTML = '<span class="cursor" style="display:none"></span>';
+  sentences = [];
+  const auto = $("auto").checked; $("auto").checked = false;
+  list.forEach(s => addSentence(s.en, s.tr));
+  $("auto").checked = auto;
+}
+$("replay").onclick = () => { stopAudio(); audioSecs = 0; sentences.forEach(s => enqueue({ ...s })); };
+$("copy").onclick = () => navigator.clipboard.writeText(sentences.map(s => s.tr).join(" "));
+
+function renderHist() {
+  $("hist").innerHTML = "";
+  hist.slice(0, 20).forEach(h => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span></span><small>seed ${h.seed}</small>`;
+    li.firstChild.textContent = h.sentences.map(s => s.tr).join(" ");
+    li.onclick = () => { stopAudio(); showStory(h.sentences); $("sSeed").textContent = h.seed; busy(false); };
+    $("hist").appendChild(li);
+  });
+}
+
+// ---------- NFC figür okuyucu simülasyonu ----------
+// Gerçek oyuncakta: etiket kimliği okunur -> karakterler.json ile karaktere çevrilir -> aynı başlık üretilir.
+const V1_BILINEN = new Set(["tavşan", "kedi", "köpek", "ayı", "ejderha", "kız", "oğlan", "kuş"]);  // mevcut oyuncak modeli
+let KATALOG = null, okunan = [], okunanYer = null, sayac = null;
+function bip() {
+  const ac = audioCtx(), o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.value = 1320; g.gain.setValueAtTime(0.15, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.12);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.12);
+}
+function soyle(metin) {
+  fetchAudio(metin).then(buf => { const ac = audioCtx(), src = ac.createBufferSource();
+    src.buffer = buf; src.connect(chain(ac)); src.start(); }).catch(() => {});
+}
+function okuyucuCiz() {
+  const r = $("reader");
+  r.classList.toggle("on", okunan.length > 0 || !!okunanYer);
+  r.innerHTML = okunan.length || okunanYer
+    ? [...okunan.map(k => `<div class="rtag"><span>${k.emoji}</span>${k.isim}</div>`),
+       ...(okunanYer ? [`<div class="rtag"><span>${okunanYer.emoji}</span>${okunanYer.ad}</div>`] : [])].join("")
+    : '<span class="rhint">Bir figürü okuyucuya yaklaştır (tıkla)</span>';
+  document.querySelectorAll("#shelf .fig").forEach(b =>
+    b.classList.toggle("used", okunan.some(k => k.kimlik === b.dataset.id) || (okunan.length >= 2)));
+  document.querySelectorAll("#placeShelf .fig").forEach(b => b.classList.toggle("used", !!okunanYer));
+}
+function geriSay() {
+  clearTimeout(sayac);
+  const bar = $("rcount");
+  bar.style.transition = "none"; bar.style.width = "0";
+  requestAnimationFrame(() => { bar.style.transition = "width 3s linear"; bar.style.width = "100%"; });
+  sayac = setTimeout(hikayeyiBaslat, 3000);
+}
+function okut(k) {
+  if ($("go").disabled || okunan.length >= 2 || okunan.some(x => x.kimlik === k.kimlik)) return;
+  audioCtx(); bip(); okunan.push(k); okuyucuCiz(); soyle(k.isim + "!"); geriSay();
+}
+function yerOkut(y) {
+  if ($("go").disabled || okunanYer) return;
+  audioCtx(); bip(); okunanYer = y; okuyucuCiz(); soyle(y.ad + "!"); geriSay();
+}
+function okuyucuTemizle() {
+  clearTimeout(sayac); okunan = []; okunanYer = null;
+  $("rcount").style.transition = "none"; $("rcount").style.width = "0"; okuyucuCiz();
+}
+function hikayeyiBaslat() {
+  if (!okunan.length) return;  // sadece yer kartı: figür bekle
+  const yer = okunanYer || KATALOG.yerler[Math.floor(Math.random() * KATALOG.yerler.length)];
+  const tercih = ["oyuncak2", "oyuncak"].find(v => [...$("model").options].some(o => o.value === v && !o.disabled));
+  if (tercih) $("model").value = tercih;
+  const sira = KATALOG.karakterler.map(c => c.kimlik);
+  okunan.sort((a, b) => sira.indexOf(a.kimlik) - sira.indexOf(b.kimlik));  // eğitimdeki başlık sırası
+  modelChanged();
+  $("prompt").value = `Karakter: ${okunan.map(k => k.tur).join(", ")} | Yer: ${yer.ad}\n\n`;
+  soyle(okunan.map(k => k.isim).join(" ve ") + ". Hikâye başlıyor!");
+  setTimeout(() => $("go").click(), 1600);
+}
+const _finish = finish;
+finish = function (...a) { _finish(...a); okuyucuTemizle(); };
+fetch("/api/karakterler").then(r => r.json()).then(k => {
+  KATALOG = k;
+  for (const c of k.karakterler) {
+    const b = document.createElement("button");
+    b.className = "fig"; b.dataset.id = c.kimlik; b.dataset.v1 = V1_BILINEN.has(c.tur) ? "1" : "";
+    b.title = c.tur + " — " + c.ozellik;
+    b.innerHTML = `<span>${c.emoji}</span>${c.isim}`; b.onclick = () => okut(c);
+    $("shelf").appendChild(b);
+  }
+  for (const y of k.yerler) {
+    const b = document.createElement("button");
+    b.className = "fig"; b.innerHTML = `<span>${y.emoji}</span>${y.ad}`; b.onclick = () => yerOkut(y);
+    $("placeShelf").appendChild(b);
+  }
+  fetch("/api/modeller").then(r => r.json()).then(list => {
+    if (list.includes("oyuncak2")) return;  // v2 tüm figürleri ve ikilileri biliyor
+    document.querySelectorAll("#shelf .fig").forEach(b => b.classList.toggle("new", !b.dataset.v1));
+    $("nfcHint").innerHTML += " Kesik çizgili figürler yeni: v2 modeli gelene kadar tanınmıyor; iki figürlü hikâyeler de v2 ile gelecek.";
+  });
+});
+</script>
+</body>
+</html>

@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 # A vocabulary variant keeps its tokenizer and token bins together.
-DATA = ROOT / "data" / "tinystories"
+DATA = Path(os.environ.get("TS_DATA", ROOT / "data" / "tinystories"))
 RUNS = str(ROOT / "runs")
 
 
@@ -93,6 +93,15 @@ def main():
     ap.add_argument("--vocab", type=int, default=32768)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--ckpt-every", type=int, default=250,
+                    help="write a resumable checkpoint every N steps; a rerun with the same "
+                         "arguments continues from it")
+    ap.add_argument("--init-from", default=None,
+                    help="start from another run's weights (e.g. fine-tuning on a new dataset)")
+    ap.add_argument("--qat-emb", action="store_true",
+                    help="quantization-aware training for the tied embedding/head: the forward pass "
+                         "sees it on the exporter's int4 grid (straight-through gradients), so the "
+                         "model adapts to the precision the device actually stores")
     args = ap.parse_args()
 
     # Before anything expensive: the tokenizer that produced these bins. Its
@@ -122,6 +131,24 @@ def main():
     budget = model.param_budget()
     cfg = model.cfg
 
+    if args.qat_emb:
+        import torch.nn.functional as F
+
+        def fake_int4(w, group=128):
+            # Mirrors export.quant_pack: symmetric int4 in [-7, 7], one fp16 scale per
+            # row-group of `group` columns.
+            rows, cols = w.shape
+            pad = (-cols) % group
+            x = F.pad(w, (0, pad)).reshape(rows, -1, group)
+            sc = (x.abs().amax(-1, keepdim=True) / 7).clamp_min(1e-8).half().float()
+            q = (torch.clamp(torch.round(x / sc), -7, 7) * sc).reshape(rows, -1)[:, :cols]
+            return w + (q - w).detach()
+
+        emb, head = model.tok_emb, model.head
+        emb.forward = lambda idx: F.embedding(idx, fake_int4(emb.weight))
+        head.forward = lambda h: F.linear(h, fake_int4(head.weight))
+        print("QAT: tok_emb/head see int4 weights in the forward pass")
+
     # No weight decay on 1-D params (norms) or on lookup tables.
     decay, no_decay = [], []
     for n, p in model.named_parameters():
@@ -139,8 +166,54 @@ def main():
     name = f"{args.arm}{'-' + args.tag if args.tag else ''}-s{args.seed}"
     history, best = [], float("inf")
     t0 = time.time()
+    ckpt_path = os.path.join(RUNS, f"{name}.ckpt.pt")
+    progress_path = os.path.join(RUNS, f"{name}.progress.json")
+    start_step, elapsed_before = 0, 0.0
 
-    for step in range(args.steps):
+    if args.init_from:
+        init = torch.load(args.init_from, map_location=device, weights_only=False)
+        if init.get("tokenizer_sha256") != tok_sha:
+            raise SystemExit(f"--init-from {args.init_from} was trained with a different tokenizer")
+        model.load_state_dict(init["state"])
+        print(f"initialised from {args.init_from}")
+
+    # Resume: the batch stream restarts from a step-derived seed, so a resumed run sees
+    # different (but equally random) batches than an uninterrupted one would have.
+    if os.path.exists(ckpt_path):
+        ck = torch.load(ckpt_path, map_location=device, weights_only=False)
+        if ck.get("tokenizer_sha256") != tok_sha or ck.get("steps") != args.steps:
+            raise SystemExit(f"{ckpt_path} belongs to a different run (tokenizer or --steps "
+                             f"differ); move it away to start fresh")
+        model.load_state_dict(ck["state"])
+        opt.load_state_dict(ck["opt"])
+        start_step, history, best = ck["step"] + 1, ck["history"], ck["best"]
+        elapsed_before = ck.get("elapsed", 0.0)
+        train_b.rng = np.random.default_rng(args.seed * 1_000_003 + start_step)
+        print(f"resumed {name} at step {start_step}")
+
+    def save_ckpt(step):
+        tmp = ckpt_path + ".tmp"
+        torch.save({"state": model.state_dict(), "opt": opt.state_dict(), "step": step,
+                    "steps": args.steps, "history": history, "best": best,
+                    "elapsed": elapsed_before + time.time() - t0,
+                    "tokenizer_sha256": tok_sha, "cfg": cfg.__dict__}, tmp)
+        os.replace(tmp, ckpt_path)
+
+    speed = None  # EMA of seconds per step, for the progress file
+    last_t = time.time()
+
+    def write_progress(step, loss, status="training"):
+        tmp = progress_path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({"name": name, "status": status, "step": step, "steps": args.steps,
+                       "train_loss": loss, "sec_per_step": speed,
+                       "eta_seconds": speed * (args.steps - step - 1) if speed else None,
+                       "elapsed": elapsed_before + time.time() - t0,
+                       "updated": time.time(), "history": history,
+                       "params": budget}, f)
+        os.replace(tmp, progress_path)
+
+    for step in range(start_step, args.steps):
         lr = lr_at(step, args.steps, args.lr, args.warmup)
         for g in opt.param_groups:
             g["lr"] = lr
@@ -161,6 +234,15 @@ def main():
                 f"| val {vl:.4f} | ppl {math.exp(vl):7.2f} | {time.time() - t0:5.0f}s",
                 flush=True,
             )
+
+        now = time.time()
+        dt, last_t = now - last_t, now
+        if dt < 60:  # ignore gaps from sleep/eval spikes in the ETA
+            speed = dt if speed is None else 0.95 * speed + 0.05 * dt
+        if step % 10 == 0 or step == args.steps - 1:
+            write_progress(step, loss.item())
+        if (step + 1) % args.ckpt_every == 0 and step != args.steps - 1:
+            save_ckpt(step)
 
     result = {
         "arm": args.arm,
@@ -198,6 +280,9 @@ def main():
                 "seed": args.seed, "tag": args.tag, "name": name,
                 "training": result["training"]},
                os.path.join(RUNS, f"{name}.pt"))
+    write_progress(args.steps - 1, history[-1]["train"], status="done")
+    if os.path.exists(ckpt_path):
+        os.remove(ckpt_path)
     print(f"{name} DONE core={budget['core']:,} table={budget['table']:,} "
           f"val={result['final_val']:.4f} ppl={result['final_ppl']:.2f}")
 

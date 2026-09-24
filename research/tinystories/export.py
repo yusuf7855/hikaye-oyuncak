@@ -43,9 +43,10 @@ FORMAT_VERSION = 1
 HEADER_BYTES = 56
 FLAG_TIED_HEAD = 1 << 0
 GROUP = 128  # uniform; fp16 scales + ragged packing keep the 28.9M model < 16MB
+CLIP_SEARCH = os.environ.get("EXPORT_CLIP_SEARCH", "1") == "1"  # 0 = original max-abs scales
 
 
-def quant_pack(w, group=GROUP):
+def quant_pack(w, group=GROUP, clip=None):
     """Group-wise symmetric int4, ragged (no padding) with fp16 scales.
 
     Returns (packed_uint8[rows, ceil(cols/2)], scales_fp16[rows, n_groups], dq).
@@ -66,6 +67,19 @@ def quant_pack(w, group=GROUP):
         a, b = gi * group, min((gi + 1) * group, cols)
         seg = x[:, a:b]
         sc = (seg.abs().amax(dim=1, keepdim=True) / 7).clamp_min(1e-8)
+        if (CLIP_SEARCH if clip is None else clip):
+            # MSE-optimal clipping: a max-based scale lets one outlier coarsen every other
+            # weight in the group. Try shrunken scales and keep, per row, the one with the
+            # lowest reconstruction error. Same format - the C reader is unchanged.
+            best_err = torch.full((rows, 1), float("inf"))
+            best = sc.clone()
+            for alpha in torch.linspace(0.3, 1.0, 29):
+                cand = (sc * alpha).half().float().clamp_min(1e-8)
+                err = ((torch.clamp(torch.round(seg / cand), -7, 7) * cand - seg) ** 2).sum(1, keepdim=True)
+                take = err < best_err
+                best = torch.where(take, cand, best)
+                best_err = torch.where(take, err, best_err)
+            sc = best
         sc = sc.half().float()  # fp16-round the scale
         scales[:, gi] = sc.squeeze(1)
         qi = torch.clamp(torch.round(seg / sc), -7, 7)
@@ -165,7 +179,9 @@ def main():
     blobs = []
     for name, t, quant in plan:
         if quant:
-            packed, scales, dq = quant_pack(t)
+            # The tied embedding is trained with --qat-emb against max-abs scales; clipping
+            # it here would move it off the grid it learned.
+            packed, scales, dq = quant_pack(t, clip=False if name == "tok_emb.weight" else None)
             dq_sd[name] = dq
             blobs.append(("Q", name, t.shape, packed, scales))
         else:
