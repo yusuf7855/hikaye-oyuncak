@@ -13,6 +13,16 @@
 //                 the repetition penalty and the bans.
 //   -e id         stop right after sampling (and printing) this token, e.g. <|endoftext|>; the tokens printed
 //                 before it are the same as without -e, only the discarded tail is not generated.
+//   -S nl         plan mode (E3): the prompt ends with "\nSorun:"; the model first writes the plan lines and
+//                 then two nl tokens in a row (nl = 199, Ċ), and the story body starts after them. Plan tokens
+//                 never enter the repetition window (at the body start it holds what it held when the plan
+//                 began: the prompt unless -P) and the -N bans apply only in the body. If ORNEKLE_PLAN_SINIR
+//                 (48) tokens pass without reaching the body, generation stops. Whenever generation ends
+//                 without a body (that limit, -e, n or the context), "plan_bozuk" is printed to stderr (exit
+//                 code 0). stdout is unchanged: one line per token, plan and "nl nl" included; the caller splits.
+//   -W k          only the first k prompt tokens enter the repetition window (-P wins). uret.py's oracle plan
+//                 condition gives the whole plan in the prompt and passes k = the "…\nSorun:" prefix, so the
+//                 given plan stays out of the window exactly like a plan the model writes itself under -S.
 // rep_penalty > 1 lowers the odds of any token used in the last ORNEKLE_PENCERE (64) tokens (1 = off);
 // cheap enough for the ESP32: one pass over a 64-entry ring buffer per token.
 #include <stdio.h>
@@ -37,8 +47,8 @@ static int read_ids(char *s, int *out, int n, int max) {
 
 int main(int argc, char **argv) {
   if (argc < 8) {
-    fprintf(stderr, "usage: gen model.bin n temp topk seed rep [-b ids] [-N ids] [-P] [-l] [-e id] "
-                    "prompt_ids...\n");
+    fprintf(stderr, "usage: gen model.bin n temp topk seed rep [-b ids] [-N ids] [-P] [-l] [-e id] [-S nl] "
+                    "[-W k] prompt_ids...\n");
     return 2;
   }
   size_t nb; uint8_t *buf = read_file(argv[1], &nb);
@@ -48,7 +58,7 @@ int main(int argc, char **argv) {
   srand(atoi(argv[5]));
   float rep = atof(argv[6]);
   int ban[512], n_ban = 0, body_ban[512], n_body_ban = 0, first_id = 7, with_logp = 0, prompt_in_window = 1,
-      stop_id = -1;
+      stop_id = -1, plan_nl = -1, prompt_window = 1 << 30;
   for (;;) {  // options, see the usage comment at the top
     if (argc > first_id + 1 && strcmp(argv[first_id], "-b") == 0) {
       n_ban = read_ids(argv[first_id + 1], ban, n_ban, 512); first_id += 2;
@@ -56,6 +66,10 @@ int main(int argc, char **argv) {
       n_body_ban = read_ids(argv[first_id + 1], body_ban, n_body_ban, 512); first_id += 2;
     } else if (argc > first_id + 1 && strcmp(argv[first_id], "-e") == 0) {
       stop_id = atoi(argv[first_id + 1]); first_id += 2;
+    } else if (argc > first_id + 1 && strcmp(argv[first_id], "-S") == 0) {
+      plan_nl = atoi(argv[first_id + 1]); first_id += 2;
+    } else if (argc > first_id + 1 && strcmp(argv[first_id], "-W") == 0) {
+      prompt_window = atoi(argv[first_id + 1]); first_id += 2;
     } else if (argc > first_id && strcmp(argv[first_id], "-P") == 0) {
       prompt_in_window = 0; first_id += 1;
     } else if (argc > first_id && strcmp(argv[first_id], "-l") == 0) {
@@ -81,10 +95,11 @@ int main(int argc, char **argv) {
   for (int i = first_id; i < argc; i++) {
     tok = atoi(argv[i]);
     if (tok < 0 || tok >= m.c.vocab) { fprintf(stderr, "token id %d out of range\n", tok); return 2; }
-    if (prompt_in_window) orn_ekle(&st, tok);
+    if (prompt_in_window && i - first_id < prompt_window) orn_ekle(&st, tok);
     llm_forward(&m, tok, pos++, &s);
   }
-  st.govde = 1;  // the prompt ends with the header, so the story body starts at the first sampled token
+  if (plan_nl >= 0) orn_plan_baslat(&st, plan_nl);  // -S: the body starts after the plan's "nl nl"
+  else st.govde = 1;  // the prompt ends with the header, so the story body starts at the first sampled token
   clock_t t0 = clock(); int made = 0;
   for (int step = 0; step < N && pos < S; step++) {
     tok = orn_adim(&cfg, &st, s.logits, V);
@@ -94,8 +109,10 @@ int main(int argc, char **argv) {
     fflush(stdout);
     made++;
     if (tok == stop_id) break;  // -e
+    if (st.plan_bozuk) break;   // -S: no body within ORNEKLE_PLAN_SINIR tokens
     llm_forward(&m, tok, pos++, &s);
   }
+  if (plan_nl >= 0 && !st.govde) fprintf(stderr, "plan_bozuk\n");
   fprintf(stderr, "%d tokens, %.1f tok/s\n", made, made / ((double)(clock() - t0) / CLOCKS_PER_SEC));
   return 0;
 }

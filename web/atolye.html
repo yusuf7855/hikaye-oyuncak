@@ -109,6 +109,7 @@ button.ikincil:disabled { opacity: .5; cursor: default; }
 .kagit-bas .etiket { font: 700 12px var(--govde); text-transform: uppercase; letter-spacing: .08em; color: var(--vurgu); }
 .kagit-bas .durum { font-size: 12.5px; color: var(--soluk); font-variant-numeric: tabular-nums; }
 .baslik-satir { font: 600 13px var(--mono); color: var(--soluk); background: var(--yuzey2); border-radius: 6px; padding: 4px 8px; overflow-x: auto; white-space: nowrap; }
+.plan-satir { font: 400 14px/1.5 var(--govde); color: var(--soluk); max-width: 62ch; overflow-wrap: anywhere; }
 .metin { font: 400 18px/1.7 var(--kitap); max-width: 62ch; margin: 0; min-height: 5em; overflow-wrap: anywhere; }
 .metin.bos { color: var(--soluk); font-style: italic; font-size: 16px; }
 .metin mark { background: var(--blok-acik); color: inherit; border-radius: 3px; padding: 0 1px; }
@@ -523,13 +524,19 @@ function sec(lg, V, temp, k, rnd) {
   for (let i = 0; i < idx.length; i++) if ((r -= p[i]) <= 0) { out = idx[i]; break; }
   return out;
 }
+const PLAN_SINIR = 48; // plan modu: gövdeye varmadan en fazla bu kadar token, nl nl dahil (ornekle.h ORNEKLE_PLAN_SINIR)
 function uret(is) {
   const { prompt, n, temp, topk, rep, seed, ban, eot, pencere } = is;
+  // plan_modu (gen.c -S): istem "\nSorun:" ile biter; model önce planı yazar, gövde ilk nl nl'den sonra başlar.
+  // Plan token'ları tekrar penceresine girmez (gövde başlarken pencere planın başındaki hâlindedir: pencere
+  // "govde" ise boş, değilse istem), govde_yasak (satır sonları) yalnızca gövdede; gövdeye varılamazsa plan_bozuk.
+  const planModu = !!is.plan_modu, nl = is.nl ?? 199, govdeYasak = is.govde_yasak || [];
   const V = M.c.Vout, S = M.c.S, rnd = rastgele(seed), recent = [];
   let pos = 0;
   // pencere "govde": başlık (figür/tema kelimeleri) tekrar cezasına girmez; hikâye onları tekrar etmeli (gen.c -P)
   for (const t of prompt) { if (pencere !== "govde") recent.push(t); ileri(t, pos++); }
-  const ids = [], lps = []; let bitti = false;
+  const ids = [], lps = [], plan = [], planLps = [];
+  let bitti = false, govde = !planModu, oncekiNl = false, planBozuk = false;
   const t0 = performance.now();
   for (let step = 0; step < n && pos < S; step++) {
     const lg = M.lg;
@@ -538,17 +545,28 @@ function uret(is) {
       for (const t of son) lg[t] = lg[t] > 0 ? lg[t] / rep : lg[t] * rep;
     }
     for (const b of ban) if (b >= 0 && b < V) lg[b] = -1e30;
+    if (govde) for (const b of govdeYasak) if (b >= 0 && b < V) lg[b] = -1e30;
     const tok = sec(lg, V, temp, Math.max(1, topk), rnd);
     let mx = -Infinity; for (let v = 0; v < V; v++) if (lg[v] > mx) mx = lg[v];
     let z = 0; for (let v = 0; v < V; v++) z += Math.exp(lg[v] - mx);
     const lp = lg[tok] - mx - Math.log(z);
     if (tok === eot) { bitti = true; break; }
-    ids.push(tok); lps.push(lp); recent.push(tok);
-    postMessage({ tip: "token", is: is.no, id: tok });
+    const planTok = !govde;
+    if (govde) { ids.push(tok); lps.push(lp); recent.push(tok); }
+    else {
+      plan.push(tok); planLps.push(lp);
+      if (tok === nl && oncekiNl) govde = true;
+      else { oncekiNl = tok === nl; if (plan.length >= PLAN_SINIR) planBozuk = true; }
+    }
+    postMessage({ tip: "token", is: is.no, id: tok, plan: planTok });
+    if (planBozuk) break;
     ileri(tok, pos++);
   }
+  if (!govde) planBozuk = true;
   const sn = (performance.now() - t0) / 1000;
-  postMessage({ tip: "bitti", is: is.no, ids, lps, bitti, hiz: ids.length / Math.max(sn, 1e-3) });
+  // plan modunda ids/lps yalnızca gövde; plan (nl nl dahil) ayrı gelir
+  postMessage({ tip: "bitti", is: is.no, ids, lps, bitti, hiz: (ids.length + plan.length) / Math.max(sn, 1e-3),
+                plan, plan_lps: planLps, plan_bozuk: planBozuk });
 }
 onmessage = (e) => {
   const d = e.data;
@@ -729,7 +747,7 @@ function isciKur(kayit) {
 function uretBir(kayit, is, onToken) {
   return new Promise((ok, hata) => {
     kayit.dinleyici = {
-      mesaj: (d) => { if (d.tip === "token") onToken?.(d.id); else if (d.tip === "bitti") { kayit.dinleyici = null; ok(d); } },
+      mesaj: (d) => { if (d.tip === "token") onToken?.(d.id, d.plan); else if (d.tip === "bitti") { kayit.dinleyici = null; ok(d); } },
       hata: (e) => { kayit.dinleyici = null; hata(e); },
     };
     kayit.isci.postMessage({ tip: "uret", ...is, eot: kayit.meta.eot });
@@ -859,12 +877,18 @@ function kagitKur(surumId, etiket) {
   k.kok.append(el("div", { class: "kagit-bas" }, el("span", { class: "etiket", text: `${etiket}${s ? s.ad : surumId}` }), k.durum));
   k.baslik = el("div", { class: "baslik-satir" });
   k.ilerleme = el("div", { class: "ilerleme" }, el("i"));
+  k.plan = el("div", { class: "plan-satir", hidden: "" });
   k.metin = el("p", { class: "metin bos", text: "Hikâye hazırlanıyor…" });
   k.cezalar = el("div", { class: "cezalar" });
   k.adaylar = el("details", { class: "adaylar", hidden: "" });
   k.puan = el("div", { class: "puanla", hidden: "" });
-  k.kok.append(k.baslik, k.ilerleme, k.metin, k.cezalar, k.adaylar, k.puan);
+  k.kok.append(k.baslik, k.ilerleme, k.plan, k.metin, k.cezalar, k.adaylar, k.puan);
   return k;
+}
+// plan modu: "Sorun: …\nÇözüm: …" gri tek satır olarak ("Sorun … / Çözüm …"); plansız sürümde gizli
+function planGoster(k, plan) {
+  k.plan.hidden = !plan;
+  k.plan.textContent = plan ? plan.split("\n").map(x => x.trim()).filter(Boolean).join(" / ") : "";
 }
 function metniGoster(k, metin, akiyor) {
   k.metin.classList.toggle("bos", !metin && !akiyor);
@@ -882,36 +906,60 @@ async function calistir(surumId, k, vaka, ayar) {
   catch (e) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = `Model yüklenemedi: ${e.message}`; return null; }
   const meta = kayit.meta, anahtar = vakaAnahtari(vaka.kim, vaka.yer);
   let prompt = meta.prompts[anahtar];
+  // plan: istem "…\nSorun:" ile biter (prompts_bas + [tema] + plan_ek); model önce planı, nl nl'den sonra hikâyeyi yazar
+  const planli = meta.baslik_bicimi === "plan";
   if (meta.baslik_bicimi === "tema" && vaka.tema) {
     const ti = meta.temalar.find(t => t.ad === vaka.tema);
     prompt = meta.prompts_bas[anahtar].concat(ti.ids, meta.nl2);
   }
+  if (planli) {
+    const ti = vaka.tema && meta.temalar ? meta.temalar.find(t => t.ad === vaka.tema) : null;
+    prompt = meta.prompts_bas[anahtar].concat(ti ? ti.ids : [], meta.plan_ek);
+  }
   k.baslik.textContent = kayit.coz(prompt).replace(/\n/g, "⏎");
-  if (vaka.tema && meta.baslik_bicimi !== "tema") k.baslik.textContent += `   (bu sürüm temayı görmez: ${vaka.tema})`;
+  if (vaka.tema && !meta.temalar) k.baslik.textContent += `   (bu sürüm temayı görmez: ${vaka.tema})`;
   if (meta.eot_on) prompt = [meta.eot].concat(prompt);
-  const ban = yasakIdler(meta, vaka.kim).concat(meta.satir_yasak || []), adaylar = [];
+  // plan modunda satır sonu yasağı yalnızca gövdede (işçi uygular); plansız sürümlerde eskisi gibi hep yasak
+  const ban = yasakIdler(meta, vaka.kim).concat(planli ? [] : meta.satir_yasak || []), adaylar = [];
+  const planIs = planli ? { plan_modu: true, nl: meta.nl_id, govde_yasak: meta.satir_yasak || [] } : {};
+  const planMetni = (ids) => kayit.coz(meta.plan_ek.concat(ids)).trim();
   const bar = k.ilerleme.firstChild;
+  let bozuk = 0;
   for (let j = 0; j < ayar.aday; j++) {
     if (durum.iptal) break;
     k.durum.textContent = ayar.aday > 1 ? `aday ${j + 1}/${ayar.aday}` : "yazıyor…";
-    const akis = [];
+    const akis = [], planAkis = [];
     let d;
     try {
-      d = await uretBir(kayit, { no: j, prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, seed: ayar.seed + j, ban, pencere: meta.pencere },
-        (id) => { akis.push(id); if (ayar.aday === 1 || j === 0 && !adaylar.length) metniGoster(k, kayit.coz(akis), true); });
+      d = await uretBir(kayit, { no: j, prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, seed: ayar.seed + j, ban, pencere: meta.pencere, ...planIs },
+        (id, planTok) => {
+          (planTok ? planAkis : akis).push(id);
+          if (ayar.aday === 1 || j === 0 && !adaylar.length) {
+            if (planli) planGoster(k, planMetni(planAkis));
+            metniGoster(k, kayit.coz(akis), true);
+          }
+        });
     } catch (e) { if (durum.iptal) break; k.metin.className = "metin hata"; k.metin.textContent = `Üretim hatası: ${e.message}`; return null; }
+    bar.style.width = `${100 * (j + 1) / ayar.aday}%`;
+    if (d.plan_bozuk) { bozuk++; continue; }  // plan 48 token'da bitmedi ya da gövdesiz: aday atılır (gen.c -S plan_bozuk)
     const metin = kayit.coz(d.ids).trim();
     const ort = d.lps.reduce((a, b) => a + b, 0) / Math.max(1, d.lps.length);
     const p = puanla(metin, vaka.kim, vaka.yer, ort, d.bitti);
-    adaylar.push({ j, metin, ort, bitti: d.bitti, n: d.ids.length, hiz: d.hiz, seed: ayar.seed + j, ...p });
-    bar.style.width = `${100 * (j + 1) / ayar.aday}%`;
+    adaylar.push({ j, metin, ort, bitti: d.bitti, n: d.ids.length, hiz: d.hiz, seed: ayar.seed + j, ...p,
+                   ...(planli ? { plan: planMetni(d.plan) } : {}) });
     const enIyi = adaylar.reduce((a, b) => b.puan > a.puan ? b : a);
-    metniGoster(k, enIyi.metin, false); cezalariGoster(k, enIyi.liste);
+    planGoster(k, enIyi.plan); metniGoster(k, enIyi.metin, false); cezalariGoster(k, enIyi.liste);
   }
-  if (!adaylar.length) { k.durum.textContent = "durduruldu"; return null; }
+  if (!adaylar.length) {
+    if (bozuk && !durum.iptal) {
+      planGoster(k, null); k.durum.textContent = "";
+      k.metin.className = "metin hata"; k.metin.textContent = `Hiçbir aday planını bitiremedi (${bozuk} aday plan_bozuk).`;
+    } else k.durum.textContent = "durduruldu";
+    return null;
+  }
   const sirali = adaylar.slice().sort((a, b) => b.puan - a.puan);
   const hiz = adaylar.reduce((a, b) => a + b.hiz, 0) / adaylar.length;
-  k.durum.textContent = `${sirali[0].n} token · tarayıcıda ${hiz.toFixed(0)} tok/s`;
+  k.durum.textContent = `${sirali[0].n} token · tarayıcıda ${hiz.toFixed(0)} tok/s` + (bozuk ? ` · ${bozuk} aday plan_bozuk` : "");
   adaylariGoster(k, sirali);
   const sonuc = { surum: surumId, vaka, ayar, sirali, secilen: sirali[0] };
   puanKutusu(k, sonuc);
@@ -928,7 +976,7 @@ function adaylariGoster(k, sirali) {
       onclick: () => {
         liste.querySelectorAll(".aday").forEach(x => x.setAttribute("aria-current", "false"));
         b.setAttribute("aria-current", "true");
-        metniGoster(k, a.metin, false); cezalariGoster(k, a.liste); k.sonuc.secilen = a;
+        planGoster(k, a.plan); metniGoster(k, a.metin, false); cezalariGoster(k, a.liste); k.sonuc.secilen = a;
       },
     }, el("span", { class: "n", text: `#${i + 1}` }), el("span", { class: "ozet", text: a.metin.slice(0, 90) }), el("span", { class: "p", text: a.puan.toFixed(1) }));
     liste.append(b);
@@ -970,7 +1018,7 @@ function puanKutusu(k, sonuc) {
           mantik, not: not.value.trim(),
           metin: a.metin, seed: a.seed, secici_puani: Math.round(a.puan * 100) / 100,
           cezalar: a.liste.map(([p, ad]) => `${p} ${ad}`), ayar: sonuc.ayar, aday_sirasi: k.sonuc.sirali.indexOf(a) + 1,
-          zaman: new Date().toISOString(),
+          zaman: new Date().toISOString(), ...(a.plan != null ? { plan: a.plan } : {}),
         });
         bilgi.textContent = "Kaydedildi."; not.disabled = true;
         tuslar.querySelectorAll("button").forEach(b => b.disabled = true); mantikTus.querySelectorAll("button").forEach(b => b.disabled = true);
@@ -1060,6 +1108,7 @@ function karneCiz(kayitlar) {
       el("div", { class: "ust" }, el("span", {}, el("b", { text: `${r.puan}/10` }), ` · ${SURUMLER.find(s => s.id === r.surum)?.ad || r.surum}`),
         el("span", { text: `${(r.figurler || []).map(k => KAR[k]?.isim || k).join(" + ")} · ${r.yer}` })),
       r.not ? el("div", { text: `“${r.not}”` }) : null,
+      r.plan ? el("div", { class: "plan-satir", text: r.plan.split("\n").map(x => x.trim()).filter(Boolean).join(" / ") }) : null,
       el("p", { text: r.metin })));
   }
 }

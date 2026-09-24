@@ -1,8 +1,10 @@
 """Dışa aktarılmış bir modeli tarayıcı test arayüzü için paketle.
 
-Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--pencere govde] [--satir-yasak]
+Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--plan] [--pencere govde] [--satir-yasak]
   model_dizini: model.bin + tokenizer.json (export.py çıktısı, ör. hf_c2ft)
   --tema: model "| Tema: <tema>" başlığıyla eğitildi (prepare_ft2 --tema); arayüz tema seçtirir
+  --plan: model önce planı yazar (prepare_ft2 --plan, E3): istem prompts_bas + plan_ek ("\nSorun:") olur,
+          arayüz planı nl nl'ye (nl_id) kadar ayrı üretir (gen.c -S)
   --pencere govde: başlık token'ları tekrar cezası penceresine girmez (gen.c -P)
   --satir-yasak: hikâye gövdesinde satır sonu token'ları yasak (gen.c -N)
   --eot-on: istem, eğitimdeki gibi <|endoftext|> ile başlar (prompt_idler eot=True)
@@ -42,6 +44,7 @@ def main():
     ap.add_argument("surum")
     ap.add_argument("model_dir")
     ap.add_argument("--tema", action="store_true")
+    ap.add_argument("--plan", action="store_true", help="istem '\\nSorun:' ile biter, model önce planı yazar (E3)")
     ap.add_argument("--pencere", choices=["tum", "govde"], default="tum")
     ap.add_argument("--satir-yasak", action="store_true")
     ap.add_argument("--eot-on", action="store_true", help="istem <|endoftext|> ile başlar (E0'da benimsendi)")
@@ -64,9 +67,10 @@ def main():
             for y in yerler:
                 prompts[",".join(grup) + "|" + y] = prompt_idler(tok, grup, y)
     tema_ek = {}
-    if arg.tema:
-        # Başlık parça parça kurulur: prompts_bas[grup|yer] + temalar[t] + nl2. 9360 birleşimin hepsinde
-        # parçaların, başlığın tek parça kodlanmasıyla (prompt_idler) aynı token'ları verdiği doğrulanır.
+    if arg.tema or arg.plan:
+        # Başlık parça parça kurulur: prompts_bas[grup|yer] + temalar[t] + (nl2 | plan_ek). Birleşimlerin
+        # hepsinde (tema: 9360, plan: 468, ikisi: 9360 daha) parçaların, başlığın tek parça kodlanmasıyla
+        # (prompt_idler) aynı token'ları verdiği doğrulanır.
         def kodla_on(metin):
             enc = tok.encode(metin + "Bir")
             return [i for i, (_, son) in zip(enc.ids, enc.offsets) if son <= len(metin)]
@@ -74,14 +78,30 @@ def main():
         for anahtar in prompts:
             grup, y = anahtar.split("|")
             bas[anahtar] = kodla_on(baslangic(grup.split(","), y, ilk_cumle=False).rstrip("\n"))
-        for t in TEMALAR:
-            temalar.append({"ad": t, "ids": tok.encode(f" | Tema: {t}").ids})
         nl2 = tok.encode("\n\nBir").ids[:2]
-        for anahtar in prompts:
-            grup, y = anahtar.split("|")
-            for t, ti in zip(TEMALAR, temalar):
-                assert bas[anahtar] + ti["ids"] + nl2 == prompt_idler(tok, grup.split(","), y, tema=t), (anahtar, t)
-        tema_ek = {"prompts_bas": bas, "temalar": temalar, "nl2": nl2}
+        if arg.tema:
+            for t in TEMALAR:
+                temalar.append({"ad": t, "ids": tok.encode(f" | Tema: {t}").ids})
+            for anahtar in prompts:
+                grup, y = anahtar.split("|")
+                for t, ti in zip(TEMALAR, temalar):
+                    assert bas[anahtar] + ti["ids"] + nl2 == prompt_idler(tok, grup.split(","), y, tema=t), (anahtar, t)
+            tema_ek = {"prompts_bas": bas, "temalar": temalar, "nl2": nl2}
+        else:
+            tema_ek = {"prompts_bas": bas, "nl2": nl2}
+        if arg.plan:
+            # plan_ek: istemin "\nSorun:" kısmı, prompt_idler(plan=True) eksi düz başlık; gövde nl nl'den sonra başlar
+            anahtar0 = next(iter(prompts))
+            grup, y = anahtar0.split("|")
+            plan_ek = prompt_idler(tok, grup.split(","), y, plan=True)[len(bas[anahtar0]):]
+            assert nl2[0] == nl2[1] and plan_ek[:1] == nl2[:1], (nl2, plan_ek)
+            for anahtar in prompts:
+                grup, y = anahtar.split("|")
+                assert bas[anahtar] + plan_ek == prompt_idler(tok, grup.split(","), y, plan=True), anahtar
+                for t, ti in zip(TEMALAR, temalar):
+                    assert (bas[anahtar] + ti["ids"] + plan_ek
+                            == prompt_idler(tok, grup.split(","), y, tema=t, plan=True)), (anahtar, t)
+            tema_ek.update({"plan_ek": plan_ek, "nl_id": nl2[0]})
     satir = sorted(i for i in range(tok.get_vocab_size())
                    if (d := tok.decode([i])) and not d.strip() and "\n" in d) if arg.satir_yasak else []
     isimler = [k["isim"] for k in KAR.values()] + YABANCI
@@ -92,7 +112,7 @@ def main():
         "prompts": prompts,
         "isim_yasak": {n: isim_idleri(tok, n) for n in isimler},
         "yabanci": YABANCI,
-        "baslik_bicimi": "tema" if arg.tema else "eski",
+        "baslik_bicimi": "plan" if arg.plan else "tema" if arg.tema else "eski",
         "pencere": arg.pencere,
         "satir_yasak": satir,
         "eot_on": arg.eot_on,

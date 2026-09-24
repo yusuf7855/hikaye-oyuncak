@@ -9,6 +9,7 @@ import time
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from model import Config, TinyLM, make_model
 
@@ -32,8 +33,79 @@ def get_device():
     return "cpu"
 
 
+def hikaye_araliklari(dataset, split):
+    """prepare_ft2'nin yazdığı oyuncak hikâyesi aralıkları [bas, son) (int64, artan) ya da (None, None).
+    bas: başlıktan önceki EOT'nin konumu (yoksa başlığın başı), son: hikâyenin kendi EOT'sinin bir ötesi."""
+    b, s = dataset / f"{split}_bas.npy", dataset / f"{split}_son.npy"
+    if not (b.exists() and s.exists()):
+        return None, None
+    bas, son = np.load(b).astype(np.int64), np.load(s).astype(np.int64)
+    data = np.memmap(dataset / f"{split}.bin", dtype=np.uint16, mode="r")
+    # .bin yeniden yazılıp .npy eski kaldıysa aralıklar yanlış yere düşer: her hikâye aynı token'la (EOT) bitmeli
+    if len(bas) != len(son) or (len(son) and (son[-1] > len(data) or len(np.unique(data[son - 1])) != 1)):
+        raise SystemExit(f"{b.name}/{s.name} {split}.bin ile uyuşmuyor; prepare_ft2'yi yeniden koşun")
+    return bas, son
+
+
+def hizala_basa(ix, bas, son):
+    """--hizala toy (E2): bir oyuncak hikâyesinin [bas_j, son_j) aralığına düşen başlangıç bas_j'ye çekilir;
+    bas_j <= i olduğundan i + seq_len + 1 <= len sınırı korunur. Genel metne düşenler değişmez."""
+    if not len(bas):
+        return ix
+    j = np.searchsorted(bas, ix, side="right") - 1
+    jj = np.maximum(j, 0)
+    return np.where((j >= 0) & (ix < son[jj]), bas[jj], ix)
+
+
+class HizaliDogrulama:
+    """val_hizali (E2): her doğrulama hikâyesi kendi başından (başlıktan önceki EOT) okunur ve yalnızca gövde
+    token'larının (başlığı bitiren "\n\n"den sonrası, son EOT hariç) kaybı sayılır; hikâyenin ilk/orta/son
+    üçte biri ayrıca. Token ağırlıklı ortalama; seq_len'e sığmayan kuyruk sayılmaz. Rastgelelik kullanmaz."""
+
+    def __init__(self, dataset, seq_len, nl):
+        data = np.memmap(dataset / "val.bin", dtype=np.uint16, mode="r")
+        bas, son = hikaye_araliklari(dataset, "val")
+        self.diziler = []
+        for b, s in zip(bas, son):
+            seq = np.asarray(data[b:s], dtype=np.int64)
+            w = np.flatnonzero((seq[:-1] == nl) & (seq[1:] == nl))
+            if not len(w):
+                continue
+            k = int(w[0]) + 2          # gövdenin ilk token'ı
+            n = len(seq) - 1 - k       # gövde token sayısı (EOT hariç)
+            if n < 3:
+                continue
+            r = np.arange(n)
+            ucte = np.full(len(seq), -1, dtype=np.int64)
+            ucte[k:k + n] = (r >= n // 3).astype(np.int64) + (r >= (2 * n) // 3)
+            self.diziler.append((seq[:seq_len + 1], ucte[:seq_len + 1]))
+
+    @torch.no_grad()
+    def __call__(self, model, batch_size, device):
+        model.eval()
+        top, say = np.zeros(3), np.zeros(3)
+        for i in range(0, len(self.diziler), batch_size):
+            grup = self.diziler[i:i + batch_size]
+            T = max(len(q) for q, _ in grup) - 1
+            x = np.zeros((len(grup), T), dtype=np.int64)
+            y = np.full((len(grup), T), -1, dtype=np.int64)
+            u = np.full((len(grup), T), -1, dtype=np.int64)
+            for r, (q, ucte) in enumerate(grup):
+                x[r, :len(q) - 1], y[r, :len(q) - 1], u[r, :len(q) - 1] = q[:-1], q[1:], ucte[1:]
+            logits, _ = model(torch.from_numpy(x).to(device))
+            nll = F.cross_entropy(logits.reshape(-1, logits.size(-1)).float(),
+                                  torch.from_numpy(y).to(device).reshape(-1), ignore_index=-1,
+                                  reduction="none").view(len(grup), T).cpu().numpy()
+            for c in range(3):
+                top[c] += nll[u == c].sum()
+                say[c] += (u == c).sum()
+        model.train()
+        return {"tum": float(top.sum() / say.sum()), "ilk_ucte": float(top[0] / say[0]),
+                "orta_ucte": float(top[1] / say[1]), "son_ucte": float(top[2] / say[2])}
+
+
 class Batcher:
-    def __init__(self, split, batch_size, seq_len, device, dataset, seed=0):
+    def __init__(self, split, batch_size, seq_len, device, dataset, seed=0, hizala=None):
         # The bins are uint16. Reading a wider vocabulary through that dtype
         # yields plausible token ids rather than an error, so check before
         # opening.
@@ -44,9 +116,16 @@ class Batcher:
         # different data order. Validation keeps a fixed stream so every arm is
         # scored on identical batches.
         self.rng = np.random.default_rng(1234 if split == "val" else seed)
+        self.bas = self.son = None
+        if hizala == "toy":
+            self.bas, self.son = hikaye_araliklari(dataset, split)
+            if self.bas is None:
+                raise SystemExit(f"--hizala toy: {dataset}/{split}_bas.npy yok; veriyi prepare_ft2 ile yeniden hazırlayın")
 
     def __call__(self):
         ix = self.rng.integers(0, len(self.data) - self.sl - 1, self.bs)
+        if self.bas is not None:
+            ix = hizala_basa(ix, self.bas, self.son)
         x = np.stack([self.data[i : i + self.sl] for i in ix]).astype(np.int64)
         y = np.stack([self.data[i + 1 : i + 1 + self.sl] for i in ix]).astype(np.int64)
         return torch.from_numpy(x).to(self.device), torch.from_numpy(y).to(self.device)
@@ -102,6 +181,10 @@ def main():
                     help="quantization-aware training for the tied embedding/head: the forward pass "
                          "sees it on the exporter's int4 grid (straight-through gradients), so the "
                          "model adapts to the precision the device actually stores")
+    ap.add_argument("--hizala", choices=["toy"], default=None,
+                    help="E2: a training window that starts inside a toy story is moved to that story's "
+                         "start (the EOT before its header); general-text windows are unchanged. Needs "
+                         "train_bas.npy/train_son.npy from prepare_ft2")
     args = ap.parse_args()
 
     # Before anything expensive: the tokenizer that produced these bins. Its
@@ -160,8 +243,15 @@ def main():
     )
 
     train_b = Batcher("train", args.batch_size, args.seq_len, device, dataset,
-                      seed=args.seed)
+                      seed=args.seed, hizala=args.hizala)
     val_b = Batcher("val", args.batch_size, args.seq_len, device, dataset)
+    # val_hizali: only when prepare_ft2 wrote the story spans; the "val" metric itself is unchanged.
+    val_hiz = None
+    if hikaye_araliklari(dataset, "val")[0] is not None:
+        from tokenizers import Tokenizer
+        nl = Tokenizer.from_file(str(tok_path)).encode("\n").ids
+        if len(nl) == 1:
+            val_hiz = HizaliDogrulama(dataset, args.seq_len, nl[0])
 
     name = f"{args.arm}{'-' + args.tag if args.tag else ''}-s{args.seed}"
     history, best = [], float("inf")
@@ -234,6 +324,11 @@ def main():
                 f"| val {vl:.4f} | ppl {math.exp(vl):7.2f} | {time.time() - t0:5.0f}s",
                 flush=True,
             )
+            if val_hiz is not None:
+                vh = val_hiz(model, args.batch_size, device)
+                history[-1]["val_hizali"] = vh
+                print(f"{name} step {step:5d} | val_hizali {vh['tum']:.4f} | ilk/orta/son üçte "
+                      f"{vh['ilk_ucte']:.4f} {vh['orta_ucte']:.4f} {vh['son_ucte']:.4f}", flush=True)
 
         now = time.time()
         dt, last_t = now - last_t, now

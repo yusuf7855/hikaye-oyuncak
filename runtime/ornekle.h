@@ -9,6 +9,13 @@
 //   d.govde = 1;                               // istem başlığın tamamını taşıyorsa gövde hemen başlar
 //   int tok = orn_adim(&a, &d, logits, V);     // ceza ve yasaklar logits'e yerinde uygulanır
 //
+// Plan modu (gen.c -S): istem "…\nSorun:" ile biter, model önce plan satırlarını ("<sorun>\nÇözüm: <çözüm>"),
+// sonra iki satır sonu (nl nl) ve gövdeyi yazar. d.govde = 1 yerine orn_plan_baslat(&d, nl) çağrılır; her
+// orn_adim'dan sonra d.govde (gövde başladı mı) ve d.plan_bozuk (ORNEKLE_PLAN_SINIR token'da gövdeye
+// varılamadı: üretim durmalı, aday atılır) okunur. Plan token'ları tekrar penceresine hiç girmez; gövde
+// başlarken pencere planın başındaki hâlindedir (istem token'ları, istem pencereye eklenmişse).
+// Gövde yasakları (govde_yasak) plan boyunca uygulanmaz: planın kendi satır sonları gerekli.
+//
 // Rastgelelik ORNEKLE_RASTGELE() ile gelir, varsayılanı rand(); firmware kendi üretecini tanımlayabilir.
 #ifndef ORNEKLE_H
 #define ORNEKLE_H
@@ -20,6 +27,9 @@
 #ifndef ORNEKLE_RASTGELE
 #include <stdlib.h>
 #define ORNEKLE_RASTGELE() ((double)rand() / RAND_MAX)   /* [0, 1] aralığında */
+#endif
+#ifndef ORNEKLE_PLAN_SINIR
+#define ORNEKLE_PLAN_SINIR 48         /* plan modu: gövdeye varmadan en fazla bu kadar token (nl nl dahil) */
 #endif
 #define ORNEKLE_YASAK_LOGIT (-1e30f)
 
@@ -36,11 +46,24 @@ typedef struct {
   int son[ORNEKLE_PENCERE];        /* tekrar penceresi (halka tampon) */
   int yaz, dolu;                   /* sıradaki yuva, dolu yuva sayısı */
   int govde;                       /* 1: hikâye gövdesi örnekleniyor, govde_yasak etkin */
+  int plan_nl;                     /* plan modu: satır sonu token'ı (gen.c -S); < 0: plan modu kapalı */
+  int plan_n;                      /* plan modunda gövdeden önce üretilen token sayısı */
+  int onceki_nl;                   /* plan modunda son token plan_nl miydi */
+  int plan_bozuk;                  /* 1: ORNEKLE_PLAN_SINIR token'da gövdeye varılamadı */
 } OrnDurum;
 
-static inline void orn_sifirla(OrnDurum *d) { d->yaz = 0; d->dolu = 0; d->govde = 0; }
+static inline void orn_sifirla(OrnDurum *d) {
+  d->yaz = 0; d->dolu = 0; d->govde = 0;
+  d->plan_nl = -1; d->plan_n = 0; d->onceki_nl = 0; d->plan_bozuk = 0;
+}
 
-/* Pencereyi boşaltır, gövde bayrağına dokunmaz (ör. plan bitip gövde başlarken). */
+/* Plan modunu açar (istem "\nSorun:" ile bittikten sonra, ilk örneklemeden önce). Gövde, üretilen ilk
+ * nl nl çiftinden sonraki token'la başlar. */
+static inline void orn_plan_baslat(OrnDurum *d, int nl) {
+  d->govde = 0; d->plan_nl = nl; d->plan_n = 0; d->onceki_nl = 0; d->plan_bozuk = 0;
+}
+
+/* Pencereyi boşaltır, gövde bayrağına dokunmaz (ör. gövde başlarken başlığı da pencereden atmak için). */
 static inline void orn_pencere_sifirla(OrnDurum *d) { d->yaz = 0; d->dolu = 0; }
 
 static inline void orn_ekle(OrnDurum *d, int tok) {
@@ -93,14 +116,25 @@ static inline double orn_logp(const float *lg, int V, int tok) {
   return lg[tok] - mx - log(z);
 }
 
+/* Plan modunda gövde başlamadan seçilen bir token'ı işler: ikinci ardışık nl gövdeyi başlatır (pencere
+ * planın başındaki hâlinde kalır, çünkü plan token'ları ona hiç eklenmedi); ORNEKLE_PLAN_SINIR token'da
+ * gövdeye varılamadıysa plan_bozuk. */
+static inline void orn_plan_izle(OrnDurum *d, int tok) {
+  d->plan_n++;
+  if (tok == d->plan_nl && d->onceki_nl) { d->govde = 1; return; }
+  d->onceki_nl = tok == d->plan_nl;
+  if (d->plan_n >= ORNEKLE_PLAN_SINIR) d->plan_bozuk = 1;
+}
+
 /* Bir token seçer: tekrar cezası, yasaklar (gövdedeyse gövde yasakları da) logits'e yerinde
- * uygulanır, seçilen token pencereye eklenir. */
+ * uygulanır, seçilen token pencereye eklenir (plan modunda gövde başlamadan seçilenler eklenmez). */
 static inline int orn_adim(const OrnAyar *a, OrnDurum *d, float *lg, int V) {
   orn_tekrar_cezasi(lg, V, d, a->tekrar);
   orn_yasakla(lg, V, a->yasak, a->n_yasak);
   if (d->govde) orn_yasakla(lg, V, a->govde_yasak, a->n_govde_yasak);
   int tok = orn_sec(lg, V, a->sicaklik, a->top_k, a->idx, a->p);
-  orn_ekle(d, tok);
+  if (d->plan_nl >= 0 && !d->govde) orn_plan_izle(d, tok);
+  else orn_ekle(d, tok);
   return tok;
 }
 

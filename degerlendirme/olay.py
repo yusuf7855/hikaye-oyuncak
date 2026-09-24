@@ -11,6 +11,15 @@ Kullanım: python degerlendirme/olay.py <hikayeler.json | adaylar_<ad>.json> [--
   cunku_%               'çünkü' geçen hikâye
   paragraf_%            satır sonu içeren hikâye
   kopya8_%              kelime 8-gram'larının eğitim hikâyelerinde de geçen payı (sec.kucuk ile küçültülmüş)
+Plan modunda (uret.py --baslik plan; kayıtlarda 'plan' alanı varsa) ek ölçüler:
+  plan_bozuk_%          gövdesi olmayan (gen plan_bozuk / Ċ Ċ yok / boş gövde) hikâye, tüm hikâyelere göre
+  plan_bicim_%          planı "Sorun: S\nÇözüm: Ç" biçiminde olan (aşağıdakilerin paydası: plan_bozuk olmayanlar)
+  plan_uyum_%           planın sorun içerik kelimelerinden biri gövdenin ilk %60'ında VE çözüm içerik
+                        kelimelerinden biri son %60'ında geçiyor (kök = ilk 5 harf, önek eşleşmesi; kelime bölme ve
+                        %60 sınırları data/oyuncak_plan/kontrol.py ile aynı; durak kelimeler, figür adları ve türleri
+                        sayılmaz). Üretilen planda anahtar kelime olmadığı için etiketlerdeki anahtar kuralının
+                        gevşek karşılığıdır. plan_sorun_uyum_% / plan_cozum_uyum_%: yalnız bir yarısı.
+  plan_kelime           ortalama plan uzunluğu (sorun + çözüm kelimeleri, etiketler hariç)
 Adaylar dosyasında üç küme raporlanır: seçicisiz (j=0), en_iyi_K (sec.puanla ile, otomatik.py gibi), tüm adaylar.
 Çıktı: ekrana ve girdinin yanına: hikayeler.json -> olay.json, adaylar_<ad>.json -> olay_<ad>.json
 Ölçüm aracıdır: NB seçiciye girerse (E5) bu ölçüler o seçicinin başarısını ölçmek için kullanılmaz.
@@ -24,8 +33,11 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(1, os.path.join(os.path.dirname(HERE), "data", "oyuncak_plan"))
 from sec import kucuk, puanla  # noqa: E402
 from tema_sinif import egitim_hikayeleri, yukle  # noqa: E402
+from uret import plan_bol  # noqa: E402
+import kontrol  # noqa: E402  (plan etiketlerinin konum kuralı: kelime bölme, kök, %60 sınırları)
 
 KELIME = re.compile(r"[a-zçğıöşüâîû]+")
 TOP = re.compile(r"\btop(?:u|a|un|ta|tan|la|lar|ları|ların|larla|um|umu|umun|una|unu|unda|undan|uyla|umuz"
@@ -35,6 +47,55 @@ TOP = re.compile(r"\btop(?:u|a|un|ta|tan|la|lar|ları|ların|larla|um|umu|umun|u
 def sekizliler(metin, n=8):
     w = KELIME.findall(kucuk(metin))
     return [tuple(w[i:i + n]) for i in range(len(w) - n + 1)]
+
+
+ISIM_KOK = {kontrol.kok(i) for i in kontrol.ISIM_KIMLIK}
+
+
+def icerik_kokleri(cumle):
+    """Plan cümlesinin içerik kelimelerinin kökleri (ilk 5 harf): durak kelimeler, figür adları ve türleri,
+    yabancı adlar çıkarılır."""
+    kokler = []
+    for w in kontrol.kelimeler(cumle):
+        k = kontrol.kok(w)
+        if (w in kontrol.DURAK or k in kontrol.DURAK_KOK or k in ISIM_KOK or w in kontrol.YABANCI_K
+                or any(t.match(w) for t in kontrol.TURLER.values()) or k in kokler):
+            continue
+        kokler.append(k)
+    return kokler
+
+
+def plan_uyumu(plan, metin):
+    """(sorun_ok, cozum_ok) ya da plan biçimi bozuksa None. sorun_ok: sorun içerik köklerinden biri gövdenin ilk
+    %60'ında; cozum_ok: çözüm içerik köklerinden biri son %60'ında (kontrol.ilk60 / kontrol.son60)."""
+    p = plan_bol(plan)
+    if p is None:
+        return None
+    ws = kontrol.kelimeler(metin)
+    n = len(ws)
+
+    def var(kokler, dilim):
+        return any(dilim(i, n) and w.startswith(k) for k in kokler for i, w in enumerate(ws))
+    return var(icerik_kokleri(p[0]), kontrol.ilk60), var(icerik_kokleri(p[1]), kontrol.son60)
+
+
+def plan_olc(hikayeler):
+    """Plan modu ölçüleri (modül belgesine bakın); hikâyelerde 'plan' alanı yoksa {}."""
+    if not any("plan" in h for h in hikayeler):
+        return {}
+    yuz = lambda x, n: round(100 * x / n, 1) if n else None  # noqa: E731
+    bozuk = sum(bool(h.get("plan_bozuk")) for h in hikayeler)
+    planli = [h for h in hikayeler if "plan" in h and not h.get("plan_bozuk")]
+    uyum = [plan_uyumu(h["plan"], h["metin"]) for h in planli]
+    kelime = [len([w for w in h["plan"].split() if w not in ("Sorun:", "Çözüm:")]) for h in planli]
+    return {
+        "plan_bozuk_%": yuz(bozuk, len(hikayeler)),
+        "plan_bicim_%": yuz(sum(u is not None for u in uyum), len(planli)),
+        "plan_uyum_%": yuz(sum(u == (True, True) for u in uyum), len(planli)),
+        "plan_sorun_uyum_%": yuz(sum(bool(u and u[0]) for u in uyum), len(planli)),
+        "plan_cozum_uyum_%": yuz(sum(bool(u and u[1]) for u in uyum), len(planli)),
+        "plan_kelime": round(sum(kelime) / len(kelime), 1) if kelime else None,
+    }
 
 
 def olc(hikayeler, nb, egitim8):
@@ -65,6 +126,7 @@ def olc(hikayeler, nb, egitim8):
         "cunku_%": yuz(sum("çünkü" in kucuk(h["metin"]) for h in hikayeler)),
         "paragraf_%": yuz(sum("\n" in h["metin"].strip() for h in hikayeler)),
         "kopya8_%": round(100 * kopya / max(1, sekiz), 2),
+        **plan_olc(hikayeler),
     }
 
 

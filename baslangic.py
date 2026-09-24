@@ -29,23 +29,32 @@ TEMALAR = ["paylaşmak", "yeni arkadaş edinmek", "korkuyu yenmek", "kaybolan bi
            "doğum günü sürprizi", "kıskançlığı yenmek", "uyku vakti", "yağmur ya da kar günü", "teşekkür etmek"]
 
 
-def baslangic(kimlikler, yer_kimlik, ilk_cumle=True, tema=None):
+def baslangic(kimlikler, yer_kimlik, ilk_cumle=True, tema=None, plan=False, plan_metni=None):
+    """plan=True: istem planın başı, "…\nSorun:" ile biter (model önce planı yazar; ilk_cumle yok sayılır).
+    plan_metni=(sorun, çözüm): eğitimdeki tam plan başlığı "…\nSorun: S\nÇözüm: Ç\n\n" (prepare_ft2 --plan)."""
     kar = sorted((KAR[k] for k in kimlikler), key=lambda k: SIRA.index(k["kimlik"]))
     yer = YER[yer_kimlik]
     ek = f" | Tema: {tema}" if tema else ""
-    metin = f"Karakter: {', '.join(k['tur'] for k in kar)} | Yer: {yer['ad']}{ek}\n\n"
+    satir = f"Karakter: {', '.join(k['tur'] for k in kar)} | Yer: {yer['ad']}{ek}"
+    if plan_metni is not None:
+        satir += f"\nSorun: {plan_metni[0]}\nÇözüm: {plan_metni[1]}"
+    elif plan:
+        return satir + "\nSorun:"
+    metin = satir + "\n\n"
     if ilk_cumle:
         tanit = " ile ".join(f"{k['isim']} adında {k['sifat']} bir {k['tur']}" for k in kar)
         metin += f"{yer['acilis']} {tanit} yaşardı."
     return metin
 
 
-def prompt_idler(tok, kimlikler, yer_kimlik, tema=None, eot=False):
+def prompt_idler(tok, kimlikler, yer_kimlik, tema=None, eot=False, plan=False, plan_metni=None):
     """Başlığın token'ları, eğitimdeki gibi. Eğitimde başlığın ardından hikâye gelir ve "\n\n" iki ayrı
     token olur; başlık tek başına kodlanınca sondaki "\n\n" tek (eğitimde hiç görülmemiş) bir token'a
-    dönüşüyordu. Bu yüzden başlık + örnek bir ilk kelime kodlanır ve yalnızca başlığa düşen token'lar alınır."""
-    metin = baslangic(kimlikler, yer_kimlik, ilk_cumle=False, tema=tema)
-    enc = tok.encode(metin + "Bir")
+    dönüşüyordu. Bu yüzden başlık + örnek bir ilk kelime kodlanır ve yalnızca başlığa düşen token'lar alınır.
+    plan=True: istem "…\nSorun:" ile biter; örnek devam " top" (eğitimde plan " <sorun>" diye sürer).
+    plan_metni=(sorun, çözüm): gerçek planlı tam başlık "…\nÇözüm: Ç\n\n" (oracle koşulu)."""
+    metin = baslangic(kimlikler, yer_kimlik, ilk_cumle=False, tema=tema, plan=plan, plan_metni=plan_metni)
+    enc = tok.encode(metin + (" top" if plan and plan_metni is None else "Bir"))
     ids = [i for i, (_, son) in zip(enc.ids, enc.offsets) if son <= len(metin)]
     # eot=True: eğitimde her hikâye bir önceki hikâyenin <|endoftext|>'inden sonra gelir
     return ([tok.token_to_id("<|endoftext|>")] if eot else []) + ids
