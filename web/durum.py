@@ -18,13 +18,29 @@ AŞAMALAR = [
 ]
 
 
+def surec_durumu(etiket):
+    """ple-<tag>-s0 eğitim sürecinin durumu: 'T' (duraklatılmış, SIGSTOP), 'R'/'S' (çalışıyor) ya da None."""
+    tag = etiket[len("ple-"):-len("-s0")]
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        try:
+            args = open(f"/proc/{pid}/cmdline", "rb").read().split(b"\0")
+            if b"research.tinystories.train" in args and args[args.index(b"--tag") + 1].decode() == tag:
+                return open(f"/proc/{pid}/stat").read().rsplit(")", 1)[1].split()[0]
+        except (OSError, ValueError, IndexError):
+            pass
+    return None
+
+
 def oku(etiket):
     yol = os.path.join(ROOT, "runs", f"{etiket}.progress.json")
     if not os.path.exists(yol):
         return None
     d = json.load(open(yol))
+    durum = d.get("status")
+    if durum == "training" and surec_durumu(etiket) == "T":
+        durum = "duraklatildi"
     return {
-        "durum": d.get("status"), "adim": d.get("step"), "toplam": d.get("steps"),
+        "durum": durum, "adim": d.get("step"), "toplam": d.get("steps"),
         "train": round(d["train_loss"], 4) if d.get("train_loss") is not None else None,
         "sn_adim": round(d.get("sec_per_step") or 0, 3), "kalan_sn": int(d.get("eta_seconds") or 0),
         "gecen_sn": int(d.get("elapsed") or 0), "guncel": int(d.get("updated") or os.path.getmtime(yol)),
