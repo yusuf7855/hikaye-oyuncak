@@ -24,6 +24,17 @@ V2 = ROOT / "data" / "oyuncak_v2"
 SIRA = [k["tur"] for k in json.load(open(ROOT / "data" / "karakterler.json", encoding="utf-8"))["karakterler"]]
 
 
+def kimlik_ver(kaynak, hikayeler):
+    """Kalıcı hikâye kimliği: <küme>/<dosya>#<dosyadaki sıra>, ör. "v3/tavsan_orman#4".
+    Hikâye Atölyesi'nde "bozuk" işaretlenenler bu kimlikle --haric'e verilir."""
+    sira = {}
+    for h in hikayeler:
+        n = sira.get(h["dosya"], 0)
+        sira[h["dosya"]] = n + 1
+        h["id"] = f"{kaynak.split('_')[-1]}/{h['dosya'][:-4]}#{n}"
+    return hikayeler
+
+
 def baslik(h):
     turler = sorted(h["turler"], key=SIRA.index)
     return f"Karakter: {', '.join(turler)} | Yer: {h['yer']}\n\n{h['metin']}"
@@ -37,6 +48,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="tr_ft2", help="data/<out>/vocab-<V> altına yaz")
     ap.add_argument("--kaynak", default="oyuncak_v2", help="virgülle ayrılmış hikâye klasörleri (data/ altında)")
+    ap.add_argument("--haric", default=None,
+                    help="dışarıda bırakılacak hikâye kimlikleri: her satırda bir kimlik olan dosya")
     ap.add_argument("--genel", default="tr_tinystories",
                     help="genel Türkçe veri + tokenizer klasörü (data/ altında); C2 için tr2_tinystories")
     args = ap.parse_args()
@@ -51,7 +64,12 @@ def main():
         iyi, sorunlu = kontrol.oku()
         if sorunlu:
             print(f"UYARI: {kaynak}: {len(sorunlu)} sorunlu hikâye dışarıda bırakıldı")
-        hikayeler += iyi
+        hikayeler += kimlik_ver(kaynak, iyi)
+    if args.haric:
+        haric = {s.strip() for s in open(args.haric, encoding="utf-8") if s.strip()}
+        once = len(hikayeler)
+        hikayeler = [h for h in hikayeler if h["id"] not in haric]
+        print(f"--haric: {once - len(hikayeler)} hikâye dışarıda bırakıldı ({len(haric)} kimlik)")
 
     gruplar = {}
     for h in hikayeler:

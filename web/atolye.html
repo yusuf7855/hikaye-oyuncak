@@ -44,6 +44,7 @@
   --golge: 0 1px 2px rgb(0 0 0 / .3), 0 6px 20px rgb(0 0 0 / .25);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--zemin); color: var(--murekkep); font: 15px/1.5 var(--govde); padding: 20px 16px 48px; }
 .sayfa { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
 header.bas { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
@@ -151,6 +152,53 @@ td.sayi, th.sayi { text-align: right; }
 .son p { margin: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-family: var(--kitap); }
 .hata { color: var(--kotu); font-size: 13.5px; }
 footer { color: var(--soluk); font-size: 12.5px; }
+
+/* sekmeler */
+nav.sekmeler { display: flex; gap: 4px; border-bottom: 1px solid var(--cizgi); overflow-x: auto; }
+nav.sekmeler button { appearance: none; border: 0; background: none; color: var(--soluk); font: 600 15px var(--govde); padding: 10px 14px; border-bottom: 3px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+nav.sekmeler button[aria-selected="true"] { color: var(--murekkep); border-bottom-color: var(--vurgu); }
+nav.sekmeler .nokta { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--iyi); margin-left: 6px; vertical-align: 1px; }
+nav.sekmeler .nokta.durdu { background: var(--soluk); }
+.sekme { display: grid; gap: 20px; }
+
+/* eğitim durumu */
+.ozet-satir { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.olcu { display: grid; gap: 2px; }
+.olcu .e { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--soluk); font-weight: 600; }
+.olcu .d { font: 800 26px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.olcu .a { font-size: 12.5px; color: var(--soluk); }
+.buyuk-ilerleme { height: 12px; background: var(--yuzey2); border-radius: 999px; overflow: hidden; border: 1px solid var(--cizgi); }
+.buyuk-ilerleme i { display: block; height: 100%; background: linear-gradient(90deg, var(--vurgu), color-mix(in srgb, var(--vurgu) 70%, var(--blok))); }
+.asamalar { display: grid; gap: 8px; }
+.asama { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 10px; background: var(--yuzey2); }
+.asama .isaret { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--cizgi); margin-top: 2px; }
+.asama.training .isaret { border-color: var(--vurgu); background: var(--vurgu-acik); box-shadow: 0 0 0 4px color-mix(in srgb, var(--vurgu) 18%, transparent); }
+.asama.done .isaret { border-color: var(--iyi); background: var(--iyi); }
+.asama b { display: block; }
+.asama .ac { font-size: 13px; color: var(--soluk); }
+.asama .sag { font-size: 13px; color: var(--soluk); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.grafik { width: 100%; height: auto; display: block; }
+.grafik text { fill: var(--soluk); font: 11px var(--govde); }
+.olaylar { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.olaylar li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; font-size: 14px; }
+.olaylar time { color: var(--soluk); font-variant-numeric: tabular-nums; font-size: 13px; }
+
+/* eğitim verisi */
+.filtre { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filtre select, .filtre input { flex: 1 1 140px; min-width: 0; }
+.veri-say { font-size: 13px; color: var(--soluk); }
+.veri-liste { display: grid; gap: 12px; }
+.veri-kart { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.veri-kart.bozuk { border-color: var(--kotu); background: color-mix(in srgb, var(--kotu) 5%, var(--yuzey)); }
+.veri-kart.iyi { border-color: color-mix(in srgb, var(--iyi) 50%, var(--cizgi)); }
+.veri-ust { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: space-between; font-size: 13px; color: var(--soluk); }
+.veri-ust b { color: var(--murekkep); }
+.veri-kart .m { font: 400 16px/1.65 var(--kitap); margin: 0; max-width: 70ch; }
+.veri-kart .m mark { background: var(--blok-acik); color: inherit; border-bottom: 2px dotted var(--uyari); padding: 0 1px; }
+.isaret-dugme { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.isaret-dugme button[aria-pressed="true"].b { background: var(--kotu); border-color: var(--kotu); color: #fff; }
+.isaret-dugme button[aria-pressed="true"].i { background: var(--iyi); border-color: var(--iyi); color: #fff; }
+.isaret-dugme input { flex: 1 1 200px; min-width: 0; font: inherit; font-size: 14px; color: var(--murekkep); background: var(--yuzey2); border: 1px solid var(--cizgi); border-radius: 8px; padding: 6px 10px; }
 </style>
 
 <div class="sayfa">
@@ -160,6 +208,14 @@ footer { color: var(--soluk); font-size: 12.5px; }
       <p class="alt">Oyuncağın dil modeli burada, tarayıcınızda çalışıyor: kartta çalışacak aynı 4-bit dosya, aynı örnekleme ve aynı aday seçici. Figür seçin, hikâyeyi dinleyin, 10 üzerinden puanlayın; puanlarınız bir sonraki geliştirmeye yön veriyor.</p>
     </div>
   </header>
+
+  <nav class="sekmeler" role="tablist" aria-label="Bölümler">
+    <button role="tab" id="t-dene" aria-controls="s-dene" aria-selected="true">Hikâye dene</button>
+    <button role="tab" id="t-egitim" aria-controls="s-egitim" aria-selected="false">Eğitim<span class="nokta durdu" id="egitim-nokta" aria-hidden="true"></span></button>
+    <button role="tab" id="t-veri" aria-controls="s-veri" aria-selected="false">Veri</button>
+  </nav>
+
+  <div class="sekme" id="s-dene" role="tabpanel" aria-labelledby="t-dene">
 
   <div class="duzen">
     <section class="panel" aria-label="Oyuncak">
@@ -219,6 +275,50 @@ footer { color: var(--soluk); font-size: 12.5px; }
       <div class="son-puanlar" id="son-puanlar"></div>
     </div>
   </section>
+
+  </div>
+
+  <div class="sekme" id="s-egitim" role="tabpanel" aria-labelledby="t-egitim" hidden>
+    <section class="panel" aria-label="Şu anki eğitim">
+      <div class="kume">
+        <h2 id="egitim-baslik">Şu an</h2>
+        <div class="buyuk-ilerleme" aria-hidden="true"><i id="egitim-bar" style="width:0"></i></div>
+        <div class="ozet-satir" id="egitim-ozet"></div>
+        <p class="ipucu" id="egitim-tazelik">Durum bekleniyor…</p>
+      </div>
+      <div class="kume">
+        <h2>Doğrulama kaybı</h2>
+        <div id="egitim-grafik"></div>
+        <p class="ipucu">Düşük = model metni daha iyi tahmin ediyor. Perplexity = e<sup>kayıp</sup>. Tokenizer değiştiği için eski modellerin perplexity değerleriyle birebir karşılaştırılamaz.</p>
+      </div>
+    </section>
+    <section class="panel" aria-label="Aşamalar">
+      <div class="kume"><h2>Aşamalar</h2><div class="asamalar" id="egitim-asamalar"></div></div>
+      <div class="kume"><h2>Olaylar</h2><ul class="olaylar" id="egitim-olaylar"></ul></div>
+    </section>
+  </div>
+
+  <div class="sekme" id="s-veri" role="tabpanel" aria-labelledby="t-veri" hidden>
+    <section class="panel" aria-label="Eğitim verisi">
+      <div class="kume">
+        <h2>Modelin öğrendiği hikâyeler</h2>
+        <p class="ipucu" style="font-size:14px">İnce ayarda kullanılan 2364 hikâye (v2: 1248, v3: 1116). Bozuk olanı “Bozuk” diye işaretleyin, kısa bir not yazın: işaretlenenler bir sonraki ince ayarda eğitimden çıkarılır. Sarı altı çizili kelimeler sözlükte yok: çoğu nadir ama doğru bir çekim, bazıları yazım hatası.</p>
+        <div class="filtre">
+          <select id="v-figur" aria-label="Figür"><option value="">Tüm figürler</option></select>
+          <select id="v-yer" aria-label="Yer"><option value="">Tüm yerler</option></select>
+          <select id="v-kume" aria-label="Küme"><option value="">v2 + v3</option><option value="v2">v2</option><option value="v3">v3</option></select>
+          <select id="v-durum" aria-label="Durum">
+            <option value="">Hepsi</option><option value="uyari">Kural uyarısı olanlar</option><option value="kelime">Sözlük dışı kelimesi olanlar</option>
+            <option value="bozuk">Bozuk işaretlediklerim</option><option value="iyi">İyi işaretlediklerim</option><option value="bakilmadi">Bakmadıklarım</option>
+          </select>
+          <input type="search" id="v-ara" placeholder="Metinde ara" aria-label="Metinde ara">
+        </div>
+        <div class="veri-say" id="v-say">Veri yükleniyor…</div>
+      </div>
+      <div class="veri-liste" id="v-liste"></div>
+      <button class="ikincil" id="v-daha" hidden>20 hikâye daha göster</button>
+    </section>
+  </div>
 
   <footer>Rubrik (degerlendirme/RUBRIK.md): 10 = kusursuz; figür yanlış −4, karakter karışık −3, mantıksız olay −2, uydurma kelime −1. Puan verirken kısa bir not, bir sonraki eğitimde neyin düzeltileceğini gösterir.</footer>
 </div>
@@ -755,7 +855,8 @@ function adaylariGoster(k, sirali) {
 }
 
 // ---- puanlama (db) ----
-let db = null, dbDurum = "bağlanıyor";
+let db = null;
+const dbSoz = (async () => { try { return await window.claude?.use?.("db") || null; } catch { return null; } })();
 function puanKutusu(k, sonuc) {
   k.sonuc = sonuc;
   k.puan.hidden = false; k.puan.innerHTML = "";
@@ -823,7 +924,7 @@ function karneCiz(kayitlar) {
   }
 }
 (async () => {
-  try { db = await window.claude?.use?.("db"); } catch { db = null; }
+  db = await dbSoz;
   if (!db) { $("#karne-durum").textContent = "Puanlar yalnızca claude.ai'de açılan sayfada kaydedilir."; karneCiz([]); return; }
   db.collection("degerlendirmeler").orderBy("zaman", "desc").limit(500).onSnapshot(
     (snap) => { karneCiz(snap.docs.map(d => d.data())); $("#karne-durum").textContent = `${snap.size} puanlı hikâye.`; },
@@ -869,4 +970,178 @@ $("#sahne").append((() => {
   k.metin.textContent = "Bir figür seçip “Hikâye anlat”a basın. Yeni hikâye burada yazılır; aday sayısı 1'den büyükse oyuncağın seçicisi en iyisini gösterir, diğer adaylar ve kural cezaları altta listelenir.";
   return k.kok;
 })());
+// ---- sekmeler ----
+const SEKMELER = ["dene", "egitim", "veri"];
+function sekmeAc(ad, iz = true) {
+  if (!SEKMELER.includes(ad)) ad = "dene";
+  for (const x of SEKMELER) {
+    $(`#t-${x}`).setAttribute("aria-selected", String(x === ad));
+    $(`#s-${x}`).hidden = x !== ad;
+  }
+  if (iz) try { history.replaceState(null, "", "#" + ad); } catch {}
+  if (ad === "veri") veriYukle();
+}
+for (const x of SEKMELER) $(`#t-${x}`).addEventListener("click", () => sekmeAc(x));
+sekmeAc((location.hash || "").slice(1), false);
+
+// ---- eğitim durumu (Claude eğitim makinesinden her ~10 dakikada db'ye yazar: egitim/durum) ----
+const sure = (sn) => {
+  if (sn == null) return "–";
+  const s = Math.max(0, Math.round(sn)), sa = Math.floor(s / 3600), dk = Math.round((s % 3600) / 60);
+  return sa ? `${sa} sa ${dk} dk` : `${dk} dk`;
+};
+const saat = (t) => new Date(t).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+function olcu(e, d, a) { return el("div", { class: "olcu" }, el("span", { class: "e", text: e }), el("span", { class: "d", text: d }), a ? el("span", { class: "a", text: a }) : null); }
+function grafikCiz(a) {
+  const kutu = $("#egitim-grafik"); kutu.innerHTML = "";
+  const n = (a?.egri || []).filter(p => p.val != null);
+  if (n.length < 2) { kutu.append(el("p", { class: "ipucu", text: "Grafik için en az iki ölçüm gerekiyor (her 500 adımda bir)." })); return; }
+  const W = 640, H = 220, sol = 44, sag = 12, ust = 10, alt = 28;
+  const xMax = a.toplam || n[n.length - 1].adim;
+  // ilk ölçüm (rastgele model, ~9.7) ölçeği ezer: eksen ikinci ölçümden başlar
+  const gorunen = n.length > 2 ? n.slice(1) : n;
+  const yMin = Math.floor(Math.min(...gorunen.map(p => p.val)) * 10) / 10 - 0.1, yMax = Math.ceil(Math.max(...gorunen.map(p => p.val)) * 10) / 10;
+  const X = (v) => sol + (W - sol - sag) * v / xMax, Y = (v) => ust + (H - ust - alt) * (1 - (Math.min(v, yMax) - yMin) / (yMax - yMin));
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "grafik"); svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", `Doğrulama kaybı, son değer ${n[n.length - 1].val.toFixed(3)}`);
+  const ek = (tag, at, yazi) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(at)) e.setAttribute(k, v); if (yazi != null) e.textContent = yazi; svg.append(e); return e; };
+  const adim = (yMax - yMin) > 1.2 ? 0.5 : (yMax - yMin) > 0.5 ? 0.2 : 0.1;
+  for (let v = Math.ceil(yMin / adim) * adim; v <= yMax + 1e-9; v += adim) {
+    ek("line", { x1: sol, x2: W - sag, y1: Y(v), y2: Y(v), stroke: "var(--cizgi)", "stroke-width": 1 });
+    ek("text", { x: sol - 6, y: Y(v) + 4, "text-anchor": "end" }, v.toFixed(1));
+  }
+  for (let i = 0; i <= 4; i++) { const v = xMax * i / 4; ek("text", { x: X(v), y: H - 8, "text-anchor": i === 0 ? "start" : i === 4 ? "end" : "middle" }, Math.round(v).toLocaleString("tr-TR")); }
+  const yol = gorunen.map((p, i) => `${i ? "L" : "M"}${X(p.adim).toFixed(1)},${Y(p.val).toFixed(1)}`).join("");
+  ek("path", { d: `${yol}L${X(gorunen[gorunen.length - 1].adim).toFixed(1)},${H - alt}L${X(gorunen[0].adim).toFixed(1)},${H - alt}Z`, fill: "color-mix(in srgb, var(--vurgu) 12%, transparent)", stroke: "none" });
+  ek("path", { d: yol, fill: "none", stroke: "var(--vurgu)", "stroke-width": 2.5, "stroke-linejoin": "round" });
+  const son = gorunen[gorunen.length - 1];
+  ek("circle", { cx: X(son.adim), cy: Y(son.val), r: 4.5, fill: "var(--vurgu)", stroke: "var(--yuzey)", "stroke-width": 2 });
+  const solda = X(son.adim) < W / 2;
+  ek("text", { x: X(son.adim) + (solda ? 8 : -8), y: Y(son.val) - 10, "text-anchor": solda ? "start" : "end", style: "fill:var(--murekkep);font-weight:600" }, `${son.val.toFixed(3)} · ppl ${Math.exp(son.val).toFixed(1)}`);
+  kutu.append(svg);
+}
+function egitimCiz(d) {
+  const asamalar = d.asamalar || [];
+  const aktif = asamalar.find(a => a.durum === "training") || [...asamalar].reverse().find(a => a.durum === "done") || asamalar[0];
+  const simdi = Date.now() / 1000, yas = simdi - (aktif?.guncel || d.guncellendi || simdi);
+  const canli = aktif?.durum === "training" && yas < 30 * 60;
+  $("#egitim-nokta").classList.toggle("durdu", !canli);
+  $("#egitim-baslik").textContent = aktif ? `Şu an: ${aktif.ad}` : "Şu an";
+  const oran = aktif?.toplam ? (aktif.adim + 1) / aktif.toplam : 0;
+  $("#egitim-bar").style.width = `${Math.min(100, 100 * oran).toFixed(1)}%`;
+  const ozet = $("#egitim-ozet"); ozet.innerHTML = "";
+  if (aktif?.adim != null) {
+    const sonVal = aktif.egri?.length ? aktif.egri[aktif.egri.length - 1].val : null;
+    // durum en son yazıldığından beri geçen süre kalan süreden düşülür
+    const kalan = aktif.durum === "training" ? Math.max(0, aktif.kalan_sn - yas) : 0;
+    ozet.append(
+      olcu("Adım", `${(aktif.adim + 1).toLocaleString("tr-TR")}`, `/ ${aktif.toplam.toLocaleString("tr-TR")} · %${(100 * oran).toFixed(1)}`),
+      olcu("Kalan süre", aktif.durum === "done" ? "bitti" : sure(kalan), aktif.durum === "training" ? `tahmini bitiş ${saat(Date.now() + kalan * 1000)}` : ""),
+      olcu("Doğrulama kaybı", sonVal != null ? sonVal.toFixed(3) : "–", sonVal != null ? `perplexity ${Math.exp(sonVal).toFixed(2)}` : ""),
+      olcu("Hız", `${aktif.sn_adim ? aktif.sn_adim.toFixed(2) : "–"} sn`, `adım başına · geçen ${sure(aktif.gecen_sn)}`));
+  }
+  $("#egitim-tazelik").textContent = `Son güncelleme ${saat((d.guncellendi || simdi) * 1000)} (${sure(simdi - (d.guncellendi || simdi))} önce). Durum yaklaşık 10 dakikada bir yenilenir.` + (aktif?.durum === "training" && !canli ? " Uzun süredir yeni bilgi gelmedi: eğitim makinesi durmuş olabilir." : "");
+  grafikCiz(aktif);
+  const liste = $("#egitim-asamalar"); liste.innerHTML = "";
+  const durumAd = { training: "sürüyor", done: "bitti", bekliyor: "sırada" };
+  for (const a of asamalar) {
+    liste.append(el("div", { class: `asama ${a.durum}` }, el("span", { class: "isaret", "aria-hidden": "true" }),
+      el("div", {}, el("b", { text: a.ad }), el("span", { class: "ac", text: a.aciklama })),
+      el("div", { class: "sag" }, durumAd[a.durum] || a.durum, a.adim != null ? el("div", { text: `${(a.adim + 1).toLocaleString("tr-TR")} / ${a.toplam.toLocaleString("tr-TR")}` }) : null)));
+  }
+  const ol = $("#egitim-olaylar"); ol.innerHTML = "";
+  for (const o of [...(d.olaylar || [])].reverse()) {
+    const t = new Date(o.zaman);
+    ol.append(el("li", {}, el("time", { datetime: o.zaman, text: t.toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) }), el("span", { text: o.metin })));
+  }
+}
+(async () => {
+  const d = await dbSoz;
+  if (!d) { $("#egitim-tazelik").textContent = "Eğitim durumu yalnızca claude.ai'de açılan sayfada görünür."; return; }
+  d.doc("egitim/durum").onSnapshot(
+    (snap) => { if (snap.exists) egitimCiz(snap.data()); else $("#egitim-tazelik").textContent = "Henüz durum yazılmadı."; },
+    (e) => { $("#egitim-tazelik").textContent = `Durum okunamadı (${e.code}).`; });
+  setInterval(() => { d.doc("egitim/durum").get().then(s => s.exists && egitimCiz(s.data())).catch(() => {}); }, 60000);
+})();
+
+// ---- eğitim verisi ----
+let VERI = null, veriSoz = null, gosterilen = 20;
+const isaretler = new Map(); // hikâye id -> {durum, not}
+const belgeId = (id) => id.replace(/[/#]/g, "~");
+function veriYukle() {
+  if (veriSoz) return veriSoz;
+  const fs = $("#v-figur"), ys = $("#v-yer");
+  for (const k of KATALOG.karakterler) fs.append(el("option", { value: k.kimlik, text: `${k.emoji} ${k.isim}` }));
+  for (const y of KATALOG.yerler) ys.append(el("option", { value: y.kimlik, text: `${y.emoji} ${y.ad}` }));
+  veriSoz = fetch("veri.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(v => { VERI = v; veriCiz(); })
+    .catch(e => { $("#v-say").textContent = `Veri yüklenemedi (${e.message}).`; veriSoz = null; });
+  dbSoz.then(d => {
+    if (!d) return;
+    d.collection("veri_isaret").onSnapshot((snap) => {
+      isaretler.clear();
+      for (const doc of snap.docs) { const x = doc.data(); if (x?.id) isaretler.set(x.id, x); }
+      if (VERI) veriCiz(false);
+    }, () => {});
+  });
+  return veriSoz;
+}
+function vurgula(metin, kelimeler) {
+  const p = el("p", { class: "m" });
+  if (!kelimeler.length) { p.textContent = metin; return p; }
+  const re = new RegExp(`(?<![\\p{L}])(${kelimeler.map(kac).join("|")})(?![\\p{L}])`, "giu");
+  let son = 0;
+  for (const m of metin.matchAll(re)) {
+    p.append(metin.slice(son, m.index), el("mark", { title: "sözlükte yok", text: m[0] }));
+    son = m.index + m[0].length;
+  }
+  p.append(metin.slice(son));
+  return p;
+}
+function veriFiltre() {
+  const f = $("#v-figur").value, y = $("#v-yer").value, k = $("#v-kume").value, dur = $("#v-durum").value;
+  const ara = $("#v-ara").value.trim().toLocaleLowerCase("tr");
+  return VERI.filter(h => (!f || h.k.includes(f)) && (!y || h.y === y) && (!k || h.id.startsWith(k + "/"))
+    && (!dur || (dur === "uyari" && h.c.length) || (dur === "kelime" && h.u.length) || (dur === "bozuk" && isaretler.get(h.id)?.durum === "bozuk")
+      || (dur === "iyi" && isaretler.get(h.id)?.durum === "iyi") || (dur === "bakilmadi" && !isaretler.has(h.id)))
+    && (!ara || h.m.toLocaleLowerCase("tr").includes(ara)));
+}
+function veriKart(h) {
+  const isr = isaretler.get(h.id);
+  const kart = el("article", { class: `veri-kart ${isr?.durum || ""}` });
+  const figur = h.k.map(k => `${KAR[k].emoji} ${KAR[k].isim}`).join(" + ");
+  const yer = KATALOG.yerler.find(x => x.kimlik === h.y);
+  kart.append(el("div", { class: "veri-ust" }, el("span", {}, el("b", { text: figur }), ` · ${yer.emoji} ${yer.ad} · ${h.t}`), el("span", { text: h.id })));
+  kart.append(vurgula(h.m, h.u));
+  if (h.c.length) kart.append(el("div", { class: "cezalar" }, ...h.c.map(c => el("span", { class: "rozet ceza", text: c }))));
+  const not = el("input", { type: "text", placeholder: "Not: ne bozuk? (ör. “Tosbi ile Paytak karışmış”)", "aria-label": "Not", value: isr?.not || "" });
+  const kaydet = async (durum) => {
+    const d = await dbSoz; if (!d) return;
+    const yeni = isr?.durum === durum && !not.value.trim() ? null : durum;
+    try {
+      if (yeni) await d.doc(`veri_isaret/${belgeId(h.id)}`).set({ id: h.id, durum: yeni, not: not.value.trim(), zaman: new Date().toISOString() });
+      else await d.doc(`veri_isaret/${belgeId(h.id)}`).delete();
+    } catch (e) { $("#v-say").textContent = `İşaret kaydedilemedi (${e.code || e.message}).`; }
+  };
+  const bozuk = el("button", { class: "ikincil b", "aria-pressed": String(isr?.durum === "bozuk"), text: "Bozuk", onclick: () => kaydet("bozuk") });
+  const iyi = el("button", { class: "ikincil i", "aria-pressed": String(isr?.durum === "iyi"), text: "İyi", onclick: () => kaydet("iyi") });
+  not.addEventListener("keydown", (e) => { if (e.key === "Enter") kaydet(isr?.durum === "iyi" ? "iyi" : "bozuk"); });
+  if (!db) { bozuk.disabled = iyi.disabled = not.disabled = true; }
+  kart.append(el("div", { class: "isaret-dugme" }, bozuk, iyi, not));
+  return kart;
+}
+function veriCiz(basa = true) {
+  if (basa) gosterilen = 20;
+  const liste = veriFiltre(), kutu = $("#v-liste");
+  const bozukSay = [...isaretler.values()].filter(x => x.durum === "bozuk").length, iyiSay = isaretler.size - bozukSay;
+  $("#v-say").textContent = `${liste.length} hikâye gösteriliyor · ${bozukSay} bozuk, ${iyiSay} iyi işaretlendi` + (db ? "" : " · işaretler yalnızca claude.ai'de kaydedilir");
+  kutu.innerHTML = "";
+  for (const h of liste.slice(0, gosterilen)) kutu.append(veriKart(h));
+  $("#v-daha").hidden = liste.length <= gosterilen;
+}
+for (const id of ["#v-figur", "#v-yer", "#v-kume", "#v-durum"]) $(id).addEventListener("change", () => veriCiz());
+let araZaman; $("#v-ara").addEventListener("input", () => { clearTimeout(araZaman); araZaman = setTimeout(() => veriCiz(), 200); });
+$("#v-daha").addEventListener("click", () => { gosterilen += 20; veriCiz(false); });
 </script>
