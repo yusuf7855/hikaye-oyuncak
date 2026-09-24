@@ -2,6 +2,7 @@
 # C2 zinciri: v2+v3 oyuncak verisi -> ince ayar (+QAT) -> 4-bit dışa aktar -> C doğrulaması -> web paketi.
 # Kullanım: ./ince_ayar_c2.sh <etiket> [ek prepare_ft2 argümanları]
 #   BAZ=runs/ple-c2-s0.pt (ön-eğitim)   STEPS=3000   LR=3e-4   PY=.venv/bin/python
+#   PAKET="--tema --satir-yasak --eot-on" (web paketi ayarları)
 # Çıktı: hf_<etiket>/ (model.bin, tokenizer.json, golden) ve web/m/<etiket>/ (tarayıcı arayüzü için)
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -28,4 +29,4 @@ export.OUT='hf_$TAG'
 export.main()"
 ./gen_verify hf_$TAG/model.bin hf_$TAG/golden.txt > logs/verify-$TAG.log || { cat logs/verify-$TAG.log; exit 1; }
 tail -1 logs/verify-$TAG.log
-$PY web/paketle.py $TAG hf_$TAG
+$PY web/paketle.py $TAG hf_$TAG ${PAKET:-}

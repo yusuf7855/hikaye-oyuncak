@@ -55,6 +55,9 @@ def main():
     ap.add_argument("--tema", action="store_true", help="başlığa hikâyenin temasını da yaz (rastgeleliği etkilemez)")
     ap.add_argument("--haric", default=None,
                     help="dışarıda bırakılacak hikâye kimlikleri: her satırda bir kimlik olan dosya")
+    ap.add_argument("--bolme", default=None, help="sabit doğrulama bölmesi + sızıntı listesi (data/bolme.json)")
+    ap.add_argument("--blok-eot", action="store_true",
+                    help="her oyuncak bloğunun önüne <|endoftext|>: genel dilim hikâye ortasında bitse de blok temiz başlar")
     ap.add_argument("--genel", default="tr_tinystories",
                     help="genel Türkçe veri + tokenizer klasörü (data/ altında); C2 için tr2_tinystories")
     args = ap.parse_args()
@@ -70,22 +73,32 @@ def main():
         if sorunlu:
             print(f"UYARI: {kaynak}: {len(sorunlu)} sorunlu hikâye dışarıda bırakıldı")
         hikayeler += kimlik_ver(kaynak, iyi)
+    tum = hikayeler[:]
     if args.haric:
         haric = {s.strip() for s in open(args.haric, encoding="utf-8") if s.strip()}
         once = len(hikayeler)
         hikayeler = [h for h in hikayeler if h["id"] not in haric]
         print(f"--haric: {once - len(hikayeler)} hikâye dışarıda bırakıldı ({len(haric)} kimlik)")
 
-    gruplar = {}
-    for h in hikayeler:
-        anahtar = (h["turler"][0], h["yer"]) if len(h["turler"]) == 1 else tuple(sorted(h["turler"]))
-        gruplar.setdefault(anahtar, []).append(h)
-    egitim, dogrulama = [], []
-    for k in sorted(gruplar, key=str):
-        g = gruplar[k][:]
-        rng.shuffle(g)
-        dogrulama.append(g[0])
-        egitim.extend(g[1:])
+    if args.bolme:
+        # Sabit bölme (research/tinystories/benzerlik.py): doğrulama her kolda aynı 138 hikâye (--haric onları
+        # etkilemez); doğrulama hikâyelerinin isim değiştirilmiş kopyaları ("haric") eğitimden çıkar.
+        b = json.load(open(args.bolme, encoding="utf-8"))
+        dset, sizinti = set(b["dogrulama"]), set(b["haric"])
+        dogrulama = [h for h in tum if h["id"] in dset]
+        egitim = [h for h in hikayeler if h["id"] not in dset and h["id"] not in sizinti]
+        print(f"--bolme: {len(dogrulama)} doğrulama, {sum(h['id'] in sizinti for h in hikayeler)} sızıntı eğitimden çıktı")
+    else:
+        gruplar = {}
+        for h in hikayeler:
+            anahtar = (h["turler"][0], h["yer"]) if len(h["turler"]) == 1 else tuple(sorted(h["turler"]))
+            gruplar.setdefault(anahtar, []).append(h)
+        egitim, dogrulama = [], []
+        for k in sorted(gruplar, key=str):
+            g = gruplar[k][:]
+            rng.shuffle(g)
+            dogrulama.append(g[0])
+            egitim.extend(g[1:])
 
     src = ROOT / "data" / args.genel / f"vocab-{args.vocab}"
     out = ROOT / "data" / args.out / f"vocab-{args.vocab}"
@@ -116,6 +129,8 @@ def main():
         train.extend(g.tolist())
         blok = egitim[:]
         rng.shuffle(blok)
+        if args.blok_eot and train and train[-1] != eot:
+            train.append(eot)
         train.extend(kodla([baslik(h, args.tema) for h in blok]))
     val = kodla([baslik(h, args.tema) for h in dogrulama])
     uzun = sum(1 for h in egitim if len(tok.encode(baslik(h, args.tema)).ids) + 1 > 256)
