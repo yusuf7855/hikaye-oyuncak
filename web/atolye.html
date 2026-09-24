@@ -560,16 +560,17 @@ onmessage = (e) => {
 <!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
 <script id="surumler" type="application/json">
 [
- {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "eski",
+ {"id": "c2ara_tema", "ad": "v2 · tema (E1)", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "tema",
+  "degisiklik": ["v1'in birebir aynısı, tek fark: başlıkta hikâyenin teması var (“Tema: kaybolan bir şeyi bulmak”). Model hangi sorunu çözeceğini baştan biliyor.",
+                 "Tema kutusundan bir tema seçin ya da “rastgele” bırakın; oyuncak da temayı böyle, karışık bir desteden çekecek.",
+                 "E0'da benimsenen ayarlar: hikâyede satır sonu yasak, istem eğitimdeki gibi metin sonu işaretiyle başlıyor.",
+                 "v1 ile “Karşılaştır”: aynı figür, yer, tema ve seed'le yan yana dinleyip olay örgüsünü işaretleyin."],
+  "olcum": {"oyuncak doğrulama ppl (1250. adım)": "9.40 (v1: 10.45)", "eğitim": "6000 + 1500 adım"}},
+ {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "baslik": "eski",
   "degisiklik": ["Figürleri tanıyan ilk sürüm: ön-eğitimin 6000. adımından (tamamın dörtte biri) oyuncak hikâyeleriyle 1500 adım ince ayar.",
-                 "Başlıkta henüz tema yok; olay örgüsü bu yüzden zayıf olabilir. Tema deneyi (E1) bununla birebir karşılaştırılacak.",
-                 "Olay örgüsünü “saçma / idare eder / mantıklı” diye ayrıca işaretleyin: E1'in kararında kullanılacak."],
-  "olcum": {"oyuncak doğrulama ppl": "10.19", "eğitim": "6000 + 1500 adım"}},
- {"id": "c2-onizleme", "ad": "v0 · altyapı testi", "tarih": "24 Eylül 2026",
-  "degisiklik": ["Ön-eğitimin yalnızca 500. adımı ve ince ayarsız: Türkçe cümle kurar ama figürü tanımaz. Arayüzün sizde çalıştığını görmek için.",
-                 "Yeni tokenizer: 12 figür ismi ve türü tek token (önceden ör. Paytak 3 parçaydı).",
-                 "Başlık artık eğitimdeki gibi kodlanıyor; 'Ben' kelimesi yasak listesinden çıktı."],
-  "olcum": {"ön-eğitim": "500 / 24 000 adım"}}
+                 "Başlıkta tema yok. Hakem puanı 4.86/10 (36 vaka, 2 hakem); en sık kusur mantıksız olay.",
+                 "E0'da benimsenen ayarlarla çalışıyor: satır sonu yasak, istem metin sonu işaretiyle başlıyor."],
+  "olcum": {"hakem": "4.86/10", "sorun var / çözülüyor / olaylar bağlı": "%64 / %46 / %50"}}
 ]
 </script>
 
