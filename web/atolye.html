@@ -241,6 +241,19 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
         <div class="yerler" id="yerler"></div>
       </div>
 
+      <div class="kume" id="ses-kutu">
+        <h2>Okuma sesi</h2>
+        <div class="surum-sec">
+          <select id="ses" aria-label="Okuma sesi"></select>
+          <button class="ikincil" id="ses-dene">Dene</button>
+        </div>
+        <div class="ayarlar" style="margin-top:0">
+          <label for="ses-ton">Ses inceliği <span class="d" id="ses-ton-d"></span><input type="range" id="ses-ton" min="0.8" max="1.6" step="0.05" value="1.15"></label>
+          <label for="ses-hiz">Okuma hızı <span class="d" id="ses-hiz-d"></span><input type="range" id="ses-hiz" min="0.6" max="1.2" step="0.05" value="0.85"></label>
+        </div>
+        <p class="ipucu" id="ses-ipucu"></p>
+      </div>
+
       <details class="ayar" id="ayar-kutu">
         <summary>Üretim ayarları</summary>
         <div class="ayarlar">
@@ -870,7 +883,7 @@ function puanKutusu(k, sonuc) {
   }));
   const not = el("textarea", { placeholder: "Not (isteğe bağlı): ne iyiydi, ne bozuktu?", "aria-label": "Not" });
   const bilgi = el("span", { class: "bilgi", text: db ? "" : "Puanlar bu görünümde kaydedilemiyor." });
-  const sesli = el("button", { class: "ikincil", text: "Sesli oku", onclick: () => sesliOku(k.sonuc.secilen.metin) });
+  const sesli = el("button", { class: "ikincil", text: "Sesli oku", onclick: (e) => sesliOku(k.sonuc.secilen.metin, e.currentTarget) });
   if (!("speechSynthesis" in window)) sesli.hidden = true;
   const kaydet = el("button", {
     class: "ikincil", text: "Puanı kaydet", disabled: "",
@@ -894,14 +907,57 @@ function puanKutusu(k, sonuc) {
   });
   k.puan.append(tuslar, not, el("div", { class: "satir" }, bilgi, el("div", { class: "dugmeler" }, sesli, kaydet)));
 }
-function sesliOku(metin) {
+// ---- okuma sesi: cihazın Türkçe sesleri, kadın sesleri önce ----
+// Bilinen Türkçe kadın sesleri: Yelda (iPhone/Mac), Emel (Edge), Google Türkçe (Chrome), Filiz/Seda.
+// Erkek: Tolga (Windows), Ahmet (Edge), Cem, Fettah, Fahrettin, dfki (Piper).
+const KADIN = /yelda|emel|filiz|seda|zeynep|google t[üu]rk|female|kad[ıi]n/i;
+const ERKEK = /tolga|ahmet|\bcem\b|fettah|fahrettin|dfki|kerem|\bmale\b|erkek/i;
+const sesCinsi = (v) => KADIN.test(v.name) ? "kadın" : ERKEK.test(v.name) ? "erkek" : "";
+function turkceSesler() {
+  try { return speechSynthesis.getVoices().filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("tr")); }
+  catch { return []; }
+}
+function sesPuani(v) {
+  const c = sesCinsi(v);
+  return (c === "kadın" ? 10 : c === "erkek" ? 0 : 5) + (/natural|online|enhanced|premium|neural/i.test(v.name) ? 1 : 0);
+}
+function sesleriDoldur() {
+  const sel = $("#ses"), sesler = turkceSesler().sort((a, b) => sesPuani(b) - sesPuani(a));
+  const onceki = saklaOku("ses", null);
+  sel.innerHTML = "";
+  for (const v of sesler) { const c = sesCinsi(v); sel.append(el("option", { value: v.name, text: c ? `${v.name} (${c})` : v.name })); }
+  if (!sesler.length) sel.append(el("option", { value: "", text: "Türkçe ses bulunamadı" }));
+  // kullanıcı daha önce kadın sesi ya da cinsi bilinmeyen bir ses seçtiyse onu koru; aksi hâlde en iyi puanlıyı seç
+  if (onceki && sesler.some(v => v.name === onceki)) sel.value = onceki;
+  const ipucu = $("#ses-ipucu");
+  if (!sesler.length) ipucu.textContent = "Bu tarayıcıda Türkçe ses yok. iPhone/Mac'te Safari (Yelda), Chrome (Google Türkçe) ya da Edge (Emel) Türkçe kadın sesiyle okur.";
+  else if (!sesler.some(v => sesCinsi(v) === "kadın")) ipucu.textContent = "Bu cihazda bilinen bir Türkçe kadın sesi bulunamadı; listede cinsi yazmayanları deneyin ya da sesi inceltin. Kadın sesi: iPhone/Mac'te Yelda, Chrome'da Google Türkçe, Edge'de Emel.";
+  else ipucu.textContent = "";
+}
+function secilenSes() { const ad = $("#ses").value; return turkceSesler().find(v => v.name === ad) || null; }
+function sesliOku(metin, dugme) {
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(metin); u.lang = "tr-TR"; u.rate = 0.9;
-    const ses = speechSynthesis.getVoices().find(v => v.lang?.toLowerCase().startsWith("tr"));
-    if (ses) u.voice = ses;
+    if (dugme && !dugme.dataset.ad) dugme.dataset.ad = dugme.textContent;
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); document.querySelectorAll("[data-ad]").forEach(d => { d.textContent = d.dataset.ad; }); return; }
+    const u = new SpeechSynthesisUtterance(metin);
+    u.lang = "tr-TR"; u.rate = +$("#ses-hiz").value; u.pitch = +$("#ses-ton").value;
+    const ses = secilenSes(); if (ses) u.voice = ses;
+    if (dugme) { dugme.textContent = "Durdur"; u.onend = u.onerror = () => { dugme.textContent = dugme.dataset.ad; }; }
     speechSynthesis.speak(u);
   } catch {}
+}
+if ("speechSynthesis" in window) {
+  sesleriDoldur();
+  try { speechSynthesis.addEventListener("voiceschanged", sesleriDoldur); } catch { speechSynthesis.onvoiceschanged = sesleriDoldur; }
+  $("#ses").addEventListener("change", () => saklaYaz("ses", $("#ses").value));
+  for (const a of ["ses-ton", "ses-hiz"]) {
+    const v = saklaOku(`ayar-${a}`, null); if (v != null) $(`#${a}`).value = v;
+    const goster = () => { $(`#${a}-d`).textContent = $(`#${a}`).value; };
+    $(`#${a}`).addEventListener("input", () => { saklaYaz(`ayar-${a}`, $(`#${a}`).value); goster(); }); goster();
+  }
+  $("#ses-dene").addEventListener("click", (e) => sesliOku("Ormanın kenarında Pamuk adında bembeyaz bir tavşan yaşardı. Bir gün en sevdiği havucu kayboldu.", e.currentTarget));
+} else {
+  $("#ses-kutu").hidden = true;
 }
 function karneCiz(kayitlar) {
   const tb = $("#karne tbody"); tb.innerHTML = "";
