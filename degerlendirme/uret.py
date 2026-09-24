@@ -1,6 +1,6 @@
 """Sabit test setinden hikâye üret (hakemlere verilecek).
 
-Kullanım: python degerlendirme/uret.py <model_dizini> <çıktı_adı> [--aday K] [--temp 0.7] [--rep 1.15]
+Kullanım: python degerlendirme/uret.py <model_dizini> <çıktı_adı> [--aday K] [--temp 0.5] [--rep 1.1]
   --aday K: her vaka için K aday üret, seçici (sec.py) ile en iyisini al (cihazdaki önceden-üret+filtrele akışı).
 Çıktı: degerlendirme/<çıktı_adı>/hikayeler.json  [{id, figurler, yer, baslik, metin}]
 Test seti: 24 tek figür (12 figür × 2 yer) + 12 ikili; seed'ler sabit, sonuçlar tekrarlanabilir.
@@ -11,7 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 from tokenizers import Tokenizer  # noqa: E402
-from baslangic import KAR, SIRA, baslangic, yasak_idler  # noqa: E402
+from baslangic import KAR, SIRA, baslangic, prompt_idler, yasak_idler  # noqa: E402
 
 YERLER = ["orman", "deniz", "ev", "park", "sato", "dag"]
 
@@ -30,7 +30,7 @@ def test_seti():
 
 def uret(model_dir, kimlikler, yer, seed, temp, rep, tok, n=240):
     prompt = baslangic(kimlikler, yer, ilk_cumle=False)
-    ids = tok.encode(prompt).ids
+    ids = prompt_idler(tok, kimlikler, yer)
     ban = yasak_idler(tok, kimlikler)
     out = subprocess.run([os.path.join(ROOT, "gen"), os.path.join(model_dir, "model.bin"), str(n), str(temp), "40",
                           str(seed), str(rep), "-b", ",".join(map(str, ban)), "-l", *map(str, ids)],
@@ -38,10 +38,11 @@ def uret(model_dir, kimlikler, yer, seed, temp, rep, tok, n=240):
     pairs = [(int(a), float(b)) for a, b in (l.split() for l in out if l.strip())]
     eot = tok.token_to_id("<|endoftext|>")
     toks = [t for t, _ in pairs]
-    if eot in toks:
+    bitti = eot in toks
+    if bitti:
         pairs = pairs[:toks.index(eot)]
     lp = sum(l for _, l in pairs) / max(1, len(pairs))
-    return prompt, tok.decode([t for t, _ in pairs]).strip(), len(pairs), lp
+    return prompt, tok.decode([t for t, _ in pairs]).strip(), len(pairs), lp, bitti
 
 
 def main():
@@ -49,8 +50,8 @@ def main():
     ap.add_argument("model_dir")
     ap.add_argument("ad")
     ap.add_argument("--aday", type=int, default=1)
-    ap.add_argument("--temp", type=float, default=0.7)
-    ap.add_argument("--rep", type=float, default=1.15)
+    ap.add_argument("--temp", type=float, default=0.5)
+    ap.add_argument("--rep", type=float, default=1.1)
     a = ap.parse_args()
     tok = Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
     sonuc = []
@@ -59,7 +60,8 @@ def main():
         from sec import puanla  # noqa: E402
     for i, (kim, yer) in enumerate(test_seti()):
         adaylar = [uret(a.model_dir, kim, yer, 1000 * i + j, a.temp, a.rep, tok) for j in range(a.aday)]
-        prompt, metin, n, lp = max(adaylar, key=lambda x: puanla(x[1], kim, x[3], x[2], yer)) if a.aday > 1 else adaylar[0]
+        prompt, metin, n, lp, _ = (max(adaylar, key=lambda x: puanla(x[1], kim, x[3], x[2], yer, x[4]))
+                                   if a.aday > 1 else adaylar[0])
         sonuc.append({"id": i, "figurler": [KAR[k]["isim"] + " (" + KAR[k]["tur"] + ")" for k in kim],
                       "yer": yer, "baslik": prompt.strip(), "metin": metin, "token": n})
     os.makedirs(os.path.join(HERE, a.ad), exist_ok=True)

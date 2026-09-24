@@ -37,6 +37,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="tr_ft2", help="data/<out>/vocab-<V> altına yaz")
     ap.add_argument("--kaynak", default="oyuncak_v2", help="virgülle ayrılmış hikâye klasörleri (data/ altında)")
+    ap.add_argument("--genel", default="tr_tinystories",
+                    help="genel Türkçe veri + tokenizer klasörü (data/ altında); C2 için tr2_tinystories")
     args = ap.parse_args()
     rng = random.Random(args.seed)
 
@@ -62,7 +64,7 @@ def main():
         dogrulama.append(g[0])
         egitim.extend(g[1:])
 
-    src = ROOT / "data" / "tr_tinystories" / f"vocab-{args.vocab}"
+    src = ROOT / "data" / args.genel / f"vocab-{args.vocab}"
     out = ROOT / "data" / args.out / f"vocab-{args.vocab}"
     out.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src / "tokenizer.json", out / "tokenizer.json")

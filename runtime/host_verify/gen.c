@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
   size_t nb; uint8_t *buf = read_file(argv[1], &nb);
   Model m; if (llm_load(buf, &m)) { fprintf(stderr, "bad magic\n"); return 1; }
   int N = atoi(argv[2]); float temp = atof(argv[3]); int K = atoi(argv[4]);
+  if (K < 1) K = 1;
   srand(atoi(argv[5]));
   float rep = atof(argv[6]);
   int recent[REP_WINDOW], n_recent = 0;
@@ -62,9 +63,14 @@ int main(int argc, char **argv) {
   s.ple = malloc(L * P * 4); s.tmpP = malloc(L * P * 4); s.trow = malloc(L * P * 4);
   s.logits = malloc(V * 4); s.scores = malloc(S * 4);
   s.kcache = malloc((size_t)L * S * D * 4); s.vcache = malloc((size_t)L * S * D * 4);
+  // The KV cache holds S positions and the embedding V rows: refuse a prompt that would write past either.
+  if (argc - first_id < 1 || argc - first_id >= S) {
+    fprintf(stderr, "prompt must be 1..%d tokens, got %d\n", S - 1, argc - first_id); return 2;
+  }
   int pos = 0, tok = 0;
   for (int i = first_id; i < argc; i++) {
     tok = atoi(argv[i]);
+    if (tok < 0 || tok >= m.c.vocab) { fprintf(stderr, "token id %d out of range\n", tok); return 2; }
     recent[n_recent++ % REP_WINDOW] = tok;
     llm_forward(&m, tok, pos++, &s);
   }

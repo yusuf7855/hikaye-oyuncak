@@ -1,0 +1,872 @@
+<title>Hikâye Atölyesi</title>
+<meta name="description" content="Hikâye oyuncağının model sürümlerini tarayıcıda çalıştırıp dinlemek, karşılaştırmak ve puanlamak için.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Figtree:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap">
+<style>
+:root {
+  --zemin: #eef2f6;
+  --yuzey: #ffffff;
+  --yuzey2: #f6f8fb;
+  --cizgi: #d5dde6;
+  --murekkep: #1b2735;
+  --soluk: #5b6878;
+  --vurgu: #0f7a6e;
+  --vurgu-yazi: #ffffff;
+  --vurgu-acik: #d9f0ec;
+  --blok: #f2b705;
+  --blok-acik: #fff4cc;
+  --iyi: #1f8a4c;
+  --uyari: #b86e00;
+  --kotu: #c23b3b;
+  --golge: 0 1px 2px rgb(27 39 53 / .06), 0 6px 20px rgb(27 39 53 / .06);
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --govde: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kitap: "Literata", Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --zemin: #11161c; --yuzey: #19212a; --yuzey2: #1f2833; --cizgi: #2e3a47;
+    --murekkep: #e5ecf2; --soluk: #97a5b4; --vurgu: #34c3b0; --vurgu-yazi: #0b1a18;
+    --vurgu-acik: #173a36; --blok: #f5c542; --blok-acik: #3a3113;
+    --iyi: #4cc27f; --uyari: #e3a33b; --kotu: #ef7070;
+    --golge: 0 1px 2px rgb(0 0 0 / .3), 0 6px 20px rgb(0 0 0 / .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --zemin: #11161c; --yuzey: #19212a; --yuzey2: #1f2833; --cizgi: #2e3a47;
+  --murekkep: #e5ecf2; --soluk: #97a5b4; --vurgu: #34c3b0; --vurgu-yazi: #0b1a18;
+  --vurgu-acik: #173a36; --blok: #f5c542; --blok-acik: #3a3113;
+  --iyi: #4cc27f; --uyari: #e3a33b; --kotu: #ef7070;
+  --golge: 0 1px 2px rgb(0 0 0 / .3), 0 6px 20px rgb(0 0 0 / .25);
+}
+* { box-sizing: border-box; }
+body { background: var(--zemin); color: var(--murekkep); font: 15px/1.5 var(--govde); padding: 20px 16px 48px; }
+.sayfa { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+header.bas { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+h1 { font: 800 clamp(28px, 5vw, 40px)/1 var(--display); margin: 0; letter-spacing: -.01em; }
+h1 span { color: var(--vurgu); }
+.alt { color: var(--soluk); margin: 6px 0 0; max-width: 60ch; }
+h2 { font: 700 13px/1.2 var(--govde); text-transform: uppercase; letter-spacing: .08em; color: var(--soluk); margin: 0 0 10px; }
+.duzen { display: grid; grid-template-columns: minmax(300px, 400px) 1fr; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .duzen { grid-template-columns: 1fr; } }
+.panel { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 14px; padding: 16px; box-shadow: var(--golge); display: grid; gap: 18px; }
+.kume { display: grid; gap: 8px; }
+
+/* sürüm seçici */
+.surum-sec { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+select, input[type=number], textarea { font: inherit; color: var(--murekkep); background: var(--yuzey2); border: 1px solid var(--cizgi); border-radius: 8px; padding: 7px 10px; }
+select { flex: 1 1 180px; min-width: 0; }
+.surum-not { font-size: 13.5px; color: var(--soluk); background: var(--yuzey2); border-radius: 10px; padding: 10px 12px; }
+.surum-not ul { margin: 6px 0 0; padding-left: 18px; }
+.surum-not b { color: var(--murekkep); }
+.olcum { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.olcum span { white-space: nowrap; }
+
+/* figür jetonları: NFC figürleri */
+.figurler { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.jeton { appearance: none; border: 2px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); border-radius: 999px 999px 14px 14px; padding: 8px 4px 6px; display: grid; justify-items: center; gap: 0; cursor: pointer; font: inherit; transition: transform .12s, border-color .12s, background .12s; }
+.jeton .em { font-size: 26px; line-height: 1.1; }
+.jeton .ad { font: 700 13px/1.2 var(--govde); }
+.jeton .tur { font-size: 11px; color: var(--soluk); }
+.jeton:hover { transform: translateY(-1px); border-color: var(--vurgu); }
+.jeton[aria-pressed="true"] { border-color: var(--vurgu); background: var(--vurgu-acik); }
+.jeton[aria-pressed="true"] .ad::after { content: attr(data-sira); display: inline-block; margin-left: 4px; font-size: 10px; background: var(--vurgu); color: var(--vurgu-yazi); border-radius: 999px; padding: 0 5px; vertical-align: 2px; }
+.yerler { display: flex; flex-wrap: wrap; gap: 6px; }
+.kart { appearance: none; border: 1px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); border-radius: 8px; padding: 6px 10px; font: 500 14px var(--govde); cursor: pointer; }
+.kart[aria-pressed="true"] { background: var(--blok-acik); border-color: var(--blok); }
+.ipucu { font-size: 12.5px; color: var(--soluk); margin: 0; }
+
+details.ayar summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+details.ayar summary::after { content: "+"; color: var(--soluk); }
+details.ayar[open] summary::after { content: "−"; }
+.ayarlar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 10px; }
+.ayarlar label { display: grid; gap: 3px; font-size: 13px; color: var(--soluk); }
+.ayarlar label span.d { color: var(--murekkep); font-variant-numeric: tabular-nums; font-weight: 600; }
+.ayarlar input[type=range] { width: 100%; accent-color: var(--vurgu); }
+.ayarlar input[type=number] { width: 100%; }
+.onay { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.onay input { accent-color: var(--vurgu); width: 16px; height: 16px; }
+
+.dugmeler { display: flex; gap: 8px; flex-wrap: wrap; }
+button.ana { appearance: none; border: 0; background: var(--vurgu); color: var(--vurgu-yazi); font: 700 17px/1 var(--display); padding: 13px 20px 11px; border-radius: 12px; cursor: pointer; flex: 1 1 auto; box-shadow: 0 3px 0 rgb(0 0 0 / .18); }
+button.ana:active { transform: translateY(2px); box-shadow: 0 1px 0 rgb(0 0 0 / .18); }
+button.ana:disabled { opacity: .55; cursor: default; }
+button.ikincil { appearance: none; border: 1px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); font: 600 14px var(--govde); padding: 9px 14px; border-radius: 10px; cursor: pointer; }
+button.ikincil:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 3px solid var(--blok); outline-offset: 2px; }
+
+/* hikâye sayfaları */
+.sahne { display: grid; gap: 16px; }
+.sahne.cift { grid-template-columns: 1fr 1fr; }
+@media (max-width: 720px) { .sahne.cift { grid-template-columns: 1fr; } }
+.sayfa-kagit { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 14px; box-shadow: var(--golge); padding: 18px 20px 16px; display: grid; gap: 12px; min-width: 0; }
+.kagit-bas { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.kagit-bas .etiket { font: 700 12px var(--govde); text-transform: uppercase; letter-spacing: .08em; color: var(--vurgu); }
+.kagit-bas .durum { font-size: 12.5px; color: var(--soluk); font-variant-numeric: tabular-nums; }
+.baslik-satir { font: 600 13px var(--mono); color: var(--soluk); background: var(--yuzey2); border-radius: 6px; padding: 4px 8px; overflow-x: auto; white-space: nowrap; }
+.metin { font: 400 18px/1.7 var(--kitap); max-width: 62ch; margin: 0; min-height: 5em; overflow-wrap: anywhere; }
+.metin.bos { color: var(--soluk); font-style: italic; font-size: 16px; }
+.metin mark { background: var(--blok-acik); color: inherit; border-radius: 3px; padding: 0 1px; }
+.imlec { display: inline-block; width: .5em; height: 1em; background: var(--vurgu); vertical-align: -2px; margin-left: 2px; animation: yanip 1s steps(2) infinite; }
+@keyframes yanip { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .imlec { animation: none; } .jeton { transition: none; } }
+.ilerleme { height: 6px; background: var(--yuzey2); border-radius: 999px; overflow: hidden; }
+.ilerleme i { display: block; height: 100%; width: 0; background: var(--vurgu); transition: width .2s; }
+.cezalar { display: flex; flex-wrap: wrap; gap: 6px; }
+.rozet { font-size: 12px; border-radius: 999px; padding: 2px 9px; background: var(--yuzey2); border: 1px solid var(--cizgi); color: var(--soluk); }
+.rozet.temiz { background: color-mix(in srgb, var(--iyi) 14%, transparent); border-color: color-mix(in srgb, var(--iyi) 40%, transparent); color: var(--iyi); }
+.rozet.ceza { background: color-mix(in srgb, var(--kotu) 10%, transparent); border-color: color-mix(in srgb, var(--kotu) 35%, transparent); color: var(--kotu); }
+details.adaylar summary { cursor: pointer; font-size: 13.5px; color: var(--soluk); }
+.aday-liste { display: grid; gap: 6px; margin-top: 8px; }
+.aday { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; text-align: left; appearance: none; font: inherit; color: inherit; background: var(--yuzey2); border: 1px solid var(--cizgi); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.aday[aria-current="true"] { border-color: var(--vurgu); }
+.aday .n { font: 600 12px var(--mono); color: var(--soluk); }
+.aday .ozet { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.aday .p { font: 600 12px var(--mono); font-variant-numeric: tabular-nums; }
+
+/* puanlama */
+.puanla { border-top: 1px dashed var(--cizgi); padding-top: 12px; display: grid; gap: 8px; }
+.puanlar { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+.puanlar button { appearance: none; border: 1px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); font: 700 14px var(--govde); border-radius: 8px; padding: 8px 0; cursor: pointer; font-variant-numeric: tabular-nums; }
+.puanlar button[aria-pressed="true"] { background: var(--blok); border-color: var(--blok); color: #1b2735; }
+.puanla textarea { width: 100%; min-height: 54px; resize: vertical; font-size: 14px; }
+.puanla .satir { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+.puanla .bilgi { font-size: 12.5px; color: var(--soluk); }
+
+/* karne */
+.karne-tablo { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--cizgi); white-space: nowrap; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--soluk); font-weight: 600; }
+td.sayi, th.sayi { text-align: right; }
+.cubuk { display: inline-block; height: 8px; border-radius: 4px; background: var(--vurgu); vertical-align: middle; margin-left: 8px; }
+.son-puanlar { display: grid; gap: 8px; }
+.son { background: var(--yuzey2); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; display: grid; gap: 2px; }
+.son .ust { display: flex; gap: 8px; justify-content: space-between; color: var(--soluk); font-size: 12.5px; flex-wrap: wrap; }
+.son .ust b { color: var(--murekkep); }
+.son p { margin: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-family: var(--kitap); }
+.hata { color: var(--kotu); font-size: 13.5px; }
+footer { color: var(--soluk); font-size: 12.5px; }
+</style>
+
+<div class="sayfa">
+  <header class="bas">
+    <div>
+      <h1>Hikâye <span>Atölyesi</span></h1>
+      <p class="alt">Oyuncağın dil modeli burada, tarayıcınızda çalışıyor: kartta çalışacak aynı 4-bit dosya, aynı örnekleme ve aynı aday seçici. Figür seçin, hikâyeyi dinleyin, 10 üzerinden puanlayın; puanlarınız bir sonraki geliştirmeye yön veriyor.</p>
+    </div>
+  </header>
+
+  <div class="duzen">
+    <section class="panel" aria-label="Oyuncak">
+      <div class="kume">
+        <h2>Model sürümü</h2>
+        <div class="surum-sec">
+          <select id="surum" aria-label="Model sürümü"></select>
+        </div>
+        <div class="surum-not" id="surum-not"></div>
+        <label class="onay"><input type="checkbox" id="karsilastir"> Başka bir sürümle karşılaştır</label>
+        <div class="surum-sec" id="surum2-kutu" hidden>
+          <select id="surum2" aria-label="Karşılaştırılacak sürüm"></select>
+        </div>
+      </div>
+
+      <div class="kume">
+        <h2>Figürler <span style="text-transform:none;letter-spacing:0;font-weight:500">(en fazla 2)</span></h2>
+        <div class="figurler" id="figurler"></div>
+      </div>
+
+      <div class="kume">
+        <h2>Yer kartı</h2>
+        <div class="yerler" id="yerler"></div>
+      </div>
+
+      <details class="ayar" id="ayar-kutu">
+        <summary>Üretim ayarları</summary>
+        <div class="ayarlar">
+          <label for="temp">Yaratıcılık (temp) <span class="d" id="temp-d"></span><input type="range" id="temp" min="0" max="1.2" step="0.05" value="0.5"></label>
+          <label for="rep">Tekrar cezası <span class="d" id="rep-d"></span><input type="range" id="rep" min="1" max="1.4" step="0.05" value="1.1"></label>
+          <label for="topk">Top-k <span class="d" id="topk-d"></span><input type="range" id="topk" min="1" max="100" step="1" value="40"></label>
+          <label for="aday">Aday sayısı <span class="d" id="aday-d"></span><input type="range" id="aday" min="1" max="16" step="1" value="8"></label>
+          <label for="uzunluk">En fazla token <span class="d" id="uzunluk-d"></span><input type="range" id="uzunluk" min="60" max="250" step="10" value="240"></label>
+          <label for="seed">Seed (boş = rastgele)<input type="number" id="seed" min="0" step="1" placeholder="rastgele"></label>
+        </div>
+        <p class="ipucu" style="margin-top:8px">Oyuncak, boştayken birkaç aday üretip kural cezası en az ve model güveni en yüksek olanı saklar. Kartta okunacak olan en iyi aday.</p>
+      </details>
+
+      <div class="dugmeler">
+        <button class="ana" id="anlat">Hikâye anlat</button>
+        <button class="ikincil" id="durdur" disabled>Durdur</button>
+      </div>
+      <p class="ipucu" id="durum-genel">Model ilk kullanımda indirilir (~13 MB).</p>
+    </section>
+
+    <section class="sahne" id="sahne" aria-live="polite"></section>
+  </div>
+
+  <section class="panel" aria-label="Sürüm karnesi">
+    <div class="kume">
+      <h2>Sürüm karnesi: sizin puanlarınız</h2>
+      <div class="karne-tablo"><table id="karne"><thead><tr><th>Sürüm</th><th class="sayi">Hikâye</th><th class="sayi">Ortalama</th><th>Dağılım</th></tr></thead><tbody></tbody></table></div>
+      <p class="ipucu" id="karne-durum"></p>
+    </div>
+    <div class="kume">
+      <h2>Son puanlananlar</h2>
+      <div class="son-puanlar" id="son-puanlar"></div>
+    </div>
+  </section>
+
+  <footer>Rubrik (degerlendirme/RUBRIK.md): 10 = kusursuz; figür yanlış −4, karakter karışık −3, mantıksız olay −2, uydurma kelime −1. Puan verirken kısa bir not, bir sonraki eğitimde neyin düzeltileceğini gösterir.</footer>
+</div>
+
+<script id="motor-kodu" type="text/plain">
+// ---- Web Worker: runtime/llm.h'nin JS karşılığı + gen.c örneklemesi ----
+let M = null;
+function h2f(h) {
+  const s = (h & 0x8000) ? -1 : 1, e = (h >> 10) & 0x1f, f = h & 0x3ff;
+  if (e === 0) return s * Math.pow(2, -14) * (f / 1024);
+  if (e === 31) return f ? NaN : s * Infinity;
+  return s * Math.pow(2, e - 15) * (1 + f / 1024);
+}
+function yukle(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  if (dv.getUint32(0, true) !== 0x00454C50) throw new Error("model.bin tanınmadı");
+  const hdr = dv.getUint32(8, true), flags = dv.getUint32(12, true);
+  const V = dv.getUint32(16, true), Vout = dv.getUint32(20, true);
+  const c = {}; ["D", "L", "H", "F", "P", "S", "G"].forEach((k, i) => c[k] = dv.getInt32(24 + 4 * i, true));
+  c.theta = dv.getFloat32(52, true); c.V = V; c.Vout = Vout;
+  let p = hdr;
+  // int4 tensörü: sütunlar int8'e açılır, grup ölçekleri float'a çevrilir (llm.h'deki int8 staging gibi)
+  function q(rows, cols, ac = true) {
+    const group = dv.getInt32(p, true); p += 4;
+    const ng = Math.ceil(cols / group), rb = (cols + 1) >> 1, codes = p;
+    p += rows * rb;
+    const sc = new Float32Array(rows * ng);
+    for (let i = 0; i < rows * ng; i++) sc[i] = h2f(dv.getUint16(p + 2 * i, true));
+    p += rows * ng * 2;
+    const t = { rows, cols, group, ng, rb, codes, sc };
+    if (ac) {
+      const w = new Int8Array(rows * cols);
+      for (let r = 0; r < rows; r++) for (let j = 0; j < cols; j++) {
+        const b = u8[codes + r * rb + (j >> 1)];
+        w[r * cols + j] = ((j & 1) ? (b >> 4) : (b & 15)) - 8;
+      }
+      t.w = w;
+    }
+    return t;
+  }
+  function f(n) { const a = new Float32Array(buf.slice(p, p + 4 * n)); p += 4 * n; return a; }
+  const { D, L, F, P } = c;
+  const m = { c, u8 };
+  m.emb = q(V, D);
+  m.pmp = q(L * P, D); m.ppn = f(P);
+  m.tab = q(V, L * P, false);
+  m.k = [];
+  for (let l = 0; l < L; l++) {
+    const k = {};
+    k.an = f(D); k.qkv = q(3 * D, D); k.ap = q(D, D); k.fn = f(D);
+    k.g = q(F, D); k.u = q(F, D); k.d = q(D, F); k.pg = q(P, D); k.pp = q(D, P); k.pn = f(D);
+    m.k.push(k);
+  }
+  m.on = f(D);
+  m.head = (flags & 1) ? Object.assign({}, m.emb, { rows: Vout }) : q(Vout, D);
+  const S = c.S;
+  m.x = new Float32Array(D); m.h = new Float32Array(Math.max(F, D)); m.qkvb = new Float32Array(3 * D);
+  m.att = new Float32Array(D); m.g1 = new Float32Array(F); m.g2 = new Float32Array(Math.max(P, F));
+  m.ple = new Float32Array(L * P); m.tmp = new Float32Array(L * P); m.trow = new Float32Array(L * P);
+  m.lg = new Float32Array(Vout); m.sc = new Float32Array(S);
+  m.kc = new Float32Array(L * S * D); m.vc = new Float32Array(L * S * D);
+  return m;
+}
+function mv(t, x, y, rows = t.rows) {
+  const { cols, group, ng, w, sc } = t;
+  for (let r = 0; r < rows; r++) {
+    let acc = 0, o = r * cols;
+    for (let g = 0; g < ng; g++) {
+      const b = g * group, e = Math.min(b + group, cols);
+      let s = 0;
+      for (let j = b; j < e; j++) s += w[o + j] * x[j];
+      acc += s * sc[r * ng + g];
+    }
+    y[r] = acc;
+  }
+}
+function deqRow(t, r, out) {
+  const { cols, group, ng, rb, codes, sc } = t, u8 = M.u8, base = codes + r * rb;
+  for (let j = 0; j < cols; j++) {
+    const b = u8[base + (j >> 1)];
+    out[j] = (((j & 1) ? (b >> 4) : (b & 15)) - 8) * sc[r * ng + ((j / group) | 0)];
+  }
+}
+function rms(x, w, n, out, xo = 0, oo = 0) {
+  let ss = 0; for (let i = 0; i < n; i++) ss += x[xo + i] * x[xo + i];
+  const inv = 1 / Math.sqrt(ss / n + 1e-6);
+  for (let i = 0; i < n; i++) out[oo + i] = w[i] * x[xo + i] * inv;
+}
+function erf(x) { // Abramowitz-Stegun 7.1.26
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return s * y;
+}
+function ileri(tok, pos) {
+  const m = M, { D, L, P, F, H, S, theta } = m.c, Dh = D / H;
+  const x = m.x;
+  // gömme: tok_emb satırı
+  { const t = m.emb, o = tok * t.cols; for (let j = 0; j < D; j++) x[j] = t.w[o + j] * t.sc[tok * t.ng + ((j / t.group) | 0)]; }
+  mv(m.pmp, x, m.tmp);
+  const ds = 1 / Math.sqrt(D);
+  for (let i = 0; i < L * P; i++) m.tmp[i] *= ds;
+  for (let l = 0; l < L; l++) rms(m.tmp, m.ppn, P, m.tmp, l * P, l * P);
+  deqRow(m.tab, tok, m.trow);
+  const sp = Math.sqrt(P), inv2 = 0.70710678;
+  for (let i = 0; i < L * P; i++) m.ple[i] = (m.tmp[i] + m.trow[i] * sp) * inv2;
+  const rc = new Float32Array(Dh / 2), rs = new Float32Array(Dh / 2);
+  for (let i = 0; i < Dh / 2; i++) { const fr = Math.pow(theta, -2 * i / Dh); rc[i] = Math.cos(pos * fr); rs[i] = Math.sin(pos * fr); }
+  const scale = 1 / Math.sqrt(Dh);
+  for (let l = 0; l < L; l++) {
+    const k = m.k[l];
+    rms(x, k.an, D, m.h);
+    mv(k.qkv, m.h, m.qkvb);
+    const qb = m.qkvb;
+    for (let hh = 0; hh < H; hh++) {
+      const qo = hh * Dh, ko = D + hh * Dh;
+      for (let i = 0; i < Dh / 2; i++) {
+        const c = rc[i], s = rs[i];
+        const q1 = qb[qo + i], q2 = qb[qo + i + Dh / 2];
+        qb[qo + i] = q1 * c - q2 * s; qb[qo + i + Dh / 2] = q2 * c + q1 * s;
+        const k1 = qb[ko + i], k2 = qb[ko + i + Dh / 2];
+        qb[ko + i] = k1 * c - k2 * s; qb[ko + i + Dh / 2] = k2 * c + k1 * s;
+      }
+    }
+    const kb = l * S * D;
+    for (let i = 0; i < D; i++) { m.kc[kb + pos * D + i] = qb[D + i]; m.vc[kb + pos * D + i] = qb[2 * D + i]; }
+    for (let hh = 0; hh < H; hh++) {
+      const qo = hh * Dh; let mx = -1e30;
+      for (let t = 0; t <= pos; t++) {
+        let d = 0; const o = kb + t * D + hh * Dh;
+        for (let i = 0; i < Dh; i++) d += qb[qo + i] * m.kc[o + i];
+        d *= scale; m.sc[t] = d; if (d > mx) mx = d;
+      }
+      let den = 0; for (let i = 0; i < Dh; i++) m.att[qo + i] = 0;
+      for (let t = 0; t <= pos; t++) {
+        const w = Math.exp(m.sc[t] - mx); den += w; const o = kb + t * D + hh * Dh;
+        for (let i = 0; i < Dh; i++) m.att[qo + i] += w * m.vc[o + i];
+      }
+      for (let i = 0; i < Dh; i++) m.att[qo + i] /= den;
+    }
+    mv(k.ap, m.att, m.h);
+    for (let i = 0; i < D; i++) x[i] += m.h[i];
+    rms(x, k.fn, D, m.h);
+    mv(k.g, m.h, m.g1); mv(k.u, m.h, m.g2);
+    for (let i = 0; i < F; i++) { const g = m.g1[i]; m.g1[i] = g / (1 + Math.exp(-g)) * m.g2[i]; }
+    mv(k.d, m.g1, m.h);
+    for (let i = 0; i < D; i++) x[i] += m.h[i];
+    mv(k.pg, x, m.g2);
+    for (let i = 0; i < P; i++) { const g = m.g2[i]; m.g2[i] = 0.5 * g * (1 + erf(g * 0.70710678)) * m.ple[l * P + i]; }
+    mv(k.pp, m.g2, m.h);
+    rms(m.h, k.pn, D, m.h);
+    for (let i = 0; i < D; i++) x[i] += m.h[i];
+  }
+  rms(x, m.on, D, x);
+  mv(m.head, x, m.lg, m.c.Vout);
+}
+function rastgele(seed) { // mulberry32
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function sec(lg, V, temp, k, rnd) {
+  let best = 0; for (let v = 1; v < V; v++) if (lg[v] > lg[best]) best = v;
+  if (temp <= 0) return best;
+  const idx = [];
+  for (let v = 0; v < V; v++) {
+    if (idx.length === k && lg[v] <= lg[idx[k - 1]]) continue;
+    let j = idx.length < k ? idx.length : k - 1;
+    if (idx.length < k) idx.push(v);
+    while (j > 0 && lg[idx[j - 1]] < lg[v]) { idx[j] = idx[j - 1]; j--; }
+    idx[j] = v;
+  }
+  const p = idx.map(i => Math.exp((lg[i] - lg[best]) / temp));
+  let r = rnd() * p.reduce((a, b) => a + b, 0), out = idx[idx.length - 1];
+  for (let i = 0; i < idx.length; i++) if ((r -= p[i]) <= 0) { out = idx[i]; break; }
+  return out;
+}
+function uret(is) {
+  const { prompt, n, temp, topk, rep, seed, ban, eot } = is;
+  const V = M.c.Vout, S = M.c.S, rnd = rastgele(seed), recent = [];
+  let pos = 0;
+  for (const t of prompt) { recent.push(t); ileri(t, pos++); }
+  const ids = [], lps = []; let bitti = false;
+  const t0 = performance.now();
+  for (let step = 0; step < n && pos < S; step++) {
+    const lg = M.lg;
+    if (rep > 1) {
+      const son = new Set(recent.slice(-64));
+      for (const t of son) lg[t] = lg[t] > 0 ? lg[t] / rep : lg[t] * rep;
+    }
+    for (const b of ban) if (b >= 0 && b < V) lg[b] = -1e30;
+    const tok = sec(lg, V, temp, Math.max(1, topk), rnd);
+    let mx = -Infinity; for (let v = 0; v < V; v++) if (lg[v] > mx) mx = lg[v];
+    let z = 0; for (let v = 0; v < V; v++) z += Math.exp(lg[v] - mx);
+    const lp = lg[tok] - mx - Math.log(z);
+    if (tok === eot) { bitti = true; break; }
+    ids.push(tok); lps.push(lp); recent.push(tok);
+    postMessage({ tip: "token", is: is.no, id: tok });
+    ileri(tok, pos++);
+  }
+  const sn = (performance.now() - t0) / 1000;
+  postMessage({ tip: "bitti", is: is.no, ids, lps, bitti, hiz: ids.length / Math.max(sn, 1e-3) });
+}
+onmessage = (e) => {
+  const d = e.data;
+  try {
+    if (d.tip === "yukle") { M = yukle(d.buf); postMessage({ tip: "hazir", c: M.c }); }
+    else if (d.tip === "uret") uret(d);
+  } catch (err) { postMessage({ tip: "hata", mesaj: String(err && err.message || err) }); }
+};
+</script>
+
+<!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
+<script id="surumler" type="application/json">
+[
+ {"id": "c2-onizleme", "ad": "v0 · altyapı testi", "tarih": "24 Eylül 2026", "yeni": true,
+  "degisiklik": ["Ön-eğitimin yalnızca 500. adımı ve ince ayarsız: Türkçe cümle kurar ama figürü tanımaz. Arayüzün sizde çalıştığını görmek için.",
+                 "Yeni tokenizer: 12 figür ismi ve türü tek token (önceden ör. Paytak 3 parçaydı).",
+                 "Başlık artık eğitimdeki gibi kodlanıyor; 'Ben' kelimesi yasak listesinden çıktı."],
+  "olcum": {"ön-eğitim": "500 / 24 000 adım"}}
+]
+</script>
+
+<script>
+const SURUMLER = JSON.parse(document.getElementById("surumler").textContent);
+
+const KATALOG = {
+  karakterler: [
+    ["tavsan", "tavşan", "Pamuk", "🐰"], ["kedi", "kedi", "Tekir", "🐱"], ["kopek", "köpek", "Karabaş", "🐶"],
+    ["ayi", "ayı", "Bal", "🐻"], ["tilki", "tilki", "Kızıl", "🦊"], ["kus", "kuş", "Cikcik", "🐦"],
+    ["kaplumbaga", "kaplumbağa", "Tosbi", "🐢"], ["penguen", "penguen", "Paytak", "🐧"], ["dinozor", "dinozor", "Dino", "🦕"],
+    ["ejderha", "ejderha", "Alev", "🐉"], ["kiz", "kız", "Elif", "👧"], ["oglan", "oğlan", "Can", "👦"],
+  ].map(([kimlik, tur, isim, emoji]) => ({ kimlik, tur, isim, emoji })),
+  yerler: [["orman", "orman", "🌲"], ["deniz", "deniz", "🌊"], ["ev", "ev", "🏡"], ["park", "park", "🌳"], ["sato", "şato", "🏰"], ["dag", "dağ", "⛰️"]]
+    .map(([kimlik, ad, emoji]) => ({ kimlik, ad, emoji })),
+};
+const KAR = Object.fromEntries(KATALOG.karakterler.map(k => [k.kimlik, k]));
+const SIRA = KATALOG.karakterler.map(k => k.kimlik);
+const $ = (s) => document.querySelector(s);
+const el = (tag, attrs = {}, ...cocuk) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const c of cocuk) if (c != null) e.append(c);
+  return e;
+};
+const saklaOku = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const saklaYaz = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+// ---- seçici: degerlendirme/sec.py'nin birebir JS karşılığı ----
+const HARF = "[\\p{L}\\p{N}_]";
+const B = `(?<!${HARF})`, E = `(?!${HARF})`;
+const kac = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const say = (re, s) => (s.match(re) || []).length;
+const HAYVAN = ["kuş", "sincap", "yengeç", "fare", "tavşan", "kedi", "köpek", "ayı", "tilki", "kurbağa", "balık", "kelebek",
+  "karınca", "baykuş", "kaplumbağa", "penguen", "dinozor", "ejderha", "aslan",
+  "inek", "koyun", "tavuk", "ördek", "yunus", "maymun", "zürafa", "kirpi", "salyangoz", "uğur böceği"];
+const YER_KELIME = {
+  orman: `${B}orman`, deniz: `${B}(?:deniz|kumsal|sahil|kıyı)`, ev: `${B}ev(?:de|e|in|i|den|imiz)?${E}`,
+  park: `${B}park`, sato: `${B}şato`, dag: `${B}da(?:ğ|ğı|ğa|ğda|ğın)${E}`,
+};
+let SOZLUK = null, YABANCI = [];
+function cezalar(metin, kim, bitti) {
+  const isimler = kim.map(k => KAR[k].isim), c = [];
+  const TUM = new Set(KATALOG.karakterler.map(k => k.isim));
+  for (const n of isimler) {
+    if (say(new RegExp(`${B}${kac(n)}${E}`, "gu"), metin) < 2) c.push([3, `${n} hikâyede yeterince yok`]);
+    if (new RegExp(`${B}${kac(n)}${E},?\\s+${kac(n)}['’]`, "u").test(metin)) c.push([2, `kendine gönderme ${n}`]);
+  }
+  const son = metin.slice(Math.floor(metin.length * 0.6));
+  for (const n of isimler) {
+    if (!new RegExp(`${B}${kac(n)}${E}`, "u").test(son)) c.push([3, `${n} sonda yok`]);
+    if (new RegExp(`${B}${kac(n)}${E}\\s+ve\\s+${kac(n)}${E}`, "u").test(metin)) c.push([3, `'${n} ve ${n}'`]);
+  }
+  const yari = Math.floor(metin.length / 2);
+  const ilk = metin.slice(0, yari).toLowerCase(), ikinci = metin.slice(yari).toLowerCase();
+  const turler = new Set(kim.map(k => KAR[k].tur));
+  const yeni = HAYVAN.filter(h => new RegExp(`${B}${h}`, "u").test(ikinci) && !new RegExp(`${B}${h}`, "u").test(ilk) && !turler.has(h));
+  if (yeni.length) c.push([1.5 * yeni.length, `sonradan beliren karakter: ${yeni.join(", ")}`]);
+  const konusan = [...metin.matchAll(/["”]\s*(?:diye [\p{L}\p{N}_]+|dedi|sordu)\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+)/gu)].map(m => m[1]);
+  if (konusan.some((a, i) => i > 0 && konusan[i - 1] === a)) c.push([1, "aynı konuşmacı üst üste"]);
+  const yasakli = new Set([...TUM].filter(n => !isimler.includes(n)).concat(YABANCI));
+  const yanlis = [...new Set(metin.match(/[A-ZÇĞİÖŞÜ][a-zçğıöşü]+/gu) || [])].filter(w => yasakli.has(w));
+  if (yanlis.length) c.push([2, `yanlış isim: ${yanlis.sort().join(", ")}`]);
+  const cumleler = metin.split(/(?<=[.!?])\s+/u).map(s => s.trim()).filter(Boolean);
+  if (cumleler.length !== new Set(cumleler).size) c.push([1, "tekrarlanan cümle"]);
+  if (!/[.!"”]$/u.test(metin.trimEnd()) || !bitti) c.push([2, "yarım son"]);
+  if (metin.split(/\s+/).filter(Boolean).length < 50) c.push([2, "çok kısa"]);
+  const kelimeler = metin.toLowerCase().match(/[a-zçğıöşüâîû]+/gu) || [];
+  if (SOZLUK) {
+    const bil = kelimeler.filter(w => !SOZLUK.has(w));
+    if (bil.length) c.push([1.5 * bil.length, `uydurma kelime: ${bil.slice(0, 4).join(", ")}`]);
+  }
+  const uclu = kelimeler.slice(0, -2).map((w, i) => w + " " + kelimeler[i + 1] + " " + kelimeler[i + 2]);
+  const tekrar = uclu.length - new Set(uclu).size;
+  if (tekrar > 2) c.push([0.5 * (tekrar - 2), `tekrar eden ifade ×${tekrar}`]);
+  return c;
+}
+function yerCezasi(metin, yer) {
+  const son = metin.slice(Math.floor(metin.length * 0.5)).toLowerCase(), alt = metin.toLowerCase();
+  const kendi = say(new RegExp(YER_KELIME[yer], "gu"), alt);
+  let baska = 0;
+  for (const [y, p] of Object.entries(YER_KELIME)) if (y !== yer) baska = Math.max(baska, say(new RegExp(p, "gu"), son));
+  return (kendi === 0 || baska > kendi) ? [[1.5, "yer kayması"]] : [];
+}
+function puanla(metin, kim, yer, ortLogp, bitti) {
+  const liste = cezalar(metin, kim, bitti).concat(yerCezasi(metin, yer));
+  return { puan: -liste.reduce((a, [p]) => a + p, 0) + 2 * ortLogp, liste };
+}
+
+// ---- token çözme (GPT-2 byte-level) ----
+const BAYT = (() => {
+  const bs = []; for (let i = 33; i < 127; i++) bs.push(i); for (let i = 161; i < 173; i++) bs.push(i); for (let i = 174; i < 256; i++) bs.push(i);
+  const cs = bs.slice(); let n = 0;
+  for (let b = 0; b < 256; b++) if (!bs.includes(b)) { bs.push(b); cs.push(256 + n); n++; }
+  const m = new Map(); cs.forEach((c, i) => m.set(String.fromCodePoint(c), bs[i])); return m;
+})();
+function cozucu(vocab) {
+  const bayt = vocab.map(s => Uint8Array.from([...(s || "")].map(ch => BAYT.get(ch) ?? 63)));
+  const td = new TextDecoder("utf-8");
+  return (ids) => {
+    let n = 0; for (const i of ids) n += bayt[i].length;
+    const out = new Uint8Array(n); let o = 0;
+    for (const i of ids) { out.set(bayt[i], o); o += bayt[i].length; }
+    return td.decode(out).replace(/\uFFFD+$/u, "");
+  };
+}
+
+// ---- model yükleme ve işçiler ----
+const MOTOR = URL.createObjectURL(new Blob([document.getElementById("motor-kodu").textContent], { type: "text/javascript" }));
+const surumler = new Map(); // id -> {meta, coz, isci, hazir: Promise}
+// model.b64.txt = base64(gzip(model.bin)): yayın yeri ikili dosya sunmadığı için metin olarak taşınır
+async function modelAc(b64) {
+  const s = atob(b64.trim()), u = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+  return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+}
+function surumYukle(id) {
+  if (surumler.has(id)) return surumler.get(id).hazir;
+  const kayit = {};
+  kayit.hazir = (async () => {
+    const [meta, buf] = await Promise.all([
+      fetch(`m/${id}/meta.json`).then(r => { if (!r.ok) throw new Error(`meta.json bulunamadı (${r.status})`); return r.json(); }),
+      fetch(`m/${id}/model.b64.txt`).then(r => { if (!r.ok) throw new Error(`model bulunamadı (${r.status})`); return r.text(); }).then(modelAc),
+    ]);
+    kayit.meta = meta; kayit.coz = cozucu(meta.vocab);
+    YABANCI = meta.yabanci || YABANCI;
+    kayit.buf = buf;
+    await isciKur(kayit);
+    return kayit;
+  })();
+  kayit.hazir.catch(() => surumler.delete(id));
+  surumler.set(id, kayit);
+  return kayit.hazir;
+}
+function isciKur(kayit) {
+  if (kayit.isci) kayit.isci.terminate();
+  const w = new Worker(MOTOR);
+  kayit.isci = w; kayit.dinleyici = null;
+  return new Promise((ok, hata) => {
+    w.onmessage = (e) => {
+      const d = e.data;
+      if (d.tip === "hazir") { kayit.c = d.c; ok(); }
+      else if (d.tip === "hata") { (kayit.dinleyici ? kayit.dinleyici.hata : hata)(new Error(d.mesaj)); }
+      else if (kayit.dinleyici) kayit.dinleyici.mesaj(d);
+    };
+    w.postMessage({ tip: "yukle", buf: kayit.buf.slice(0) }, []);
+  });
+}
+function uretBir(kayit, is, onToken) {
+  return new Promise((ok, hata) => {
+    kayit.dinleyici = {
+      mesaj: (d) => { if (d.tip === "token") onToken?.(d.id); else if (d.tip === "bitti") { kayit.dinleyici = null; ok(d); } },
+      hata: (e) => { kayit.dinleyici = null; hata(e); },
+    };
+    kayit.isci.postMessage({ tip: "uret", ...is, eot: kayit.meta.eot });
+  });
+}
+
+// ---- durum ----
+const durum = {
+  secili: saklaOku("secili", ["tavsan"]),
+  yer: saklaOku("yer", "orman"),
+  calisiyor: false,
+  iptal: false,
+  sonuclar: [],
+};
+
+// ---- arayüz: sürümler ----
+function surumSecenekleri(sel, secilen) {
+  sel.innerHTML = "";
+  for (const s of SURUMLER) sel.append(el("option", { value: s.id, text: `${s.ad}${s.yeni ? " · en yeni" : ""}` }));
+  if (secilen && SURUMLER.some(s => s.id === secilen)) sel.value = secilen;
+}
+function surumNotu() {
+  const s = SURUMLER.find(x => x.id === $("#surum").value), kutu = $("#surum-not");
+  kutu.innerHTML = "";
+  if (!s) { kutu.textContent = "Henüz yayımlanmış sürüm yok."; return; }
+  kutu.append(el("div", {}, el("b", { text: s.ad }), ` · ${s.tarih}`));
+  if (s.degisiklik?.length) kutu.append(el("ul", {}, ...s.degisiklik.map(d => el("li", { text: d }))));
+  if (s.olcum) kutu.append(el("div", { class: "olcum" }, ...Object.entries(s.olcum).map(([k, v]) => el("span", {}, `${k}: `, el("b", { text: v })))));
+}
+function surumleriKur() {
+  surumSecenekleri($("#surum"), saklaOku("surum", SURUMLER[0]?.id));
+  surumSecenekleri($("#surum2"), saklaOku("surum2", SURUMLER[1]?.id || SURUMLER[0]?.id));
+  surumNotu();
+}
+$("#surum").addEventListener("change", () => { saklaYaz("surum", $("#surum").value); surumNotu(); });
+$("#surum2").addEventListener("change", () => saklaYaz("surum2", $("#surum2").value));
+$("#karsilastir").addEventListener("change", () => { $("#surum2-kutu").hidden = !$("#karsilastir").checked; });
+
+// ---- arayüz: figürler ve yer ----
+function figurleriCiz() {
+  const kutu = $("#figurler"); kutu.innerHTML = "";
+  for (const k of KATALOG.karakterler) {
+    const i = durum.secili.indexOf(k.kimlik);
+    kutu.append(el("button", {
+      class: "jeton", "aria-pressed": String(i >= 0), "data-sira": i >= 0 ? String(i + 1) : "",
+      "aria-label": `${k.isim}, ${k.tur}`,
+      onclick: () => {
+        const j = durum.secili.indexOf(k.kimlik);
+        if (j >= 0) durum.secili.splice(j, 1);
+        else { durum.secili.push(k.kimlik); if (durum.secili.length > 2) durum.secili.shift(); }
+        saklaYaz("secili", durum.secili); figurleriCiz();
+      },
+    }, el("span", { class: "em", text: k.emoji }), el("span", { class: "ad", text: k.isim }), el("span", { class: "tur", text: k.tur })));
+  }
+  $("#anlat").disabled = durum.calisiyor || durum.secili.length === 0;
+}
+function yerleriCiz() {
+  const kutu = $("#yerler"); kutu.innerHTML = "";
+  for (const y of [...KATALOG.yerler, { kimlik: "rastgele", ad: "rastgele", emoji: "🎲" }]) {
+    kutu.append(el("button", {
+      class: "kart", "aria-pressed": String(durum.yer === y.kimlik),
+      onclick: () => { durum.yer = y.kimlik; saklaYaz("yer", y.kimlik); yerleriCiz(); },
+    }, `${y.emoji} ${y.ad}`));
+  }
+}
+
+// ---- ayarlar ----
+const AYAR = ["temp", "rep", "topk", "aday", "uzunluk"];
+function ayarGoster() { for (const a of AYAR) $(`#${a}-d`).textContent = $(`#${a}`).value; }
+for (const a of AYAR) {
+  const v = saklaOku(`ayar-${a}`, null); if (v != null) $(`#${a}`).value = v;
+  $(`#${a}`).addEventListener("input", () => { saklaYaz(`ayar-${a}`, $(`#${a}`).value); ayarGoster(); });
+}
+ayarGoster();
+
+// ---- üretim ----
+function vakaAnahtari(kim, yer) { return [...kim].sort((a, b) => SIRA.indexOf(a) - SIRA.indexOf(b)).join(",") + "|" + yer; }
+function yasakIdler(meta, kim) {
+  const secili = new Set(kim.map(k => KAR[k].isim)), ids = new Set();
+  for (const [isim, liste] of Object.entries(meta.isim_yasak)) if (!secili.has(isim)) liste.forEach(i => ids.add(i));
+  return [...ids];
+}
+function kagitKur(surumId, etiket) {
+  const s = SURUMLER.find(x => x.id === surumId);
+  const k = {};
+  k.kok = el("article", { class: "sayfa-kagit" });
+  k.durum = el("span", { class: "durum", text: "yükleniyor…" });
+  k.kok.append(el("div", { class: "kagit-bas" }, el("span", { class: "etiket", text: `${etiket}${s ? s.ad : surumId}` }), k.durum));
+  k.baslik = el("div", { class: "baslik-satir" });
+  k.ilerleme = el("div", { class: "ilerleme" }, el("i"));
+  k.metin = el("p", { class: "metin bos", text: "Hikâye hazırlanıyor…" });
+  k.cezalar = el("div", { class: "cezalar" });
+  k.adaylar = el("details", { class: "adaylar", hidden: "" });
+  k.puan = el("div", { class: "puanla", hidden: "" });
+  k.kok.append(k.baslik, k.ilerleme, k.metin, k.cezalar, k.adaylar, k.puan);
+  return k;
+}
+function metniGoster(k, metin, akiyor) {
+  k.metin.classList.toggle("bos", !metin && !akiyor);
+  k.metin.textContent = metin || (akiyor ? "" : "…");
+  if (akiyor) k.metin.append(el("span", { class: "imlec", "aria-hidden": "true" }));
+}
+function cezalariGoster(k, liste) {
+  k.cezalar.innerHTML = "";
+  if (!liste.length) k.cezalar.append(el("span", { class: "rozet temiz", text: "kuralların hepsini geçti" }));
+  for (const [p, ad] of liste) k.cezalar.append(el("span", { class: "rozet ceza", text: `−${p % 1 ? p.toFixed(1) : p} ${ad}` }));
+}
+async function calistir(surumId, k, vaka, ayar) {
+  let kayit;
+  try { kayit = await surumYukle(surumId); }
+  catch (e) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = `Model yüklenemedi: ${e.message}`; return null; }
+  const meta = kayit.meta, anahtar = vakaAnahtari(vaka.kim, vaka.yer);
+  const prompt = meta.prompts[anahtar];
+  k.baslik.textContent = kayit.coz(prompt).replace(/\n/g, "⏎");
+  const ban = yasakIdler(meta, vaka.kim), adaylar = [];
+  const bar = k.ilerleme.firstChild;
+  for (let j = 0; j < ayar.aday; j++) {
+    if (durum.iptal) break;
+    k.durum.textContent = ayar.aday > 1 ? `aday ${j + 1}/${ayar.aday}` : "yazıyor…";
+    const akis = [];
+    let d;
+    try {
+      d = await uretBir(kayit, { no: j, prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, seed: ayar.seed + j, ban },
+        (id) => { akis.push(id); if (ayar.aday === 1 || j === 0 && !adaylar.length) metniGoster(k, kayit.coz(akis), true); });
+    } catch (e) { if (durum.iptal) break; k.metin.className = "metin hata"; k.metin.textContent = `Üretim hatası: ${e.message}`; return null; }
+    const metin = kayit.coz(d.ids).trim();
+    const ort = d.lps.reduce((a, b) => a + b, 0) / Math.max(1, d.lps.length);
+    const p = puanla(metin, vaka.kim, vaka.yer, ort, d.bitti);
+    adaylar.push({ j, metin, ort, bitti: d.bitti, n: d.ids.length, hiz: d.hiz, seed: ayar.seed + j, ...p });
+    bar.style.width = `${100 * (j + 1) / ayar.aday}%`;
+    const enIyi = adaylar.reduce((a, b) => b.puan > a.puan ? b : a);
+    metniGoster(k, enIyi.metin, false); cezalariGoster(k, enIyi.liste);
+  }
+  if (!adaylar.length) { k.durum.textContent = "durduruldu"; return null; }
+  const sirali = adaylar.slice().sort((a, b) => b.puan - a.puan);
+  const hiz = adaylar.reduce((a, b) => a + b.hiz, 0) / adaylar.length;
+  k.durum.textContent = `${sirali[0].n} token · tarayıcıda ${hiz.toFixed(0)} tok/s`;
+  adaylariGoster(k, sirali);
+  const sonuc = { surum: surumId, vaka, ayar, sirali, secilen: sirali[0] };
+  puanKutusu(k, sonuc);
+  return sonuc;
+}
+function adaylariGoster(k, sirali) {
+  if (sirali.length < 2) { k.adaylar.hidden = true; return; }
+  k.adaylar.hidden = false; k.adaylar.innerHTML = "";
+  k.adaylar.append(el("summary", { text: `${sirali.length} adayın hepsini gör (seçici puanına göre)` }));
+  const liste = el("div", { class: "aday-liste" });
+  sirali.forEach((a, i) => {
+    const b = el("button", {
+      class: "aday", "aria-current": String(i === 0),
+      onclick: () => {
+        liste.querySelectorAll(".aday").forEach(x => x.setAttribute("aria-current", "false"));
+        b.setAttribute("aria-current", "true");
+        metniGoster(k, a.metin, false); cezalariGoster(k, a.liste); k.sonuc.secilen = a;
+      },
+    }, el("span", { class: "n", text: `#${i + 1}` }), el("span", { class: "ozet", text: a.metin.slice(0, 90) }), el("span", { class: "p", text: a.puan.toFixed(1) }));
+    liste.append(b);
+  });
+  k.adaylar.append(liste);
+}
+
+// ---- puanlama (db) ----
+let db = null, dbDurum = "bağlanıyor";
+function puanKutusu(k, sonuc) {
+  k.sonuc = sonuc;
+  k.puan.hidden = false; k.puan.innerHTML = "";
+  let secilen = null;
+  const tuslar = el("div", { class: "puanlar", role: "group", "aria-label": "10 üzerinden puan" });
+  for (let i = 1; i <= 10; i++) tuslar.append(el("button", {
+    "aria-pressed": "false", text: String(i),
+    onclick: (e) => { secilen = i; tuslar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === e.currentTarget))); kaydet.disabled = !db; },
+  }));
+  const not = el("textarea", { placeholder: "Not (isteğe bağlı): ne iyiydi, ne bozuktu?", "aria-label": "Not" });
+  const bilgi = el("span", { class: "bilgi", text: db ? "" : "Puanlar bu görünümde kaydedilemiyor." });
+  const sesli = el("button", { class: "ikincil", text: "Sesli oku", onclick: () => sesliOku(k.sonuc.secilen.metin) });
+  if (!("speechSynthesis" in window)) sesli.hidden = true;
+  const kaydet = el("button", {
+    class: "ikincil", text: "Puanı kaydet", disabled: "",
+    onclick: async () => {
+      if (!db || !secilen) return;
+      kaydet.disabled = true; bilgi.textContent = "kaydediliyor…";
+      const a = k.sonuc.secilen;
+      try {
+        await db.collection("degerlendirmeler").add({
+          surum: sonuc.surum, figurler: sonuc.vaka.kim, yer: sonuc.vaka.yer, puan: secilen, not: not.value.trim(),
+          metin: a.metin, seed: a.seed, secici_puani: Math.round(a.puan * 100) / 100,
+          cezalar: a.liste.map(([p, ad]) => `${p} ${ad}`), ayar: sonuc.ayar, aday_sirasi: k.sonuc.sirali.indexOf(a) + 1,
+          zaman: new Date().toISOString(),
+        });
+        bilgi.textContent = "Kaydedildi."; not.disabled = true; tuslar.querySelectorAll("button").forEach(b => b.disabled = true);
+      } catch (e) {
+        bilgi.textContent = e.code === "invalid_argument" ? "Bu sayfada puan kaydetme izniniz yok." : `Kaydedilemedi (${e.code || e.message}). Tekrar deneyin.`;
+        kaydet.disabled = false;
+      }
+    },
+  });
+  k.puan.append(tuslar, not, el("div", { class: "satir" }, bilgi, el("div", { class: "dugmeler" }, sesli, kaydet)));
+}
+function sesliOku(metin) {
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(metin); u.lang = "tr-TR"; u.rate = 0.9;
+    const ses = speechSynthesis.getVoices().find(v => v.lang?.toLowerCase().startsWith("tr"));
+    if (ses) u.voice = ses;
+    speechSynthesis.speak(u);
+  } catch {}
+}
+function karneCiz(kayitlar) {
+  const tb = $("#karne tbody"); tb.innerHTML = "";
+  const grup = new Map();
+  for (const r of kayitlar) { if (!grup.has(r.surum)) grup.set(r.surum, []); grup.get(r.surum).push(r.puan); }
+  const sira = SURUMLER.map(s => s.id).filter(id => grup.has(id)).concat([...grup.keys()].filter(id => !SURUMLER.some(s => s.id === id)));
+  for (const id of sira) {
+    const p = grup.get(id), ort = p.reduce((a, b) => a + b, 0) / p.length;
+    const dag = el("span", { style: "display:inline-flex;gap:2px;align-items:end;height:18px" });
+    for (let i = 1; i <= 10; i++) { const n = p.filter(x => x === i).length; dag.append(el("span", { title: `${i}: ${n}`, style: `width:6px;height:${n ? 4 + 14 * n / p.length : 1}px;background:var(${n ? "--vurgu" : "--cizgi"});border-radius:1px` })); }
+    tb.append(el("tr", {}, el("td", { text: SURUMLER.find(s => s.id === id)?.ad || id }), el("td", { class: "sayi", text: String(p.length) }),
+      el("td", { class: "sayi" }, ort.toFixed(2), el("span", { class: "cubuk", style: `width:${ort * 8}px` })), el("td", {}, dag)));
+  }
+  if (!kayitlar.length) tb.append(el("tr", {}, el("td", { colspan: "4", text: "Henüz puan yok. Bir hikâye üretip 1–10 arası puan verin." })));
+  const son = $("#son-puanlar"); son.innerHTML = "";
+  for (const r of kayitlar.slice(0, 6)) {
+    son.append(el("div", { class: "son" },
+      el("div", { class: "ust" }, el("span", {}, el("b", { text: `${r.puan}/10` }), ` · ${SURUMLER.find(s => s.id === r.surum)?.ad || r.surum}`),
+        el("span", { text: `${(r.figurler || []).map(k => KAR[k]?.isim || k).join(" + ")} · ${r.yer}` })),
+      r.not ? el("div", { text: `“${r.not}”` }) : null,
+      el("p", { text: r.metin })));
+  }
+}
+(async () => {
+  try { db = await window.claude?.use?.("db"); } catch { db = null; }
+  if (!db) { $("#karne-durum").textContent = "Puanlar yalnızca claude.ai'de açılan sayfada kaydedilir."; karneCiz([]); return; }
+  db.collection("degerlendirmeler").orderBy("zaman", "desc").limit(500).onSnapshot(
+    (snap) => { karneCiz(snap.docs.map(d => d.data())); $("#karne-durum").textContent = `${snap.size} puanlı hikâye.`; },
+    (e) => { $("#karne-durum").textContent = `Puanlar okunamadı (${e.code}).`; });
+})();
+
+// ---- ana akış ----
+$("#anlat").addEventListener("click", async () => {
+  if (durum.calisiyor || !durum.secili.length || !SURUMLER.length) return;
+  durum.calisiyor = true; durum.iptal = false;
+  $("#anlat").disabled = true; $("#durdur").disabled = false;
+  const yer = durum.yer === "rastgele" ? KATALOG.yerler[Math.floor(Math.random() * 6)].kimlik : durum.yer;
+  const seedGirdi = $("#seed").value.trim();
+  const ayar = {
+    temp: +$("#temp").value, rep: +$("#rep").value, topk: +$("#topk").value, aday: +$("#aday").value,
+    uzunluk: +$("#uzunluk").value, seed: seedGirdi === "" ? Math.floor(Math.random() * 1e6) : +seedGirdi,
+  };
+  const vaka = { kim: durum.secili.slice(), yer };
+  const ids = [$("#surum").value];
+  if ($("#karsilastir").checked && $("#surum2").value !== ids[0]) ids.push($("#surum2").value);
+  const sahne = $("#sahne"); sahne.innerHTML = ""; sahne.classList.toggle("cift", ids.length > 1);
+  const kagitlar = ids.map((id, i) => kagitKur(id, ids.length > 1 ? (i ? "B · " : "A · ") : ""));
+  kagitlar.forEach(k => sahne.append(k.kok));
+  $("#durum-genel").textContent = `seed ${ayar.seed} · ${vaka.kim.map(k => KAR[k].isim).join(" + ")} · ${KATALOG.yerler.find(y => y.kimlik === yer).ad}`;
+  await Promise.all(ids.map((id, i) => calistir(id, kagitlar[i], vaka, ayar)));
+  durum.calisiyor = false; $("#durdur").disabled = true; figurleriCiz();
+});
+$("#durdur").addEventListener("click", () => {
+  durum.iptal = true;
+  for (const k of surumler.values()) if (k.dinleyici) { const d = k.dinleyici; isciKur(k).catch(() => {}); d.hata(new Error("durduruldu")); }
+});
+
+// sözlük (uydurma kelime kontrolü) arka planda
+fetch("sozluk.txt").then(r => r.ok ? r.text() : null).then(t => { if (t) SOZLUK = new Set(t.split("\n")); }).catch(() => {});
+
+surumleriKur(); figurleriCiz(); yerleriCiz();
+if (!SURUMLER.length) { $("#anlat").disabled = true; $("#durum-genel").textContent = "İlk model eğitiliyor; hazır olunca burada görünecek."; }
+$("#sahne").append((() => {
+  const k = kagitKur(SURUMLER[0]?.id || "—", "");
+  k.durum.textContent = "örnek";
+  k.baslik.textContent = "Karakter: tavşan | Yer: orman⏎⏎";
+  k.metin.classList.add("bos");
+  k.metin.textContent = "Bir figür seçip “Hikâye anlat”a basın. Yeni hikâye burada yazılır; aday sayısı 1'den büyükse oyuncağın seçicisi en iyisini gösterir, diğer adaylar ve kural cezaları altta listelenir.";
+  return k.kok;
+})());
+</script>

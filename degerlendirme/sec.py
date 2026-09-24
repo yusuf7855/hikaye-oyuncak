@@ -19,7 +19,9 @@ HAYVAN = ["kuş", "sincap", "yengeç", "fare", "tavşan", "kedi", "köpek", "ay�
           "inek", "koyun", "tavuk", "ördek", "yunus", "maymun", "zürafa", "kirpi", "salyangoz", "uğur böceği"]
 
 
-def cezalar(metin, kimlikler, n_token=0, n_max=240):
+def cezalar(metin, kimlikler, n_token=0, n_max=240, bitti=None):
+    """bitti: model hikâye sonu token'ı üretti mi. Bilinmiyorsa (None) n_token >= n_max yarım sayılır;
+    ama bağlam sınırında kesilen hikâye n_max'a hiç ulaşmayabilir, o yüzden bilindiğinde bitti kullanılır."""
     isimler = [KAR[k]["isim"] for k in kimlikler]
     c = []
     for n in isimler:
@@ -47,7 +49,8 @@ def cezalar(metin, kimlikler, n_token=0, n_max=240):
     cumleler = [s.strip() for s in re.split(r"(?<=[.!?])\s+", metin) if s.strip()]
     if len(cumleler) != len(set(cumleler)):
         c.append((1, "tekrarlanan cümle"))
-    if not metin.rstrip().endswith((".", "!", '"', "”")) or n_token >= n_max:
+    kesik = (not bitti) if bitti is not None else n_token >= n_max
+    if not metin.rstrip().endswith((".", "!", '"', "”")) or kesik:
         c.append((2, "yarım son"))
     if len(metin.split()) < 50:
         c.append((2, "çok kısa"))
@@ -75,6 +78,6 @@ def yer_cezasi(metin, yer):
     return 1.5 if kendi == 0 or baska > kendi else 0
 
 
-def puanla(metin, kimlikler, ort_logp=0.0, n_token=0, yer=None):
-    ceza = sum(p for p, _ in cezalar(metin, kimlikler, n_token)) + (yer_cezasi(metin, yer) if yer else 0)
+def puanla(metin, kimlikler, ort_logp=0.0, n_token=0, yer=None, bitti=None):
+    ceza = sum(p for p, _ in cezalar(metin, kimlikler, n_token, bitti=bitti)) + (yer_cezasi(metin, yer) if yer else 0)
     return -ceza + 2 * ort_logp
