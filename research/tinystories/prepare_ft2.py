@@ -35,9 +35,13 @@ def kimlik_ver(kaynak, hikayeler):
     return hikayeler
 
 
-def baslik(h):
+def baslik(h, tema=False):
+    """Eğitim satırı: başlık + hikâye. tema=True: başlığa hikâyenin konusu da girer
+    ("Karakter: ayı | Yer: ev | Tema: kaybolan bir şeyi bulmak"); model sorunu kendisi uydurmak zorunda kalmaz.
+    Cihaz ve arayüz aynı biçimi baslangic.baslangic(..., tema=...) ile kurar."""
     turler = sorted(h["turler"], key=SIRA.index)
-    return f"Karakter: {', '.join(turler)} | Yer: {h['yer']}\n\n{h['metin']}"
+    ek = f" | Tema: {h['tema']}" if tema else ""
+    return f"Karakter: {', '.join(turler)} | Yer: {h['yer']}{ek}\n\n{h['metin']}"
 
 
 def main():
@@ -48,6 +52,7 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="tr_ft2", help="data/<out>/vocab-<V> altına yaz")
     ap.add_argument("--kaynak", default="oyuncak_v2", help="virgülle ayrılmış hikâye klasörleri (data/ altında)")
+    ap.add_argument("--tema", action="store_true", help="başlığa hikâyenin temasını da yaz (rastgeleliği etkilemez)")
     ap.add_argument("--haric", default=None,
                     help="dışarıda bırakılacak hikâye kimlikleri: her satırda bir kimlik olan dosya")
     ap.add_argument("--genel", default="tr_tinystories",
@@ -111,9 +116,12 @@ def main():
         train.extend(g.tolist())
         blok = egitim[:]
         rng.shuffle(blok)
-        train.extend(kodla([baslik(h) for h in blok]))
-    val = kodla([baslik(h) for h in dogrulama])
-    uzun = sum(1 for h in egitim if len(tok.encode(baslik(h)).ids) + 1 > 256)
+        train.extend(kodla([baslik(h, args.tema) for h in blok]))
+    val = kodla([baslik(h, args.tema) for h in dogrulama])
+    uzun = sum(1 for h in egitim if len(tok.encode(baslik(h, args.tema)).ids) + 1 > 256)
+    # koşul duyarlılığı ve hakem ölçümleri doğrulama hikâyelerini tek tek ister
+    json.dump([{k: h[k] for k in ("id", "turler", "yer", "tema", "metin")} for h in dogrulama],
+              open(out / "dogrulama.json", "w", encoding="utf-8"), ensure_ascii=False, indent=0)
 
     np.array(train, dtype=np.uint16).tofile(out / "train.bin")
     np.array(val, dtype=np.uint16).tofile(out / "val.bin")

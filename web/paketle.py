@@ -1,12 +1,16 @@
 """Dışa aktarılmış bir modeli tarayıcı test arayüzü için paketle.
 
-Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini>
+Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--pencere govde] [--satir-yasak]
   model_dizini: model.bin + tokenizer.json (export.py çıktısı, ör. hf_c2ft)
+  --tema: model "| Tema: <tema>" başlığıyla eğitildi (prepare_ft2 --tema); arayüz tema seçtirir
+  --pencere govde: başlık token'ları tekrar cezası penceresine girmez (gen.c -P)
+  --satir-yasak: hikâye gövdesinde satır sonu token'ları yasak (gen.c -N)
 Çıktı: web/m/<sürüm>/model.b64.txt (gzip + base64 model.bin; yayın yeri ikili dosya sunmuyor) ve meta.json
   meta.json: token tablosu (çözmek için), her figür/yer birleşimi için başlık token'ları
   (baslangic.prompt_idler ile, eğitimdeki gibi), yasaklanacak isim token'ları, katalog.
 Arayüz kendi tokenizer'ını taşımaz: kodlanması gereken her şey (başlıklar, isimler) burada hazırlanır.
 """
+import argparse
 import base64
 import gzip
 import json
@@ -17,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 from tokenizers import Tokenizer  # noqa: E402
-from baslangic import KAR, KATALOG, SIRA, YABANCI, prompt_idler  # noqa: E402
+from baslangic import KAR, KATALOG, SIRA, TEMALAR, YABANCI, baslangic, prompt_idler  # noqa: E402
 
 
 def isim_idleri(tok, isim):
@@ -33,7 +37,14 @@ def isim_idleri(tok, isim):
 
 
 def main():
-    surum, model_dir = sys.argv[1], sys.argv[2]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("surum")
+    ap.add_argument("model_dir")
+    ap.add_argument("--tema", action="store_true")
+    ap.add_argument("--pencere", choices=["tum", "govde"], default="tum")
+    ap.add_argument("--satir-yasak", action="store_true")
+    arg = ap.parse_args()
+    surum, model_dir = arg.surum, arg.model_dir
     tok = Tokenizer.from_file(os.path.join(model_dir, "tokenizer.json"))
     out = os.path.join(HERE, "m", surum)
     os.makedirs(out, exist_ok=True)
@@ -50,6 +61,27 @@ def main():
         for grup in [[a]] + [[a, b] for b in SIRA[i + 1:]]:
             for y in yerler:
                 prompts[",".join(grup) + "|" + y] = prompt_idler(tok, grup, y)
+    tema_ek = {}
+    if arg.tema:
+        # Başlık parça parça kurulur: prompts_bas[grup|yer] + temalar[t] + nl2. 9360 birleşimin hepsinde
+        # parçaların, başlığın tek parça kodlanmasıyla (prompt_idler) aynı token'ları verdiği doğrulanır.
+        def kodla_on(metin):
+            enc = tok.encode(metin + "Bir")
+            return [i for i, (_, son) in zip(enc.ids, enc.offsets) if son <= len(metin)]
+        bas, temalar = {}, []
+        for anahtar in prompts:
+            grup, y = anahtar.split("|")
+            bas[anahtar] = kodla_on(baslangic(grup.split(","), y, ilk_cumle=False).rstrip("\n"))
+        for t in TEMALAR:
+            temalar.append({"ad": t, "ids": tok.encode(f" | Tema: {t}").ids})
+        nl2 = tok.encode("\n\nBir").ids[:2]
+        for anahtar in prompts:
+            grup, y = anahtar.split("|")
+            for t, ti in zip(TEMALAR, temalar):
+                assert bas[anahtar] + ti["ids"] + nl2 == prompt_idler(tok, grup.split(","), y, tema=t), (anahtar, t)
+        tema_ek = {"prompts_bas": bas, "temalar": temalar, "nl2": nl2}
+    satir = sorted(i for i in range(tok.get_vocab_size())
+                   if (d := tok.decode([i])) and not d.strip() and "\n" in d) if arg.satir_yasak else []
     isimler = [k["isim"] for k in KAR.values()] + YABANCI
     meta = {
         "surum": surum,
@@ -58,6 +90,10 @@ def main():
         "prompts": prompts,
         "isim_yasak": {n: isim_idleri(tok, n) for n in isimler},
         "yabanci": YABANCI,
+        "baslik_bicimi": "tema" if arg.tema else "eski",
+        "pencere": arg.pencere,
+        "satir_yasak": satir,
+        **tema_ek,
     }
     json.dump(meta, open(os.path.join(out, "meta.json"), "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))

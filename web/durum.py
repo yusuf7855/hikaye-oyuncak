@@ -14,6 +14,7 @@ ROOT = os.path.dirname(HERE)
 AŞAMALAR = [
     {"ad": "Ön-eğitim (C2)", "etiket": "ple-c2-s0", "aciklama": "Türkçe TinyStories, 52M token, figür isimleri tek token"},
     {"ad": "Ara ince ayar", "etiket": "ple-c2ara-s0", "aciklama": "6000. adımdaki ön-eğitimden oyuncak hikâyeleri (v1 önizleme)"},
+    {"ad": "Tema deneyi (E1)", "etiket": "ple-c2ara_tema-s0", "aciklama": "Aynı ara ince ayar, başlıkta hikâyenin teması da var: olay örgüsü daha mantıklı mı?"},
     {"ad": "İnce ayar (C2)", "etiket": "ple-c2ft-s0", "aciklama": "Tam ön-eğitimden v2+v3 oyuncak hikâyeleri + 4-bit QAT"},
 ]
 

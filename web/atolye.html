@@ -134,6 +134,12 @@ details.adaylar summary { cursor: pointer; font-size: 13.5px; color: var(--soluk
 .puanlar { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
 .puanlar button { appearance: none; border: 1px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); font: 700 14px var(--govde); border-radius: 8px; padding: 8px 0; cursor: pointer; font-variant-numeric: tabular-nums; }
 .puanlar button[aria-pressed="true"] { background: var(--blok); border-color: var(--blok); color: #1b2735; }
+.mantik { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mantik .e { font-size: 13px; color: var(--soluk); margin-right: 2px; }
+.mantik button { appearance: none; border: 1px solid var(--cizgi); background: var(--yuzey2); color: var(--murekkep); font: 600 13px var(--govde); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.mantik button[aria-pressed="true"][data-d="0"] { background: var(--kotu); border-color: var(--kotu); color: #fff; }
+.mantik button[aria-pressed="true"][data-d="1"] { background: var(--uyari); border-color: var(--uyari); color: #fff; }
+.mantik button[aria-pressed="true"][data-d="2"] { background: var(--iyi); border-color: var(--iyi); color: #fff; }
 .puanla textarea { width: 100%; min-height: 54px; resize: vertical; font-size: 14px; }
 .puanla .satir { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
 .puanla .bilgi { font-size: 12.5px; color: var(--soluk); }
@@ -242,6 +248,12 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
         <div class="yerler" id="yerler"></div>
       </div>
 
+      <div class="kume" id="tema-kutu" hidden>
+        <h2>Tema</h2>
+        <div class="surum-sec"><select id="tema" aria-label="Tema"></select></div>
+        <p class="ipucu">Bu sürüm hikâyenin konusunu başlıkta görür. “Rastgele” oyuncak gibi davranır: her figür için 20 temayı karışık bir desteden sırayla çeker, aynı tema art arda gelmez.</p>
+      </div>
+
       <div class="kume" id="ses-kutu">
         <h2>Okuma sesi</h2>
         <div class="surum-sec">
@@ -281,7 +293,7 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
   <section class="panel" aria-label="Sürüm karnesi">
     <div class="kume">
       <h2>Sürüm karnesi: sizin puanlarınız</h2>
-      <div class="karne-tablo"><table id="karne"><thead><tr><th>Sürüm</th><th class="sayi">Hikâye</th><th class="sayi">Ortalama</th><th>Dağılım</th></tr></thead><tbody></tbody></table></div>
+      <div class="karne-tablo"><table id="karne"><thead><tr><th>Sürüm</th><th class="sayi">Hikâye</th><th class="sayi">Ortalama</th><th class="sayi">Olay örgüsü</th><th>Dağılım</th></tr></thead><tbody></tbody></table></div>
       <p class="ipucu" id="karne-durum"></p>
     </div>
     <div class="kume">
@@ -510,10 +522,11 @@ function sec(lg, V, temp, k, rnd) {
   return out;
 }
 function uret(is) {
-  const { prompt, n, temp, topk, rep, seed, ban, eot } = is;
+  const { prompt, n, temp, topk, rep, seed, ban, eot, pencere } = is;
   const V = M.c.Vout, S = M.c.S, rnd = rastgele(seed), recent = [];
   let pos = 0;
-  for (const t of prompt) { recent.push(t); ileri(t, pos++); }
+  // pencere "govde": başlık (figür/tema kelimeleri) tekrar cezasına girmez; hikâye onları tekrar etmeli (gen.c -P)
+  for (const t of prompt) { if (pencere !== "govde") recent.push(t); ileri(t, pos++); }
   const ids = [], lps = []; let bitti = false;
   const t0 = performance.now();
   for (let step = 0; step < n && pos < S; step++) {
@@ -743,9 +756,48 @@ function surumleriKur() {
   surumSecenekleri($("#surum2"), saklaOku("surum2", SURUMLER[1]?.id || SURUMLER[0]?.id));
   surumNotu();
 }
-$("#surum").addEventListener("change", () => { saklaYaz("surum", $("#surum").value); surumNotu(); });
-$("#surum2").addEventListener("change", () => saklaYaz("surum2", $("#surum2").value));
-$("#karsilastir").addEventListener("change", () => { $("#surum2-kutu").hidden = !$("#karsilastir").checked; });
+$("#surum").addEventListener("change", () => { saklaYaz("surum", $("#surum").value); surumNotu(); temaKutusu(); });
+$("#surum2").addEventListener("change", () => { saklaYaz("surum2", $("#surum2").value); temaKutusu(); });
+$("#karsilastir").addEventListener("change", () => { $("#surum2-kutu").hidden = !$("#karsilastir").checked; temaKutusu(); });
+
+// ---- tema (başlıkta "| Tema: <tema>" gören sürümler için) ----
+const TEMALAR = ["paylaşmak", "yeni arkadaş edinmek", "korkuyu yenmek", "kaybolan bir şeyi bulmak", "yardım etmek",
+  "özür dilemek", "sabırlı olmak", "doğayı korumak", "sırasını beklemek", "dürüstlük", "merak ve keşif",
+  "hasta bir arkadaşa bakmak", "farklılıklara saygı", "birlikte çalışmak", "hatadan öğrenmek",
+  "doğum günü sürprizi", "kıskançlığı yenmek", "uyku vakti", "yağmur ya da kar günü", "teşekkür etmek"];
+// eğitim verisinde 3'ten az örneği olan (yer, tema) hücreleri: deste bunları vermez (elle seçilebilir)
+const SEYREK = { ev: ["birlikte çalışmak", "merak ve keşif"], orman: ["uyku vakti", "doğum günü sürprizi", "hasta bir arkadaşa bakmak"], dag: ["paylaşmak"] };
+const temaliMi = (id) => SURUMLER.find(s => s.id === id)?.baslik === "tema";
+function temaKutusu() {
+  const ids = [$("#surum").value].concat($("#karsilastir").checked ? [$("#surum2").value] : []);
+  $("#tema-kutu").hidden = !ids.some(temaliMi);
+}
+(() => {
+  const sel = $("#tema");
+  sel.append(el("option", { value: "", text: "🎲 rastgele (oyuncak gibi)" }));
+  for (const t of TEMALAR) sel.append(el("option", { value: t, text: t }));
+  sel.value = saklaOku("tema", "");
+  sel.addEventListener("change", () => saklaYaz("tema", sel.value));
+})();
+// Deste: figür grubu başına 20 temanın karışık sırası; bitince yeniden karılır, son 3 tema yeni destenin başına gelmez.
+function destedenCek(kim, yer) {
+  const anahtar = "deste:" + vakaAnahtari(kim, "").slice(0, -1);
+  let d = saklaOku(anahtar, null);
+  const kar = (onceki) => {
+    const a = TEMALAR.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    const son = onceki.slice(-3); return a.filter(t => !son.includes(t)).concat(a.filter(t => son.includes(t)));
+  };
+  if (!d || !Array.isArray(d.sira) || d.i >= d.sira.length) d = { sira: kar(d?.sira?.slice(0, d?.i) || []), i: 0 };
+  let t = null;
+  for (let deneme = 0; deneme < TEMALAR.length && d.i < d.sira.length; deneme++) {
+    const aday = d.sira[d.i++];
+    if (!(SEYREK[yer] || []).includes(aday)) { t = aday; break; }
+  }
+  if (!t) { d = { sira: kar([]), i: 1 }; t = d.sira[0]; }
+  saklaYaz(anahtar, d);
+  return t;
+}
 
 // ---- arayüz: figürler ve yer ----
 function figurleriCiz() {
@@ -821,9 +873,14 @@ async function calistir(surumId, k, vaka, ayar) {
   try { kayit = await surumYukle(surumId); }
   catch (e) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = `Model yüklenemedi: ${e.message}`; return null; }
   const meta = kayit.meta, anahtar = vakaAnahtari(vaka.kim, vaka.yer);
-  const prompt = meta.prompts[anahtar];
+  let prompt = meta.prompts[anahtar];
+  if (meta.baslik_bicimi === "tema" && vaka.tema) {
+    const ti = meta.temalar.find(t => t.ad === vaka.tema);
+    prompt = meta.prompts_bas[anahtar].concat(ti.ids, meta.nl2);
+  }
   k.baslik.textContent = kayit.coz(prompt).replace(/\n/g, "⏎");
-  const ban = yasakIdler(meta, vaka.kim), adaylar = [];
+  if (vaka.tema && meta.baslik_bicimi !== "tema") k.baslik.textContent += `   (bu sürüm temayı görmez: ${vaka.tema})`;
+  const ban = yasakIdler(meta, vaka.kim).concat(meta.satir_yasak || []), adaylar = [];
   const bar = k.ilerleme.firstChild;
   for (let j = 0; j < ayar.aday; j++) {
     if (durum.iptal) break;
@@ -831,7 +888,7 @@ async function calistir(surumId, k, vaka, ayar) {
     const akis = [];
     let d;
     try {
-      d = await uretBir(kayit, { no: j, prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, seed: ayar.seed + j, ban },
+      d = await uretBir(kayit, { no: j, prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, seed: ayar.seed + j, ban, pencere: meta.pencere },
         (id) => { akis.push(id); if (ayar.aday === 1 || j === 0 && !adaylar.length) metniGoster(k, kayit.coz(akis), true); });
     } catch (e) { if (durum.iptal) break; k.metin.className = "metin hata"; k.metin.textContent = `Üretim hatası: ${e.message}`; return null; }
     const metin = kayit.coz(d.ids).trim();
@@ -882,6 +939,12 @@ function puanKutusu(k, sonuc) {
     "aria-pressed": "false", text: String(i),
     onclick: (e) => { secilen = i; tuslar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === e.currentTarget))); kaydet.disabled = !db; },
   }));
+  let mantik = null;
+  const mantikTus = el("div", { class: "mantik", role: "group", "aria-label": "Olay örgüsü" }, el("span", { class: "e", text: "Olay örgüsü:" }));
+  ["saçma", "idare eder", "mantıklı"].forEach((ad, i) => mantikTus.append(el("button", {
+    "aria-pressed": "false", text: ad, "data-d": String(i),
+    onclick: (e) => { mantik = i; mantikTus.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === e.currentTarget))); },
+  })));
   const not = el("textarea", { placeholder: "Not (isteğe bağlı): ne iyiydi, ne bozuktu?", "aria-label": "Not" });
   const bilgi = el("span", { class: "bilgi", text: db ? "" : "Puanlar bu görünümde kaydedilemiyor." });
   const sesli = el("button", { class: "ikincil", text: "Sesli oku", onclick: (e) => sesliOku(k.sonuc.secilen.metin, e.currentTarget) });
@@ -894,19 +957,21 @@ function puanKutusu(k, sonuc) {
       const a = k.sonuc.secilen;
       try {
         await db.collection("degerlendirmeler").add({
-          surum: sonuc.surum, figurler: sonuc.vaka.kim, yer: sonuc.vaka.yer, puan: secilen, not: not.value.trim(),
+          surum: sonuc.surum, figurler: sonuc.vaka.kim, yer: sonuc.vaka.yer, tema: sonuc.vaka.tema || null, puan: secilen,
+          mantik, not: not.value.trim(),
           metin: a.metin, seed: a.seed, secici_puani: Math.round(a.puan * 100) / 100,
           cezalar: a.liste.map(([p, ad]) => `${p} ${ad}`), ayar: sonuc.ayar, aday_sirasi: k.sonuc.sirali.indexOf(a) + 1,
           zaman: new Date().toISOString(),
         });
-        bilgi.textContent = "Kaydedildi."; not.disabled = true; tuslar.querySelectorAll("button").forEach(b => b.disabled = true);
+        bilgi.textContent = "Kaydedildi."; not.disabled = true;
+        tuslar.querySelectorAll("button").forEach(b => b.disabled = true); mantikTus.querySelectorAll("button").forEach(b => b.disabled = true);
       } catch (e) {
         bilgi.textContent = e.code === "invalid_argument" ? "Bu sayfada puan kaydetme izniniz yok." : `Kaydedilemedi (${e.code || e.message}). Tekrar deneyin.`;
         kaydet.disabled = false;
       }
     },
   });
-  k.puan.append(tuslar, not, el("div", { class: "satir" }, bilgi, el("div", { class: "dugmeler" }, sesli, kaydet)));
+  k.puan.append(tuslar, mantikTus, not, el("div", { class: "satir" }, bilgi, el("div", { class: "dugmeler" }, sesli, kaydet)));
 }
 // ---- okuma sesi: cihazın Türkçe sesleri, kadın sesleri önce ----
 // Bilinen Türkçe kadın sesleri: Yelda (iPhone/Mac), Emel (Edge), Google Türkçe (Chrome), Filiz/Seda.
@@ -963,16 +1028,23 @@ if ("speechSynthesis" in window) {
 function karneCiz(kayitlar) {
   const tb = $("#karne tbody"); tb.innerHTML = "";
   const grup = new Map();
-  for (const r of kayitlar) { if (!grup.has(r.surum)) grup.set(r.surum, []); grup.get(r.surum).push(r.puan); }
+  const mantiklar = new Map();
+  for (const r of kayitlar) {
+    if (!grup.has(r.surum)) { grup.set(r.surum, []); mantiklar.set(r.surum, []); }
+    grup.get(r.surum).push(r.puan);
+    if (typeof r.mantik === "number") mantiklar.get(r.surum).push(r.mantik);
+  }
   const sira = SURUMLER.map(s => s.id).filter(id => grup.has(id)).concat([...grup.keys()].filter(id => !SURUMLER.some(s => s.id === id)));
   for (const id of sira) {
     const p = grup.get(id), ort = p.reduce((a, b) => a + b, 0) / p.length;
     const dag = el("span", { style: "display:inline-flex;gap:2px;align-items:end;height:18px" });
     for (let i = 1; i <= 10; i++) { const n = p.filter(x => x === i).length; dag.append(el("span", { title: `${i}: ${n}`, style: `width:6px;height:${n ? 4 + 14 * n / p.length : 1}px;background:var(${n ? "--vurgu" : "--cizgi"});border-radius:1px` })); }
     tb.append(el("tr", {}, el("td", { text: SURUMLER.find(s => s.id === id)?.ad || id }), el("td", { class: "sayi", text: String(p.length) }),
-      el("td", { class: "sayi" }, ort.toFixed(2), el("span", { class: "cubuk", style: `width:${ort * 8}px` })), el("td", {}, dag)));
+      el("td", { class: "sayi" }, ort.toFixed(2), el("span", { class: "cubuk", style: `width:${ort * 8}px` })),
+      el("td", { class: "sayi", title: "mantıklı bulunanların payı", text: (() => { const m = mantiklar.get(id); return m.length ? `%${Math.round(100 * m.filter(x => x === 2).length / m.length)} mantıklı` : "–"; })() }),
+      el("td", {}, dag)));
   }
-  if (!kayitlar.length) tb.append(el("tr", {}, el("td", { colspan: "4", text: "Henüz puan yok. Bir hikâye üretip 1–10 arası puan verin." })));
+  if (!kayitlar.length) tb.append(el("tr", {}, el("td", { colspan: "5", text: "Henüz puan yok. Bir hikâye üretip 1–10 arası puan verin." })));
   const son = $("#son-puanlar"); son.innerHTML = "";
   for (const r of kayitlar.slice(0, 6)) {
     son.append(el("div", { class: "son" },
@@ -1002,12 +1074,13 @@ $("#anlat").addEventListener("click", async () => {
     uzunluk: +$("#uzunluk").value, seed: seedGirdi === "" ? Math.floor(Math.random() * 1e6) : +seedGirdi,
   };
   const vaka = { kim: durum.secili.slice(), yer };
+  if (!$("#tema-kutu").hidden) vaka.tema = $("#tema").value || destedenCek(vaka.kim, yer);
   const ids = [$("#surum").value];
   if ($("#karsilastir").checked && $("#surum2").value !== ids[0]) ids.push($("#surum2").value);
   const sahne = $("#sahne"); sahne.innerHTML = ""; sahne.classList.toggle("cift", ids.length > 1);
   const kagitlar = ids.map((id, i) => kagitKur(id, ids.length > 1 ? (i ? "B · " : "A · ") : ""));
   kagitlar.forEach(k => sahne.append(k.kok));
-  $("#durum-genel").textContent = `seed ${ayar.seed} · ${vaka.kim.map(k => KAR[k].isim).join(" + ")} · ${KATALOG.yerler.find(y => y.kimlik === yer).ad}`;
+  $("#durum-genel").textContent = `seed ${ayar.seed} · ${vaka.kim.map(k => KAR[k].isim).join(" + ")} · ${KATALOG.yerler.find(y => y.kimlik === yer).ad}` + (vaka.tema ? ` · tema: ${vaka.tema}` : "");
   await Promise.all(ids.map((id, i) => calistir(id, kagitlar[i], vaka, ayar)));
   durum.calisiyor = false; $("#durdur").disabled = true; figurleriCiz();
 });
@@ -1019,7 +1092,7 @@ $("#durdur").addEventListener("click", () => {
 // sözlük (uydurma kelime kontrolü) arka planda
 fetch("sozluk.txt").then(r => r.ok ? r.text() : null).then(t => { if (t) SOZLUK = new Set(t.split("\n")); }).catch(() => {});
 
-surumleriKur(); figurleriCiz(); yerleriCiz();
+surumleriKur(); figurleriCiz(); yerleriCiz(); temaKutusu();
 if (!SURUMLER.length) { $("#anlat").disabled = true; $("#durum-genel").textContent = "İlk model eğitiliyor; hazır olunca burada görünecek."; }
 $("#sahne").append((() => {
   const k = kagitKur(SURUMLER[0]?.id || "—", "");

@@ -22,23 +22,33 @@ YABANCI = ["Lily", "Tim", "Tom", "Sara", "Sue", "Max", "Lucy", "Anna", "Jack", "
            "Mert", "Defne", "Kerem", "Emir", "Zıpzıp"]
 
 
-def baslangic(kimlikler, yer_kimlik, ilk_cumle=True):
+# Hikâye temaları (data/oyuncak_v3/KILAVUZ.md sırası). Başlığa "| Tema: <tema>" olarak girer (prepare_ft2 --tema).
+TEMALAR = ["paylaşmak", "yeni arkadaş edinmek", "korkuyu yenmek", "kaybolan bir şeyi bulmak", "yardım etmek",
+           "özür dilemek", "sabırlı olmak", "doğayı korumak", "sırasını beklemek", "dürüstlük", "merak ve keşif",
+           "hasta bir arkadaşa bakmak", "farklılıklara saygı", "birlikte çalışmak", "hatadan öğrenmek",
+           "doğum günü sürprizi", "kıskançlığı yenmek", "uyku vakti", "yağmur ya da kar günü", "teşekkür etmek"]
+
+
+def baslangic(kimlikler, yer_kimlik, ilk_cumle=True, tema=None):
     kar = sorted((KAR[k] for k in kimlikler), key=lambda k: SIRA.index(k["kimlik"]))
     yer = YER[yer_kimlik]
-    metin = f"Karakter: {', '.join(k['tur'] for k in kar)} | Yer: {yer['ad']}\n\n"
+    ek = f" | Tema: {tema}" if tema else ""
+    metin = f"Karakter: {', '.join(k['tur'] for k in kar)} | Yer: {yer['ad']}{ek}\n\n"
     if ilk_cumle:
         tanit = " ile ".join(f"{k['isim']} adında {k['sifat']} bir {k['tur']}" for k in kar)
         metin += f"{yer['acilis']} {tanit} yaşardı."
     return metin
 
 
-def prompt_idler(tok, kimlikler, yer_kimlik):
+def prompt_idler(tok, kimlikler, yer_kimlik, tema=None, eot=False):
     """Başlığın token'ları, eğitimdeki gibi. Eğitimde başlığın ardından hikâye gelir ve "\n\n" iki ayrı
     token olur; başlık tek başına kodlanınca sondaki "\n\n" tek (eğitimde hiç görülmemiş) bir token'a
     dönüşüyordu. Bu yüzden başlık + örnek bir ilk kelime kodlanır ve yalnızca başlığa düşen token'lar alınır."""
-    metin = baslangic(kimlikler, yer_kimlik, ilk_cumle=False)
+    metin = baslangic(kimlikler, yer_kimlik, ilk_cumle=False, tema=tema)
     enc = tok.encode(metin + "Bir")
-    return [i for i, (_, son) in zip(enc.ids, enc.offsets) if son <= len(metin)]
+    ids = [i for i, (_, son) in zip(enc.ids, enc.offsets) if son <= len(metin)]
+    # eot=True: eğitimde her hikâye bir önceki hikâyenin <|endoftext|>'inden sonra gelir
+    return ([tok.token_to_id("<|endoftext|>")] if eot else []) + ids
 
 
 def yasak_idler(tok, kimlikler):
