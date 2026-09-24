@@ -30,7 +30,16 @@ def kimlikli(kaynak):
     return kimlik_ver(kaynak, iyi)
 
 
+def plan_etiketleri():
+    """data/oyuncak_plan/plan.jsonl (E3 etiketleri + tam veri denetimi) varsa kimliğe göre."""
+    yol = os.path.join(ROOT, "data", "oyuncak_plan", "plan.jsonl")
+    if not os.path.exists(yol):
+        return {}
+    return {x["id"]: x for x in map(json.loads, open(yol, encoding="utf-8"))}
+
+
 def main():
+    etiket = plan_etiketleri()
     hikayeler = []
     for kaynak in ("oyuncak_v2", "oyuncak_v3"):
         for h in kimlikli(kaynak):
@@ -40,7 +49,9 @@ def main():
             c = [re.sub(r"[\[\]']", "", ad) for _, ad in cezalar(h["metin"], k, bitti=True) if not ad.startswith("uydurma")]
             c += ["yer kayması"] if yer_cezasi(h["metin"], y) else []
             u = sorted({w for w in re.findall(r"[a-zçğıöşüâîû]+", kucuk(h["metin"])) if SOZLUK and w not in SOZLUK})
-            hikayeler.append({"id": h["id"], "k": k, "y": y, "t": h["tema"], "m": h["metin"], "c": c, "u": u})
+            e = etiket.get(h["id"], {})
+            hikayeler.append({"id": h["id"], "k": k, "y": y, "t": h["tema"], "m": h["metin"], "c": c, "u": u,
+                              "s": e.get("sorun"), "z": e.get("cozum"), "b": e.get("bozuk_neden") if e.get("bozuk") else None})
     json.dump(hikayeler, open(os.path.join(HERE, "veri.json"), "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))
     import collections

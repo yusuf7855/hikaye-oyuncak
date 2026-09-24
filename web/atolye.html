@@ -202,6 +202,8 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
 .veri-ust b { color: var(--murekkep); }
 .veri-kart .m { font: 400 16px/1.65 var(--kitap); margin: 0; max-width: 70ch; }
 .veri-kart .m mark { background: var(--blok-acik); color: inherit; border-bottom: 2px dotted var(--uyari); padding: 0 1px; }
+.plan-satir { font-size: 13.5px; color: var(--soluk); background: var(--yuzey2); border-radius: 8px; padding: 6px 10px; }
+.plan-satir .e { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--vurgu); }
 .isaret-dugme { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .isaret-dugme button[aria-pressed="true"].b { background: var(--kotu); border-color: var(--kotu); color: #fff; }
 .isaret-dugme button[aria-pressed="true"].i { background: var(--iyi); border-color: var(--iyi); color: #fff; }
@@ -328,13 +330,13 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
     <section class="panel" aria-label="Eğitim verisi">
       <div class="kume">
         <h2>Modelin öğrendiği hikâyeler</h2>
-        <p class="ipucu" style="font-size:14px">İnce ayarda kullanılan 2364 hikâye (v2: 1248, v3: 1116). Bozuk olanı “Bozuk” diye işaretleyin, kısa bir not yazın: işaretlenenler bir sonraki ince ayarda eğitimden çıkarılır. Sarı altı çizili kelimeler sözlükte yok: çoğu nadir ama doğru bir çekim, bazıları yazım hatası.</p>
+        <p class="ipucu" style="font-size:14px">İnce ayarda kullanılan 2364 hikâye (v2: 1248, v3: 1116). Bozuk olanı “Bozuk” diye işaretleyin, kısa bir not yazın: işaretlenenler bir sonraki ince ayarda eğitimden çıkarılır. Sarı altı çizili kelimeler sözlükte yok: çoğu nadir ama doğru bir çekim, bazıları yazım hatası. Her hikâyenin altında etiketçilerin yazdığı plan (Sorun / Çözüm) var; tam denetimde bozuk bulunan 289 hikâye kırmızı “denetim” notuyla işaretli.</p>
         <div class="filtre">
           <select id="v-figur" aria-label="Figür"><option value="">Tüm figürler</option></select>
           <select id="v-yer" aria-label="Yer"><option value="">Tüm yerler</option></select>
           <select id="v-kume" aria-label="Küme"><option value="">v2 + v3</option><option value="v2">v2</option><option value="v3">v3</option></select>
           <select id="v-durum" aria-label="Durum">
-            <option value="">Hepsi</option><option value="uyari">Kural uyarısı olanlar</option><option value="kelime">Sözlük dışı kelimesi olanlar</option>
+            <option value="">Hepsi</option><option value="denetim">Denetimde bozuk bulunanlar</option><option value="uyari">Kural uyarısı olanlar</option><option value="kelime">Sözlük dışı kelimesi olanlar</option>
             <option value="bozuk">Bozuk işaretlediklerim</option><option value="iyi">İyi işaretlediklerim</option><option value="bakilmadi">Bakmadıklarım</option>
           </select>
           <input type="search" id="v-ara" placeholder="Metinde ara" aria-label="Metinde ara">
@@ -1243,7 +1245,7 @@ function veriFiltre() {
   const f = $("#v-figur").value, y = $("#v-yer").value, k = $("#v-kume").value, dur = $("#v-durum").value;
   const ara = $("#v-ara").value.trim().toLocaleLowerCase("tr");
   return VERI.filter(h => (!f || h.k.includes(f)) && (!y || h.y === y) && (!k || h.id.startsWith(k + "/"))
-    && (!dur || (dur === "uyari" && h.c.length) || (dur === "kelime" && h.u.length) || (dur === "bozuk" && isaretler.get(h.id)?.durum === "bozuk")
+    && (!dur || (dur === "denetim" && h.b) || (dur === "uyari" && h.c.length) || (dur === "kelime" && h.u.length) || (dur === "bozuk" && isaretler.get(h.id)?.durum === "bozuk")
       || (dur === "iyi" && isaretler.get(h.id)?.durum === "iyi") || (dur === "bakilmadi" && !isaretler.has(h.id)))
     && (!ara || h.m.toLocaleLowerCase("tr").includes(ara)));
 }
@@ -1254,6 +1256,8 @@ function veriKart(h) {
   const yer = KATALOG.yerler.find(x => x.kimlik === h.y);
   kart.append(el("div", { class: "veri-ust" }, el("span", {}, el("b", { text: figur }), ` · ${yer.emoji} ${yer.ad} · ${h.t}`), el("span", { text: h.id })));
   kart.append(vurgula(h.m, h.u));
+  if (h.s) kart.append(el("div", { class: "plan-satir" }, el("span", { class: "e", text: "Sorun" }), ` ${h.s}  `, el("span", { class: "e", text: "Çözüm" }), ` ${h.z}`));
+  if (h.b) kart.append(el("div", { class: "cezalar" }, el("span", { class: "rozet ceza", text: `denetim: ${h.b}` })));
   if (h.c.length) kart.append(el("div", { class: "cezalar" }, ...h.c.map(c => el("span", { class: "rozet ceza", text: c }))));
   const not = el("input", { type: "text", placeholder: "Not: ne bozuk? (ör. “Tosbi ile Paytak karışmış”)", "aria-label": "Not", value: isr?.not || "" });
   const kaydet = async (durum) => {
