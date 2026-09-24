@@ -560,7 +560,12 @@ onmessage = (e) => {
 <!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
 <script id="surumler" type="application/json">
 [
- {"id": "c2-onizleme", "ad": "v0 · altyapı testi", "tarih": "24 Eylül 2026", "yeni": true,
+ {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "eski",
+  "degisiklik": ["Figürleri tanıyan ilk sürüm: ön-eğitimin 6000. adımından (tamamın dörtte biri) oyuncak hikâyeleriyle 1500 adım ince ayar.",
+                 "Başlıkta henüz tema yok; olay örgüsü bu yüzden zayıf olabilir. Tema deneyi (E1) bununla birebir karşılaştırılacak.",
+                 "Olay örgüsünü “saçma / idare eder / mantıklı” diye ayrıca işaretleyin: E1'in kararında kullanılacak."],
+  "olcum": {"oyuncak doğrulama ppl": "10.19", "eğitim": "6000 + 1500 adım"}},
+ {"id": "c2-onizleme", "ad": "v0 · altyapı testi", "tarih": "24 Eylül 2026",
   "degisiklik": ["Ön-eğitimin yalnızca 500. adımı ve ince ayarsız: Türkçe cümle kurar ama figürü tanımaz. Arayüzün sizde çalıştığını görmek için.",
                  "Yeni tokenizer: 12 figür ismi ve türü tek token (önceden ör. Paytak 3 parçaydı).",
                  "Başlık artık eğitimdeki gibi kodlanıyor; 'Ben' kelimesi yasak listesinden çıktı."],
