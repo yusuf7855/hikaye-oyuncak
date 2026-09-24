@@ -1,8 +1,19 @@
-// PC generator: same C inference as the ESP32, plus temperature/top-k sampling.
-// usage: gen <model.bin> <n_tokens> <temperature> <top_k> <seed> <rep_penalty> [-b id,id,...] <prompt ids...>
-// -b: banned token ids (e.g. names of figures that were not scanned); their logits are masked
-// before sampling. On the ESP32 this is the same ~20-entry list, applied once per token.
-// rep_penalty > 1 lowers the odds of any token used in the last REP_WINDOW tokens (1 = off);
+// PC generator: same C inference as the ESP32, plus temperature/top-k sampling (../ornekle.h, shared
+// with the firmware).
+// usage: gen <model.bin> <n_tokens> <temperature> <top_k> <seed> <rep_penalty> [options] <prompt ids...>
+// options (any order, before the prompt ids; with none given the output is the same as before they existed):
+//   -b id,id,...  banned token ids (e.g. names of figures that were not scanned); their logits are masked
+//                 before sampling. On the ESP32 this is the same ~20-entry list, applied once per token.
+//   -N id,id,...  token ids banned only in the generated story body, e.g. the newline tokens 199 (Ċ) and
+//                 9491 (ĠĊ) of the current tokenizer. The prompt carries the whole header, so here every
+//                 generated token is body.
+//   -P            prompt tokens stay out of the repetition window (default: they fill it), so the figure and
+//                 theme words of the header are not penalised when the story repeats them.
+//   -l            print "<id> <log-prob>" per sampled token instead of "<id>"; the log-prob is taken after
+//                 the repetition penalty and the bans.
+//   -e id         stop right after sampling (and printing) this token, e.g. <|endoftext|>; the tokens printed
+//                 before it are the same as without -e, only the discarded tail is not generated.
+// rep_penalty > 1 lowers the odds of any token used in the last ORNEKLE_PENCERE (64) tokens (1 = off);
 // cheap enough for the ESP32: one pass over a 64-entry ring buffer per token.
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,8 +21,7 @@
 #include <time.h>
 #include <string.h>
 #include "../llm.h"
-
-#define REP_WINDOW 64
+#include "../ornekle.h"
 
 static uint8_t *read_file(const char *p, size_t *n) {
   FILE *f = fopen(p, "rb"); if (!f) { perror(p); exit(1); }
@@ -19,43 +29,41 @@ static uint8_t *read_file(const char *p, size_t *n) {
   uint8_t *b = malloc(*n); if (fread(b, 1, *n, f) != *n) exit(1); fclose(f); return b;
 }
 
-static int pick(const float *lg, int V, float temp, int k) {
-  int best = 0; for (int v = 1; v < V; v++) if (lg[v] > lg[best]) best = v;
-  if (temp <= 0) return best;
-  int *idx = malloc(k * sizeof(int)); int n = 0;
-  for (int v = 0; v < V; v++) {          // keep top-k by insertion
-    int j = n < k ? n++ : k;
-    if (j == k && lg[v] <= lg[idx[k - 1]]) continue;
-    if (j == k) j = k - 1;
-    while (j > 0 && lg[idx[j - 1]] < lg[v]) { idx[j] = idx[j - 1]; j--; }
-    idx[j] = v;
-  }
-  double *p = malloc(n * sizeof(double)), sum = 0;
-  for (int i = 0; i < n; i++) sum += p[i] = exp((lg[idx[i]] - lg[best]) / temp);
-  double r = (double)rand() / RAND_MAX * sum; int out = idx[n - 1];
-  for (int i = 0; i < n; i++) if ((r -= p[i]) <= 0) { out = idx[i]; break; }
-  free(idx); free(p); return out;
+// Appends the comma-separated ids of s to out[n..max); returns the new count.
+static int read_ids(char *s, int *out, int n, int max) {
+  for (char *t = strtok(s, ","); t && n < max; t = strtok(NULL, ",")) out[n++] = atoi(t);
+  return n;
 }
 
 int main(int argc, char **argv) {
-  if (argc < 8) { fprintf(stderr, "usage: gen model.bin n temp topk seed rep ids...\n"); return 2; }
+  if (argc < 8) {
+    fprintf(stderr, "usage: gen model.bin n temp topk seed rep [-b ids] [-N ids] [-P] [-l] [-e id] "
+                    "prompt_ids...\n");
+    return 2;
+  }
   size_t nb; uint8_t *buf = read_file(argv[1], &nb);
   Model m; if (llm_load(buf, &m)) { fprintf(stderr, "bad magic\n"); return 1; }
   int N = atoi(argv[2]); float temp = atof(argv[3]); int K = atoi(argv[4]);
   if (K < 1) K = 1;
   srand(atoi(argv[5]));
   float rep = atof(argv[6]);
-  int recent[REP_WINDOW], n_recent = 0;
-  int ban[512], n_ban = 0, first_id = 7, with_logp = 0;
-  for (;;) {  // options: -b id,id,...  (banned tokens)   -l  (also print log-prob of each sampled token)
+  int ban[512], n_ban = 0, body_ban[512], n_body_ban = 0, first_id = 7, with_logp = 0, prompt_in_window = 1,
+      stop_id = -1;
+  for (;;) {  // options, see the usage comment at the top
     if (argc > first_id + 1 && strcmp(argv[first_id], "-b") == 0) {
-      for (char *t = strtok(argv[first_id + 1], ","); t && n_ban < 512; t = strtok(NULL, ",")) ban[n_ban++] = atoi(t);
-      first_id += 2;
+      n_ban = read_ids(argv[first_id + 1], ban, n_ban, 512); first_id += 2;
+    } else if (argc > first_id + 1 && strcmp(argv[first_id], "-N") == 0) {
+      n_body_ban = read_ids(argv[first_id + 1], body_ban, n_body_ban, 512); first_id += 2;
+    } else if (argc > first_id + 1 && strcmp(argv[first_id], "-e") == 0) {
+      stop_id = atoi(argv[first_id + 1]); first_id += 2;
+    } else if (argc > first_id && strcmp(argv[first_id], "-P") == 0) {
+      prompt_in_window = 0; first_id += 1;
     } else if (argc > first_id && strcmp(argv[first_id], "-l") == 0) {
       with_logp = 1; first_id += 1;
     } else break;
   }
   int D = m.c.dim, L = m.c.n_layers, P = m.c.ple_dim, F = m.c.ffn, V = m.out_vocab, S = m.c.seq_len;
+  if (K > V) K = V;  // same top-k set, bounded scratch
   Scratch s;
   s.x = malloc(D * 4); s.h = malloc((F > D ? F : D) * 4);
   s.qkv = malloc(3 * D * 4); s.att = malloc(D * 4);
@@ -63,6 +71,8 @@ int main(int argc, char **argv) {
   s.ple = malloc(L * P * 4); s.tmpP = malloc(L * P * 4); s.trow = malloc(L * P * 4);
   s.logits = malloc(V * 4); s.scores = malloc(S * 4);
   s.kcache = malloc((size_t)L * S * D * 4); s.vcache = malloc((size_t)L * S * D * 4);
+  OrnAyar cfg = {temp, K, rep, ban, n_ban, body_ban, n_body_ban, malloc(K * sizeof(int)), malloc(K * sizeof(double))};
+  OrnDurum st; orn_sifirla(&st);
   // The KV cache holds S positions and the embedding V rows: refuse a prompt that would write past either.
   if (argc - first_id < 1 || argc - first_id >= S) {
     fprintf(stderr, "prompt must be 1..%d tokens, got %d\n", S - 1, argc - first_id); return 2;
@@ -71,31 +81,20 @@ int main(int argc, char **argv) {
   for (int i = first_id; i < argc; i++) {
     tok = atoi(argv[i]);
     if (tok < 0 || tok >= m.c.vocab) { fprintf(stderr, "token id %d out of range\n", tok); return 2; }
-    recent[n_recent++ % REP_WINDOW] = tok;
+    if (prompt_in_window) orn_ekle(&st, tok);
     llm_forward(&m, tok, pos++, &s);
   }
+  st.govde = 1;  // the prompt ends with the header, so the story body starts at the first sampled token
   clock_t t0 = clock(); int made = 0;
   for (int step = 0; step < N && pos < S; step++) {
-    if (rep > 1.f) {  // CTRL-style: shrink positive logits, push negative ones further down
-      int n = n_recent < REP_WINDOW ? n_recent : REP_WINDOW;
-      for (int i = 0; i < n; i++) {
-        int dup = 0;  // penalise each distinct token once, not once per occurrence
-        for (int j = 0; j < i && !dup; j++) dup = recent[j] == recent[i];
-        if (dup) continue;
-        float *l = &s.logits[recent[i]];
-        *l = *l > 0 ? *l / rep : *l * rep;
-      }
-    }
-    for (int i = 0; i < n_ban; i++) if (ban[i] >= 0 && ban[i] < V) s.logits[ban[i]] = -1e30f;
-    tok = pick(s.logits, V, temp, K);
-    recent[n_recent++ % REP_WINDOW] = tok;
-    if (with_logp) {  // model confidence in its own choice: used to rank pre-generated candidates
-      float mx = s.logits[0]; for (int v = 1; v < V; v++) if (s.logits[v] > mx) mx = s.logits[v];
-      double z = 0; for (int v = 0; v < V; v++) z += exp(s.logits[v] - mx);
-      printf("%d %.4f\n", tok, s.logits[tok] - mx - log(z));
-    } else printf("%d\n", tok);
+    tok = orn_adim(&cfg, &st, s.logits, V);
+    // model confidence in its own choice: used to rank pre-generated candidates
+    if (with_logp) printf("%d %.4f\n", tok, orn_logp(s.logits, V, tok));
+    else printf("%d\n", tok);
     fflush(stdout);
-    llm_forward(&m, tok, pos++, &s); made++;
+    made++;
+    if (tok == stop_id) break;  // -e
+    llm_forward(&m, tok, pos++, &s);
   }
   fprintf(stderr, "%d tokens, %.1f tok/s\n", made, made / ((double)(clock() - t0) / CLOCKS_PER_SEC));
   return 0;

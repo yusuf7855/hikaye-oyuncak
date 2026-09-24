@@ -1,9 +1,13 @@
 """Hakemsiz hızlı ölçüm: sabit 36 vakalık test setinde kural cezaları ve uydurma kelime oranı.
 
-Kullanım: python degerlendirme/otomatik.py <model_dizini> [--aday 8] [--temp 0.5] [--rep 1.1]
+Kullanım: python degerlendirme/otomatik.py <model_dizini> [--aday 8] [--temp 0.5] [--rep 1.1] [--ad AD]
+                                          [--baslik eski|tema] [--pencere tum|govde] [--satir-yasak] [--eot-on]
 Her vaka için K aday üretilir (uret.py ile aynı seed'ler), seçici (sec.py) en iyisini alır; ölçümler hem
 ilk adaydan (seçicisiz model) hem seçilenden raporlanır. Hakem puanının yerini tutmaz ama sürümleri
-birkaç dakikada, aynı ölçüyle karşılaştırır. Çıktı: <model_dizini>/otomatik.json
+birkaç dakikada, aynı ölçüyle karşılaştırır. Üretim bayrakları uret.py'dekilerle aynı.
+Adaylar <model_dizini>/adaylar_<ad>.json'a yazılır (uret.aday_havuzu); uret.py'ye verilen adla (--ad) ve aynı
+ayarlarla çağrılırsa onun adayları yeniden üretilmez. --ad verilmezse ad bayraklardan türetilir.
+Çıktı: <model_dizini>/otomatik.json (yeni bayraklar ve --ad yoksa), yoksa otomatik_<ad>.json
 """
 import argparse
 import json
@@ -15,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from tokenizers import Tokenizer  # noqa: E402
 from sec import SOZLUK, cezalar, kucuk, puanla, yer_cezasi  # noqa: E402
-from uret import test_seti, uret  # noqa: E402
+from uret import aday_havuzu, bayraklar, test_seti  # noqa: E402
 
 
 TURLER = ["yeterince yok", "sonda yok", "kendine gönderme", " ve ", "sonradan beliren", "aynı konuşmacı",
@@ -58,18 +62,24 @@ def main():
     ap.add_argument("--aday", type=int, default=8)
     ap.add_argument("--temp", type=float, default=0.5)
     ap.add_argument("--rep", type=float, default=1.1)
+    ap.add_argument("--ad", default=None, help="aday havuzu adı: <model_dizini>/adaylar_<ad>.json")
+    bayraklar(ap)
     a = ap.parse_args()
+    ekler = ([a.baslik] if a.baslik != "eski" else []) + (["govde"] if a.pencere == "govde" else []) + \
+        (["N"] if a.satir_yasak else []) + (["eot"] if a.eot_on else [])
+    ad = a.ad or "_".join(ekler) or "otomatik"
     tok = Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
+    havuz = aday_havuzu(a.model_dir, ad, a.aday, a.temp, a.rep, tok, a.baslik, a.pencere, a.satir_yasak, a.eot_on)
     ilk, secilen = [], []
     for i, (kim, yer) in enumerate(test_seti()):
-        adaylar = []
-        for j in range(a.aday):
-            _, metin, n, lp, bitti = uret(a.model_dir, kim, yer, 1000 * i + j, a.temp, a.rep, tok)
-            adaylar.append({"kim": kim, "yer": yer, "metin": metin, "n": n, "lp": lp, "bitti": bitti})
+        adaylar = havuz[i]
         ilk.append(adaylar[0])
         secilen.append(max(adaylar, key=lambda h: puanla(h["metin"], kim, h["lp"], h["n"], yer, h["bitti"])))
-    sonuc = {"ayar": vars(a), "seçicisiz": olc(ilk), f"en_iyi_{a.aday}": olc(secilen)}
-    json.dump(sonuc, open(os.path.join(a.model_dir, "otomatik.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    # eski komut satırlarında çıktı aynı kalsın: varsayılan değerdeki yeni ayarlar yazılmaz
+    ayar = {k: v for k, v in vars(a).items() if k in ("model_dir", "aday", "temp", "rep") or v != ap.get_default(k)}
+    sonuc = {"ayar": ayar, "seçicisiz": olc(ilk), f"en_iyi_{a.aday}": olc(secilen)}
+    cikti = "otomatik.json" if ad == "otomatik" and not a.ad else f"otomatik_{ad}.json"
+    json.dump(sonuc, open(os.path.join(a.model_dir, cikti), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(json.dumps(sonuc, ensure_ascii=False, indent=1))
 
 
