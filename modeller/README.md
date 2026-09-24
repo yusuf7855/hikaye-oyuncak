@@ -12,6 +12,8 @@ Büyük eğitim dosyaları (`runs/`, `hf_*/`) depoya girmez; buradakiler yeniden
 | `c2ara_tema/` | v2 · tema (E1, reddedildi; hakem 4.17/10) | 59 MB |
 | `c2ft/` | v3 · tam model R (24 000 + 3000 adım; sabit bölme, sızıntısız) | 59 MB |
 | `c2ft_temiz/` | R-temiz: R'nin aynısı, denetimde bozuk bulunan 289 hikâye çıkarılmış | 59 MB |
+| `c2ft_hiz/` | E2: R'nin aynısı, eğitim pencereleri hikâye başına hizalı | 59 MB |
+| `c2ft_plan/` | E3: R'nin aynısı, model önce "Sorun / Çözüm" planı yazar (web paketi: `paketle.py --plan`) | 59 MB |
 
 Her model klasöründe: `agirliklar_fp16.pt` (ince ayara devam için), `model.bin` (kartta çalışan 4-bit model),
 `golden.txt` (C motoru doğrulaması: `./gen_verify model.bin golden.txt`), `bilgi.json`. Yeni bir modeli eklemek:
