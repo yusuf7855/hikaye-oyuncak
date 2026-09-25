@@ -144,3 +144,35 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   v3 kuralları + seçicinin olay kuralları + güvenlik) 1104/1104. Rubrik hakemi (40 rastgele hikâye): **9.88/10**,
   S1/S2/S3 %100. İnce ayardaki oyuncak hikâyesi 2102 → 3206.
 - Zincir (`zincir_c3.sh`): C3 + v2/v3/v4 ince ayar (4000 adım, plan) → ölçüm; ardından ayrıştırma için C2 + v4.
+
+## Tur 4 — C3 ince ayar (c3ft_v5)
+
+- Model: C3 ön-eğitim (val 2.146) + v2/v3/v4 + ilk popüler karakter partisi, 5000 adım, plan modu. Kalan hakem-dışı
+  hikâye listesi o an 29 kimlikti (popüler paketlerin çoğu henüz yazılmamış/hakemlenmemişti). Son doğrulama 2.38.
+  model.bin 10.3 MB (bölüme sığıyor), C motoru PyTorch ile birebir.
+- Seçim: E5b kural seçici, 8 aday. Kurallar: en iyi 8'de 34/36 temiz, 36/36 biten, plan bozuk 0.
+
+| Ölçüm | c3ft_v5 | Taban (v4 + E5b) |
+|---|---|---|
+| Rubrik (36 test × 2 hakem) | 4.06 | 4.89 (eski hakemler; aynı hakemle ölçülmedi) |
+| Genel ikili, test | 18/36 (%50) | — |
+| Genel ikili, doğrulama | 74/129 (%57, p≈0.06) | — |
+| Genel ikili, toplam | 92/165 (%56) | — |
+
+- Karar: **benimsenmedi** (anlamlı üstünlük yok; rubrik düşük). v4 kartta kalır. Model `modeller/c3ft_v5`.
+- Neden beklenen: bu ince ayar, kılavuzdaki yeni kurallar ve hakem–düzeltme döngüsünden geçmiş veri gelmeden
+  yapıldı.
+
+## Veri — popüler karakterler (hakem–düzeltme döngüsü)
+
+- 12 karakter (Elsa, Peppa, Bluey, Chase, Pepee, Niloya, Maşa, Örümcek Adam, Gabby, Stitch, Moana, Dora) × 2 paket ×
+  48 = **1152 hikâye**. Her hikâye sıkı veri hakemine (HAKEM_VERI.md) girdi, 10 almayanlar en çok iki kez
+  düzeltildi (DUZELTICI.md). Sonuç: **1063 tam puan (%92)**; kalan 89 hikâye eğitimden çıkarıldı.
+- İlk turda hakemin en sık reddettikleri kılavuza eklendi (zaman kayması -mıştı, güçlü arkadaşın "yapamıyorum"
+  demesi, sonradan beliren karakter, dünyanın kuralları: Elsa'nın dünyasında hayvanlar konuşmaz vb.). Sonra yazılan
+  paketlerde ilk tur geçme oranı arttı (ör. Niloya 35 → 40/48, Örümcek Adam 16 → 29/48).
+
+## Tur 5 — C3 + tüm tam puanlı popüler hikâyeler (c3ft_v6, sürüyor)
+
+- `zincir_c3c.sh`: C3 ön-eğitimden, 5000 adım; eğitim dışı: hakemde 10 almayanlar + hakemlenmemiş v5 dosyaları
+  (`data/egitim_haric.txt`, 384 kimlik). Oyuncak hikâyesi 3698 → 4353.
