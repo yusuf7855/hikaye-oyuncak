@@ -116,3 +116,21 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   **Benimsenmedi** (gürültü düzeyinde fark; kartta ek iş).
 - Asıl bulgu: 4 adaydan **en iyisi bile ortalama 5.12** (rastgele 3.38, eski seçici 4.09). Seçici tavana yakın; hedef
   seviye (≥7, kullanıcının örneği ~9) için üretimin kendisi iyileşmeli. Seçim yolu tükendi.
+
+### Tur 3 — üretimi değiştirmeden iyileştirme: hazır plan ve düşük sıcaklık (model v4)
+
+| Karşılaştırma | n | Genel ikili (yeni kolun payı) | Karar |
+|---|---|---|---|
+| Hazır (gerçek hikâyeden) plan vs modelin kendi planı, doğrulama vakaları | 128 | 60 (%47) | benimsenmedi |
+| Sıcaklık 0.35 vs 0.5, test seti | 36 | 18 (%50) | benimsenmedi |
+
+- Hazır plan kartta "plan bankası" (önceden yazılmış iyi Sorun/Çözüm listesi) olacaktı; iyi plan verilince bile hikâye
+  iyileşmiyor: sınır plan değil, planı tutarlı bir hikâyeye dökme becerisi.
+
+### Durum: 3 tur üst üste iyileşme yok (durma kuralı)
+
+- En iyi sistem: **v4 (c2ft_plan) + E5b seçici** (rubrik ~4.9, olay örgüsü %90/%76/%78).
+- Denenip tükenen yollar: veri karışımı (E4), öğrenen seçici (Tur 2), hazır plan ve sıcaklık (Tur 3); daha önce
+  tema başlığı (E1), temiz veri (R-temiz), hizalı pencereler (E2). Seçici tavana yakın: 4 adayın en iyisi ~5.1.
+- Kalan büyük yol, modelin kapasitesi: çekirdeği büyütmek (kart bütçesinin yeniden düzenlenmesi + ön-eğitimin
+  baştan yapılması) ya da daha çok bellekli bir kart. Kullanıcı kararı bekleniyor.
