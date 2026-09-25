@@ -21,6 +21,7 @@ AŞAMALAR = [
     {"ad": "E3 · önce plan", "etiket": "ple-c2ft_plan-s0", "aciklama": "R'nin aynısı, model hikâyeden önce Sorun/Çözüm planı yazıyor"},
     {"ad": "Tur 1 · E4 oyuncak payı", "etiket": "ple-c2ft_e4-s0", "aciklama": "E3'ün aynısı, genel veri 8M -> 4M token: eğitimin %32'si oyuncak hikâyesi (önce %15)"},
     {"ad": "C3 ön-eğitim (büyük model)", "etiket": "ple-c3-s0", "aciklama": "Aynı kart için büyütülmüş model: çekirdek 3.0M -> 5.7M (d192, 12 katman), 24 000 adım"},
+    {"ad": "Tur 4 · C3 ince ayar (v2–v5 + popüler)", "etiket": "ple-c3ft_v5-s0", "aciklama": "Büyük model + 3698 oyuncak hikâyesi (v5 ve Elsa/Bluey/Chase dahil), 10/10 almayanlar hariç, 5000 adım"},
 ]
 
 
