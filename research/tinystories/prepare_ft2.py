@@ -24,6 +24,10 @@ from tokenizers import Tokenizer
 ROOT = Path(__file__).resolve().parents[2]
 V2 = ROOT / "data" / "oyuncak_v2"
 SIRA = [k["tur"] for k in json.load(open(ROOT / "data" / "karakterler.json", encoding="utf-8"))["karakterler"]]
+# Popüler karakterler (data/oyuncak_populer/karakterler.json): başlıkta türleri yerine adları geçer ("Karakter: Elsa")
+_POP = ROOT / "data" / "oyuncak_populer" / "karakterler.json"
+if _POP.exists():
+    SIRA += [k["isim"] for k in json.load(open(_POP, encoding="utf-8"))]
 
 
 def kimlik_ver(kaynak, hikayeler):
