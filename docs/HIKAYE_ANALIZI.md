@@ -78,3 +78,17 @@ adayların çoğunda birlikte bulunuyor. Bunlar için sıradaki adımlar:
 - **E4:** ince ayar karışımında oyuncak hikâyelerinin payını artırmak.
 - Daha uzun ince ayar.
 - Modelin kapasitesi kartın bütçesiyle sınırlı (docs/ESP32_BUTCE.md). Bu yüzden asıl kazanç veri ve seçiciden bekleniyor.
+
+## Kullanıcının hedef örneği (10/10)
+
+Kullanıcı, v4'ün test setindeki şu hikâyesine 10/10 verdi (hakem ortalaması 9). Döngünün hedefi, hikâyelerin
+çoğunun bu seviyede olması: tek sorun, yardım, çözüm, teşekkür, olaydan çıkan duygu; 10-11 kısa cümle.
+
+> Ormanın kenarında Alev adında küçük ve sevimli bir ejderha yaşardı. Ateş yerine ağzından rengarenk baloncuklar
+> üflerdi ve çok güzel şeyler yapardı. Bir gün küçük bir karınca ağır bir yaprağı taşımaya çalışıyordu ama
+> başaramıyordu. Alev yanına gitti ve yardım istedi. "Yardım eder misin?" diye sordu karınca. "Elbette, yardım
+> ederim." dedi Alev. İkisi birlikte yaprağı karıncanın yuvasına taşıdılar. Karınca çok mutlu oldu. "Yardımın için
+> teşekkür ederim." dedi karınca. Alev mutlulukla gülümsedi çünkü birine yardım etmek onu iyi hissettirmişti. O
+> günden sonra her gün birlikte oynadılar.
+
+(Tek kusur: "Alev yanına gitti ve yardım istedi"; yardımı isteyen karınca olmalı.)
