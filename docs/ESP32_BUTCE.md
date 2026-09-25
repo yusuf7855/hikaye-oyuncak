@@ -9,6 +9,37 @@
 > - Bu belge, `degerlendirme` araçlarıyla aynı oturumda çok ajanlı bir inceleme (4 inceleyici, 2 denetçi) ile
 >   üretildi; kaynak hesaplar scratch dizinindeydi ve depoya alınmadı. Rakamlar kartta ölçülene kadar tahmindir.
 
+# C3 — aynı kart için büyütülmüş model (25 Eylül 2026)
+
+> Kart: ESP32-S3-DevKitC-1 **N16R8** (16 MB flash, 8 MB PSRAM). Kullanıcı ayrıca NFC okuyucu ve belki BLE ekleyecek.
+> Neden: 3 iyileştirme turu (docs/DENEYLER.md) C2'nin kapasite sınırında olduğunu gösterdi.
+
+| | C2 (aşağıdaki plan) | **C3** |
+|---|---|---|
+| Yapı | d160 L10 F320 P96 H4 | **d192 L12 F512 P56 H4** (head_dim 48) |
+| Çekirdek parametre | 3.03 M | **5.70 M** (×1.9) |
+| PLE tablosu | 15.7 M | 11.0 M |
+| `model.bin` (bölüm 0xAA0000 = 11 141 120 B) | 11 105 372 B | **10 331 252 B** (pay 810 KB) |
+| Çekirdek + head PSRAM'de | int8, 7.53 MB | **4-bit (dosyadaki gibi), 7.11 MB** (pay ≈1.27 MB) |
+| KV önbelleği (bf16, S=224) | 1.43 MB | 2.06 MB (tabloya dahil) |
+| MAC/token (çekirdek + head) | 5.64 M | 8.84 M (×1.57) |
+| Hız (merkez tahmin, int8 → 4-bit açma dahil) | 5.8 token/s | ≈3.7 token/s, hikâye ≈36 s |
+
+- Boyutlar dışa aktarma biçimiyle hesaplandı ve 250. adımın ara kaydıyla doğrulandı (model.bin tam 10 331 252 B;
+  C motoru ve tarayıcı motoru PyTorch'la birebir: `gen_verify` PASS, JS ilk-5 token aynı).
+- **Çekirdek 4-bit PSRAM'de:** int8 açılımı (11.3 MB) PSRAM'e sığmıyor. Matvec 4-bit grup-128 ağırlıkları doğrudan
+  okur (llm.h zaten böyle). PSRAM bant genişliği ~80 MB/s ile token başına ≈4.5 MB okuma ≈56 ms.
+- **Yavaşlık kullanıcıyı beklettirmez:** hikâyeler kuyrukta önceden hazırlanır (tek figür × yer × 3 hikâye ≈ 54 KB,
+  token id'si olarak; 256 KB kuyruk bölümü ≈1000 hikâye). Hazır hikâye yoksa canlı anlatım: model 3.7 token/s yazar,
+  ses ≈2.5 token/s okur, anlatım takılmaz.
+- **NFC + BLE payı:** NFC okuyucu (PN532/RC522, I2C/SPI) kodu onlarca KB, SRAM'de birkaç KB. BLE (NimBLE) uygulama
+  bölümünde ≈300–500 KB ve dahili SRAM'de ≈50–70 KB; uygulama bölümü 0x180000 (1.5 MB, şimdiki tahmin 0.64–0.88 MB)
+  ve SRAM payı (185 KB) buna yeter. Wi-Fi gerekmez (açılırsa SRAM payı ayrıca hesaplanmalı).
+- Ön-eğitim: `egit_c3.sh` (24 000 adım, bu makinede ≈1.0 s/adım, ≈6.7 saat); ince ayar ince_ayar_c2.sh ile
+  `BAZ=runs/ple-c3-s0.pt` ve C3 boyut bayraklarıyla.
+
+---
+
 ## 0. Karar
 
 Dil modeli, ses verisi ve kodun hepsi kartta. LM flash ve PSRAM'de, ses flash'ta, kod flash'ta duruyor. SD kart ya da ağ kullanılmıyor.
