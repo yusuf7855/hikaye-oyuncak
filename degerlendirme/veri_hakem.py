@@ -96,7 +96,7 @@ def tekrar(a):
 
 def ozet(a):
     klasorler = [os.path.join(HERE, f"veri_{x}") for x in a.adlar] if a.adlar else \
-        sorted(p for p in glob.glob(os.path.join(HERE, "veri_*")) if os.path.isdir(p))
+        sorted(p for p in glob.glob(os.path.join(HERE, "veri_*")) if os.path.exists(os.path.join(p, "kaynak.json")))
     haric, n, on = [], 0, 0
     for d in klasorler:
         for i, (p, _, _) in son_puanlar(d).items():
