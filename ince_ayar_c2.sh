@@ -4,6 +4,8 @@
 #   BAZ=runs/ple-c2-s0.pt (ön-eğitim)   STEPS=3000   LR=3e-4   PY=.venv/bin/python
 #   PAKET="--tema --satir-yasak --eot-on" (web paketi ayarları)
 #   EK_TRAIN="--hizala toy" (train komutunun sonuna eklenen ek argümanlar)
+#   KAYNAK=oyuncak_v2,oyuncak_v3,oyuncak_v4 (oyuncak hikâye klasörleri)
+#   BOYUT="--d-model 192 --n-layers 12 --ple-dim 56 --fixed-ffn 512" (C3; varsayılan C2 boyutları)
 # Çıktı: hf_<etiket>/ (model.bin, tokenizer.json, golden) ve web/m/<etiket>/ (tarayıcı arayüzü için)
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -17,9 +19,9 @@ export PYTHONPATH=src
 [ -x ./gen ] || cc -O3 -o gen runtime/host_verify/gen.c -lm
 if [ ! -f runs/ple-$TAG-s0.pt ]; then
   $PY -m research.tinystories.prepare_ft2 --vocab 16384 --genel tr2_tinystories \
-    --kaynak oyuncak_v2,oyuncak_v3 --out tr_$TAG "$@"
+    --kaynak ${KAYNAK:-oyuncak_v2,oyuncak_v3} --out tr_$TAG "$@"
   TS_DATA=data/tr_$TAG $UYANIK $PY -m research.tinystories.train \
-    --arm ple --vocab 16384 --d-model 160 --n-layers 10 --ple-dim 96 --fixed-ffn 320 --target-core 3000000 \
+    --arm ple --vocab 16384 ${BOYUT:---d-model 160 --n-layers 10 --ple-dim 96 --fixed-ffn 320} --target-core 3000000 \
     --batch-size 16 --seq-len 256 --steps ${STEPS:-3000} --lr ${LR:-3e-4} --warmup 50 --eval-every 250 \
     --eval-iters 20 --ckpt-every 250 --seed 0 --tag $TAG --init-from "$BAZ" --qat-emb ${EK_TRAIN:-}
 fi
