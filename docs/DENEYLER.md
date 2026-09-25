@@ -86,3 +86,21 @@ Eğitim verisinde tetiklenme ~%2, v4'ün 50 hikâyesinde %40.
 
 - Plan-hikâye kelime uyumu kuralları seçimi kötüleştirdi (genel hakemde %23 / %47); çıkarıldı.
 - **Benimsendi:** arayüzde açık. `sec.puanla(..., plan=...)` artık planı da alıyor.
+
+## İyileştirme döngüsü
+
+Hedef: hakem puanı ≥7/10, olay örgüsü soruları ≥%90, bariz hatalar nadir; kullanıcının hedef örneği
+docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
+
+### Tur 1 — E4: ince ayarda oyuncak payı %15 → %32 (c2ft_e4; genel veri 8M → 4M token, gerisi E3 ile aynı)
+
+| Kol | Rubrik | S1 / S2 / S3 | Genel ikili (v4 + yeni seçiciye karşı) | Karar |
+|---|---|---|---|---|
+| v4 (c2ft_plan) | 4.89 | %90 / %76 / %78 | — | en iyi kalıyor |
+| E4 (c2ft_e4) | 4.74 | %81 / %68 / %69 | 84/165 (%51: test 19/36, doğrulama 65/129) | **benimsenmedi** |
+
+- Oyuncak doğrulama kaybı 2.4257 → 2.4154 (küçük iyileşme), ama hakemlerde fark yok. Veri karışımı sınır değil.
+- Kurallar ile hakem puanı arasındaki ilişki zayıf: 468 hakemli hikâyede korelasyon 0.33; kurallara hiç takılmayan
+  hikâyelerin ortalaması 4.96, yalnız %21'i ≥7. "Her hikâye en az hedef seviyede" için daha iyi bir kalite ölçer
+  gerekiyor. Kol dışı çapraz doğrulamada kurallar + log-olasılık + modelin son gizli durumunun ortalaması (160 boyut)
+  üstüne ridge: korelasyon 0.55. Tur 2 bu "öğrenen seçici".
