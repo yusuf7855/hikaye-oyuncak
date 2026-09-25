@@ -176,3 +176,16 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
 
 - `zincir_c3c.sh`: C3 ön-eğitimden, 5000 adım; eğitim dışı: hakemde 10 almayanlar + hakemlenmemiş v5 dosyaları
   (`data/egitim_haric.txt`, 384 kimlik). Oyuncak hikâyesi 3698 → 4353.
+- Sonuç (c3ft_v6, E5b seçici, 8 aday): son doğrulama 2.34 (v5: 2.38); kurallar en iyi 8'de 35/36.
+
+| Ölçüm | c3ft_v6 | Taban (v4 + E5b) |
+|---|---|---|
+| Rubrik, aynı 4 hakem ikisini birlikte puanladı (36 test × 2) | 4.38 | 4.42 |
+| Genel ikili, test | 19/36 (%53) | 17 |
+| Genel ikili, doğrulama | 75/129 (%58) | 54 |
+| Genel ikili, toplam | 94/165 (%57, tek yönlü p≈0.04) | 71 |
+
+- Yorum: 12 temel figürde C3 ancak sınırda önde (ikili hakem), rubrikte eşit. Ek olarak popüler karakterleri
+  (Elsa, Chase…) bilen tek model bu; v4 onları hiç görmedi. Kartta hız C3'te daha düşük (tahmin ~3.7 token/s).
+- Mutlak seviye hâlâ düşük: rubrik ~4.4/10 (hedef 8–9). Veri tarafı 10/10 düzeyine geldi (1063 popüler + v4);
+  kalan fark modelin kapasitesinden.
