@@ -287,6 +287,8 @@ def main():
     ap.add_argument("--aday", type=int, default=1)
     ap.add_argument("--temp", type=float, default=0.5)
     ap.add_argument("--rep", type=float, default=1.1)
+    ap.add_argument("--havuz", default=None,
+                    help="aday havuzu adı (varsayılan: ad); başka bir kolun adaylarını yeni seçiciyle yeniden seçmek için")
     bayraklar(ap)
     a = ap.parse_args()
     tok = Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
@@ -294,11 +296,11 @@ def main():
     if a.aday > 1:
         sys.path.insert(0, HERE)
         from sec import puanla  # noqa: E402
-    havuz = aday_havuzu(a.model_dir, a.ad, a.aday, a.temp, a.rep, tok, a.baslik, a.pencere, a.satir_yasak,
+    havuz = aday_havuzu(a.model_dir, a.havuz or a.ad, a.aday, a.temp, a.rep, tok, a.baslik, a.pencere, a.satir_yasak,
                         a.eot_on, a.plan_kosul, a.dogrulama)
     for i, (kim, yer, _) in enumerate(vakalar(a.dogrulama)):
         adaylar = havuz[i]
-        h = (max(adaylar, key=lambda x: puanla(x["metin"], kim, x["lp"], x["n"], yer, x["bitti"]))
+        h = (max(adaylar, key=lambda x: puanla(x["metin"], kim, x["lp"], x["n"], yer, x["bitti"], plan=x.get("plan")))
              if a.aday > 1 else adaylar[0])
         tema = h["tema"]
         sonuc.append({"id": i, "figurler": [KAR[k]["isim"] + " (" + KAR[k]["tur"] + ")" for k in kim],

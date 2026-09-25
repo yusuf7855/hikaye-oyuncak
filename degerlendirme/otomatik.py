@@ -27,7 +27,8 @@ from uret import aday_havuzu, bayraklar, test_seti, vakalar  # noqa: E402,F401
 
 TURLER = ["yeterince yok", "sonda yok", "kendine gönderme", " ve ", "sonradan beliren", "aynı konuşmacı",
           "yanlış isim", "tekrarlanan cümle", "yarım son", "çok kısa", "uydurma kelime", "tekrar eden ifade",
-          "yer kayması"]
+          "yer kayması", "iki kez tanıtılıyor", "kendi kendine", "kendini", "uydurma karakter adı",
+          "özellik karışması", "kekeme tekrar", "ders olaydan kopuk", "plan bozuk"]
 
 
 def olc(hikayeler):
@@ -37,7 +38,7 @@ def olc(hikayeler):
     ceza_top = 0.0
     turler = {}
     for h in hikayeler:
-        c = cezalar(h["metin"], h["kim"], h["n"], bitti=h["bitti"])
+        c = cezalar(h["metin"], h["kim"], h["n"], bitti=h["bitti"], plan=h.get("plan"))
         yc = yer_cezasi(h["metin"], h["yer"])
         ceza_top += sum(p for p, _ in c) + yc
         temiz += not c and not yc
@@ -82,7 +83,8 @@ def main():
     for i, (kim, yer, _) in enumerate(vakalar(a.dogrulama)):
         adaylar = havuz[i]
         ilk.append(adaylar[0])
-        secilen.append(max(adaylar, key=lambda h: puanla(h["metin"], kim, h["lp"], h["n"], yer, h["bitti"])))
+        secilen.append(max(adaylar, key=lambda h: puanla(h["metin"], kim, h["lp"], h["n"], yer, h["bitti"],
+                                                            plan=h.get("plan"))))
     # eski komut satırlarında çıktı aynı kalsın: varsayılan değerdeki yeni ayarlar yazılmaz
     ayar = {k: v for k, v in vars(a).items() if k in ("model_dir", "aday", "temp", "rep") or v != ap.get_default(k)}
     sonuc = {"ayar": ayar, "seçicisiz": olc(ilk), f"en_iyi_{a.aday}": olc(secilen)}

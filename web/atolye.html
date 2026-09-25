@@ -629,7 +629,7 @@ const YER_KELIME = {
   park: `${B}park`, sato: `${B}şato`, dag: `${B}da(?:ğ|ğı|ğa|ğda|ğın)${E}`,
 };
 let SOZLUK = null, YABANCI = [];
-function cezalar(metin, kim, bitti) {
+function cezalar(metin, kim, bitti, plan) {
   const isimler = kim.map(k => KAR[k].isim), c = [];
   const TUM = new Set(KATALOG.karakterler.map(k => k.isim));
   for (const n of isimler) {
@@ -663,6 +663,73 @@ function cezalar(metin, kim, bitti) {
   const uclu = kelimeler.slice(0, -2).map((w, i) => w + " " + kelimeler[i + 1] + " " + kelimeler[i + 2]);
   const tekrar = uclu.length - new Set(uclu).size;
   if (tekrar > 2) c.push([0.5 * (tekrar - 2), `tekrar eden ifade ×${tekrar}`]);
+  return c.concat(olayCezalari(metin, isimler, plan));
+}
+// ---- olay örgüsü kuralları (sec.py olay_cezalari; docs/HIKAYE_ANALIZI.md) ----
+const EK_ISIM = `['’](?:y?[ıiuü]|y?[ae]|n?[ıiuü]n|n[ıiuü]n|[dt][ae]n?|l[ae])${E}`;
+const IKILEME = new Set(`paytak yavaş tek üzgün adım mutlu sık pırıl uzun ağır mışıl hızlı tekrar sakin için teker güle tıklım
+tatlı çekingen ürkek tir birer utana parıl seve araya şırıl beyaz rahat yudum dilim ışıl geri hüzünlü pır uğraşa kaşık
+derin kova kızgın usul sıkı azar sesli hayran köşe halsiz düşünceli tuhaf bol didik küskün sallaya diz suçlu tane güzel
+dalgın ara kat ağaç yorgun koşa neşeli sevinçli minik küçük`.split(/\s+/));
+const KUS = `${B}(?:kuş|cikcik|baykuş|serçe|güvercin|ördek|tavuk|martı|leylek|kaz${E}|keklik|papağan|horoz|civciv|kartal|karga|bülbül|kırlangıç|penguen|paytak)`;
+const OZELLIK = [
+  [`${B}gaga`, KUS, "gaga ama kuş yok"],
+  ["kuyruğunu salla", `${B}(?:köpe|karabaş|kedi|tekir|tilki|kızıl|sincap|kuzu|keçi|alev|ejderha|dino|dinozor)`, "kuyruk sallayan yok"],
+  ["baloncuk", `${B}(?:alev|ejderha|sabun)`, "baloncuk ama Alev yok"],
+  ["burnunu sok", `${B}(?:tekir|kedi|karabaş|köpe)`, "burnunu sokan yanlış karakter"],
+  ["kabuğunu (?:çıkar|bırak|at)", "$^", "kabuğunu çıkaran kaplumbağa"],
+];
+const DERS_KANIT = {
+  "paylaş": "paylaş|verdi|verme|uzattı|böl|ikiye|yarısı|ikram|ayırdı|birlikte (?:yedi|oyna|kullan)|sıra",
+  "kıskan": "kıskan|imren|kendisi(?:ni|nin)? de|yalnız kal|onu da|başkasıyla|yeni (?:bir )?arkada",
+  "dürüst": "dürüst|doğruyu|itiraf|kırdı|kırıl|devir|özür|sakla|yalan|suç",
+  "sabır": "sabır|sabırl|bekle|sıra|yavaş|acele|tekrar dene|denedi",
+  "dikkat": "dikkat|düştü|devir|kırıl|kaybol|çarp|takıl|kay(?:dı|ıp)",
+  "özür": "özür|kırdı|kırıl|devir|çarp|üzdü|bozdu",
+  "cesar": "cesar|cesur|kork|çekin|utan",
+  "yardım": "yardım|kurtar|çıkar|kaldır|taşı|destek|uzan|birlikte|getir|göster|düzelt|topla",
+};
+const DERS = /(?:anladı|öğrendi|fark etti|anlamıştı|öğrenmişti)/u;
+function planCezasi(plan) {
+  const m = /^Sorun:[ \t]*([^\n]*?)\s*\nÇözüm:[ \t]*([^\n]*?)\s*$/u.exec(plan);
+  return m && m[1] && m[2] ? [] : [[2, "plan bozuk"]];
+}
+function olayCezalari(metin, isimler, plan) {
+  const c = [], km = kucuk(metin);
+  const cumleler = metin.split(/(?<=[.!?])\s+/u).filter(s => s.trim());
+  const TUM = new Set(KATALOG.karakterler.map(k => k.isim));
+  for (const n of isimler) {
+    const N = kac(n);
+    if (say(new RegExp(`${B}${N} adında`, "gu"), metin) > 1) c.push([3, `${n} iki kez tanıtılıyor`]);
+    for (const s of cumleler) {
+      const m = new RegExp(`^(?:[A-ZÇĞİÖŞÜ]${HARF}*\\s+){0,2}${N}${E}(?!['’])(.*?)${B}${N}${EK_ISIM}`, "u").exec(s);
+      if (m && !/["“”:]|(?<![\p{L}\p{N}_])[A-ZÇĞİÖŞÜ]/u.test(m[1]) && !HAYVAN.some(h => new RegExp(`${B}${h}`, "u").test(kucuk(m[1])))) {
+        c.push([2, `${n} kendi kendine: ${m[0].slice(0, 40)}`]); break;
+      }
+    }
+    if (new RegExp(`${B}(?:[Bb]en de|[Bb]enim adım|[Aa]dım) ${N}${E}[^"”]*["”]\\s*(?:diye ${HARF}+|dedi|sordu)\\s+(?!${N}${E})[a-zçğıöşü]`, "u").test(metin))
+      c.push([2, `başkası kendini ${n} diye tanıtıyor`]);
+  }
+  const ozel = [...metin.matchAll(/(?<![.!?"“] )(?<![\p{L}\p{N}_])([A-ZÇĞİÖŞÜ][a-zçğıöşü]+)['’]/gu)].filter(m => m.index > 0).map(m => m[1]);
+  const bas = [...metin.matchAll(/(?:^|[.!?]\s+)([A-ZÇĞİÖŞÜ][a-zçğıöşü]+)['’]/gu)].map(m => m[1]);
+  const bilinmeyen = [...new Set(ozel.concat(bas))].filter(w => !TUM.has(w)).sort();
+  if (bilinmeyen.length) c.push([2, `uydurma karakter adı: ${bilinmeyen.slice(0, 3).join(", ")}`]);
+  for (const [desen, izin, ad] of OZELLIK)
+    if (new RegExp(desen, "u").test(km) && !new RegExp(izin, "u").test(km)) c.push([2, `özellik karışması: ${ad}`]);
+  const L = "a-zçğıöşü";
+  const uc = [...km.matchAll(new RegExp(`(?<![${L}])([${L}]+) \\1 \\1(?![${L}])`, "gu"))].map(m => m[1]).filter(w => w !== "paytak");
+  const iki = [...km.matchAll(new RegExp(`(?<![${L}])([${L}]+) \\1(?![${L}])`, "gu"))].map(m => m[1]).filter(w => !IKILEME.has(w));
+  const obek = [...km.matchAll(new RegExp(`(?<![${L}])([${L}]+(?: [${L}]+){1,3})(?:,| ve)? \\1(?![${L}])`, "gu"))].map(m => m[1]).filter(w => !IKILEME.has(w.split(" ")[0]));
+  if (uc.length || iki.length || obek.length) c.push([uc.length || obek.length ? 2 : 1, `kekeme tekrar: ${uc.concat(obek, iki).slice(0, 2).join(", ")}`]);
+  for (let i = Math.max(3, cumleler.length - 3); i < cumleler.length; i++) {
+    const s = kucuk(cumleler[i]);
+    if (DERS.test(s)) {
+      const govde = kucuk(cumleler.slice(0, i).join(" "));
+      const yok = Object.entries(DERS_KANIT).filter(([v, k]) => s.includes(v) && !new RegExp(k, "u").test(govde)).map(([v]) => v);
+      if (yok.length) { c.push([1.5, `ders olaydan kopuk (${yok[0]})`]); break; }
+    }
+  }
+  if (plan != null) c.push(...planCezasi(plan));
   return c;
 }
 function yerCezasi(metin, yer) {
@@ -673,13 +740,13 @@ function yerCezasi(metin, yer) {
   return (kendi === 0 || baska > kendi) ? [[1.5, "yer kayması"]] : [];
 }
 // Çocuğa uygun olmayan içerik (sec.py GUVENLIK ile aynı): oyuncakta her zaman açık
-const GUVENLIK = /(?<![a-zçğıöşü])(?:incit[\p{L}]*|yaral[\p{L}]*|(?<!gözyaşlarına )boğul[\p{L}]*|kanıyor[\p{L}]*|kanama[\p{L}]*|acıyor[\p{L}]*|derin su[\p{L}]*|tehlike[\p{L}]*)/gu;
+const GUVENLIK = /(?<![a-zçğıöşü])(?:incit[\p{L}]*|yaral[\p{L}]*|(?<!gözyaşlarına )boğul[\p{L}]*|kanıyor[\p{L}]*|kanama[\p{L}]*|acıyor[\p{L}]*|derin su[\p{L}]*|tehlike[\p{L}]*|kan(?:lar)?(?![a-zçğıöşü])|diz[\p{L}]* kana[\p{L}]*|yara(?:sı|lar|ları)?(?![a-zçğıöşü])|yara band[\p{L}]*|canı acı[\p{L}]*)/gu;
 function guvenlikCezasi(metin) {
   const bul = [...new Set(kucuk(metin).match(GUVENLIK) || [])];
   return bul.length ? [[4, `çocuğa uygun olmayan: ${bul.slice(0, 3).join(", ")}`]] : [];
 }
-function puanla(metin, kim, yer, ortLogp, bitti) {
-  const liste = cezalar(metin, kim, bitti).concat(yerCezasi(metin, yer), guvenlikCezasi(metin));
+function puanla(metin, kim, yer, ortLogp, bitti, plan) {
+  const liste = cezalar(metin, kim, bitti, plan).concat(yerCezasi(metin, yer), guvenlikCezasi(metin));
   return { puan: -liste.reduce((a, [p]) => a + p, 0) + 2 * ortLogp, liste };
 }
 
@@ -942,9 +1009,10 @@ async function calistir(surumId, k, vaka, ayar) {
     if (d.plan_bozuk) { bozuk++; continue; }  // plan 48 token'da bitmedi ya da gövdesiz: aday atılır (gen.c -S plan_bozuk)
     const metin = kayit.coz(d.ids).trim();
     const ort = d.lps.reduce((a, b) => a + b, 0) / Math.max(1, d.lps.length);
-    const p = puanla(metin, vaka.kim, vaka.yer, ort, d.bitti);
+    const plan = planli ? planMetni(d.plan) : null;
+    const p = puanla(metin, vaka.kim, vaka.yer, ort, d.bitti, plan);
     adaylar.push({ j, metin, ort, bitti: d.bitti, n: d.ids.length, hiz: d.hiz, seed: ayar.seed + j, ...p,
-                   ...(planli ? { plan: planMetni(d.plan) } : {}) });
+                   ...(planli ? { plan } : {}) });
     const enIyi = adaylar.reduce((a, b) => b.puan > a.puan ? b : a);
     planGoster(k, enIyi.plan); metniGoster(k, enIyi.metin, false); cezalariGoster(k, enIyi.liste);
   }

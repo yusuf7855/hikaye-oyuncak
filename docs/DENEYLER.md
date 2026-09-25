@@ -72,3 +72,17 @@ Taban: R (c2ft_NE). E3 modeli iki biçimde ölçüldü: planlı (b) ve plansız 
 - Genel tablo: hiçbir deney belirleyici bir sıçrama vermedi (bütün modeller 4.3–4.9/10). README'deki bulgu duruyor:
   eğitim verisi 9.8/10, model ~4.9/10; sınır 3M çekirdekli modelin kapasitesi. 36 vakada ~0.3 puanlık farklar
   gürültü içinde.
+
+## E5b — 50 hikâye analizinden olay örgüsü kuralları (yalnız seçici; model v4 aynı)
+
+Ayrıntı: docs/HIKAYE_ANALIZI.md. Yeni kurallar: iki kez tanıtma, kendi kendine, başkasının figür adıyla tanıtması,
+uydurma karakter adı, özellik karışması, kekeme tekrar, ders olaydan kopuk, plan bozuk; güvenliğe kan ve yara eklendi.
+Eğitim verisinde tetiklenme ~%2, v4'ün 50 hikâyesinde %40.
+
+| Karşılaştırma (yalnız seçimi değişen vakalar) | n | Olay örgüsü (IKILI.md) | Genel kalite (IKILI_GENEL.md) |
+|---|---|---|---|
+| tüm kurallar vs eski seçici | 63 | 34.25 (%54) | 39 (%62, p=0.038) |
+| son kurallar (plan uyumu çıkarıldı) vs eski seçici | 49 | 25.75/43 (%60) | **32 (%65, p=0.022)** |
+
+- Plan-hikâye kelime uyumu kuralları seçimi kötüleştirdi (genel hakemde %23 / %47); çıkarıldı.
+- **Benimsendi:** arayüzde açık. `sec.puanla(..., plan=...)` artık planı da alıyor.
