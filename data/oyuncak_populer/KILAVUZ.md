@@ -92,3 +92,14 @@ uyku vakti, yağmur ya da kar günü, teşekkür etmek
 27. **Özellikler karışmaz:** bir karakterin gücü başkasına geçmez (buz yalnız Elsa'da, ağ yalnız Örümcek
     Takımı'nda, küçülme tacı yalnız Gabby'de).
 28. Çeşitlilik: aynı partide olayları, nesneleri ve yan karakterleri çeşitlendir; ama kalıbı (kural 20) koru.
+
+## Hakemden sık dönen hatalar (mutlaka kaçının)
+
+- **Zaman kayması:** Hikâye başlamadan önce olmuş şeyler -mıştı/-mişti ile yazılır: "Gece sert bir rüzgâr esmişti",
+  "Çocuk mahalleye yeni taşınmıştı", "Sincap çok acıkmıştı", "Anahtar suya düşmüştü".
+- **Güçlü arkadaşlar:** Kartta güçleri olan arkadaşlar (ağ atan, tırmanan, çok güçlü, uçan…) sorunu kendi güçleriyle
+  kolayca çözebilecekken "yapamıyorum" diyemez. Ya bu arkadaşı hikâyeye hiç koymayın ya da sorunu onların gücünün
+  işe yaramadığı bir şey yapın (ör. duygusal bir sorun, aynı anda iki yerde olmak).
+- **Sonradan beliren karakter:** Sonda rol alan her karakter hikâyenin başında ya da olay anında tanıtılır.
+- **Nesnenin nereden geldiği:** Yüksek rafa, dolabın üstüne çıkan şeyin oraya nasıl gittiği bir cümleyle söylenir.
+- **Sebepli değişim:** Birinin fikrini değiştirmesi, özür dilemesi ya da sevinmesi olaydan doğar; gösterilir.
