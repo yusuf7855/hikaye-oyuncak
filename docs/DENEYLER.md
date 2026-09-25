@@ -104,3 +104,15 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   hikâyelerin ortalaması 4.96, yalnız %21'i ≥7. "Her hikâye en az hedef seviyede" için daha iyi bir kalite ölçer
   gerekiyor. Kol dışı çapraz doğrulamada kurallar + log-olasılık + modelin son gizli durumunun ortalaması (160 boyut)
   üstüne ridge: korelasyon 0.55. Tur 2 bu "öğrenen seçici".
+
+### Tur 2 — öğrenen seçici (degerlendirme/odul.py; model v4)
+
+- 480 yeni etiket: v4'ün doğrulama havuzundan (129 vaka, vaka başına en çok 4 aday) tek rubrik hakemiyle; önceki
+  504 etiketle toplam 984. Özellik: -(kural cezası), gövde uzunluğu, C motorundan (gen -H -G) son gizli durumun gövde
+  ortalaması (160). Ridge.
+- Kol-dışı korelasyon: öğrenen 0.545, yalnız kurallar 0.43. Ama asıl iş olan **aynı vakanın adayları arasında
+  sıralamada** fark yok: 5 katlı (vakaya göre) çapraz doğrulamada çift doğruluğu öğrenen 0.647, eski seçici
+  (kurallar + 2·log-olasılık) 0.673, ikisi birden 0.686; seçilen adayın hakem ortalaması 4.06 / 4.09 / 4.16.
+  **Benimsenmedi** (gürültü düzeyinde fark; kartta ek iş).
+- Asıl bulgu: 4 adaydan **en iyisi bile ortalama 5.12** (rastgele 3.38, eski seçici 4.09). Seçici tavana yakın; hedef
+  seviye (≥7, kullanıcının örneği ~9) için üretimin kendisi iyileşmeli. Seçim yolu tükendi.
