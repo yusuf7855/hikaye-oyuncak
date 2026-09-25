@@ -103,3 +103,8 @@ uyku vakti, yağmur ya da kar günü, teşekkür etmek
 - **Sonradan beliren karakter:** Sonda rol alan her karakter hikâyenin başında ya da olay anında tanıtılır.
 - **Nesnenin nereden geldiği:** Yüksek rafa, dolabın üstüne çıkan şeyin oraya nasıl gittiği bir cümleyle söylenir.
 - **Sebepli değişim:** Birinin fikrini değiştirmesi, özür dilemesi ya da sevinmesi olaydan doğar; gösterilir.
+- **Dünyanın kuralları:** Karakterin dizisinde hayvanlar konuşmuyorsa (ör. Elsa'nın dünyası: Sven konuşmaz, orman
+  hayvanları konuşmaz; yalnız Olaf konuşur) hikâyede de konuşmaz. Karakterlerin bilinen kişiliği korunur (Olaf
+  neşeli ve korkusuzdur, kıskanmaz). Kraliçenin ailesi sıradan işler için sıraya girmez.
+- **Güçlü kahraman, kolay çözüm:** Elsa gibi büyü gücü olan kahraman sorunu doğrudan çözebiliyorsa uzun dolambaçlı
+  yola gerek yok; sorun onun gücünün tek başına yetmediği bir şey olmalı.
