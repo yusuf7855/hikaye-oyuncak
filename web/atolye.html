@@ -1294,7 +1294,8 @@ function egitimCiz(d) {
     const kalan = aktif.durum === "training" ? Math.max(0, aktif.kalan_sn - yas) : 0;
     ozet.append(
       olcu("Adım", `${(aktif.adim + 1).toLocaleString("tr-TR")}`, `/ ${aktif.toplam.toLocaleString("tr-TR")} · %${(100 * oran).toFixed(1)}`),
-      olcu("Kalan süre", aktif.durum === "done" ? "bitti" : sure(kalan), aktif.durum === "training" ? `tahmini bitiş ${saat(Date.now() + kalan * 1000)}` : ""),
+      olcu("Kalan süre", aktif.durum === "done" ? "bitti" : aktif.durum === "training" && kalan <= 0 ? "birazdan" : sure(kalan),
+        aktif.durum === "training" ? (kalan > 0 ? `tahmini bitiş ${saat(Date.now() + kalan * 1000)}` : "durum henüz güncellenmedi") : ""),
       olcu("Doğrulama kaybı", sonVal != null ? sonVal.toFixed(3) : "–", sonVal != null ? `perplexity ${Math.exp(sonVal).toFixed(2)}` : ""),
       olcu("Hız", `${aktif.sn_adim ? aktif.sn_adim.toFixed(2) : "–"} sn`, `adım başına · geçen ${sure(aktif.gecen_sn)}`));
   }
