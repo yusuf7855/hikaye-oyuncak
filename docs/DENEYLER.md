@@ -134,3 +134,13 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   tema başlığı (E1), temiz veri (R-temiz), hizalı pencereler (E2). Seçici tavana yakın: 4 adayın en iyisi ~5.1.
 - Kalan büyük yol, modelin kapasitesi: çekirdeği büyütmek (kart bütçesinin yeniden düzenlenmesi + ön-eğitimin
   baştan yapılması) ya da daha çok bellekli bir kart. Kullanıcı kararı bekleniyor.
+
+## Tur 4 hazırlığı — büyük model (C3) ve v4 verisi
+
+- **C3** (docs/ESP32_BUTCE.md "C3"): aynı kart (N16R8) için çekirdek 3.0M → 5.7M (d192 L12 F512 P56). Ön-eğitim
+  `egit_c3.sh`, 24 000 adım. Aynı adımda doğrulama kaybı C2'den düşük (9 500. adım: 2.399 / 2.442).
+- **v4 verisi** (data/oyuncak_v4, KILAVUZ.md): kullanıcının 10/10 örneğinin tarzında, 50 hikâye analizinden çıkan
+  kurallarla yazılmış 1104 hikâye (72/72 tek figür-yer × 8, 66/66 ikili × 8), planlarıyla. Denetim (kontrol.py:
+  v3 kuralları + seçicinin olay kuralları + güvenlik) 1104/1104. Rubrik hakemi (40 rastgele hikâye): **9.88/10**,
+  S1/S2/S3 %100. İnce ayardaki oyuncak hikâyesi 2102 → 3206.
+- Zincir (`zincir_c3.sh`): C3 + v2/v3/v4 ince ayar (4000 adım, plan) → ölçüm; ardından ayrıştırma için C2 + v4.
