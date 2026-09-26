@@ -20,6 +20,11 @@ Kaliteyi artıran seçimler:
   kendi çıktısıyla ince ayar yapılır (GTA). Bu adım bulanıklığı ve çınlamayı azaltır.
 - Son adımlar kartın 4/8 bit ağırlıklarıyla eğitilir (QAT): kartta sıkıştırınca kalite düşmez.
 
+## Çalıştırma (Colab Pro, önerilen)
+
+`ses/colab_egitim.ipynb` defterini Colab'da açın, GPU olarak A100 (yoksa L4) seçin, hücreleri sırayla çalıştırın.
+Kayıtlar Drive'daki `hikaye_ses/` klasörüne gider; oturum koparsa bütün hücreleri yeniden çalıştırmak yeter.
+
 ## Çalıştırma (Mac M3)
 
 ```bash

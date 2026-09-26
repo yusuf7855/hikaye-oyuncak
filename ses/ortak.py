@@ -22,6 +22,9 @@ def cihaz():
     if torch.backends.mps.is_available():
         return torch.device("mps")
     if torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.backends.cudnn.benchmark = True
         return torch.device("cuda")
     return torch.device("cpu")
 
