@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hikâye Oyuncağı — Kart</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1f1d1a; --muted: #6d675e; --line: #e3ded4;
+    --accent: #c2410c; --accent-ink: #ffffff; --plan: #fff4e8; --ok: #15803d; --err: #b91c1c;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a; --panel: #211f25; --ink: #ece8e1; --muted: #a39d93; --line: #35323a;
+      --accent: #fb923c; --accent-ink: #1b1208; --plan: #2b2219; --ok: #4ade80; --err: #f87171;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 16px 24px; border-bottom: 1px solid var(--line); display: flex; gap: 16px;
+           align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 20px; margin: 0; margin-right: auto; }
+  main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 16px; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .panel + .panel { margin-top: 16px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  select, button, input { font: inherit; color: inherit; }
+  select, input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  button { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; }
+  button.ana { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .satir { display: flex; gap: 8px; align-items: center; }
+  .satir > * { flex: 1; }
+  .satir > button { flex: 0 0 auto; }
+  .durum { font-size: 14px; color: var(--muted); }
+  .nokta { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--err); margin-right: 6px; }
+  .nokta.acik { background: var(--ok); }
+  .bilgi { font: 12px/1.5 var(--mono); color: var(--muted); white-space: pre-wrap; margin-top: 10px; }
+  .secenek { display: flex; gap: 6px; }
+  .secenek button { flex: 1; }
+  .secenek button.sec { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  #hikayeBaslik { font-size: 15px; color: var(--muted); margin-bottom: 10px; min-height: 22px; }
+  #plan { background: var(--plan); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: none; }
+  #plan div { margin: 2px 0; }
+  #plan b { color: var(--accent); }
+  #govde { font-size: 19px; line-height: 1.7; white-space: pre-wrap; min-height: 120px; max-width: 72ch; }
+  #govde.bos { color: var(--muted); font-size: 16px; }
+  .imlec { display: inline-block; width: .5em; height: 1em; background: var(--accent); vertical-align: text-bottom;
+           animation: yanip 1s steps(1) infinite; margin-left: 2px; }
+  @keyframes yanip { 50% { opacity: 0; } }
+  #adaylar { font: 13px/1.5 var(--mono); color: var(--muted); white-space: pre-wrap; margin-bottom: 8px; }
+  #olcum { margin-top: 16px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+  #olcum span b { font-size: 20px; font-variant-numeric: tabular-nums; display: block; }
+  #gecmis { list-style: none; margin: 0; padding: 0; max-height: 520px; overflow: auto; }
+  #gecmis li { border-top: 1px solid var(--line); padding: 10px 2px; cursor: pointer; }
+  #gecmis li:first-child { border-top: 0; }
+  #gecmis li:hover { background: var(--bg); }
+  .ust { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+  .ozet { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+  #gunluk { font: 12px/1.45 var(--mono); white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line);
+            border-radius: 8px; padding: 10px; max-height: 360px; overflow: auto; margin-top: 10px; }
+  .uyari { color: var(--err); font-size: 14px; margin-top: 12px; }
+  #hata { color: var(--err); font-size: 14px; min-height: 20px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Hikâye Oyuncağı — Kart</h1>
+  <div class="durum"><span id="nokta" class="nokta"></span><span id="baglantiYazi">Bağlı değil</span></div>
+</header>
+<main>
+  <div>
+    <section class="panel">
+      <h2>Bağlantı</h2>
+      <div class="satir">
+        <select id="port"></select>
+        <button id="yenile" title="Portları yenile">↻</button>
+      </div>
+      <div class="satir" style="margin-top:8px">
+        <button id="baglan" class="ana">Bağlan</button>
+        <button id="kes">Kes</button>
+      </div>
+      <div id="bilgi" class="bilgi"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Hikâye</h2>
+      <label for="fig1">1. figür</label>
+      <select id="fig1"></select>
+      <label for="fig2">2. figür (isteğe bağlı)</label>
+      <select id="fig2"></select>
+      <label for="yer">Yer</label>
+      <select id="yer"></select>
+      <label>Aday sayısı</label>
+      <div class="secenek" id="aday">
+        <button data-k="1" class="sec">1 (canlı)</button>
+        <button data-k="4">4 (en iyisi)</button>
+      </div>
+      <div class="satir" style="margin-top:14px">
+        <button id="yaz" class="ana">Hikâye yaz</button>
+        <button id="rastgele">Rastgele</button>
+      </div>
+      <div id="hata"></div>
+    </section>
+  </div>
+
+  <div>
+    <section class="panel">
+      <div id="hikayeBaslik"></div>
+      <div id="adaylar"></div>
+      <div id="plan"><div><b>Sorun:</b> <span id="sorun"></span></div><div><b>Çözüm:</b> <span id="cozum"></span></div></div>
+      <div id="govde" class="bos">Kartı bağlayın, figür ve yer seçip “Hikâye yaz”a basın.</div>
+      <div id="olcum"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Geçmiş</h2>
+      <ul id="gecmis"></ul>
+    </section>
+
+    <section class="panel">
+      <details id="gunlukKutu">
+        <summary>Günlük (ham seri çıktı)</summary>
+        <div class="satir" style="margin-top:10px">
+          <input id="komut" placeholder="Karta elle komut gönder (ör. ?)">
+          <button id="komutGonder">Gönder</button>
+          <button id="gunlukTemizle">Temizle</button>
+        </div>
+        <div id="gunluk"></div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let durum = {}, aday = 1, ham = "", akanMetin = "";
+
+async function api(yol, govde) {
+  const r = await fetch(yol, govde === undefined ? {} : {
+    method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(govde)});
+  const v = await r.json();
+  if (!r.ok) throw new Error(v.hata || r.statusText);
+  return v;
+}
+function hata(m) { $("hata").textContent = m || ""; }
+
+async function portlariYukle() {
+  const liste = await api("/api/portlar");
+  const onceki = $("port").value || durum.port;
+  $("port").innerHTML = liste.length ? "" : "<option value=''>Port bulunamadı</option>";
+  for (const p of liste) {
+    const o = new Option(`${p.ad}${p.esp ? "  (ESP32?)" : ""}`, p.ad);
+    $("port").add(o);
+  }
+  if (onceki && liste.some(p => p.ad === onceki)) $("port").value = onceki;
+}
+
+function secenekleriDoldur() {
+  const f1 = $("fig1").value, f2 = $("fig2").value, y = $("yer").value;
+  const figs = durum.figurler || [], yerler = durum.yerler || [];
+  $("fig1").innerHTML = ""; $("fig2").innerHTML = "<option value=''>— yok —</option>"; $("yer").innerHTML = "";
+  for (const f of figs) { $("fig1").add(new Option(`${f.no}. ${f.ad}`, f.no)); $("fig2").add(new Option(`${f.no}. ${f.ad}`, f.no)); }
+  for (const x of yerler) $("yer").add(new Option(`${x.no}. ${x.ad}`, x.no));
+  if (f1) $("fig1").value = f1; if (f2) $("fig2").value = f2; if (y) $("yer").value = y;
+}
+
+function durumuUygula(d) {
+  const eskiListe = JSON.stringify([durum.figurler, durum.yerler]);
+  durum = d;
+  $("nokta").classList.toggle("acik", d.bagli);
+  $("baglantiYazi").textContent = d.bagli ? `Bağlı: ${d.port}${d.mesgul ? " — kart yazıyor…" : ""}` : "Bağlı değil";
+  $("bilgi").textContent = (d.bilgi || []).join("\n");
+  if (JSON.stringify([d.figurler, d.yerler]) !== eskiListe) secenekleriDoldur();
+  const hazir = d.bagli && !d.mesgul && (d.figurler || []).length > 0;
+  $("yaz").disabled = !hazir; $("rastgele").disabled = !hazir;
+  $("baglan").disabled = false; $("kes").disabled = !d.bagli;
+  if (d.bagli && !(d.figurler || []).length) $("govde").textContent = "Kart açılıyor, figür listesi bekleniyor…";
+}
+
+function hikayeCiz(bitti) {
+  const t = akanMetin;
+  const [plan, ...kalan] = t.split("\n\n");
+  const govde = kalan.join("\n\n");
+  let sorun = "", cozum = "";
+  for (const s of plan.split("\n")) {
+    if (s.startsWith("Sorun:")) sorun = s.slice(6).trim();
+    else if (s.startsWith("Çözüm:")) cozum = s.slice(6).trim();
+  }
+  $("plan").style.display = t ? "block" : "none";
+  $("sorun").textContent = sorun; $("cozum").textContent = cozum;
+  $("govde").classList.remove("bos");
+  $("govde").textContent = govde;
+  if (!bitti) { const i = document.createElement("span"); i.className = "imlec"; $("govde").appendChild(i); }
+}
+
+function gecmisSatir(k) {
+  const li = document.createElement("li");
+  const tarih = new Date(k.tarih).toLocaleString("tr-TR");
+  li.innerHTML = `<div class="ust"><span></span><span></span></div><div class="ozet"></div>`;
+  li.querySelector(".ust span").textContent = `${k.figurler.join(" + ")} · ${k.yer} · ${k.aday} aday`;
+  li.querySelector(".ust span:last-child").textContent = `${tarih} · ${k.token_s.toFixed(2)} tok/s`;
+  li.querySelector(".ozet").textContent = (k.plan_bozuk ? "⚠ plan bozuk — " : "") + k.hikaye;
+  li.onclick = () => kayitGoster(k);
+  return li;
+}
+function bozukGoster(k) {
+  $("plan").style.display = "none";
+  $("govde").textContent = k.hikaye;
+  const n = document.createElement("div"); n.className = "uyari";
+  n.textContent = "Plan bozuk: model planı (Sorun/Çözüm) sınırda bitiremedi, kart bu hikâyeyi yarıda kesti. Yeniden deneyin ya da 4 aday seçin.";
+  $("govde").appendChild(n);
+}
+function kayitGoster(k) {
+  $("hikayeBaslik").textContent = `${k.figurler.join(" + ")} · ${k.yer} · ${k.aday} aday · ${new Date(k.tarih).toLocaleString("tr-TR")}`;
+  $("adaylar").textContent = "";
+  akanMetin = `Sorun: ${k.sorun}\nÇözüm: ${k.cozum}\n\n${k.hikaye}`;
+  if (k.plan_bozuk) bozukGoster(k); else hikayeCiz(true);
+  olcumYaz(k);
+}
+function olcumYaz(k) {
+  $("olcum").innerHTML = "";
+  for (const [ad, deger] of [["token/s", k.token_s.toFixed(2)], ["süre", `${k.sure_s.toFixed(1)} s`], ["token", k.token], ["aday", k.aday]]) {
+    const s = document.createElement("span"); s.innerHTML = "<b></b>"; s.firstChild.textContent = deger;
+    s.append(ad); $("olcum").appendChild(s);
+  }
+}
+async function gecmisYukle() {
+  const liste = await api("/api/gecmis");
+  $("gecmis").innerHTML = "";
+  if (!liste.length) $("gecmis").innerHTML = "<li class='durum'>Henüz hikâye yok.</li>";
+  for (const k of liste) $("gecmis").appendChild(gecmisSatir(k));
+}
+
+function gunlugeEkle(m) {
+  ham += m; if (ham.length > 200000) ham = ham.slice(-150000);
+  if ($("gunlukKutu").open) { const g = $("gunluk"); const altta = g.scrollTop + g.clientHeight >= g.scrollHeight - 20;
+    g.textContent = ham; if (altta) g.scrollTop = g.scrollHeight; }
+}
+
+const kaynak = new EventSource("/api/olaylar");
+kaynak.addEventListener("durum", e => durumuUygula(JSON.parse(e.data)));
+kaynak.addEventListener("ham", e => gunlugeEkle(JSON.parse(e.data)));
+kaynak.addEventListener("hata", e => hata(JSON.parse(e.data)));
+kaynak.addEventListener("basla", e => {
+  const h = JSON.parse(e.data);
+  hata(""); akanMetin = ""; $("olcum").innerHTML = ""; $("adaylar").textContent = "";
+  $("hikayeBaslik").textContent = `${h.figurler.join(" + ")} · ${h.yer} · ${h.aday} aday`;
+  $("plan").style.display = "none";
+  $("govde").classList.add("bos");
+  $("govde").textContent = h.aday > 1 ? `${h.aday} aday üretiliyor, en iyisi seçilecek…` : "Kart düşünüyor…";
+});
+kaynak.addEventListener("aday", e => {
+  const a = JSON.parse(e.data);
+  $("adaylar").textContent += `aday ${a.no}/${a.toplam}: ${a.bilgi}\n`;
+});
+kaynak.addEventListener("parca", e => { akanMetin += JSON.parse(e.data); hikayeCiz(false); });
+kaynak.addEventListener("bitti", e => {
+  const k = JSON.parse(e.data); if (k.plan_bozuk) bozukGoster(k); else hikayeCiz(true); olcumYaz(k);
+  const bos = $("gecmis").querySelector(".durum"); if (bos) bos.remove();
+  $("gecmis").prepend(gecmisSatir(k));
+});
+
+$("yenile").onclick = () => portlariYukle().catch(e => hata(e.message));
+$("baglan").onclick = async () => {
+  hata(""); ham = ""; $("gunluk").textContent = "";
+  try { durumuUygula(await api("/api/baglan", {port: $("port").value})); } catch (e) { hata(e.message); }
+};
+$("kes").onclick = async () => durumuUygula(await api("/api/kes", {}));
+for (const b of $("aday").querySelectorAll("button"))
+  b.onclick = () => { aday = +b.dataset.k; for (const x of $("aday").querySelectorAll("button")) x.classList.toggle("sec", x === b); };
+$("yaz").onclick = async () => {
+  hata("");
+  const figs = [$("fig1").value, $("fig2").value].filter(Boolean);
+  if (figs.length === 2 && figs[0] === figs[1]) return hata("İki farklı figür seçin.");
+  try { await api("/api/yaz", {figurler: figs, yer: $("yer").value, aday}); } catch (e) { hata(e.message); }
+};
+$("rastgele").onclick = async () => { hata(""); try { await api("/api/yaz", {rastgele: true}); } catch (e) { hata(e.message); } };
+$("komutGonder").onclick = async () => {
+  try { await api("/api/komut", {komut: $("komut").value}); $("komut").value = ""; } catch (e) { hata(e.message); }
+};
+$("komut").onkeydown = e => { if (e.key === "Enter") $("komutGonder").click(); };
+$("gunlukTemizle").onclick = () => { ham = ""; $("gunluk").textContent = ""; };
+$("gunlukKutu").ontoggle = () => { $("gunluk").textContent = ham; $("gunluk").scrollTop = $("gunluk").scrollHeight; };
+
+portlariYukle(); gecmisYukle();
+</script>
+</body>
+</html>
