@@ -60,6 +60,7 @@ def main():
     ap.add_argument("--qat-adim", type=int, default=10000)
     ap.add_argument("--gta", action="store_true")
     ap.add_argument("--akustik", default=None)
+    ap.add_argument("--baslangic", default=None, help="yeni eğitime bu kayıttaki ağırlıklarla başla (GTA için)")
     ap.add_argument("--kayit-her", type=int, default=1000)
     ap.add_argument("--ornek-her", type=int, default=10000)
     ap.add_argument("--is", dest="is_", type=int, default=2)
@@ -86,6 +87,11 @@ def main():
         opt_d.load_state_dict(k["opt_d"])
         adim = k["adim"]
         print(f"devam: adım {adim}", flush=True)
+    elif a.baslangic:
+        k = torch.load(a.baslangic, map_location="cpu", weights_only=False)
+        G.load_state_dict(k["model"])
+        D.load_state_dict(k["ad"])
+        print(f"başlangıç: {a.baslangic} (adım {k['adim']})", flush=True)
     G.to(cih)
     D.to(cih)
     for opt in (opt_g, opt_d):

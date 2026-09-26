@@ -53,6 +53,10 @@ async def seslendir(metin, yol, sem):
 async def main(a):
     os.makedirs(os.path.join(a.cikti, "mp3"), exist_ok=True)
     tsv = os.path.join(a.cikti, "metin.tsv")
+    hazir_liste = os.path.join(os.path.dirname(os.path.abspath(__file__)), "metin.tsv")
+    if not os.path.exists(tsv) and os.path.exists(hazir_liste):   # depodaki sabit 25 bin cümle
+        import shutil
+        shutil.copy(hazir_liste, tsv)
     if os.path.exists(tsv):
         secim = [l.rstrip("\n").split("\t", 1) for l in open(tsv, encoding="utf-8")]
     else:
