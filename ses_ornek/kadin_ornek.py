@@ -50,4 +50,5 @@ async def main():
     yaz("5_kadin_hece.wav", x / (np.abs(x).max() + 1e-6) * 0.9)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
