@@ -22,7 +22,7 @@ Kaliteyi artıran seçimler:
 
 ## Çalıştırma (Colab Pro, önerilen)
 
-`ses/colab_egitim.ipynb` defterini Colab'da açın, GPU olarak A100 (yoksa L4) seçin, hücreleri sırayla çalıştırın.
+`ses/colab_egitim.ipynb` defterini Colab'da açın, önce veriyi CPU çalışma zamanında hazırlayın, sonra L4 GPU seçin, hücreleri sırayla çalıştırın.
 Kayıtlar Drive'daki `hikaye_ses/` klasörüne gider; oturum koparsa bütün hücreleri yeniden çalıştırmak yeter.
 
 ## Çalıştırma (Mac M3)
