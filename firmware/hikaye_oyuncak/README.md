@@ -73,9 +73,21 @@ model.bin: 11105372 B, parmak izi fp=3900f74e
 | `10 1 4` | 4 aday üretir, hafif seçiciyle en iyisini yazar (daha yavaş, daha iyi) |
 | `r` | rastgele figür ve yer |
 | `?` | figür ve yer listesi |
+| `b` | hız testi: head'in üç yolunu ölçer, token başına ms dökümünü yazar, en hızlısını seçer |
 
-Her hikâyenin sonunda `token/s` yazar. **Bu sayıyı ve birkaç hikâyeyi bana gönderin**: kartın gerçek hızı, büyük
-modelin (C3) planını doğrulamak için gerekli (tahminimiz C2 için ≈5–6 token/s).
+Her hikâyenin sonunda `token/s` ve bir **profil** satırı yazar: token başına ms olarak girdi, dikkat, FFN, PLE,
+head ve örnekleme. **Bu satırları, `b` çıktısını ve birkaç hikâyeyi bana gönderin.**
+
+### Hız (ilk ölçüm ve düzeltme)
+
+İlk kart denemesi 1,6 token/s verdi (hikâye başına 80–110 s). Neden: head (16 384 satır, 4-bit, flash'ta) tek
+çekirdekte ve eleman başına nibble ayıklayan yavaş yoldan hesaplanıyordu; çekirdek katmanlar ise int8 ve iki
+çekirdekteydi. Şimdi (`hiz.h`):
+- head için hızlı 4-bit çekirdek (bayt başına iki nibble, "-8" grup başına bir kez; sonuçlar eski yolla bit bit
+  aynı, `tools/hiz_test.c`),
+- head iki çekirdeğe bölünür,
+- yer varsa head kodları (1,3 MB) açılışta PSRAM'e kopyalanır.
+Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b` komutu eski ve yeni yolları karşılaştırır.
 
 ## Sorun giderme
 
@@ -95,4 +107,5 @@ modelin (C3) planını doğrulamak için gerekli (tahminimiz C2 için ≈5–6 t
 - Bellek: çekirdek int8 PSRAM'de, head 4-bit flash'ta, KV önbelleği float 224 konum → PSRAM ≈5.8 MB (8 MB'ın).
 - Örnekleme bilgisayardaki `gen`/`degerlendirme/uret.py` ile aynıdır (plan modu, sıcaklık 0.5, top-k 40, tekrar
   1.1, gövdede satır sonu yasağı). Aynı yazılım bilgisayarda sahte ESP32 başlıklarıyla derlenip denendi.
+- Tek adayda plan bozulursa (plan yerine hikâye başlarsa) iki kez yeniden denenir.
 - Seçici burada hafiftir (güven, bitiş, figür adı sayımı); tam kurallar (`degerlendirme/sec.py`) sonraki adım.

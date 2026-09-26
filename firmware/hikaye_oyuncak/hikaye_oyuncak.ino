@@ -5,7 +5,8 @@
 // token (hikâye + plan + başlık ≈ 190). Örnekleme bilgisayardaki gen/uret.py ile aynı (runtime/ornekle.h):
 // sıcaklık 0.5, top-k 40, tekrar cezası 1.1, plan modu, gövdede satır sonu yasağı, seçilmeyen figür isimleri yasak.
 //
-// Seri monitör (115200): "1 3" = 1. figür, 3. yer | "1,5 3" = iki figür | "r" = rastgele | "?" = liste.
+// Seri monitör (115200): "1 3" = 1. figür, 3. yer | "1,5 3" = iki figür | "r" = rastgele | "?" = liste |
+// "b" = hız testi (head'in üç yolu, token başına ms dökümü).
 // Sona aday sayısı: "1 3 4" = 4 aday üret, hafif seçiciyle en iyisini yaz (puanla()). Aday sayısı yoksa (1) canlı
 // yazar. Kart her hikâyeden sonra token/s ve süreyi yazar.
 
@@ -18,6 +19,7 @@
 #define LLM_PROFILE 1
 #define LLM_PROFILE_NOW() esp_timer_get_time()
 #include "generated/llm.h"
+#include "hiz.h"
 #define ORNEKLE_RASTGELE() ((double)esp_random() / 4294967295.0)
 #include "generated/ornekle.h"
 #include "generated/vocab.h"
@@ -27,6 +29,9 @@ static const int BAGLAM = 224;       // KV önbelleği: 10 katman x 224 x 160 x 
 static const int N_URET = 240;       // en fazla bu kadar token (plan + gövde)
 static const float SICAKLIK = 0.5f, TEKRAR = 1.1f;
 static const int TOP_K = 40;
+
+// Arduino fonksiyon prototiplerini dosyanın başına ekler; Aday onlardan önce tanımlı olmalı.
+struct Aday { int n, n_plan; float lp; bool bitti, plan_bozuk; };
 
 Model model;
 Scratch s;
@@ -48,30 +53,73 @@ static void *sram_or_die(size_t n, const char *what) {
   return p;
 }
 
-// ---- iki çekirdekli int8 matvec (esp32_tinystories ile aynı) ----
+// ---- iki çekirdekli matvec: çekirdek katmanlar int8, head 4-bit (hiz.h q4f) ----
 static TaskHandle_t worker_h, main_h;
 static const QT *job_t;
+static const Q4F *job_q;           // NULL: int8 işi
 static const int8_t *job_xq;
+static const int32_t *job_gs;
 static float job_xs;
 static float *job_y;
 static int job_split;
 static void worker_main(void *) {
   for (;;) {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    matvec_i8_range(job_t, job_xq, job_xs, job_y, 0, job_split);
+    if (job_q) q4f_range(job_q, job_xq, job_gs, job_xs, job_y, 0, job_split);
+    else matvec_i8_range(job_t, job_xq, job_xs, job_y, 0, job_split);
     xTaskNotifyGive(main_h);
   }
 }
+static bool iki_cekirdek = false;
 static void matvec_par(const QT *t, const float *x, float *y) {
   static int8_t xq[LLM_Q8_MAX_INPUT];
   float xs;
-  if (t->w8 == NULL || t->rows < 128) { MATVEC(t, x, y); return; }
+  if (!iki_cekirdek || t->w8 == NULL || t->rows < 128) { MATVEC(t, x, y); return; }
   quantize_act(x, t->cols, xq, &xs);
-  job_t = t; job_xq = xq; job_xs = xs; job_y = y; job_split = t->rows / 2;
+  job_q = NULL; job_t = t; job_xq = xq; job_xs = xs; job_y = y; job_split = t->rows / 2;
   xTaskNotifyGive(worker_h);
   matvec_i8_range(t, xq, xs, y, job_split, t->rows);
   ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 }
+
+// Head: 0 = eski yol (tek çekirdek, matvec_q8_range, flash) | 1 = q4f iki çekirdek, kodlar flash'ta |
+// 2 = q4f iki çekirdek, kodlar PSRAM'de. Açılışta en hızlısı (2, yer yoksa 1) seçilir; "b" üçünü ölçer.
+static Q4F head_flash, head_psram;
+static int head_mod = 0;
+static void head_par(const QT *t, const float *x, float *y) {
+  static int8_t xq[LLM_Q8_MAX_INPUT];
+  static int32_t gs[64];
+  if (head_mod == 0) { MATVEC(t, x, y); return; }
+  const Q4F *q = (head_mod == 2 && head_psram.codes) ? &head_psram : &head_flash;
+  float xs;
+  quantize_act(x, t->cols, xq, &xs);
+  q4f_grup_toplam(xq, t->cols, t->group, gs);
+  if (!iki_cekirdek) { q4f_range(q, xq, gs, xs, y, 0, t->rows); return; }
+  job_q = q; job_xq = xq; job_gs = gs; job_xs = xs; job_y = y; job_split = t->rows / 2;
+  xTaskNotifyGive(worker_h);
+  q4f_range(q, xq, gs, xs, y, job_split, t->rows);
+  ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+}
+
+// Head için float ölçekler (her zaman) ve PSRAM'de kod kopyası (yer varsa; 512 KB pay bırakılır).
+static void head_hazirla() {
+  const QT *h = &model.out_head;
+  size_t ns = (size_t)h->rows * h->n_groups;
+  float *sc = (float *)ps(ns * sizeof(float));
+  if (!sc || h->n_groups > 64) { Serial.println("head: hızlı yol kurulamadı, eski yol"); head_mod = 0; return; }
+  for (size_t i = 0; i < ns; i++) sc[i] = half2float(h->scales[i]);
+  head_flash = {h->codes, sc, h->rows, h->cols, h->group, h->n_groups, h->row_bytes, false};
+  head_psram = head_flash; head_psram.codes = NULL;
+  size_t nb = (size_t)h->rows * h->row_bytes;
+  if (heap_caps_get_free_size(MALLOC_CAP_SPIRAM) > nb + 512 * 1024) {
+    uint8_t *c = (uint8_t *)ps(nb);
+    if (c) { memcpy(c, h->codes, nb); head_psram.codes = c; head_psram.psram = true; }
+  }
+  head_mod = head_psram.codes ? 2 : 1;
+  Serial.printf("head: 4-bit hızlı yol, kodlar %s (%.2f MB)\n", head_mod == 2 ? "PSRAM'de" : "flash'ta", nb / 1048576.0);
+}
+
+static const char *HEAD_AD[] = {"eski (tek çekirdek, flash)", "yeni, flash", "yeni, PSRAM"};
 
 static void alloc_scratch() {
   Cfg *c = &model.c;
@@ -118,9 +166,9 @@ static int yasak[128], govde_yasak[2], idx[TOP_K];
 static double olas[TOP_K];
 static int16_t aday_tok[N_URET], en_tok[N_URET];
 
-struct Aday { int n, n_plan; float lp; bool bitti, plan_bozuk; };
-
 // Bir aday üretir: aday_tok'a plan + gövde token'ları (EOT hariç). canli: token'lar üretildikçe seriye yazılır.
+static int64_t ornek_us = 0;  // örnekleme (top-k, ceza) süresi
+
 static Aday aday_uret(int sec, int yer, bool canli) {
   int ny = YASAK_OFF[sec + 1] - YASAK_OFF[sec];
   if (ny > 128) ny = 128;
@@ -140,7 +188,9 @@ static Aday aday_uret(int sec, int yer, bool canli) {
   if (canli) Serial.print("Sorun:");
   for (int step = 0; step < N_URET && pos < model.c.seq_len; step++) {
     bool govdede = st.govde;
+    int64_t to = esp_timer_get_time();
     tok = orn_adim(&ayar, &st, s.logits, model.out_vocab);
+    ornek_us += esp_timer_get_time() - to;
     if (govdede) { lp += orn_logp(s.logits, model.out_vocab, tok); n_lp++; }  // gövdenin güveni (gen -l ile aynı)
     if (tok == EOT_ID) { a.bitti = true; break; }
     aday_tok[a.n++] = tok;
@@ -172,14 +222,60 @@ static float puanla(const Aday &a, int sec) {
   return p;
 }
 
+// Token başına ms: girdi, dikkat, FFN, PLE, head (llm.h LLM_PROFILE) ve örnekleme.
+static void profil_yaz() {
+  uint32_t n = s.profile.calls ? s.profile.calls : 1;
+  double gir = s.profile.input_us / 1e3 / n, att = s.profile.attn_us / 1e3 / n, ffn = s.profile.ffn_us / 1e3 / n,
+         ple = s.profile.ple_us / 1e3 / n, head = s.profile.head_us / 1e3 / n, orn = ornek_us / 1e3 / n;
+  double top = gir + att + ffn + ple + head + orn;
+  Serial.printf("profil (ms/token, %u adım): girdi %.1f | dikkat %.1f | FFN %.1f | PLE %.1f | head %.1f | örnekleme %.1f"
+                " | toplam %.1f (%.2f token/s) | head: %s\n",
+                (unsigned)s.profile.calls, gir, att, ffn, ple, head, orn, top, 1000.0 / top, HEAD_AD[head_mod]);
+}
+
+// "b": aynı istemle 48 adım, head'in üç yolu için ayrı ayrı ölçer; en hızlısını seçili bırakır.
+static void hiz_testi() {
+  int secilen = head_mod, en = head_mod;
+  double en_ms = 1e30;
+  for (int mod = 0; mod < 3; mod++) {
+    if (mod == 2 && !head_psram.codes) continue;
+    head_mod = mod;
+    llm_profile_reset(&s); ornek_us = 0;
+    int k = 0, pos = 0;
+    int64_t t0 = esp_timer_get_time();
+    for (int i = ISTEM_OFF[k]; i < ISTEM_OFF[k + 1] && pos < 48; i++) llm_forward(&model, ISTEM_ID[i], pos++, &s);
+    int tok = 0;
+    while (pos < 48) {  // açgözlü: en olası token (örnekleme ölçüme girmesin)
+      int b = 0;
+      for (int v = 1; v < model.out_vocab; v++) if (s.logits[v] > s.logits[b]) b = v;
+      tok = b;
+      llm_forward(&model, tok, pos++, &s);
+    }
+    double ms = (esp_timer_get_time() - t0) / 1e3 / pos;
+    Serial.printf("head %-28s %.1f ms/token = %.2f token/s\n", HEAD_AD[mod], ms, 1000.0 / ms);
+    profil_yaz();
+    if (ms < en_ms) { en_ms = ms; en = mod; }
+    delay(0);
+  }
+  head_mod = en;
+  Serial.printf("seçilen head yolu: %s (önceki: %s)\n\n", HEAD_AD[head_mod], HEAD_AD[secilen]);
+}
+
 static void hikaye(int sec, int yer, int K) {
   Serial.printf("\n=== %s", FIGUR_AD[SECIM_A[sec]]);
   if (SECIM_B[sec] >= 0) Serial.printf(" + %s", FIGUR_AD[SECIM_B[sec]]);
   Serial.printf(" | %s | %d aday ===\n", YER_AD[yer], K);
   int64_t t0 = esp_timer_get_time();
+  llm_profile_reset(&s); ornek_us = 0;
   int toplam = 0, en_n = 0; float en_p = -1e30f;
   for (int j = 0; j < K; j++) {
     Aday a = aday_uret(sec, yer, K == 1);
+    // Tek adayda plan bozulursa (plan satırı yerine hikâye başlarsa) en çok iki kez yeniden dene.
+    for (int tekrar = 0; K == 1 && a.plan_bozuk && tekrar < 2; tekrar++) {
+      toplam += a.n;
+      Serial.println("\n(plan bozuk, yeniden deniyorum)");
+      a = aday_uret(sec, yer, true);
+    }
     toplam += a.n + (a.bitti ? 1 : 0);
     float p = puanla(a, sec);
     if (K > 1) Serial.printf("aday %d/%d: %d token, güven %.3f, %s -> puan %.2f\n", j + 1, K, a.n, a.lp,
@@ -192,6 +288,7 @@ static void hikaye(int sec, int yer, int K) {
   }
   float sn = (esp_timer_get_time() - t0) / 1e6f;
   Serial.printf("\n\n--- %d aday, toplam %d token %.1f s = %.2f token/s ---\n", K, toplam, sn, toplam / sn);
+  profil_yaz();
   Serial.println("Yeni hikâye için figür ve yer yazın (\"?\" liste).");
 }
 
@@ -223,10 +320,10 @@ void setup() {
   Serial.printf("PSRAM: çekirdek int8 + KV + logits = %.2f MB; head 4-bit flash'ta\n", psram_used / 1048576.0);
 
   main_h = xTaskGetCurrentTaskHandle();
-  if (xTaskCreatePinnedToCore(worker_main, "mv", 4096, NULL, 2, &worker_h, 0) == pdPASS) {
-    model.layer_matvec = matvec_par;
-    model.head_matvec = matvec_par;
-  }
+  iki_cekirdek = xTaskCreatePinnedToCore(worker_main, "mv", 4096, NULL, 2, &worker_h, 0) == pdPASS;
+  model.layer_matvec = matvec_par;
+  model.head_matvec = head_par;
+  head_hazirla();
   {
     const uint8_t *img = (const uint8_t *)base;
     uint32_t fp = 2166136261u;
@@ -244,6 +341,7 @@ void loop() {
   g.trim();
   if (g.length() == 0) return;
   if (g == "?") { liste(); return; }
+  if (g == "b" || g == "B") { hiz_testi(); return; }
   int sec = -1, yer = -1, K = 1;
   if (g == "r" || g == "R") {
     sec = esp_random() % N_SECIM;
