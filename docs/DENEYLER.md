@@ -263,3 +263,12 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
 ## Tur 10 — c3 + güncel tam veri (c3ft_v11, sürüyor)
 
 - `zincir_c3v11.sh`: v6 tarifi, tek fark 444 hikâye daha (v4 _2 paketleri). Daha çok veri işe yarıyorsa kazanmalı.
+
+## İskeletli üretim (degerlendirme/iskelet.py) — başarısız
+
+- Kod olay sırasını ve cümle başlarını belirler (şablon giriş, "Bir gün", "<A> önce", "Sonra", "Sonunda",
+  "O günden sonra"), model yalnız cümleyi tamamlar. Aynı model (hf_c2ft_plan) ve 8 aday + E5b seçici.
+- Genel ikili, test: **8/36 (%22)**, taban 28. Hakem gerekçeleri: zorlanan açılışlar modelin akışıyla çatışıyor
+  ("Pamuk kendi yanına koşuyor", kendine soru soran karakter), olaylar kopuyor. Bırakıldı.
+- Daha önce gerçek (oracle) planla üretim de tabanı geçememişti (%47). Sonuç: bu model boyutunda yapıyı dışarıdan
+  dayatmak tutarlılığı artırmıyor; modelin kendi akışı daha tutarlı.
