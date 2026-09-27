@@ -226,6 +226,14 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   İnce ayar (QAT açık) bu hasarı onarmakla geçti; hikâyeye az kapasite kaldı. Sorun ön eğitimin kendisi değil.
 - İkinci fark: v7'de eğitim dışı liste 384 → 137 (4353 → 4797 hikâye; eklenenler veri hakeminden 10 almış).
 
-## Tur 7 — c3u + int4 tavlama (c3uq) + ince ayar (c3ft_v8, sürüyor)
+## Tur 7 — c3u + int4 tavlama (c3uq) + ince ayar (c3ft_v8)
 
 - `zincir_c3q.sh`: c3u'yu genel veride `--qat-emb` ile 4000 adım (lr 2e-4) tavla, sonra c3ft_v7 tarifiyle ince ayar.
+- Tavlama işe yaradı: c3uq genel int4 kaybı 3,380 → **2,244** (c3: 2,515). `modeller/c3uq`.
+- İnce ayar yine kötü: doğrulama en düşük 2,513 (2000. adım; v6 aynı adımda 2,411), sonra ezberledi: eğitim
+  düşerken doğrulama 2,668'e çıktı. Hakeme gönderilmedi (sonuç açık). Tavlama yetmedi.
+- Kalan şüpheliler: (a) uzun ön eğitim toy hikâyeye aktarımı bozuyor, (b) v7/v8'deki veri değişikliği.
+
+## Tur 8 — Taban mı veri mi? c3 + yeni veri (c3ft_v9, sürüyor)
+
+- `zincir_c3v9.sh`: Tur 5 tabanı (c3) + v7/v8 verisi, 5000 adım. v6'ya yakın/iyi çıkarsa sorun c3u tabanı.
