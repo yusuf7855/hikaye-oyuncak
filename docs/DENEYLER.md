@@ -260,7 +260,7 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   gerisinde; bu hat bırakıldı. Tek kazanan hâlâ c3ft_v6 (c3 + 4353 hikâye).
 - Açık soru: c3 + güncel tam veri (4797; sonradan eklenen _2 paketleri dahil). Tur 10 bunu ölçer.
 
-## Tur 10 — c3 + güncel tam veri (c3ft_v11, sürüyor)
+## Tur 10 — c3 + güncel tam veri (c3ft_v11)
 
 - `zincir_c3v11.sh`: v6 tarifi, tek fark 444 hikâye daha (v4 _2 paketleri). Daha çok veri işe yarıyorsa kazanmalı.
 
@@ -272,3 +272,20 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   ("Pamuk kendi yanına koşuyor", kendine soru soran karakter), olaylar kopuyor. Bırakıldı.
 - Daha önce gerçek (oracle) planla üretim de tabanı geçememişti (%47). Sonuç: bu model boyutunda yapıyı dışarıdan
   dayatmak tutarlılığı artırmıyor; modelin kendi akışı daha tutarlı.
+- Son doğrulama 2,365 (v6: 2,341); kurallar 32/36, plan sorun %90,8, çözüm %84,9.
+
+| Ölçüm | c3ft_v11 | Taban (v4 + E5b) |
+|---|---|---|
+| Rubrik, aynı 4 hakem (36 test × 2) | 3,57 | 4,34 |
+| Genel ikili, test | 14/36 (%39) | 22 |
+| Genel ikili, doğrulama | 61/129 (%47) | 68 |
+
+- Karar: **benimsenmedi** (`modeller/c3ft_v11`).
+- Özet: v4 _2 paketlerini (444 hikâye) içeren üç model (v7, v10, v11) tabandan %42–47'de kaldı; içermeyen v6
+  %57 kazanmıştı. Uzunluk, cümle sayısı, diyalog oranı öbür verilerle aynı (103 / 97 kelime, 15,7 / 15,4 cümle),
+  yani yüzeysel bir fark yok. Ya _2 paketleri gerçekten zararlı ya da v6'nın üstünlüğü kısmen şanstı (hakem
+  turdan tura birkaç puan oynuyor). Her iki durumda da en iyi aday c3ft_v6 (c3 + _2'siz veri) olarak kalıyor.
+
+## 16 aday (aynı model, E5b seçici, 8 yerine 16 aday)
+
+- Test: seçimin değiştiği 19 vakada 11–8 (%58). Doğrulama seti sürüyor.
