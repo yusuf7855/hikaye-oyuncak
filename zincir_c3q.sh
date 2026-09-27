@@ -6,6 +6,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p logs
+# NOT: bu satır ilk çalıştırmada eksikti (v8/v9 yalnız v2+v3 ile, 2102 hikâye eğitildi)
+export KAYNAK=oyuncak_v2,oyuncak_v3,oyuncak_v4,oyuncak_populer EK_TRAIN="" PAKET='--plan --satir-yasak --eot-on'
 PY=${PY:-.venv/bin/python}
 if [ ! -f runs/ple-c3uq-s0.pt ]; then
   TS_DATA=data/tr2_tinystories PYTHONPATH=src $PY -m research.tinystories.train \

@@ -234,6 +234,17 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   düşerken doğrulama 2,668'e çıktı. Hakeme gönderilmedi (sonuç açık). Tavlama yetmedi.
 - Kalan şüpheliler: (a) uzun ön eğitim toy hikâyeye aktarımı bozuyor, (b) v7/v8'deki veri değişikliği.
 
-## Tur 8 — Taban mı veri mi? c3 + yeni veri (c3ft_v9, sürüyor)
+## Tur 8 — c3 + (yanlışlıkla) yalnız v2+v3 verisi (c3ft_v9)
 
 - `zincir_c3v9.sh`: Tur 5 tabanı (c3) + v7/v8 verisi, 5000 adım. v6'ya yakın/iyi çıkarsa sorun c3u tabanı.
+
+- **Düzeltme:** `zincir_c3q.sh` ve `zincir_c3v9.sh`'da `export KAYNAK=oyuncak_v2,oyuncak_v3,oyuncak_v4,oyuncak_populer`
+  satırı eksikti; `ince_ayar_c2.sh` varsayılanı yalnız v2+v3. **c3ft_v8 ve c3ft_v9 2102 hikâyeyle eğitildi**
+  (v4 ve popüler yok). Bu yüzden v8'in erken ezberlemesi ve "veri zararlı" çıkarımı geçersiz.
+- c3ft_v9 hakem sonucu (c3 + yalnız v2+v3): rubrik 3,72 (taban 4,37); ikili test 16/36 (%44), doğrulama 60/129
+  (%47). Doğru okuması: v4 + popüler verisi modele belirgin katkı veriyor (v6, aynı taban + tam veri, kazanmıştı).
+- Tur 6 sonucu değişmiyor: c3ft_v7 (c3u + tam veri) int4 hassasiyeti yüzünden kaybetti.
+
+## Tur 9 — c3uq (int4 tavlanmış uzun ön eğitim) + tam veri (c3ft_v10, sürüyor)
+
+- `zincir_c3v10.sh`: 4797 hikâye (v2, v3, v4, popüler; eğitim dışı 137), 5000 adım. Denenmemiş asıl birleşim.
