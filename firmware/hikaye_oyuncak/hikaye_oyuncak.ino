@@ -150,7 +150,7 @@ static void liste() {
   Serial.println("Yerler:");
   for (int i = 0; i < N_YER; i++) Serial.printf("  %2d  %s\n", i + 1, YER_AD[i]);
   Serial.println("Örnek: \"10 1\" (Alev, orman) | \"1,3 4\" (Pamuk ve Karabaş, park) | \"r\" (rastgele)");
-  Serial.println("Sona aday sayısı eklenirse en iyisi seçilir: \"10 1 4\" (4 aday). Aday yoksa canlı yazar.\n");
+  Serial.println("Sona aday sayısı (en çok 16) eklenirse en iyisi seçilir: \"10 1 8\" (8 aday). Aday yoksa canlı yazar.\n");
 }
 
 // figür indeksleri (0'dan) -> seçim numarası; bulunamazsa -1
@@ -351,7 +351,7 @@ void loop() {
     if (sscanf(g.c_str(), "%d,%d %d %d", &a, &b, &y, &k) >= 3) sec = secim_bul(a - 1, b - 1);
     else if (sscanf(g.c_str(), "%d %d %d", &a, &y, &k) >= 2) sec = secim_bul(a - 1, -1);
     yer = y - 1;
-    K = k < 1 ? 1 : k > 8 ? 8 : k;
+    K = k < 1 ? 1 : k > 16 ? 16 : k;
   }
   if (sec < 0 || yer < 0 || yer >= N_YER) { Serial.println("Anlaşılmadı. Örnek: \"10 1\" ya da \"1,3 4\". \"?\" liste."); return; }
   hikaye(sec, yer, K);

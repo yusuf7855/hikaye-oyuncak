@@ -70,7 +70,7 @@ model.bin: 11105372 B, parmak izi fp=3900f74e
 |---|---|
 | `10 1` | Alev (ejderha), orman — hikâye canlı yazılır |
 | `1,3 4` | Pamuk ve Karabaş, park |
-| `10 1 4` | 4 aday üretir, hafif seçiciyle en iyisini yazar (daha yavaş, daha iyi) |
+| `10 1 8` | 8 aday üretir (en çok 16), seçiciyle en iyisini yazar (daha yavaş, daha iyi) |
 | `r` | rastgele figür ve yer |
 | `?` | figür ve yer listesi |
 | `b` | hız testi: head'in üç yolunu ölçer, token başına ms dökümünü yazar, en hızlısını seçer |
