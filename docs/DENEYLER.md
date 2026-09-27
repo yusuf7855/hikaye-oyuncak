@@ -245,6 +245,21 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   (%47). Doğru okuması: v4 + popüler verisi modele belirgin katkı veriyor (v6, aynı taban + tam veri, kazanmıştı).
 - Tur 6 sonucu değişmiyor: c3ft_v7 (c3u + tam veri) int4 hassasiyeti yüzünden kaybetti.
 
-## Tur 9 — c3uq (int4 tavlanmış uzun ön eğitim) + tam veri (c3ft_v10, sürüyor)
+## Tur 9 — c3uq (int4 tavlanmış uzun ön eğitim) + tam veri (c3ft_v10)
 
 - `zincir_c3v10.sh`: 4797 hikâye (v2, v3, v4, popüler; eğitim dışı 137), 5000 adım. Denenmemiş asıl birleşim.
+- Son doğrulama 2,450 (v7: 2,462, v6: 2,341); kurallar 32/36, plan sorun %87,0, çözüm %81,7.
+
+| Ölçüm | c3ft_v10 | Taban (v4 + E5b) |
+|---|---|---|
+| Rubrik, aynı 4 hakem (36 test × 2) | 4,02 | 4,61 |
+| Genel ikili, test | 15/36 (%42) | 21 |
+| Genel ikili, doğrulama | 61/129 (%47) | 68 |
+
+- Karar: **benimsenmedi**; `modeller/c3ft_v10`. Uzun ön eğitim hattı (c3u/c3uq) tavlansa da ince ayarda c3'ün
+  gerisinde; bu hat bırakıldı. Tek kazanan hâlâ c3ft_v6 (c3 + 4353 hikâye).
+- Açık soru: c3 + güncel tam veri (4797; sonradan eklenen _2 paketleri dahil). Tur 10 bunu ölçer.
+
+## Tur 10 — c3 + güncel tam veri (c3ft_v11, sürüyor)
+
+- `zincir_c3v11.sh`: v6 tarifi, tek fark 444 hikâye daha (v4 _2 paketleri). Daha çok veri işe yarıyorsa kazanmalı.
