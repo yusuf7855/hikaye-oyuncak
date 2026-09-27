@@ -268,7 +268,7 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
 
 - Kod olay sırasını ve cümle başlarını belirler (şablon giriş, "Bir gün", "<A> önce", "Sonra", "Sonunda",
   "O günden sonra"), model yalnız cümleyi tamamlar. Aynı model (hf_c2ft_plan) ve 8 aday + E5b seçici.
-- Genel ikili, test: **8/36 (%22)**, taban 28. Hakem gerekçeleri: zorlanan açılışlar modelin akışıyla çatışıyor
+- Genel ikili, test: **8/36 (%22)**, taban 28. Rubrik, aynı 4 hakem: 3,29 (taban 4,26). Hakem gerekçeleri: zorlanan açılışlar modelin akışıyla çatışıyor
   ("Pamuk kendi yanına koşuyor", kendine soru soran karakter), olaylar kopuyor. Bırakıldı.
 - Daha önce gerçek (oracle) planla üretim de tabanı geçememişti (%47). Sonuç: bu model boyutunda yapıyı dışarıdan
   dayatmak tutarlılığı artırmıyor; modelin kendi akışı daha tutarlı.
