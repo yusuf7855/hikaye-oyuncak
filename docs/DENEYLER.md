@@ -172,7 +172,7 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   demesi, sonradan beliren karakter, dünyanın kuralları: Elsa'nın dünyasında hayvanlar konuşmaz vb.). Sonra yazılan
   paketlerde ilk tur geçme oranı arttı (ör. Niloya 35 → 40/48, Örümcek Adam 16 → 29/48).
 
-## Tur 5 — C3 + tüm tam puanlı popüler hikâyeler (c3ft_v6, sürüyor)
+## Tur 5 — C3 + tüm tam puanlı popüler hikâyeler (c3ft_v6)
 
 - `zincir_c3c.sh`: C3 ön-eğitimden, 5000 adım; eğitim dışı: hakemde 10 almayanlar + hakemlenmemiş v5 dosyaları
   (`data/egitim_haric.txt`, 384 kimlik). Oyuncak hikâyesi 3698 → 4353.
@@ -189,3 +189,23 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
   (Elsa, Chase…) bilen tek model bu; v4 onları hiç görmedi. Kartta hız C3'te daha düşük (tahmin ~3.7 token/s).
 - Mutlak seviye hâlâ düşük: rubrik ~4.4/10 (hedef 8–9). Veri tarafı 10/10 düzeyine geldi (1063 popüler + v4);
   kalan fark modelin kapasitesinden.
+
+## Tur 6 — Uzun ön eğitim (c3u) + aynı ince ayar (c3ft_v7)
+
+- Neden: C3 ön eğitiminde doğrulama kaybı hâlâ düşüyordu (Türkçe TinyStories'te ~1,8 dönem). `zincir_c3u.sh`:
+  C3'ten 48 bin adım daha (lr 6e-4), sonra Tur 5 ile aynı ince ayar (5000 adım, aynı veri ve eğitim dışı liste).
+- Ön eğitim iyileşti: doğrulama 2,1467 → **2,0517** (`modeller/c3u`, yalnız ağırlıklar).
+- İnce ayardan sonra geriledi: son doğrulama 2,462 (v6: 2,341), eğitim 1,83 (v6: 2,02); aşırı uyum işareti.
+  Kurallar en iyi 8'de 32/36 (v6: 35/36), plan sorun uyumu %84,0 (v6: %90,8).
+
+| Ölçüm | c3ft_v7 | Taban (v4 + E5b) |
+|---|---|---|
+| Rubrik, aynı 4 hakem ikisini birlikte puanladı (36 test × 2) | 3,82 | 4,35 |
+| Genel ikili, test | 16/36 (%44) | 20 |
+| Genel ikili, doğrulama | 57/129 (%44) | 72 |
+
+- Karar: **benimsenmedi**. Model `modeller/c3ft_v7`; kartta v4 kalır. (Taban modelin Tur 5 puanları
+  `degerlendirme/c2ft_plan_olay2/tur5_v6/` altında.)
+- Yorum: dil modeli olarak daha iyi temel, hikâyeye iyi aktarılmadı. Daha güçlü temelle aynı 5000 adım ve
+  aynı öğrenme hızı fazla gelmiş olabilir. Sıradaki deneme adayı: c3u'dan daha kısa / düşük öğrenme hızlı ince
+  ayar (ör. 2000–3000 adım, lr yarıya), doğrulama kaybının en düşük olduğu adımda durmak.
