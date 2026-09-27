@@ -209,3 +209,23 @@ docs/HIKAYE_ANALIZI.md sonunda. Üst üste 3 tur iyileşme olmazsa dur.
 - Yorum: dil modeli olarak daha iyi temel, hikâyeye iyi aktarılmadı. Daha güçlü temelle aynı 5000 adım ve
   aynı öğrenme hızı fazla gelmiş olabilir. Sıradaki deneme adayı: c3u'dan daha kısa / düşük öğrenme hızlı ince
   ayar (ör. 2000–3000 adım, lr yarıya), doğrulama kaybının en düşük olduğu adımda durmak.
+
+### Tur 6 teşhisi
+
+Aynı doğrulama verisinde (genel = Türkçe TinyStories, oyuncak = c3ft_v6 doğrulama hikâyeleri), float ve kartta
+olduğu gibi int4 gömme/çıkış ile kayıp:
+
+| Model | genel | oyuncak | genel, int4 | oyuncak, int4 |
+|---|---|---|---|---|
+| c3 (Tur 5 tabanı) | 2,146 | 5,800 | 2,515 | 6,217 |
+| c3u (uzun ön eğitim) | **2,052** | 5,787 | **3,382** | 7,352 |
+| c3ft_v6 | 2,496 | 2,434 | 2,420 | 2,341 |
+| c3ft_v7 | 2,532 | 2,560 | 2,404 | 2,462 |
+
+- c3u float'ta daha iyi, ama int4 gömme/çıkışa çok duyarlı (uzun eğitimde gömmelerde uç değerler büyüdü).
+  İnce ayar (QAT açık) bu hasarı onarmakla geçti; hikâyeye az kapasite kaldı. Sorun ön eğitimin kendisi değil.
+- İkinci fark: v7'de eğitim dışı liste 384 → 137 (4353 → 4797 hikâye; eklenenler veri hakeminden 10 almış).
+
+## Tur 7 — c3u + int4 tavlama (c3uq) + ince ayar (c3ft_v8, sürüyor)
+
+- `zincir_c3q.sh`: c3u'yu genel veride `--qat-emb` ile 4000 adım (lr 2e-4) tavla, sonra c3ft_v7 tarifiyle ince ayar.
