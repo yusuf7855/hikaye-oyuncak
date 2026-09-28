@@ -207,8 +207,11 @@ ISIM_KUYRUK = {u: re.compile(_isim_kuyrugu(u)) for u in (True, False)}
 FIIL_KUYRUK = {u: re.compile(_fiil_kuyrugu(u)) for u in (True, False)}
 CEKIMLI = {u: re.compile(f"(?:m{A}|{'y' if u else ''}{A}m{A}|{'y' if u else ''}{A}bil)?{_zaman(u)}|m{I}yor.*")
            for u in (True, False)}                      # çekimli fiil: arkasına hâl eki gelmez (yardım != yar+dım)
-SIFAT_FIIL = re.compile(f"y?{A}n|{D}{I}[kğ]|y?{A}{C}{A}[kğ]|m{A}")   # koşanları, yaptıkları, koşmaları: çoğul+hâl alır
+SIFAT_FIIL = re.compile(f"(?:y?{A}n|{D}{I}[kğ]|y?{A}{C}{A}[kğ]){_isim_kuyrugu(False)}?|m{A}{_isim_kuyrugu(True)}?")
+# ^ koşanları, yaptıkları, koşmaları: sıfat-fiil ve ad-fiil çoğul ve hâl alır (koşmak almaz)
+HAL_YA_DA_KOPULA = re.compile(f"[yn]?{I}|[yn]?{A}|{D}{A}n?|n?{I}n|y?l{A}|{_kopula(True)}|{_kopula(False)}")
 BELIRSIZ_ISIM = re.compile(f"{I}|{A}|{I}?[mn]|s{I}|y{I}|y{A}|n{I}|n{A}|l{A}|{I}n|{I}z")   # ayı = ay+ı mı?
+BELIRSIZ_IYELIK = re.compile(f"{I}?[mn]|{I}z|s{I}")      # doğum = doğu+m mu? (iyelik, sıkı eşik)
 YUMUSAMA = {"b": "p", "c": "ç", "d": "t", "ğ": "k", "g": "k"}   # kitabı, ağacı, kanadı, köpeği, rengi
 DUSME = {"ağz": "ağız", "burn": "burun", "oğl": "oğul", "aln": "alın", "göğs": "göğüs", "boyn": "boyun",
          "karn": "karın", "akl": "akıl", "gönl": "gönül", "beyn": "beyin", "ism": "isim", "resm": "resim",
@@ -216,7 +219,7 @@ DUSME = {"ağz": "ağız", "burn": "burun", "oğl": "oğul", "aln": "alın", "g�
          "ömr": "ömür", "vakt": "vakit", "koyn": "koyun", "bağr": "bağır", "kokl": "koku"}
 KISA_KOK = {"ev", "su", "el", "at", "ot", "ip", "iş", "ok", "ağ", "ay", "ad", "ön", "iç", "uç", "üç", "on",
             "af", "ak", "an", "ar", "az", "ek", "et", "üst", "alt", "yaş", "yan", "yol", "göz", "dağ", "yüz", "saç",
-            "kaz", "tat", "kar", "baş", "taş", "kış", "yaz", "top", "gün", "yer", "iz", "diş"}
+            "kaz", "tat", "kar", "baş", "taş", "kış", "yaz", "top", "gün", "yer", "diş", "un"}
 FIIL_DEGIL = {"var"}                                    # vardı: var+dı (ek-fiil), varmak değil
 ZAMIR = {}
 for _k, _g in {"o": "on", "bu": "bun", "şu": "şun"}.items():
@@ -237,11 +240,13 @@ KAPALI = {"için", "bile", "ama", "ile", "gibi", "kadar", "diye", "hala", "hâl�
           "çünkü", "eğer", "ki", "de", "da", "mi", "mı", "mu", "mü", "ve", "veya", "ya", "yani", "işte", "evet",
           "hayır", "tamam", "lütfen", "merhaba", "teşekkürler", "iyi", "kendi", "bir", "biri", "birisi", "aniden",
           "sonunda", "birbirine", "birbirini", "birbirlerine", "birbirlerini", "hiçbir", "herkes", "her", "bazı",
-          "anda", "hani", "haydi", "hadi"}
+          "anda", "hani", "haydi", "hadi", "göre", "hatta", "elbette", "adı", "adını", "adına", "adında"}
 GOVDE_OLMAZ = {"için", "ama", "ile", "diye", "hala", "hâlâ", "bile", "ise", "de", "da", "ki", "mi", "mı", "mu", "mü",
                "ya", "ve", "en", "anda", "sonunda", "aniden", "hani"}   # içinde != için+de
 LEKSIK = {"dondurma", "yemek", "ekmek", "kızartma", "çıkartma", "dolma", "sarma", "çakmak", "kaymak", "yiyecek",
           "içecek", "salıncak", "gelecek", "kazan", "yazar", "doğan", "uçurtma", "oyuncak", "kaydırak"}   # sözlükleşmiş
+HAL_KESIN = {True: ("ya", "ye", "da", "de", "dan", "den"),              # iyelik ve fiil ekiyle karışmayanlar
+             False: ("a", "e", "da", "de", "ta", "te", "dan", "den", "tan", "ten")}
 HAL_EKLERI = {True: ("ya", "ye", "yı", "yi", "yu", "yü", "da", "de", "dan", "den", "nın", "nin", "nun", "nün",
                      "yla", "yle"),
               False: ("a", "e", "ı", "i", "u", "ü", "da", "de", "ta", "te", "dan", "den", "tan", "ten", "ın", "in",
@@ -249,14 +254,16 @@ HAL_EKLERI = {True: ("ya", "ye", "yı", "yi", "yu", "yü", "da", "de", "dan", "d
 
 
 class Kokcu:
-    """Ek soyma kökü. tf: yüzey sıklıkları (şapkası düzleştirilmiş), fiil: fiil kökleri, ad: özel adlar
-    (gövde sayılmaz). En uzun geçerli gövde seçilir ve kalan kelime üzerinde tekrarlanır (kuşlarına ->
-    kuşların -> kuşları -> kuşlar -> kuş); fiil gövdesine ulaşınca durulur. Fiil kökleri '-' ile işaretlenir.
-    Aynı kesimde fiil ve isim geçerliyse fiil seçilir (yazdı -> yaz-), FIIL_DEGIL hariç (vardı -> var)."""
+    """Ek soyma kökü. tf: yüzey sıklıkları (şapkası düzleştirilmiş), fiil: fiil gövdeleri -> temel kanıt
+    (-mak ve -dı sıklığı), ad: özel ad olarak geçen biçimler. En uzun geçerli gövde seçilir ve kalan kelime
+    üzerinde tekrarlanır (kuşlarına -> kuşların -> kuşları -> kuşlar -> kuş); fiil gövdesine ulaşınca durulur.
+    Fiil kökleri '-' ile işaretlenir. Aynı kesimde fiil ve isim geçerliyse fiil seçilir (yazdı -> yaz-),
+    FIIL_DEGIL hariç (vardı -> var). Kelimenin kendisinin kök olduğunu gösteren kanıtlar (çoğul+hâl alması,
+    hâl alması, y-kaynaştırması) kesmeyi durdurur."""
 
     def __init__(self, tf, fiil, ad=(), isim_esik=5):
         self.tf = tf
-        self.fiil = dict(fiil)                              # gövde -> ayırt edici fiil eki sıklığı
+        self.fiil = dict(fiil)
         self.ad = set(ad)
         self.isim_esik = isim_esik
         self._on = {}
@@ -274,9 +281,10 @@ class Kokcu:
         return g(x + "lar", 0) + g(x + "ler", 0) >= max(2, 0.01 * g(x, 0))
 
     def hal_alir(self, x):
-        """x hâl eki alıyor mu (yardıma, kadına, yere): çekimli fiil biçimi hâl eki almaz."""
+        """x yönelme, bulunma ya da ayrılma hâli alıyor mu (yardıma, kadında, yerden, gürültüden): çekimli fiil,
+        ek-fiilli ve hâl ekli biçimler bir daha hâl eki almaz."""
         g = self.tf.get
-        return sum(g(x + h, 0) for h in HAL_EKLERI[x[-1] in UNLU]) >= max(3, 0.01 * g(x, 0))
+        return sum(g(x + h, 0) for h in HAL_KESIN[x[-1] in UNLU]) >= max(3, 0.01 * g(x, 0))
 
     def y_kaynastirir(self, x):
         """ünlüyle biten x y-kaynaştırmalı hâl alıyor mu (ayıya, kapıyı): x = kök + iyelik değil."""
@@ -285,59 +293,82 @@ class Kokcu:
         nn = sum(g(x + "n" + u, 0) for u in "aeıiuü")
         return y >= max(3, 0.01 * g(x, 0)) and y >= nn
 
+    def fiil_govdeleri(self, s, t):
+        """s+t kesiminde t'nin başına gelebilecek fiil gövdeleri (gövde, ünlüyle biter mi), en güçlüsü önde:
+        arıyor -> ara- (ar- değil), gidiyor -> git-, yiyecek -> ye-."""
+        aday = [(s, s[-1] in UNLU)]
+        if t[0] in UNLU and s[-1] == "d":
+            aday.append((s[:-1] + "t", False))
+        if re.match(f"{I}yor", t):
+            aday += [(s + "a", False), (s + "e", False)]
+        if s in ("yi", "di") and t[0] == "y":
+            aday.append((s[0] + "e", True))
+        aday = [(g, u) for g, u in aday if g in self.fiil and g not in FIIL_DEGIL]
+        return sorted(aday, key=lambda a: -self.fiil[a[0]])
+
     def cekimli_fiil(self, s):
-        """s çekimli bir fiil biçimi mi (yardı = yar+dı, geldi): isim gövdesi olamaz (yardım != yardı+m)."""
+        """s çekimli bir fiil biçimi mi (yardı = yar+dı, gider = git+er): isim gövdesi olamaz."""
         for i in range(len(s) - 1, 1, -1):
-            v, t = s[:i], s[i:]
-            if v in self.fiil and v not in FIIL_DEGIL and CEKIMLI[v[-1] in UNLU].fullmatch(t):
-                return True
+            for v, unlu in self.fiil_govdeleri(s[:i], s[i:]):
+                if CEKIMLI[unlu].fullmatch(s[i:]):
+                    return True
         return False
 
     def isim_mi(self, s):
         if self.tf.get(s, 0) < self.isim_esik or s in GOVDE_OLMAZ or (len(s) < 3 and s not in KISA_KOK):
             return False
         return (s not in self.fiil or s in KISA_KOK or s in FIIL_DEGIL or s in LEKSIK or self.cogullu_hal(s)
-                or self.hal_alir(s))       # ara (araya, arada) hem isim hem fiil; kal- (kalın != kal+ın) değil
+                or self.hal_alir(s))       # ara (araya, arada) hem isim hem fiil; bak- (bakın != bak+ın) değil
+
+    def isim_gecer(self, x, s, g, t):
+        """g+t isim çözümlemesi kabul edilir mi (x = s+t, g = s ya da yumuşaması/ünlü düşmesi geri alınmış s)."""
+        tf = self.tf.get
+        nx = tf(x, 0)
+        if self.cogullu_hal(x):                                         # dükkan != dük+kan, kelime != kel+ime
+            return False
+        if self.cekimli_fiil(x) and not self.hal_alir(x):               # kırdım: fiil çözümlemesi beklenir
+            return False
+        if HAL_YA_DA_KOPULA.fullmatch(t) and self.hal_alir(x):          # gürültü != gürül+tü, kaptan != kap+tan
+            return False
+        if g == s and self.cekimli_fiil(g) and not self.hal_alir(g):    # yardım != yardı+m
+            return False
+        if g in self.ad and tf(g, 0) < nx:                              # arasında != Aras+ında, karla != Karl+a
+            return False
+        if BELIRSIZ_ISIM.fullmatch(t):                                  # ayı != ay+ı, kadın != kat+ın
+            if self.yalin_cogul(x) or (x[-1] in UNLU and self.y_kaynastirir(x)):
+                return False
+            if (10 if BELIRSIZ_IYELIK.fullmatch(t) else 100) * tf(g, 0) < nx:   # doğum != doğu+m
+                return False
+            if len(t) == 1 and s[-1] in "syn" and s[-2] in UNLU and tf(s[:-1], 0) >= tf(s, 0):
+                return False                                            # gagası != gagas+ı
+        return True
 
     def adaylar(self, x):
         """(gövde, tür) adayları, en uzun gövde önce."""
         sozcuk = self.cogullu_hal(x)
-        nx = self.tf.get(x, 0)
         for i in range(len(x) - 1, 0, -1):
             s, t = x[:i], x[i:]
-            # (gövde, kuyruk kuralı: gövde ünlüyle mi biter, isim olabilir mi, fiil olabilir mi)
-            govdeler = [(s, s[-1] in UNLU, True, True)]
-            if t[0] in UNLU and s[-1] in YUMUSAMA:          # kitabı -> kitap; fiilde yalnız d -> t (gidiyor)
-                govdeler.append((s[:-1] + YUMUSAMA[s[-1]], False, True, s[-1] == "d"))
-            if re.match(f"{I}yor", t):                      # oynuyor -> oyna-, bekliyor -> bekle-, yiyor -> ye-
-                govdeler += [(s + "a", False, False, True), (s + "e", False, False, True)]
-            if s in ("yi", "di") and t[0] == "y":            # yiyecek, diyerek
-                govdeler.append((s[0] + "e", True, False, True))
-            if t[0] in UNLU and s in DUSME:                 # ağzı -> ağız
-                govdeler.append((DUSME[s], False, True, False))
-            if t[0] in UNLU and len(s) >= 3 and s[-1] == s[-2] and s[-1] not in UNLU:   # sırrı -> sır, hakkı -> hak
-                govdeler.append((s[:-1], False, True, False))
-            for g, unlu, isim_olur, fiil_olur in govdeler:
-                if fiil_olur and g in self.fiil and g not in FIIL_DEGIL and FIIL_KUYRUK[unlu].fullmatch(t):
-                    if sozcuk and not SIFAT_FIIL.match(t):
-                        continue
-                    if CEKIMLI[unlu].fullmatch(t) and not SIFAT_FIIL.fullmatch(t) and self.hal_alir(x):
-                        continue
-                    yield g, "fiil"
-                    break
-                if isim_olur and self.isim_mi(g) and ISIM_KUYRUK[unlu].fullmatch(t):
-                    if sozcuk:                                  # dükkan != dük+kan, kelime != kel+ime
-                        continue
-                    if g == s and ((self.cekimli_fiil(g) and g not in KISA_KOK and not self.hal_alir(g))
-                                   or (g in self.ad and 10 * self.tf.get(g, 0) < nx)):
-                        continue                                # yardım != yardı+m; arasında != Aras+ında
-                    if BELIRSIZ_ISIM.fullmatch(t) and (self.yalin_cogul(x) or (x[-1] in UNLU and self.y_kaynastirir(x))
-                                                       or (g not in KISA_KOK and 100 * self.tf.get(g, 0) < nx)
-                                                       or (len(t) == 1 and s[-1] in "syn" and s[-2] in UNLU
-                                                           and self.tf.get(s[:-1], 0) >= self.tf.get(s, 0))):
-                        continue                    # ayı != ay+ı, kadın != kat+ın, yardım != yardı+m, gagası != gagas+ı
-                    yield g, "isim"
-                    break
+            for g, unlu in self.fiil_govdeleri(s, t):
+                if not FIIL_KUYRUK[unlu].fullmatch(t):
+                    continue
+                if sozcuk and not SIFAT_FIIL.fullmatch(t):             # parmak != par+mak, kalıp != kal+ıp
+                    continue
+                if CEKIMLI[unlu].fullmatch(t) and not SIFAT_FIIL.fullmatch(t) and self.hal_alir(x):
+                    continue                                            # yardım != yar+dım, yer != ye+r
+                yield g, "fiil"
+                break
+            else:
+                isimler = [(s, s[-1] in UNLU)]
+                if t[0] in UNLU and s[-1] in YUMUSAMA:                  # kitabı -> kitap, rengi -> renk
+                    isimler.append((s[:-1] + YUMUSAMA[s[-1]], False))
+                if t[0] in UNLU and s in DUSME:                         # ağzı -> ağız
+                    isimler.append((DUSME[s], False))
+                if t[0] in UNLU and len(s) >= 3 and s[-1] == s[-2] and s[-1] not in UNLU:
+                    isimler.append((s[:-1], False))                     # sırrı -> sır, hakkı -> hak
+                for g, unlu in isimler:
+                    if self.isim_mi(g) and ISIM_KUYRUK[unlu].fullmatch(t) and self.isim_gecer(x, s, g, t):
+                        yield g, "isim"
+                        break
 
     def kok(self, w):
         w = w.translate(SAPKA)
@@ -363,54 +394,64 @@ class Kokcu:
 
 FIIL_KANIT = {   # ayırt edici fiil ekleri: (ünsüzle biten gövdeden sonra, ünlüyle biten gövdeden sonra)
     "yor": ([f"{u}yor" for u in "ıiuü"], ["yor"]),
-    "mak": (["mak", "mek", "maya", "meye", "mayı", "meyi", "makta", "mekte", "maktan", "mekten"],) * 2,
+    "mak": (["mak", "mek", "makta", "mekte", "maktan", "mekten"],) * 2,
+    "maya": (["maya", "meye", "mayı", "meyi"],) * 2,        # tasmaya, mamayı gibi isimlerle çakışabilir
     "ip": (["ıp", "ip", "up", "üp"], ["yıp", "yip", "yup", "yüp"]),
     "arak": (["arak", "erek"], ["yarak", "yerek"]),
     "inca": (["ınca", "ince", "unca", "ünce"], ["yınca", "yince", "yunca", "yünce"]),
     "di": (["dı", "di", "du", "dü", "tı", "ti", "tu", "tü"], ["dı", "di", "du", "dü"]),    # tek başına ayırt etmez
 }
-GUCLU_KANIT = ("yor", "mak", "ip", "arak", "inca")
+GUCLU_KANIT = ("yor", "mak", "maya", "ip", "arak", "inca")
 
 
 def fiil_kokleri(tf, en_az_tf=5):
-    """Fiil gövdeleri ve ayırt edici ek sıklıkları. Gövde en az iki ayrı ayırt edici ekle (-yor, -mak/-maya,
-    -ıp, -arak, -ınca) ya da biriyle ve 20+ kez -dı ile geçmeli; mastar ya da -dı doğrudan gövdeye gelmeli
-    (oyn+mayı yazım hatası elenir). Olumsuz (-ma), yeterlik (-abil, -ama) ve kaynaştırma (oynay-) gövdeleri,
-    asıl gövde fiilse atılır."""
-    kanit = collections.defaultdict(collections.Counter)
-    for w, n in tf.items():
-        for sinif, (unsuz, unlu) in FIIL_KANIT.items():
-            for e in set(unsuz + unlu):
-                if not w.endswith(e) or len(w) <= len(e):
-                    continue
-                s = w[:-len(e)]
-                if sinif == "yor":
-                    if e == "yor":                             # okuyor -> oku-, yürüyor -> yürü-
-                        if s[-1] in UNLU:
-                            kanit[s][sinif] += n
-                    else:                                     # koşuyor -> koş-; oynuyor -> oyna-; biliyor -> bil-
-                        for g in (s, s + "a", s + "e"):
-                            kanit[g][sinif] += n
-                    continue
-                if sinif not in ("mak", "di") and (e in unlu) != (s[-1] in UNLU):
-                    continue
-                kanit[s][sinif] += n
-                if e[0] in UNLU and s[-1] == "d":            # gidip, ederek -> git-, et-
-                    kanit[s[:-1] + "t"][sinif] += n
+    """Fiil gövdeleri -> temel kanıt (-mak ailesi + -dı sıklığı). Gövde en az iki ayrı ayırt edici ekle (-yor,
+    -mak, -maya/-mayı, -ıp, -arak, -ınca) ya da biriyle ve 20+ kez -dı ile geçmeli; temel kanıt bütün kanıtın
+    %0,5'inden az olmamalı (oyn+mayı yazım hatası, par+mak elenir). İki harfli ünsüz+ünlü gövde yalnız ye-, de-.
+    Olumsuz (-ma), yeterlik (-abil, -ama), -a/-e ve kaynaştırma (oynay-) gövdeleri, asıl gövde fiilse atılır.
+    Ünlüyle biten gövdeye doğrudan -yor (okuyor) ancak gövdenin ünlüsüz hâli fiil değilse sayılır (geçiyor
+    geçi- değil geç-)."""
+    def say(yor_unlu, onceki):
+        kanit = collections.defaultdict(collections.Counter)
+        for w, n in tf.items():
+            for sinif, (unsuz, unlu) in FIIL_KANIT.items():
+                for e in set(unsuz + unlu):
+                    if not w.endswith(e) or len(w) <= len(e):
+                        continue
+                    s = w[:-len(e)]
+                    if sinif == "yor":
+                        if e == "yor":                         # okuyor -> oku-, yürüyor -> yürü-
+                            if yor_unlu and s[-1] in UNLU and s[:-1] not in onceki:
+                                kanit[s][sinif] += n
+                        else:                                 # koşuyor -> koş-; oynuyor -> oyna-; biliyor -> bil-
+                            for g in (s, s + "a", s + "e"):
+                                kanit[g][sinif] += n
+                        continue
+                    if sinif not in ("mak", "maya", "di") and (e in unlu) != (s[-1] in UNLU):
+                        continue
+                    kanit[s][sinif] += n
+                    if e[0] in UNLU and s[-1] == "d":        # gidip, ederek -> git-, et-
+                        kanit[s[:-1] + "t"][sinif] += n
+        return kanit
+
     def gecer(g, k):
         guclu = sum(1 for c in GUCLU_KANIT if k[c])
         top = sum(k.values())
-        return (len(g) >= 2 and top >= en_az_tf and (guclu >= 2 or (guclu >= 1 and k["di"] >= 20))
+        bicim = len(g) >= 3 or (len(g) == 2 and (g[0] in UNLU or g in ("ye", "de")))
+        return (bicim and top >= en_az_tf and (guclu >= 2 or (guclu >= 1 and k["di"] >= 20))
                 and k["mak"] + k["di"] >= max(3, 0.005 * top))
-    fiil = {g: sum(k.values()) for g, k in kanit.items() if gecer(g, k)}
+
+    ilk = {g for g, k in say(False, set()).items() if gecer(g, k)}
+    kanit = say(True, ilk)
+    fiil = {g: k["mak"] + k["di"] for g, k in kanit.items() if gecer(g, k)}
 
     def turemis(g):
         for ek in ("ma", "me", "yama", "yeme", "ama", "eme", "abil", "ebil", "yabil", "yebil"):
             if g.endswith(ek) and g[:-len(ek)] in fiil:
                 return True
-        if g[-1] in "ae" and g[:-1] in fiil and not any(tf.get(g + d, 0) >= 3 for d in ("dı", "di", "du", "dü")):
-            return True                                        # bile- (bil+e), kapa- kalır (kapadı)
-        if g[-1] == "y" and g[:-1] in fiil and g[-2] in UNLU and not any(tf.get(g + m, 0) for m in ("mak", "mek")):
+        if g[-1] in "ae" and g[:-1] in fiil:                  # bula- (bul+a-madı) atılır, kapa- (kapadı) kalır
+            return kanit[g]["di"] < 0.05 * kanit[g[:-1]]["di"]
+        if g[-1] == "y" and g[:-1] in fiil and g[-2] in UNLU and not kanit[g]["mak"]:
             return True                                        # oynay- (oyna+y)
         return False
     return {g: n for g, n in fiil.items() if not turemis(g)}
