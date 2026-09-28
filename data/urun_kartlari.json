@@ -1,0 +1,5773 @@
+{
+ "surum": 1,
+ "aciklama": "Ürünün 14 figürünün kaynaklı kartları (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz.",
+ "sema": {
+  "olgu": "{'deger': ..., 'kaynak': [kaynak kimliği, ...]} ; ek alanlar: 'onay_bekliyor', 'not_'",
+  "yer.dizide_karsiligi": "dogrulandi | kismen | dogrulanmadi | yok | urun_tanimi",
+  "yan.tip": "adli (adı olan karakter) | rol (dedesi, annesi gibi) | isimsiz (tür adıyla anılan hayvan). Tohum sayımında adli ve rol 'adlı', isimsiz 'isimsiz' sayılır.",
+  "yan.yuzey_bicimleri": "Metinde bu yana çıkan bütün biçimler (K4: tekil canlı/rol lemmaları bu kümede olmalı).",
+  "ozellik.anahtar_ifade": "K4'ün 'anahtar kök geçti mi' denetimi için düzenli ifade; ornek_bicimler bu ifadeye uyar.",
+  "dunya_kurallari": "En çok 5 kural; yasak_duzenli_ifadeler normalleştirilmiş plan ve gövdeye uygulanır (Python re).",
+  "yasaklar.adlar": "Dizide olan ama kartta olmayan adlar; 'belirsiz': true olanlar ortak kelimedir, yalnız cümle içinde büyük harfle geçince ad sayılmalı.",
+  "urun_yan_eslesmesi": "data/urun_figurleri.json yan girdisi -> kart yan kimliği."
+ },
+ "kaynaklar": {
+  "urun_tanimi": {
+   "tur": "urun",
+   "baslik": "Temel figürlerin ürün tanımı (baslangic.py KAR bu dosyayı okur)",
+   "dosya": "data/karakterler.json",
+   "erisim": "2026-09-28"
+  },
+  "urun_karari": {
+   "tur": "urun",
+   "baslik": "Ürünün kesin figür listesi; yer etiketleri ve yer sırası",
+   "dosya": "data/urun_figurleri.json",
+   "erisim": "2026-09-28"
+  },
+  "urun_kurali": {
+   "tur": "urun",
+   "baslik": "Kusursuz veri tasarımı: Kart alanları, Yazım kılavuzu özeti, Hakem düzeni (C1-C6)",
+   "dosya": "docs/KUSURSUZ_VERI.md",
+   "erisim": "2026-09-28"
+  },
+  "eski_veri_olcumu": {
+   "tur": "urun",
+   "baslik": "Mevcut verinin akıbeti: eski kart hataları (Mete, Şuşu/Pisi, Chase sloganı)",
+   "dosya": "docs/KUSURSUZ_VERI.md",
+   "erisim": "2026-09-28"
+  },
+  "niloya_com_niloya": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: Niloya",
+   "url": "https://www.niloya.com/characters/niloya",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Nehir kenarında, neşeli kuşların şarkı söylediği şirin bir köyde dünyaya gelen Niloya",
+    "En Yakın Arkadaşı: Kaplumbağası Tospik, Mete, Abisi Murat",
+    "Sevdikleri: Nehirde yüzmek, Öğrenmek, Keşfetmek"
+   ]
+  },
+  "niloya_com_tospik": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: Tospik",
+   "url": "https://www.niloya.com/characters/tospik",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Görünümü: Tatlı, konuşkan bir kaplumbağa",
+    "Niloya'nın hızına yetişmek zor olsa da Tospik ona yetişmek için elinden geleni yapıyor"
+   ]
+  },
+  "niloya_com_murat": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: Murat",
+   "url": "https://www.niloya.com/characters/murat",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Niloya'nın abisi Murat",
+    "Sevdikleri: Top oynamak, koşturmak, fındık toplamak",
+    "Küçük kardeşi Niloya'yı çok seviyor"
+   ]
+  },
+  "niloya_com_mete": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: Mete",
+   "url": "https://www.niloya.com/characters/mete",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "En Yakın Arkadaşı: Niloya, Murat",
+    "nerede benim arabam, nerede benim mendilim diye ... aranmaya başlıyor"
+   ]
+  },
+  "niloya_com_anne": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: Anne",
+   "url": "https://www.niloya.com/characters/anne",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Sevdikleri: Ekinler, yayla, çocuklarıyla vakit geçirmek",
+    "Yemek yapmayı çok seviyor"
+   ]
+  },
+  "niloya_com_karakterler": {
+   "tur": "yapimci",
+   "baslik": "Niloya resmi sitesi: karakter listesi (Niloya, Tospik, Mete, Anne, Baba, Elif, Mine, Murat)",
+   "url": "https://www.niloya.com/characters",
+   "erisim": "2026-09-28"
+  },
+  "niloya_com_bolumler": {
+   "tur": "bolum",
+   "baslik": "Niloya resmi sitesi: bölüm özetleri",
+   "url": "https://www.niloya.com/sections",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Parkta Bir Gün: Niloya, arkadaşları ve keçi çocuk parkına gelmişlerdir ... büyük kaydırağa",
+    "Miniklerin Parkı: Elif köylerindeki parktan çok memnun değildir",
+    "Yankı: Niloya köyde ... tepelik bir alanda oyun oynamaktadır",
+    "Mantar Ev: Aileleri için kekik toplamaya köyün tepeliklerine giden Niloya, Mete ve Murat ... mantarlar",
+    "Niloya Haritası: Sincaplar hangi ağaçta? Meyve ağaçları nerede?",
+    "Yardım Kızağı: Niloya ve Mete karlı bir günde ... Tavşan, kuş, sincap. Hepsinin yardımına koşarlar",
+    "Babaannemin Danteli / Miras / Şekerim Yok: Niloya'nın babaannesi",
+    "Turşucu Geldi / Annemin Sineması: Fatoş Teyze; Anneler Günü: Ayşecik; Kulaktan Kulağa: Mete'nin kuzeni Cem",
+    "Sarı Kanat Uçabilirmi: Sarıkanat ve civcivler; Yürüyen Çalı: Tospik, Civciv, Miniş ve Keçi"
+   ]
+  },
+  "vikipedi_niloya": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Niloya",
+   "url": "https://tr.wikipedia.org/wiki/Niloya",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Nehir kenarında, tipik bir Karadeniz köyüne benzer bir köyde yaşayan küçük bir kız çocuğu",
+    "Oyunlar oynamayı, şarkılar söylemeyi çok sever ve kaplumbağası Tospik, en yakın arkadaşıdır",
+    "'gökyüzü neden mavi?' gibi sorular sorar",
+    "Mete, Murat'ın en yakın arkadaşı. Niloya ile yaşıt.",
+    "Dede, bütün karakterleri akıl hocasıdır.",
+    "Babaanne, Geliniyle yemek yapmayı, ailesini, torunlarını, fındık toplamayı çok sever."
+   ]
+  },
+  "mashabear_tr": {
+   "tur": "yapimci",
+   "baslik": "Maşa ile Koca Ayı resmi Türkçe sitesi: karakterler",
+   "url": "https://mashabear.com/tr-tr",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Maşa: Süper enerjik ... küçük kız çocuğu",
+    "Koca Ayı: Emekli sirk sanatçısı. İyi huylu, her işi bilen ve hırslı bir balıkçı. Maşa'nın eski dostu.",
+    "Tavşan: ... Koca Ayı'nın bahçesinden sürekli havuç çalıyor.",
+    "Sincap: Ormanın daimi sakini, küçük bir mağarada yaşıyor. Hızlı, çevik ve bağımsız. Fındık ve meşe palamudu sever.",
+    "Daşa: Maşa'nın şehirde yaşayan kuzeni. Çok düşünceli, ciddi ve zeki bir kız.",
+    "Kirpi: Bir başka orman sakini, elmayı seven dost canlısı ve bağımsız bir hayvan.",
+    "Diğer karakterler: Panda, Köpek, Rosie, Keçi, Kaplan, Ayı Hanım, Siyah Ayı, Aptal Kurt, Kurnaz Kurt"
+   ]
+  },
+  "vikipedi_en_masha": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Masha and the Bear",
+   "url": "https://en.wikipedia.org/wiki/Masha_and_the_Bear",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Masha, her cousin Dasha, and Father Frost are the only characters who speak. The others communicate through gibberish or wordless sounds.",
+    "Masha is a 4-year-old girl ... naughty and hyperactive, and always thinks about playing. She lives in a house near a railway station; near her house there is a path that leads to the Bear's house.",
+    "She loves sweets ... making preserves",
+    "The bear is a retired circus brown bear ... who lives in a house hollowed out of a tree in the forest.",
+    "The two Wolves live in a derelict ambulance car on top of a hill"
+   ]
+  },
+  "vikipedi_tr_masa": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Maşa ile Koca Ayı (Türkçe bölüm adları)",
+   "url": "https://tr.wikipedia.org/wiki/Maşa_ile_Koca_Ayı",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "6. bölüm: Reçel Günü",
+    "15. bölüm: Küçük Kuzen"
+   ]
+  },
+  "vikipedi_pepee_liste": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Pepee karakterleri listesi",
+   "url": "https://tr.wikipedia.org/wiki/Pepee_karakterleri_listesi",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Pepee, konuşma zorluğu çeken 4 yaşında bir erkek çocuktur. Genellikle mavi tulumu ve mavi şapkasını giyer.",
+    "Sevimli, sürekli yeni şeyler öğrenmek ve denemek isteyen bir çocuktur. Annesi, babası, kuzeni Şila, ninesi ve dedesi ile yaşar.",
+    "Yumurta, bal, tahin pekmez Pepee'nin en sevdiği kahvaltılıklardır.",
+    "Şila: Pepee'nin kuzeni. Çok güzel dans eder. En çok da Pepee ile zeybek oynamayı sever.",
+    "Bebee: Pepee'nin küçük kız kardeşi. Hayatta en sevdiği insan annesi ama Pepee'ye de hayran.",
+    "Annee: Pepee'nin sevgili annesi. Ninee: Pepee'nin ninesidir ... komik ve eğlenceli.",
+    "Dedee: Pepee'nin dedesi ... en az Pepee kadar hareketli bir oyun arkadaşı. Uçan bir balonu vardır.",
+    "Diğerleri: Zulu, Babaa, Köpüş, Maymuş, Kaliş, Kara Möcük, Sarı Möcük, Zezee, Bibii, Kekee, Mimi, Duduu, Tutuu"
+   ]
+  },
+  "vikipedi_pepee": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Pepee",
+   "url": "https://tr.wikipedia.org/wiki/Pepee",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Şuşuu: Dizide görünmeyen, olayları anlatan ve karakterlerle konuşan kişidir.",
+    "Şila: Pepee'nin en yakın arkadaşı ve kuzeni.",
+    "Nenee: Pepee'nin yaşlı ninesi ... yemek pişirmeyi çok sever.",
+    "Ekee: Şila'nın kardeşi; arkadaşları Zulu, Maymuş, Zuku"
+   ]
+  },
+  "tvmaze_pepee": {
+   "tur": "bolum",
+   "baslik": "TVmaze: Pepee bölüm adları",
+   "url": "https://www.tvmaze.com/shows/83246/pepee",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "4.12 Denizde Yüzmek",
+    "5.5 Balıkçı Pepee",
+    "5.7 Kaptan Pepee",
+    "5.22 Evde Sinema Gecesi",
+    "2.10 Pepee Horon Tepiyor",
+    "2.7 Pepee Çayda Çıra Oynuyor"
+   ]
+  },
+  "vikipedi_keloglan": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Keloğlan Masalları (dizi)",
+   "url": "https://tr.wikipedia.org/wiki/Keloğlan_Masalları_(dizi)",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "yer = Hayali bir köy",
+    "Keloğlan: Azimli ve dürüst bir çocuktur. Bilgecan Dede'den hep bir şeyler öğrenir. Sakar biri olsa da iyi bir çocuktur. Annesiyle beraber yaşar. Babası ölmüştür.",
+    "Bilgecan Dede: Çeşitli konularda icatlar, iksirler, ilaçlar yapan köyün en bilge kişisidir. Çok kitap okur.",
+    "Balkız: Keloğlan'ın sevdiği bir arkadaşıdır. Oldukça zekidir ve sarı saçları vardır.",
+    "Keloğlan'ın annesi: Keloğlan'ı her zaman korur. Sinirlenince yüksek sesle bağırmasıyla bilinir.",
+    "Prenses: Keloğlan'ın konuşan dişi kirpisidir.",
+    "Karakaçan: Keloğlan'ın eşeğidir. Bir o kadar da akıllıdır ve yük taşıyıp Keloğlan'a yardım eder.",
+    "Kara Vezir: Keloğlan'ın düşmanıdır. Görkemli bir sarayı ve bir sürü askeri vardır.",
+    "Diğerleri: Kara, Sivri, Örgülü, Huysuz, Uzun, Sinek, İnatçı, Tomurcuk, Çirkin Cadı, Kuyu Canavarı, Kötülükler Kraliçesi, Çizmeli Tilki, Mucit"
+   ]
+  },
+  "vikipedi_keloglan_bolumler": {
+   "tur": "bolum",
+   "baslik": "Vikipedi: Keloğlan Masalları bölümleri listesi",
+   "url": "https://tr.wikipedia.org/wiki/Keloğlan_Masalları_bölümleri_listesi",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Padişah'ın Korkulu Rüyası",
+    "Tilkican Dede",
+    "Nasreddin Hoca",
+    "Terkedilmiş Maden"
+   ]
+  },
+  "sabah_keloglan": {
+   "tur": "diger",
+   "baslik": "Sabah: Keloğlan karakterleri",
+   "url": "https://www.sabah.com.tr/yasam/keloglan-karakterleri-keloglan-karakterlerinin-isimleri-hikayeleri-ve-ozellikleri-st1-6535513",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Balkız: sarı saçlı güzel ve oldukça zeki bir kızdır. Keloğlan'ın aşık olduğu kızdır.",
+    "Karakaçan: Keloğlan'ın eşeğidir. Oldukça akıllıdır.",
+    "Prenses: Keloğlan'ın konuşan, mavi dikenli, dişi kirpisidir."
+   ]
+  },
+  "trt_ebeveyn_keloglan": {
+   "tur": "trt",
+   "baslik": "TRT Çocuk Ebeveyn Akademisi: Keloğlan Masalları",
+   "url": "https://ebeveynakademisi.trtcocuk.net.tr/makale/keloglan-masallari-25209295",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "doğruluğun, dürüstlüğün ve iyiliğin sembolü Keloğlan ile arkadaşlarının başından geçen maceralar"
+   ]
+  },
+  "blog_keloglan_ay_tasi": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil, hayran sitesi): Keloğlan Masalları - Ay Taşı",
+   "url": "https://cizgifilmhikayeleri.blogspot.com/p/keloglan-masallar-ay-tas.html",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Hesaplamalarına göre meteor orman civarına düşecektir.",
+    "Aklına ıslık çalıp Karakaçan'ı çağırmak gelir. Karakaçan arkadan yaklaşıp ... çifte atar."
+   ]
+  },
+  "blog_keloglan_kel_basim": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil, hayran sitesi): Keloğlan Masalları - Kel Başım Dertli Başım",
+   "url": "https://cizgifilmhikayeleri.blogspot.com/p/keloglan-masallar-kel-basm-dertli-basm.html",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Keloğlan ormanda lazım olan otu ararken"
+   ]
+  },
+  "blog_keloglan_testi": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil, hayran sitesi): Keloğlan Masalları - Keloğlan Testiyi Kurtarıyor",
+   "url": "https://cizgifilmhikayeleri.blogspot.com/p/keloglan-masallar-keloglan-testiyi.html",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Keloğlan arkadaşlarımla oyun oynayacağım sonra giderim deyince annesi çok kızar.",
+    "Balkız evde annesine yardım ediyordur. Çamaşırları da toplayıp gidelim der."
+   ]
+  },
+  "blog_keloglan_bilgecan": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil, hayran sitesi): Keloğlan Masalları - Bilgecan Dede'nin Sırrı",
+   "url": "https://cizgifilmhikayeleri.blogspot.com/p/keloglan-masallar-bilgecan-dedenin-srr.html",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Bilgecan dede anne babaları unuttu ama küçük çocuklar beni unutmadı o yüzden onlara yardım etmeliyim der."
+   ]
+  },
+  "anibera_doru": {
+   "tur": "yapimci",
+   "baslik": "Anibera (yapımcı stüdyo): Doru",
+   "url": "https://www.anibera.com/tr/projeler/doru.htm",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Doru, annesi Dorukısrak ile beraber katıldığı sürüde, kısa zaman içerisinde kendisini çok sevdirir.",
+    "sürüdeki en yakın arkadaşı Karatay ile birlikte onları yakalamak isteyen çiftlik sahiplerine karşı",
+    "Doru: Genç bir at olmasına rağmen gücü, hızı, cesareti ve olgunluğuyla ... karşılaştığı hiçbir canlıdan ne yardımını ne de sevgisini esirger.",
+    "Doru Kısrak: Doru'nun sevecen ve anaç karakterli annesidir.",
+    "Kırat: Sürünün en yaşlı üyesi olan Kırat, tecrübesi dolayısıyla sürünün akıl lideridir.",
+    "Karatay: Doru'nun en yakın arkadaşıdır. Adı gibi kapkara bir renge sahiptir; ama neşesi, heyecanı ve hayat dolu yapısı ... Zaman zaman yanlış kararlar alan Karatay",
+    "Gelincik: Bir gelincik olmasına rağmen kendinden kat kat büyük olan atlarla arkadaşlık eden Gelincik sürünün en ilginç üyesidir.",
+    "Alaca: Sürünün en küçük üyesidir. Abileri Doru ve Karatay sayesinde her geçen gün yeni bir şey öğrenmekte ve doğayı tanımaktadır ... Doru ve Karatay kız kardeşlerinin yardımına yetişir.",
+    "Demirkır: Sürünün fedakar lideridir. Alkız: Alaca'nın annesidir."
+   ]
+  },
+  "dizi1001_doru": {
+   "tur": "diger",
+   "baslik": "1001 Dizi: Yılkı Atı Doru (seslendirme kadrosu)",
+   "url": "https://1001dizi.net/cocuk-programi-yilki-ati-doru",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Seslendirme: Doru, Karatay, Alaca, Gelincik, Alfa Kurt, Kırat, Moya, Muhtar, Yaman, Dorukısrak",
+    "Sürünün peşinde, onları yakalamak isteyen çiftlik sahipleri vardır."
+   ]
+  },
+  "trt_doru": {
+   "tur": "trt",
+   "baslik": "TRT Çocuk: Doru bölüm adları",
+   "url": "https://www.trtcocuk.net.tr/doru",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "67. Bölüm - Gök Dağlar",
+    "73. Bölüm - Şehirden Ormana, Moya...",
+    "77. Bölüm - Ya Vadi Ya Dostlarınız",
+    "76. Bölüm - Merhaba Hulusi Ben",
+    "79. Bölüm - Kaju Gitmeli"
+   ]
+  },
+  "vikipedi_rafadan": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Rafadan Tayfa",
+   "url": "https://tr.wikipedia.org/wiki/Rafadan_Tayfa",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "yer = İstanbul'da, Anadolu Yakası'nda, hayali bir mahalle",
+    "Hayri: Rafadan Tayfa'nın en obur üyesidir. Mahalledeki Baklava Dükkânı'nın sorumlusudur. ... sürekli acıkır ... Bazı olayları abartmayı pek sever. Kamil ile yakındır",
+    "Akın: Mert'in kardeşi ve Rafadan Tayfa'nın en küçüğüdür. Oldukça zeki ve araştırmacıdır. Hayvanları çok sever",
+    "Mert: Akın'ın abisidir. Olaylara karşı soğukkanlı ve sakin ... Tayfa'nın en düzenlisi",
+    "Kamil: ... uykucu üyesi ... mahallenin tek bakkalı olan Nuri Bakkal'ın sorumlusudur ... çok kitap ve ansiklopedi okur ... Hayri ile çok yakındırlar",
+    "Basri Amca: Mahallenin yaşlı, kolay sinirlenen, aynı zamanda iyi kalpli ve tek başına yaşayan bir sakinidir. Bahçesine izinsiz girilmesinden hiç hoşlanmaz ... sonradan ... onları sevmiştir.",
+    "Yumak: Basri Amca'nın köpeğidir. İlk başta sahipsiz olarak Akın tarafından bulunmuş, sonradan Akın onu Basri Amca'ya emanet etmiştir.",
+    "Hale: Hayri'nin kız kardeşidir. Diğerleri: Sevim, Rüstem Abi, Fatma Nine, Sadettin Usta, Kuşçu Baba, Ankaralı Ozan"
+   ]
+  },
+  "vikipedi_rafadan_bolumler": {
+   "tur": "bolum",
+   "baslik": "Vikipedi: Rafadan Tayfa bölümleri listesi",
+   "url": "https://tr.wikipedia.org/wiki/Rafadan_Tayfa_bölümleri_listesi",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "2. Yaşlılara Yardım: Basri Amca'ya bahçe işlerinde yardım ederler",
+    "58. Balık Ekmek",
+    "74. Rafadan Kamp",
+    "100. Denizler Fatihi",
+    "82. Tamtam'ın Dönüşü"
+   ]
+  },
+  "cizgifilm_rafadan_74": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil): Rafadan Tayfa 74 - Rafadan Kamp",
+   "url": "https://www.cizgifilm.tv/rafadan-tayfa/74-bolum-rafadan-kamp",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Çocukların hepsi eşyalarını tamamlayıp mahallenin ortasında kamp kurma alıştırması yapacaklardır."
+   ]
+  },
+  "rafadan_resmi": {
+   "tur": "yapimci",
+   "baslik": "Rafadan Tayfa resmi sitesi",
+   "url": "https://www.rafadantayfa.com/",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Karakterler: Hayri, Sevim, Akın, Fatma Nine, Basri Amca, Yumak, Kamil, Mert, Saadettin Usta, Hale, Rüstem Abi",
+    "90'lı yılların mahalle hayatını, samimi insan ilişkilerini yansıtmaktadır."
+   ]
+  },
+  "vikipedi_sakir": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Kral Şakir",
+   "url": "https://tr.wikipedia.org/wiki/Kral_Şakir",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Bir aslan ailesinin yavrusu olan Şakir'in ailesi ve arkadaşları ile olan maceraları",
+    "Şakir'in babası Remzi aslan, annesi Kadriye ve kız kardeşi Canan kedidir",
+    "Şakir: Bir aslandır ve sürekli olarak şapka takar. Şapkası her yerde değişebilir. Macerayı çok sever.",
+    "Remzi: Şakir ve Canan'ın babası ... Kırmızı bir kazak giyer. Bir bankada çalışır ... Çocuk ruhludur.",
+    "Fil Necati: Mor renkli bir fildir ... Remzi'nin en iyi arkadaşıdır. Hep onların evindedir, çoğu zaman da yemek yiyip oyun oynar.",
+    "Canan: Beyaz renkli bir kedidir. Şakir'in kız kardeşidir. Çok akıllıdır ve genelde kitap okur.",
+    "Kadriye: Şakir'in ve Canan'ın annesi, Remzi'nin eşidir. O da beyaz renkli bir kedidir.",
+    "Huysuz Cüneyt: Şakir ve ailesinin apartmanı ile karşı karşıya olan apartmanda yaşayan ...",
+    "Cemşit: ... Şakir ile aynı okulda eğitim görmekte.",
+    "Yan karakterler: Peyami Dede, Filsu, Uyuz Tanju, Mirket, Akbaba Kürşat, Keçi Necmi, Goril Ercan, Huysuz Cüneyt, Ayı Polat, Kumpir, Cemşit, Arif, Vedat"
+   ]
+  },
+  "vikipedi_sakir_bolumler": {
+   "tur": "bolum",
+   "baslik": "Vikipedi: Kral Şakir bölümleri listesi",
+   "url": "https://tr.wikipedia.org/wiki/Kral_Şakir_bölümleri_listesi",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Temiz Deniz",
+    "Issız Ada",
+    "Karadeniz Macerası",
+    "Kayıp Deniz",
+    "Lunapark",
+    "Tatil Evi"
+   ]
+  },
+  "cizgifilm_sakir_11": {
+   "tur": "bolum",
+   "baslik": "Bölüm özeti (ikincil): Kral Şakir 11 - Babalar Yarışıyor",
+   "url": "https://www.cizgifilm.tv/kral-sakir/11-bolum-babalar-yarisiyor",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Hafta sonu ise Uludağ'da baba oğul kampı vardır ... İlk yarış odun kırmadır"
+   ]
+  },
+  "vikipedi_frozen_tr": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Karlar Ülkesi",
+   "url": "https://tr.wikipedia.org/wiki/Karlar_Ülkesi",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Arendelle Prensesi olan Elsa, buz ve karı kontrol edebileceği sihirli güçlere sahiptir ve genellikle bu gücünü küçük kız kardeşi Anna ile oynamak için kullanır.",
+    "Ancak bir gün Elsa yanlışlıkla Anna'yı sihriyle yaralar",
+    "Elsa 21. yaş gününün ardından Arendelle'in kraliçesi olarak taç giyecektir.",
+    "Elsa, Kuzey Dağı'na kaçar ve ... kendine buzdan bir saray inşa eder.",
+    "cesur dağ adamı Kristoff ve onun tüm işlerine yerine getiren ren geyiği Sven",
+    "Kristoff ve yolda tanıştığı kardan adam Olaf",
+    "Kral ve Kraliçe denize açıldıklarında fırtına ortasında kalırlar ve ölürler.",
+    "Diğerleri: Hans, Weselton Dükü, Grand Pabbie, Wandering Oaken, Marshmallow"
+   ]
+  },
+  "vikipedi_frozen_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Frozen (2013 film)",
+   "url": "https://en.wikipedia.org/wiki/Frozen_(2013_film)",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "an iceman who is accompanied by a reindeer named Sven",
+    "Olaf, a living snowman created by Elsa's magic",
+    "Giaimo wanted to ensure that Norway's fjords ... were central in designing the environment of Arendelle."
+   ]
+  },
+  "vikipedi_frozen2_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Frozen 2",
+   "url": "https://en.wikipedia.org/wiki/Frozen_2",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "the Enchanted Forest",
+    "Bruni (the fire salamander)"
+   ]
+  },
+  "vikipedi_olaf_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Olaf (Frozen)",
+   "url": "https://en.wikipedia.org/wiki/Olaf_(Frozen)",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Olaf is an optimistic character; he is obsessed with summer and heat and loves 'warm hugs'."
+   ]
+  },
+  "vikipedi_sven_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Sven (Frozen)",
+   "url": "https://en.wikipedia.org/wiki/Sven_(Frozen)",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Sven is a non-speaking reindeer, who has been a companion to Kristoff since they were young.",
+    "Sven pulling the sled that carries the ice"
+   ]
+  },
+  "pawpatrol_chase": {
+   "tur": "yapimci",
+   "baslik": "PAW Patrol resmi sitesi: Chase",
+   "url": "https://www.pawpatrol.com/characters/chase",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Chase is a German Shepherd and the tallest pup in the PAW Patrol",
+    "A natural leader, he has a can-do attitude, 'by the book' approach, and a blue hat!",
+    "No matter the mission, he'll sniff out a solution (though he might sneeze around cats and feathers, he's allergic).",
+    "Occupation: Police Pup. Catchphrase: 'Chase is on the Case!'"
+   ]
+  },
+  "pawpatrol_ryder": {
+   "tur": "yapimci",
+   "baslik": "PAW Patrol resmi sitesi: Ryder",
+   "url": "https://www.pawpatrol.com/characters/ryder",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Ryder is a 10-year-old boy who runs the Lookout and serves as PAW Patrol's leader.",
+    "Ryder adopted each of the pups and trained them ... Ryder picks the right pup for the job"
+   ]
+  },
+  "pawpatrol_marshall": {
+   "tur": "yapimci",
+   "baslik": "PAW Patrol resmi sitesi: Marshall",
+   "url": "https://www.pawpatrol.com/characters/marshall",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Marshall is the team's brave firedog - an excitable, all-action, six-year-old Dalmatian pup.",
+    "He may be clumsy ... a loveable and loyal friend who will always help those in need!"
+   ]
+  },
+  "pawpatrol_skye": {
+   "tur": "yapimci",
+   "baslik": "PAW Patrol resmi sitesi: Skye",
+   "url": "https://www.pawpatrol.com/characters/skye",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Skye is a daring and skilled helicopter pilot with a love for little animals. This Cockapoo is the smallest pup"
+   ]
+  },
+  "pawpatrol_rubble": {
+   "tur": "yapimci",
+   "baslik": "PAW Patrol resmi sitesi: Rubble",
+   "url": "https://www.pawpatrol.com/characters/rubble",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Rubble is a construction Bulldog - a tough, five-year old pup with a heart of gold.",
+    "he's also funny, cracking a joke ... Oh, and don't forget eating. He's one hungry pup!"
+   ]
+  },
+  "vikipedi_paw_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Paw Patrol",
+   "url": "https://en.wikipedia.org/wiki/Paw_Patrol",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "to protect the shoreside community of Adventure Bay",
+    "They reside in doghouses that transform into customized vehicles",
+    "the dogs going about their everyday lives in Adventure Bay, often playing with dog toys or going to the local playground",
+    "The team members report to their base, the Lookout",
+    "Chase ... is a 7-year-old German Shepherd who serves as a police dog, spy dog",
+    "Jake ... is a snowboarder from Adventure Bay",
+    "Diğerleri: Rocky, Zuma, Everest, Tracker, Cap'n Turbot, Mayor Goodway, Chickaletta, Mayor Humdinger, Robo-Dog, Rex, Liberty"
+   ]
+  },
+  "vikipedi_paw_bolumler_en": {
+   "tur": "bolum",
+   "baslik": "Wikipedia (EN): List of Paw Patrol episodes",
+   "url": "https://en.wikipedia.org/wiki/List_of_Paw_Patrol_episodes",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "The Paw Patrol pups are playing at the beach when they discover baby turtles.",
+    "a cave in Jake's mountain",
+    "Pups Save the Camping Trip",
+    "Pups Save the Treetop Trekkers"
+   ]
+  },
+  "vikipedi_paw_tr": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: PAW Patrol",
+   "url": "https://tr.wikipedia.org/wiki/PAW_Patrol",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Kendilerine 'Pençe Devriyesi' diyen arama ve kurtarma köpeklerinden oluşan bir ekibin hikâyesi"
+   ]
+  },
+  "vikipedi_spidey_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Spidey and His Amazing Friends",
+   "url": "https://en.wikipedia.org/wiki/Spidey_and_His_Amazing_Friends",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "grade school kid incarnations of Peter Parker / Spidey, Gwen Stacy / Ghost-Spider, and Miles Morales / Spin ... across New York City",
+    "Peter Parker / Spidey - The titular web-slinging superhero. He often works on different science experiments and new types of webbing.",
+    "Miles Morales / Spin - Peter's best friend who possesses invisibility ... Miles is an expert artist.",
+    "Gwen Stacy / Ghost-Spider - A friend of Peter and Miles. Gwen is an expert drummer and her Ghost-Spider outfit enables her with gliding abilities.",
+    "WEB-STER - A super-computer in Web-Quarters that assists Spidey, Spin, and Ghost-Spider.",
+    "would sometimes receive aid from other superheroes such as ... Hulk",
+    "Kötüler: Rhino, Doc Ock, Green Goblin, Electro, Black Cat, Sandman ..."
+   ]
+  },
+  "vikipedi_spidey_bolumler_en": {
+   "tur": "bolum",
+   "baslik": "Wikipedia (EN): List of Spidey and His Amazing Friends episodes",
+   "url": "https://en.wikipedia.org/wiki/List_of_Spidey_and_His_Amazing_Friends_episodes",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Sandman Won't Share!: During a day at the beach ... Team Spidey builds a sandcastle",
+    "Peter, his aunt May, Gwen, and Miles are at the beach cleaning up trash",
+    "Hulk's Squirrely Switch: Hulk is helping Spidey and Spin are planting trees in the park.",
+    "Ghosty and Spin are fixing the playground",
+    "Spidey's Spidey Sense tingles him to alert that Lizard showed up"
+   ]
+  },
+  "vikipedi_spiderman_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Spider-Man",
+   "url": "https://en.wikipedia.org/wiki/Spider-Man",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "spider-powers such as the ability to stick to walls and climb surfaces ... and a 'spider-sense' that warns him of danger"
+   ]
+  },
+  "vikipedi_hulk_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Hulk",
+   "url": "https://en.wikipedia.org/wiki/Hulk",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "an immense, green-skinned, hulking brute, possessing a limitless degree of physical strength"
+   ]
+  }
+ },
+ "kartlar": [
+  {
+   "kimlik": "niloya",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Niloya",
+    "kaynak": [
+     "urun_karari",
+     "niloya_com_niloya"
+    ]
+   },
+   "okunus": {
+    "deger": "niloya",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Niloya",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_niloya"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Niloya, nehir kenarındaki bir köyde ailesiyle yaşayan küçük bir kızdır.",
+    "kaynak": [
+     "niloya_com_niloya",
+     "vikipedi_niloya"
+    ]
+   },
+   "tur": {
+    "deger": "kız",
+    "kaynak": [
+     "vikipedi_niloya"
+    ],
+    "lemmalar": [
+     "kız",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Öğrenmeyi ve yeni şeyler keşfetmeyi sever.",
+     "anahtar_kok": "keşfet",
+     "anahtar_ifade": "\\bkeşfe[dt]\\w*",
+     "ornek_bicimler": [
+      "keşfetti",
+      "keşfetmeyi",
+      "keşfedince"
+     ],
+     "kaynak": [
+      "niloya_com_niloya"
+     ]
+    },
+    {
+     "deger": "Merak ettiği her şeyi sorar.",
+     "anahtar_kok": "soru",
+     "anahtar_ifade": "\\bsoru(?:yu|su|lar\\w*)?\\b|\\bsor(?:du|dular|mak|mayı|up)\\b",
+     "ornek_bicimler": [
+      "sordu",
+      "soruyu",
+      "sorular"
+     ],
+     "kaynak": [
+      "vikipedi_niloya"
+     ]
+    },
+    {
+     "deger": "Şarkı söylemeyi çok sever.",
+     "anahtar_kok": "şarkı",
+     "anahtar_ifade": "\\bşarkı\\w*",
+     "ornek_bicimler": [
+      "şarkı",
+      "şarkısını"
+     ],
+     "kaynak": [
+      "vikipedi_niloya"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Niloya'nın merakı bakarak, sorarak ve bir büyüğe haber vererek gösterilir; nehre ya da dereye girmez, suya yalnız kıyıdan bakar; ağaca ya da yüksek yere tırmanmaz.",
+    "kaynak": [
+     "urun_kurali",
+     "niloya_com_niloya"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Köyün yanındaki ağaçlık yer; meyve ağaçları ve fındık ağaçları vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "niloya_com_bolumler",
+      "vikipedi_niloya"
+     ],
+     "not": "Dizide 'orman' adıyla geçen bölüm bulunamadı; ağaçlık tepeler, meyve ağaçları ve fındık toplama var."
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Köyün tepelik yerleri ve yayla; kekik toplanan yeşil yamaçlar.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "niloya_com_bolumler",
+      "niloya_com_anne"
+     ]
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Niloya'nın nehir kenarındaki köy evi ve bahçesi.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "niloya_com_niloya",
+      "niloya_com_bolumler"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Köydeki çocuk parkı; kaydırak ve oyuncaklar vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "niloya_com_bolumler"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:murat",
+     "kisa_ad": "Murat",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Murat",
+      "ağabey",
+      "ağabeyi",
+      "abi",
+      "abisi",
+      "abiciğim"
+     ],
+     "iliski": {
+      "deger": "Niloya'nın ağabeyi; küçük kardeşi Niloya'yı çok sever.",
+      "kaynak": [
+       "niloya_com_murat",
+       "vikipedi_niloya"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "niloya_com_murat"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_murat"
+      ]
+     },
+     "huy": {
+      "deger": "Top oynamayı, koşturmayı ve fındık toplamayı sever.",
+      "kaynak": [
+       "niloya_com_murat"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:mete",
+     "kisa_ad": "Mete",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Mete"
+     ],
+     "iliski": {
+      "deger": "Murat'ın en yakın arkadaşı; Niloya ile yaşıttır ve onun da arkadaşıdır.",
+      "kaynak": [
+       "vikipedi_niloya",
+       "niloya_com_mete"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "niloya_com_mete"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_mete"
+      ]
+     },
+     "huy": {
+      "deger": "Oyuncaklarını dağıtır, sonra aradığını bulamaz.",
+      "kaynak": [
+       "niloya_com_mete"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:tospik",
+     "kisa_ad": "Tospik",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Tospik",
+      "kaplumbağa",
+      "kaplumbağası"
+     ],
+     "iliski": {
+      "deger": "Niloya'nın kaplumbağası ve en yakın arkadaşı.",
+      "kaynak": [
+       "niloya_com_tospik",
+       "vikipedi_niloya"
+      ]
+     },
+     "tur": {
+      "deger": "kaplumbağa",
+      "kaynak": [
+       "niloya_com_tospik"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_tospik"
+      ]
+     },
+     "huy": {
+      "deger": "Oyun oynamayı ve uyumayı sever; Niloya'ya yetişmekte zorlanır.",
+      "kaynak": [
+       "niloya_com_tospik"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:dede",
+     "kisa_ad": "dedesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "dede",
+      "dedesi",
+      "dedeciğim",
+      "Dede"
+     ],
+     "iliski": {
+      "deger": "Niloya'nın dedesi; herkese iyi öğütler verir.",
+      "kaynak": [
+       "vikipedi_niloya",
+       "niloya_com_niloya"
+      ]
+     },
+     "tur": {
+      "deger": "dede",
+      "kaynak": [
+       "vikipedi_niloya"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_niloya"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:babaanne",
+     "kisa_ad": "babaannesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "babaanne",
+      "babaannesi",
+      "babaanneciğim",
+      "Babaanne",
+      "nine",
+      "ninesi"
+     ],
+     "iliski": {
+      "deger": "Niloya'nın babaannesi; yemek yapmayı ve fındık toplamayı sever.",
+      "kaynak": [
+       "vikipedi_niloya",
+       "niloya_com_bolumler"
+      ]
+     },
+     "tur": {
+      "deger": "babaanne",
+      "kaynak": [
+       "vikipedi_niloya"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:anne",
+     "kisa_ad": "annesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "anne",
+      "annesi",
+      "anneciğim",
+      "Anne"
+     ],
+     "iliski": {
+      "deger": "Niloya'nın annesi; yemek yapmayı, ekinleri ve yaylayı sever.",
+      "kaynak": [
+       "niloya_com_anne"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "niloya_com_anne"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     }
+    }
+   ],
+   "isimsiz_yan_notu": {
+    "deger": "Dizide kuş, sincap ve tavşan gibi hayvanlar vardır; isimsiz yan olarak seçilebilirler.",
+    "kaynak": [
+     "niloya_com_bolumler"
+    ],
+    "ornekler": [
+     "kuş",
+     "sincap",
+     "tavşan"
+    ]
+   },
+   "dunya_kurallari": [
+    {
+     "kural": "Niloya'nın ağabeyi Murat'tır. Mete Niloya'nın ağabeyi değildir; Murat'ın arkadaşıdır.",
+     "yasak_duzenli_ifadeler": [
+      "[Aa](?:ğabey|bi)(?:i|si|m|ciğim)?\\s*,?\\s+Mete\\b",
+      "\\bMete\\s*,?\\s+(?:Niloya'nın\\s+)?[Aa](?:ğabey|bi)"
+     ],
+     "kaynak": [
+      "niloya_com_murat",
+      "vikipedi_niloya",
+      "eski_veri_olcumu"
+     ]
+    },
+    {
+     "kural": "Tospik yavaştır; Niloya'ya yetişmekte zorlanır, hızla koşmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\bTospik\\s+(?:[\\w']+\\s+){0,2}(?:hızla|hızlıca|koşarak|koştu|fırladı)\\b"
+     ],
+     "kaynak": [
+      "niloya_com_tospik"
+     ]
+    },
+    {
+     "kural": "Köy nehir kenarındadır; hikayede kimse nehre ya da dereye girmez, suya kıyıdan bakılır.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Nn]ehr|[Nn]ehir|[Dd]ere|[Gg]öl)\\w*\\s+(?:[\\w']+\\s+){0,2}(?:girdi|girdiler|atladı|atladılar|daldı|daldılar)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_niloya",
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Elif",
+      "kaynak": [
+       "niloya_com_karakterler"
+      ]
+     },
+     {
+      "ad": "Mine",
+      "kaynak": [
+       "niloya_com_karakterler"
+      ]
+     },
+     {
+      "ad": "Fatoş",
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     },
+     {
+      "ad": "Cem",
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     },
+     {
+      "ad": "Ayşecik",
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     },
+     {
+      "ad": "Sarıkanat",
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     },
+     {
+      "ad": "Miniş",
+      "kaynak": [
+       "niloya_com_bolumler"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Babası kartta yok; hikayeye girmez (kapalı dünya).",
+      "kaynak": [
+       "niloya_com_karakterler",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "köy",
+    "nehir",
+    "yayla",
+    "fındık",
+    "kaplumbağa",
+    "kekik"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Murat (ağabeyi)",
+     "kart": [
+      "yan:murat"
+     ]
+    },
+    {
+     "urun": "Mete (Murat'ın arkadaşı)",
+     "kart": [
+      "yan:mete"
+     ]
+    },
+    {
+     "urun": "Tospik (kaplumbağa)",
+     "kart": [
+      "yan:tospik"
+     ]
+    },
+    {
+     "urun": "Dedesi",
+     "kart": [
+      "yan:dede"
+     ]
+    },
+    {
+     "urun": "Ninesi",
+     "kart": [
+      "yan:babaanne"
+     ],
+     "not": "Kaynaklarda 'Babaanne'; kısa ad babaannesi, 'ninesi' yüzey biçimi."
+    },
+    {
+     "urun": "Annesi",
+     "kart": [
+      "yan:anne"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "Ürün listesindeki 'Ninesi' kaynaklarda 'Babaanne'dir; kısa ad 'babaannesi' onaylansın mı?",
+    "Orman yeri dizide 'orman' adıyla geçmiyor (ağaçlık tepe, meyve ve fındık ağaçları var)."
+   ]
+  },
+  {
+   "kimlik": "masa",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Maşa",
+    "kaynak": [
+     "urun_karari",
+     "mashabear_tr"
+    ]
+   },
+   "okunus": {
+    "deger": "maşa",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Maşa ile Koca Ayı",
+    "kaynak": [
+     "urun_karari",
+     "mashabear_tr"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Maşa, ormanın yakınındaki evinde yaşayan, çok enerjik ve oyunbaz küçük bir kızdır.",
+    "kaynak": [
+     "mashabear_tr",
+     "vikipedi_en_masha"
+    ]
+   },
+   "tur": {
+    "deger": "kız",
+    "kaynak": [
+     "vikipedi_en_masha"
+    ],
+    "lemmalar": [
+     "kız",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Çok enerjiktir; her şeyi dener.",
+     "anahtar_kok": "dene",
+     "anahtar_ifade": "\\bdene(?:di|dik|diler|mek|meye|meyi|yince|yip|yelim|rim|r|miş|mişti)\\b|\\bdeniyor\\w*",
+     "ornek_bicimler": [
+      "denedi",
+      "denemek",
+      "deniyordu"
+     ],
+     "kaynak": [
+      "mashabear_tr",
+      "vikipedi_en_masha"
+     ]
+    },
+    {
+     "deger": "Tatlıları ve reçeli çok sever.",
+     "anahtar_kok": "reçel",
+     "anahtar_ifade": "\\breçel\\w*",
+     "ornek_bicimler": [
+      "reçel",
+      "reçeli"
+     ],
+     "kaynak": [
+      "vikipedi_en_masha",
+      "vikipedi_tr_masa"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Maşa'nın denemeleri kimseyi incitmez; kimse düşmez, bir şey kırılıp kimseyi yaralamaz. Yüksek yere çıkmaz, ateşe ve derin suya yaklaşmaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Maşa'nın evinin yakınındaki büyük orman; ağaçlar ve patikalar vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_en_masha",
+      "mashabear_tr"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Ormanın yanındaki tepe.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_en_masha"
+     ],
+     "not": "Dizide tepe var; 'dağ' adıyla geçen yer bulunamadı."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Maşa'nın evi ve önündeki bahçe.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_en_masha"
+     ],
+     "kosullu_tarifler": [
+      {
+       "yan": "yan:koca_ayi",
+       "tarif": "Koca Ayı'nın ormandaki ağaç evi ve sebze bahçesi.",
+       "kaynak": [
+        "vikipedi_en_masha",
+        "mashabear_tr"
+       ]
+      }
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:koca_ayi",
+     "kisa_ad": "Koca Ayı",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Koca Ayı",
+      "ayı"
+     ],
+     "iliski": {
+      "deger": "Maşa'nın eski dostu; eskiden sirkte çalışmış, iyi huylu ve her işi bilen bir ayı.",
+      "kaynak": [
+       "mashabear_tr",
+       "vikipedi_en_masha"
+      ]
+     },
+     "tur": {
+      "deger": "ayı",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_en_masha"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Ormanda yaşayan, elmayı seven dost canlısı bir kirpi.",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_en_masha"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Ormanda küçük bir yuvada yaşayan hızlı sincap; fındık ve meşe palamudu sever.",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_en_masha"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:dasa",
+     "kisa_ad": "Daşa",
+     "tip": "adli",
+     "okunus": "daşa",
+     "yuzey_bicimleri": [
+      "Daşa",
+      "kuzen",
+      "kuzeni"
+     ],
+     "iliski": {
+      "deger": "Maşa'nın şehirde yaşayan kuzeni; düşünceli, ciddi ve akıllı bir kız.",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "tur": {
+      "deger": "kız",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_en_masha"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Koca Ayı, kirpi ve sincap konuşmaz; sesle, hareketle ve yüzüyle anlatır. Yalnız Maşa ve Daşa konuşur.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Koca\\s+Ayı|[Kk]irpi|[Ss]incap)\\b\\b",
+      "(?:Koca\\s+Ayı|[Kk]irpi|[Ss]incap)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_en_masha"
+     ]
+    },
+    {
+     "kural": "Daşa şehirde yaşar; Maşa'yı ziyarete gelir.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Rosie",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     {
+      "ad": "Panda",
+      "kaynak": [
+       "mashabear_tr"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Kaplan",
+      "kaynak": [
+       "mashabear_tr"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Ayı Hanım",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     {
+      "ad": "Siyah Ayı",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     {
+      "ad": "Kurnaz Kurt",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     {
+      "ad": "Aptal Kurt",
+      "kaynak": [
+       "mashabear_tr"
+      ]
+     },
+     {
+      "ad": "Penguen",
+      "kaynak": [
+       "mashabear_tr"
+      ],
+      "belirsiz": true
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Kurtlar, sirk gösterisi ve ambulans hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_en_masha",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "reçel",
+    "ayı",
+    "sincap",
+    "kirpi",
+    "patika"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Koca Ayı (Mişka, konuşmaz)",
+     "kart": [
+      "yan:koca_ayi"
+     ],
+     "not": "'Mişka' Rusça özgün sürümdeki ad; Türkçe resmi sitede 'Koca Ayı'. Mişka yüzey biçimine alınmadı."
+    },
+    {
+     "urun": "Kirpi",
+     "kart": [
+      "yan:kirpi"
+     ],
+     "not": "İsimsiz yan (tür adı)."
+    },
+    {
+     "urun": "Sincap",
+     "kart": [
+      "yan:sincap"
+     ],
+     "not": "İsimsiz yan (tür adı)."
+    },
+    {
+     "urun": "Dasha (kuzeni)",
+     "kart": [
+      "yan:dasa"
+     ],
+     "not": "Resmi Türkçe yazım 'Daşa' (mashabear.com/tr-tr)."
+    }
+   ],
+   "acik_noktalar": [
+    "Dağ yeri için yalnız tepe kaynağı var."
+   ]
+  },
+  {
+   "kimlik": "pepee",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Pepee",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_pepee_liste"
+    ]
+   },
+   "okunus": {
+    "deger": "pepe",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Pepee",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_pepee"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Pepee, mavi tulumu ve mavi şapkasıyla bilinen, dört yaşında meraklı bir oğlandır.",
+    "kaynak": [
+     "vikipedi_pepee_liste"
+    ]
+   },
+   "tur": {
+    "deger": "oğlan",
+    "kaynak": [
+     "vikipedi_pepee_liste"
+    ],
+    "lemmalar": [
+     "oğlan",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Yeni şeyler öğrenmeyi ve denemeyi sever.",
+     "anahtar_kok": "öğren",
+     "anahtar_ifade": "\\böğren\\w*",
+     "ornek_bicimler": [
+      "öğrendi",
+      "öğrenmeyi"
+     ],
+     "kaynak": [
+      "vikipedi_pepee_liste"
+     ]
+    },
+    {
+     "deger": "Kahvaltıyı çok sever; en çok yumurta, bal ve tahin pekmez yer.",
+     "anahtar_kok": "kahvaltı",
+     "anahtar_ifade": "\\bkahvaltı\\w*",
+     "ornek_bicimler": [
+      "kahvaltı",
+      "kahvaltıda"
+     ],
+     "kaynak": [
+      "vikipedi_pepee_liste"
+     ]
+    },
+    {
+     "deger": "Oyun oynamayı ve dans etmeyi sever.",
+     "anahtar_kok": "dans",
+     "anahtar_ifade": "\\bdans\\w*",
+     "ornek_bicimler": [
+      "dans",
+      "dansı"
+     ],
+     "kaynak": [
+      "vikipedi_pepee_liste",
+      "tvmaze_pepee"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Pepee yeni şeyleri bir büyüğün yanında dener; derin suya girmez, yüksek yere çıkmaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Ağaçlı, çiçekli bir orman.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Dizide ormanda geçen bölüm bulunamadı; karar kullanıcının."
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Deniz kıyısı; kum ve küçük dalgalar. Kimse derin suya girmez.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "tvmaze_pepee",
+      "urun_kurali"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Salıncaklı, kaydıraklı bir çocuk parkı.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Dizide parkta geçen bölüm bulunamadı; karar kullanıcının."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Pepee'nin ailesiyle yaşadığı ev.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_pepee_liste",
+      "tvmaze_pepee"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:bebee",
+     "kisa_ad": "Bebee",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Bebee",
+      "kardeş",
+      "kardeşi"
+     ],
+     "iliski": {
+      "deger": "Pepee'nin küçük kız kardeşi; annesine hayrandır, Pepee ile oynamak için büyümek ister.",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "tur": {
+      "deger": "kız",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:sila",
+     "kisa_ad": "Şila",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Şila",
+      "kuzen",
+      "kuzeni"
+     ],
+     "iliski": {
+      "deger": "Pepee'nin kuzeni ve en yakın arkadaşı; çok güzel dans eder.",
+      "kaynak": [
+       "vikipedi_pepee_liste",
+       "vikipedi_pepee"
+      ]
+     },
+     "tur": {
+      "deger": "kız",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:dedee",
+     "kisa_ad": "Dedee",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Dedee",
+      "dede",
+      "dedesi",
+      "dedeciğim"
+     ],
+     "iliski": {
+      "deger": "Pepee'nin dedesi; en az Pepee kadar hareketli bir oyun arkadaşı.",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "tur": {
+      "deger": "dede",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:nenee",
+     "kisa_ad": "Nenee",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Nenee",
+      "Ninee",
+      "nine",
+      "ninesi",
+      "nineciğim"
+     ],
+     "iliski": {
+      "deger": "Pepee'nin ninesi; komik ve eğlencelidir, yemek pişirmeyi sever.",
+      "kaynak": [
+       "vikipedi_pepee",
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "tur": {
+      "deger": "nine",
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:annee",
+     "kisa_ad": "Annee",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Annee",
+      "anne",
+      "annesi",
+      "anneciğim"
+     ],
+     "iliski": {
+      "deger": "Pepee'nin ve Bebee'nin annesi.",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Bebee Pepee'nin küçük kız kardeşidir; Şila kuzenidir, kardeşi değildir.",
+     "yasak_duzenli_ifadeler": [
+      "(?:kız\\s+)?kardeş(?:i|im)\\s*,?\\s+Şila\\b",
+      "\\bŞila\\s*,?\\s+(?:Pepee'nin\\s+)?(?:kız\\s+)?kardeş",
+      "[Aa]bla(?:sı|m)?\\s*,?\\s+Bebee\\b"
+     ],
+     "kaynak": [
+      "vikipedi_pepee_liste"
+     ]
+    },
+    {
+     "kural": "Dizinin görünmeyen anlatıcısı hikayeye girmez; hikaye olayları kendisi anlatır.",
+     "yasak_duzenli_ifadeler": [
+      "\\bŞuşu+\\b"
+     ],
+     "kaynak": [
+      "vikipedi_pepee",
+      "eski_veri_olcumu"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Şuşu",
+      "kaynak": [
+       "vikipedi_pepee",
+       "eski_veri_olcumu"
+      ]
+     },
+     {
+      "ad": "Şuşuu",
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     },
+     {
+      "ad": "Pisi",
+      "kaynak": [
+       "eski_veri_olcumu"
+      ]
+     },
+     {
+      "ad": "Zulu",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Köpüş",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Maymuş",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Kaliş",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Möcük",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Zezee",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Bibii",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Kekee",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Mimi",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Mimii",
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     },
+     {
+      "ad": "Duduu",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Tutuu",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Ekee",
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     },
+     {
+      "ad": "Babaa",
+      "kaynak": [
+       "vikipedi_pepee_liste"
+      ]
+     },
+     {
+      "ad": "Zuku",
+      "kaynak": [
+       "vikipedi_pepee"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Pepee'nin ve Bebee'nin konuşma zorluğu hikayeye konmaz; kimse konuşmasıyla alay etmez.",
+      "kaynak": [
+       "vikipedi_pepee_liste",
+       "urun_kurali"
+      ]
+     },
+     {
+      "deger": "Dedee'nin uçan balonu hikayeye girmez (yükseklik).",
+      "kaynak": [
+       "vikipedi_pepee_liste",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "tulum",
+    "kahvaltı",
+    "pekmez",
+    "tahin",
+    "dans"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Bebee (kız kardeşi)",
+     "kart": [
+      "yan:bebee"
+     ]
+    },
+    {
+     "urun": "Şila (kuzeni)",
+     "kart": [
+      "yan:sila"
+     ]
+    },
+    {
+     "urun": "Dedee",
+     "kart": [
+      "yan:dedee"
+     ]
+    },
+    {
+     "urun": "Nenee",
+     "kart": [
+      "yan:nenee"
+     ],
+     "not": "Vikipedi'de iki yazım var: 'Nenee' (Pepee) ve 'Ninee' (karakter listesi)."
+    },
+    {
+     "urun": "Annesi",
+     "kart": [
+      "yan:annee"
+     ],
+     "not": "Resmi adı 'Annee'."
+    }
+   ],
+   "acik_noktalar": [
+    "Orman ve park yerleri için kaynak bulunamadı; kalsın mı?",
+    "Nenee/Ninee yazımı: ikisi de yüzey biçimi; kısa ad 'Nenee' onaylansın mı?"
+   ]
+  },
+  {
+   "kimlik": "keloglan",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Keloğlan",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_keloglan"
+    ]
+   },
+   "okunus": {
+    "deger": "keloğlan",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Keloğlan Masalları",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_keloglan",
+     "trt_ebeveyn_keloglan"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Keloğlan, bir köyde annesiyle yaşayan azimli ve dürüst bir çocuktur.",
+    "kaynak": [
+     "vikipedi_keloglan",
+     "trt_ebeveyn_keloglan"
+    ]
+   },
+   "tur": {
+    "deger": "oğlan",
+    "kaynak": [
+     "vikipedi_keloglan"
+    ],
+    "lemmalar": [
+     "oğlan",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Dürüsttür ve azimlidir; işini bırakmaz.",
+     "anahtar_kok": "dürüst",
+     "anahtar_ifade": "\\bdürüst\\w*",
+     "ornek_bicimler": [
+      "dürüst",
+      "dürüstçe"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan",
+      "trt_ebeveyn_keloglan"
+     ]
+    },
+    {
+     "deger": "Yeni şeyler öğrenmeyi sever.",
+     "anahtar_kok": "öğren",
+     "anahtar_ifade": "\\böğren\\w*",
+     "ornek_bicimler": [
+      "öğrendi",
+      "öğrenmek"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "deger": "Biraz sakardır ama iyi kalplidir.",
+     "anahtar_kok": "sakar",
+     "anahtar_ifade": "\\bsakar\\w*",
+     "ornek_bicimler": [
+      "sakar",
+      "sakarlık"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Sakarlığı yalnız bir şeyi düşürmek ya da karıştırmak olarak gösterilir; kimse düşüp incinmez. Azmi tehlikeli bir işe girişmek olarak gösterilmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Köyün yakınındaki orman; büyük ağaçlar vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "blog_keloglan_kel_basim",
+      "blog_keloglan_ay_tasi"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Köyün yakınındaki tepe.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Dizide dağda geçen bölüm bulunamadı; karar kullanıcının."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Keloğlan'ın annesiyle yaşadığı köy evi.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "etiket": "şato",
+     "tarif": "Köyün uzağındaki büyük taş saray; bahçesi ve yüksek kapıları vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_keloglan",
+      "vikipedi_keloglan_bolumler"
+     ],
+     "not": "Dizide saray Kara Vezir'e (yasak) aittir; 'Padişah'ın Korkulu Rüyası' bölümünde padişah var ama kartta yok. Kullanıcı kararı: 'şato' yerine 'saray' tarifi, ya da yerin çıkarılması."
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:ana",
+     "kisa_ad": "anası",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "ana",
+      "anası",
+      "anne",
+      "annesi",
+      "anneciğim"
+     ],
+     "iliski": {
+      "deger": "Keloğlan'ın annesi; onu her zaman korur.",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_keloglan",
+       "blog_keloglan_testi"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:bilgecan_dede",
+     "kisa_ad": "Bilgecan Dede",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Bilgecan Dede",
+      "Bilgecan",
+      "dede"
+     ],
+     "iliski": {
+      "deger": "Köyün en bilge kişisi; çok kitap okur, icatlar yapar, çocuklara bilmediklerini öğretir.",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     "tur": {
+      "deger": "dede",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "blog_keloglan_bilgecan"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:balkiz",
+     "kisa_ad": "Balkız",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Balkız"
+     ],
+     "iliski": {
+      "deger": "Keloğlan'ın akıllı arkadaşı; sarı saçlıdır.",
+      "kaynak": [
+       "vikipedi_keloglan",
+       "sabah_keloglan"
+      ]
+     },
+     "tur": {
+      "deger": "kız",
+      "kaynak": [
+       "sabah_keloglan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "blog_keloglan_testi"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:karakacan",
+     "kisa_ad": "eşeği",
+     "tip": "rol",
+     "resmi_ad": "Karakaçan",
+     "yuzey_bicimleri": [
+      "Karakaçan",
+      "eşek",
+      "eşeği"
+     ],
+     "iliski": {
+      "deger": "Keloğlan'ın akıllı eşeği; yük taşır, Keloğlan ıslık çalınca gelir.",
+      "kaynak": [
+       "vikipedi_keloglan",
+       "blog_keloglan_ay_tasi"
+      ]
+     },
+     "tur": {
+      "deger": "eşek",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_keloglan",
+       "sabah_keloglan"
+      ],
+      "onay_bekliyor": true,
+      "not": "Kaynaklar kirpi Prenses için 'konuşan' der, Karakaçan için demez. kaynakta açık yazmıyor; ihtiyatlı varsayılan, kullanıcı onaylayacak"
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Bilgecan Dede iksir ve ilaç vermez; bilgisiyle ve icatlarıyla yardım eder.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[İi]ksir\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Karakaçan konuşmaz; yük taşır, başını sallar, anırır.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Karakaçan|[Ee]şek|[Ee]şeği)\\b\\b",
+      "(?:Karakaçan|[Ee]şek|[Ee]şeği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan",
+      "sabah_keloglan"
+     ]
+    },
+    {
+     "kural": "Keloğlan'ın babası hikayede yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "Keloğlan'ın\\s+baba"
+     ],
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "kural": "Balkız Keloğlan'ın arkadaşıdır; aşk, nişan ya da evlilik konusu yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Aa]şık\\w*",
+      "\\b[Ee]vlen\\w*",
+      "\\b[Nn]işanl\\w*"
+     ],
+     "kaynak": [
+      "sabah_keloglan",
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Kara Vezir",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     {
+      "ad": "Çirkin Cadı",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     {
+      "ad": "Kara",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Sivri",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Örgülü",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Huysuz",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Uzun",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Sinek",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "İnatçı",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Tomurcuk",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Prenses",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Kuyu Canavarı",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     {
+      "ad": "Kötülükler Kraliçesi",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     {
+      "ad": "Çizmeli Tilki",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ]
+     },
+     {
+      "ad": "Mucit",
+      "kaynak": [
+       "vikipedi_keloglan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Tilkican",
+      "kaynak": [
+       "vikipedi_keloglan_bolumler"
+      ]
+     },
+     {
+      "ad": "Nasreddin Hoca",
+      "kaynak": [
+       "vikipedi_keloglan_bolumler"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Cadı, vezir, asker, canavar ve büyü hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_keloglan",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "köy",
+    "eşek",
+    "ıslık",
+    "icat"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Anası",
+     "kart": [
+      "yan:ana"
+     ]
+    },
+    {
+     "urun": "Bilgecan Dede",
+     "kart": [
+      "yan:bilgecan_dede"
+     ]
+    },
+    {
+     "urun": "Balkız",
+     "kart": [
+      "yan:balkiz"
+     ]
+    },
+    {
+     "urun": "Karakaçan (eşeği)",
+     "kart": [
+      "yan:karakacan"
+     ],
+     "not": "Tasarım önerisiyle kısa ad 'eşeği' (Karakaçan 4 token); kullanıcı onaylayacak."
+    }
+   ],
+   "acik_noktalar": [
+    "Şato yeri: 'saray' tarifi mi, yer çıkarılsın mı?",
+    "Dağ yeri için kaynak bulunamadı.",
+    "Karakaçan konuşur mu? Kart ihtiyatla 'konuşmaz' diyor.",
+    "Karakaçan kısa adı 'eşeği' mi, 'Karakaçan' mı?"
+   ]
+  },
+  {
+   "kimlik": "doru",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Doru",
+    "kaynak": [
+     "urun_karari",
+     "anibera_doru"
+    ]
+   },
+   "okunus": {
+    "deger": "doru",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Yılkı Atı Doru",
+    "kaynak": [
+     "urun_karari",
+     "dizi1001_doru"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Doru, annesiyle birlikte özgür bir at sürüsünde yaşayan genç bir attır.",
+    "kaynak": [
+     "anibera_doru",
+     "dizi1001_doru"
+    ]
+   },
+   "tur": {
+    "deger": "at",
+    "kaynak": [
+     "anibera_doru"
+    ],
+    "lemmalar": [
+     "at"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Genç ama güçlü ve hızlıdır.",
+     "anahtar_kok": "hız",
+     "anahtar_ifade": "\\bhız(?:la|lı\\w*|lıca)?\\b",
+     "ornek_bicimler": [
+      "hızla",
+      "hızlı",
+      "hızlıca"
+     ],
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    {
+     "deger": "Cesurdur.",
+     "anahtar_kok": "cesur",
+     "anahtar_ifade": "\\bcesur\\w*|\\bcesaret\\w*",
+     "ornek_bicimler": [
+      "cesur",
+      "cesaretle"
+     ],
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    {
+     "deger": "Karşılaştığı her canlıya yardım eder.",
+     "anahtar_kok": "yardım",
+     "anahtar_ifade": "\\byardım\\w*",
+     "ornek_bicimler": [
+      "yardım",
+      "yardımına"
+     ],
+     "kaynak": [
+      "anibera_doru"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Doru'nun hızı açık ve düz yerde koşarken gösterilir; uçurumdan atlama, derin sudan geçme yoktur. Sürüyü yakalamak isteyen insanlar ve kovalamaca hikayeye girmez.",
+    "kaynak": [
+     "urun_kurali",
+     "anibera_doru"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "dağ",
+     "tarif": "Sürünün dolaştığı yüksek dağlar ve vadi.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "trt_doru"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Vadinin yakınındaki ağaçlık orman.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "trt_doru"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Sürünün otladığı geniş, çimenli açıklık.",
+     "dizide_karsiligi": "yok",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Dizide park yok. Tasarım önerisi: 'çayır' ya da 'yayla' tarifi, ya da yerin çıkarılması (karar kullanıcının; yer etiketi firmware ile aynı kalmalı)."
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:dorukisrak",
+     "kisa_ad": "annesi",
+     "tip": "rol",
+     "resmi_ad": "Dorukısrak",
+     "yuzey_bicimleri": [
+      "annesi",
+      "anne",
+      "anneciğim",
+      "Dorukısrak"
+     ],
+     "iliski": {
+      "deger": "Doru'nun sevecen ve anaç annesi.",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "tur": {
+      "deger": "at",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "dizi1001_doru"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:karatay",
+     "kisa_ad": "Karatay",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Karatay"
+     ],
+     "iliski": {
+      "deger": "Doru'nun en yakın arkadaşı; kapkara renkli, neşeli ve heyecanlıdır, bazen yanlış karar verir.",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "tur": {
+      "deger": "at",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "dizi1001_doru"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:alaca",
+     "kisa_ad": "Alaca",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Alaca"
+     ],
+     "iliski": {
+      "deger": "Sürünün en küçük üyesi; Doru ve Karatay'dan yeni şeyler öğrenir, onlar ona hep yardım eder.",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "tur": {
+      "deger": "at",
+      "kaynak": [
+       "anibera_doru"
+      ],
+      "not": "Kaynak 'sürünün en küçük üyesi' der; sürünün atlardan oluştuğu Gelincik tanımından çıkar. Alaca'nın annesi Alkız kartta yoktur."
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "dizi1001_doru"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kirat",
+     "kisa_ad": "Kırat",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Kırat"
+     ],
+     "iliski": {
+      "deger": "Sürünün en yaşlı üyesi; en çok o bilir, sürüdekiler ona danışır.",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "tur": {
+      "deger": "at",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "dizi1001_doru"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Sürüdeki atlar konuşur; insanlar (çiftlik sahipleri) hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "anibera_doru",
+      "dizi1001_doru"
+     ]
+    },
+    {
+     "kural": "Kırat sürünün en yaşlısıdır; Doru'nun babası ya da dedesi değildir.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Bb]abası|[Dd]edesi)\\s+Kırat\\b",
+      "\\bKırat\\s*,?\\s+(?:Doru'nun\\s+)?(?:babası|dedesi)"
+     ],
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    {
+     "kural": "Doru'nun annesi Dorukısrak'tır; Doru'nun babası kartta yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "Doru'nun\\s+baba"
+     ],
+     "kaynak": [
+      "anibera_doru"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Alkız",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     {
+      "ad": "Demirkır",
+      "kaynak": [
+       "anibera_doru"
+      ]
+     },
+     {
+      "ad": "Gelincik",
+      "kaynak": [
+       "anibera_doru"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Alfa Kurt",
+      "kaynak": [
+       "dizi1001_doru"
+      ]
+     },
+     {
+      "ad": "Moya",
+      "kaynak": [
+       "dizi1001_doru",
+       "trt_doru"
+      ]
+     },
+     {
+      "ad": "Muhtar",
+      "kaynak": [
+       "dizi1001_doru"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Yaman",
+      "kaynak": [
+       "dizi1001_doru"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Kaju",
+      "kaynak": [
+       "trt_doru"
+      ]
+     },
+     {
+      "ad": "Hulusi",
+      "kaynak": [
+       "trt_doru"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Kurt, tuzak ve çiftlik sahipleri hikayeye girmez.",
+      "kaynak": [
+       "dizi1001_doru",
+       "trt_doru",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "sürü",
+    "vadi",
+    "at",
+    "çimen"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Dorukısrak (annesi)",
+     "kart": [
+      "yan:dorukisrak"
+     ],
+     "not": "Tasarım önerisiyle kısa ad 'annesi' (Dorukısrak 5 token); kullanıcı onaylayacak."
+    },
+    {
+     "urun": "Karatay",
+     "kart": [
+      "yan:karatay"
+     ]
+    },
+    {
+     "urun": "Alaca",
+     "kart": [
+      "yan:alaca"
+     ],
+     "not": "Kaynak bulundu: anibera.com (yapımcı) 'Sürünün en küçük üyesidir'."
+    },
+    {
+     "urun": "Kırat (bilge at)",
+     "kart": [
+      "yan:kirat"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "Park yeri: 'çayır' ya da 'yayla' tarifi mi, yer çıkarılsın mı?",
+    "Dorukısrak kısa adı 'annesi' mi?",
+    "Gelincik (sürüdeki gelincik) ürün yan listesine eklensin mi? Şimdilik yasak adlarda."
+   ]
+  },
+  {
+   "kimlik": "hayri",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Hayri",
+    "kaynak": [
+     "urun_karari",
+     "rafadan_resmi",
+     "vikipedi_rafadan"
+    ]
+   },
+   "okunus": {
+    "deger": "hayri",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Rafadan Tayfa",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_rafadan"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Hayri, mahallede arkadaşlarıyla maceralar yaşayan, yemek yemeyi çok seven bir çocuktur.",
+    "kaynak": [
+     "vikipedi_rafadan",
+     "rafadan_resmi"
+    ]
+   },
+   "tur": {
+    "deger": "oğlan",
+    "kaynak": [
+     "vikipedi_rafadan"
+    ],
+    "lemmalar": [
+     "oğlan",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Yemek yemeyi çok sever; sık sık acıkır.",
+     "anahtar_kok": "acık",
+     "anahtar_ifade": "\\bacık\\w*",
+     "ornek_bicimler": [
+      "acıktı",
+      "acıkmıştı"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "deger": "Mahalledeki baklava dükkanında çalışır.",
+     "anahtar_kok": "baklava",
+     "anahtar_ifade": "\\bbaklava\\w*",
+     "ornek_bicimler": [
+      "baklava",
+      "baklavayı"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "deger": "Olayları abartmayı sever.",
+     "anahtar_kok": "abart",
+     "anahtar_ifade": "\\babart\\w*",
+     "ornek_bicimler": [
+      "abarttı",
+      "abartarak"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Hayri'nin yemek sevgisi paylaşmak, beklemek ya da yemek hazırlamak olarak gösterilir; çok yiyip midesi ağrımaz, kimse onun yemesiyle ya da kilosuyla alay etmez, tanımadığı birinden yiyecek almaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "deniz",
+     "tarif": "Mahallenin yakınındaki deniz kıyısı.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari",
+      "vikipedi_rafadan_bolumler"
+     ],
+     "not": "Dizi bir mahallede geçer; yalnız '100. Denizler Fatihi' bölüm adı bulundu, içeriği doğrulanmadı. 'Balık Ekmek' bölümü mahallede geçer. Karar kullanıcının."
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Şehrin dışındaki ağaçlık kamp yeri.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari",
+      "cizgifilm_rafadan_74"
+     ],
+     "not": "'Rafadan Kamp' bölümünde kamp alıştırması mahallenin ortasında yapılır (cizgifilm_rafadan_74); ormanda geçen bölüm bulunamadı. Karar kullanıcının."
+    },
+    {
+     "etiket": "park",
+     "tarif": "Mahallenin çocuk parkı.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Parkta geçen bölüm bulunamadı. Karar kullanıcının."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Mahalledeki evler, sokak ve bahçeler.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_rafadan",
+      "vikipedi_rafadan_bolumler",
+      "rafadan_resmi"
+     ],
+     "kosullu_tarifler": [
+      {
+       "yan": "yan:basri_amca",
+       "tarif": "Basri Amca'nın bahçesi; izinsiz girilmez.",
+       "kaynak": [
+        "vikipedi_rafadan",
+        "vikipedi_rafadan_bolumler"
+       ]
+      }
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:akin",
+     "kisa_ad": "Akın",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Akın"
+     ],
+     "iliski": {
+      "deger": "Mert'in küçük kardeşi ve arkadaş grubunun en küçüğü; çok zekidir, hayvanları çok sever.",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:mert",
+     "kisa_ad": "Mert",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Mert"
+     ],
+     "iliski": {
+      "deger": "Akın'ın ağabeyi; sakin, soğukkanlı ve düzenlidir, tartışmaları o bitirir.",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kamil",
+     "kisa_ad": "Kamil",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Kamil"
+     ],
+     "iliski": {
+      "deger": "Hayri'nin yakın arkadaşı; uykucudur, çok kitap okur, mahalle bakkalına bakar. Sık sık tartışsalar da birbirlerini çok severler.",
+      "kaynak": [
+       "vikipedi_rafadan",
+       "rafadan_resmi"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:basri_amca",
+     "kisa_ad": "Basri Amca",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Basri Amca",
+      "Basri",
+      "amca"
+     ],
+     "iliski": {
+      "deger": "Mahallenin yaşlı, çabuk kızan ama iyi kalpli sakini; bahçesine izinsiz girilmesini sevmez, çocukları sonradan sevmiştir.",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "tur": {
+      "deger": "amca",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:yumak",
+     "kisa_ad": "Yumak",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Yumak",
+      "köpek",
+      "köpeği"
+     ],
+     "iliski": {
+      "deger": "Basri Amca'nın köpeği; onu sahipsizken Akın bulmuş, Basri Amca'ya emanet etmiştir.",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "tur": {
+      "deger": "köpek",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_rafadan"
+      ],
+      "onay_bekliyor": true,
+      "not": "kaynakta açık yazmıyor; ihtiyatlı varsayılan, kullanıcı onaylayacak"
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Mert ile Akın kardeştir, ağabey Mert'tir; hiçbiri Hayri'nin kardeşi değildir.",
+     "yasak_duzenli_ifadeler": [
+      "Hayri'nin\\s+(?:küçük\\s+|büyük\\s+)?(?:ağabey|abi|kardeş)\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "kural": "Yumak Basri Amca'nın köpeğidir; Hayri'nin köpeği yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "Hayri'nin\\s+(?:[\\w']+\\s+)?köpe[kğ]\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "kural": "Yumak konuşmaz; havlar, koklar, kuyruğunu sallar.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Yumak|[Kk]öpek|[Kk]öpeği)\\b\\b",
+      "(?:Yumak|[Kk]öpek|[Kk]öpeği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Hale",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Sevim",
+      "kaynak": [
+       "vikipedi_rafadan",
+       "rafadan_resmi"
+      ]
+     },
+     {
+      "ad": "Rüstem",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Fatma Nine",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Sadettin",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Saadettin",
+      "kaynak": [
+       "rafadan_resmi"
+      ]
+     },
+     {
+      "ad": "Kuşçu Baba",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Ozan",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Nuri",
+      "kaynak": [
+       "vikipedi_rafadan"
+      ]
+     },
+     {
+      "ad": "Tamtam",
+      "kaynak": [
+       "vikipedi_rafadan_bolumler"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Hayri'nin kız kardeşi kartta yoktur; ailesi hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_rafadan",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "mahalle",
+    "baklava",
+    "bakkal",
+    "abart"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Akın",
+     "kart": [
+      "yan:akin"
+     ]
+    },
+    {
+     "urun": "Mert",
+     "kart": [
+      "yan:mert"
+     ]
+    },
+    {
+     "urun": "Kâmil",
+     "kart": [
+      "yan:kamil"
+     ],
+     "not": "Resmi yazım şapkasız 'Kamil' (rafadantayfa.com, Vikipedi)."
+    },
+    {
+     "urun": "Basri Amca ve köpeği Yumak",
+     "kart": [
+      "yan:basri_amca",
+      "yan:yumak"
+     ],
+     "not": "İki ayrı yan kimliğe bölündü (K4 yan sayımı için)."
+    }
+   ],
+   "acik_noktalar": [
+    "Dizi yalnız mahallede geçiyor: deniz, orman ve park için kaynak yok. Yerler kalsın mı?",
+    "Yumak konuşur mu? Kart ihtiyatla 'konuşmaz' diyor.",
+    "Hale (Hayri'nin kız kardeşi) yan olarak eklensin mi? Şimdilik yasak adlarda."
+   ]
+  },
+  {
+   "kimlik": "sakir",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Şakir",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_sakir"
+    ]
+   },
+   "okunus": {
+    "deger": "şakir",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Kral Şakir",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_sakir"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Şakir, ailesiyle bir apartmanda yaşayan, okula giden yavru bir aslandır.",
+    "kaynak": [
+     "vikipedi_sakir"
+    ]
+   },
+   "tur": {
+    "deger": "aslan",
+    "kaynak": [
+     "vikipedi_sakir"
+    ],
+    "lemmalar": [
+     "aslan"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Hep şapka takar; şapkası yerden yere değişir.",
+     "anahtar_kok": "şapka",
+     "anahtar_ifade": "\\bşapka\\w*",
+     "ornek_bicimler": [
+      "şapka",
+      "şapkasını"
+     ],
+     "kaynak": [
+      "vikipedi_sakir"
+     ]
+    },
+    {
+     "deger": "Macerayı çok sever.",
+     "anahtar_kok": "macera",
+     "anahtar_ifade": "\\bmacera\\w*",
+     "ornek_bicimler": [
+      "macera",
+      "macerayı"
+     ],
+     "kaynak": [
+      "vikipedi_sakir"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Şakir'in macerası güvenli bir oyun olarak kalır; yüksekten atlamaz, ateşle oynamaz, tek başına uzağa gitmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "deniz",
+     "tarif": "Deniz kıyısı ve kumsal.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_sakir_bolumler"
+     ],
+     "not": "Yalnız bölüm adları: 'Temiz Deniz', 'Issız Ada', 'Karadeniz Macerası', 'Kayıp Deniz'."
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Şehrin dışındaki dağda, ağaçlar arasında kamp yeri.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "cizgifilm_sakir_11"
+     ],
+     "not": "'Babalar Yarışıyor' bölümünde dağda baba oğul kampı var; 'orman' adıyla geçen yer bulunamadı."
+    },
+    {
+     "etiket": "park",
+     "tarif": "Şehirdeki park.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari"
+     ],
+     "not": "Yalnız 'Lunapark' bölümü bulundu (lunapark başka bir yer). Karar kullanıcının."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Şakir'in ailesiyle yaşadığı apartman dairesi.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_sakir"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:remzi",
+     "kisa_ad": "Remzi",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Remzi",
+      "baba",
+      "babası",
+      "babacığım"
+     ],
+     "iliski": {
+      "deger": "Şakir'in ve Canan'ın babası; kırmızı kazak giyer, bankada çalışır, çocuk gibi eğlenir.",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "tur": {
+      "deger": "aslan",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kadriye",
+     "kisa_ad": "Kadriye",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Kadriye",
+      "anne",
+      "annesi",
+      "anneciğim"
+     ],
+     "iliski": {
+      "deger": "Şakir'in ve Canan'ın annesi.",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:canan",
+     "kisa_ad": "Canan",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Canan",
+      "kardeş",
+      "kardeşi"
+     ],
+     "iliski": {
+      "deger": "Şakir'in kız kardeşi; çok akıllıdır, kitap okumayı sever.",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:necati",
+     "kisa_ad": "Necati",
+     "tip": "adli",
+     "resmi_ad": "Fil Necati",
+     "yuzey_bicimleri": [
+      "Necati",
+      "Fil Necati",
+      "fil"
+     ],
+     "iliski": {
+      "deger": "Remzi'nin en iyi arkadaşı; sık sık Şakir'lerin evine gelir, yemek yer ve oyun oynar.",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "tur": {
+      "deger": "fil",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Remzi ve Şakir aslandır; Kadriye ve Canan beyaz kedidir; Necati mor bir fildir.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:Kadriye|Canan)\\s+(?:da\\s+|de\\s+)?(?:bir\\s+)?aslan(?:dı|dır)?\\b",
+      "\\bRemzi\\s+(?:de\\s+)?(?:bir\\s+)?kedi(?:ydi|dir)?\\b"
+     ],
+     "kaynak": [
+      "vikipedi_sakir"
+     ]
+    },
+    {
+     "kural": "Necati Şakir'in akrabası değil, babasının arkadaşıdır; Şakir'in dedesi ve başka akrabası kartta yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "Şakir'in\\s+(?:amcası|dayısı|dedesi|abisi|ağabeyi)"
+     ],
+     "kaynak": [
+      "vikipedi_sakir"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Peyami",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Filsu",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Tanju",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Mirket",
+      "kaynak": [
+       "vikipedi_sakir"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Kürşat",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Ercan",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Necmi",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Cüneyt",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Polat",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Kumpir",
+      "kaynak": [
+       "vikipedi_sakir"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Cemşit",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Arif",
+      "kaynak": [
+       "vikipedi_sakir"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Vedat",
+      "kaynak": [
+       "vikipedi_sakir"
+      ]
+     },
+     {
+      "ad": "Refik",
+      "kaynak": [
+       "cizgifilm_sakir_11"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Video oyunu ve ekran başında oyun hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_sakir",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "şapka",
+    "aslan",
+    "apartman",
+    "macera",
+    "fil"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Remzi (babası)",
+     "kart": [
+      "yan:remzi"
+     ]
+    },
+    {
+     "urun": "Kadriye (annesi)",
+     "kart": [
+      "yan:kadriye"
+     ]
+    },
+    {
+     "urun": "Canan (kız kardeşi)",
+     "kart": [
+      "yan:canan"
+     ]
+    },
+    {
+     "urun": "Fil Necati",
+     "kart": [
+      "yan:necati"
+     ],
+     "not": "Kısa ad 'Necati'; 'Fil Necati' yüzey biçimi."
+    }
+   ],
+   "acik_noktalar": [
+    "Park yeri için kaynak yok; orman ve deniz yalnız bölüm adlarıyla destekli."
+   ]
+  },
+  {
+   "kimlik": "elsa",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Elsa",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_frozen_tr"
+    ]
+   },
+   "okunus": {
+    "deger": "elsa",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Karlar Ülkesi",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_frozen_tr"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Elsa, buzu ve karı yönetebilen, bir krallığın genç kraliçesidir.",
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   },
+   "tur": {
+    "deger": "kraliçe",
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ],
+    "lemmalar": [
+     "kraliçe",
+     "prenses"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir.",
+     "anahtar_kok": "buz",
+     "anahtar_ifade": "\\bbuz\\w*",
+     "ornek_bicimler": [
+      "buzdan",
+      "buzu"
+     ],
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "deger": "Kraliçedir; kız kardeşini ve halkını korur.",
+     "anahtar_kok": "kraliçe",
+     "anahtar_ifade": "\\bkraliçe\\w*",
+     "ornek_bicimler": [
+      "kraliçe"
+     ],
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Buz ve kar gücü yalnız zararsız, güzel şeyler için kullanılır: kar yağdırır, buzdan şekil yapar. Hiçbir canlı donmaz, üşümez ya da incinmez; kimse buz tutmuş göl ya da deniz üstünde yürümez.",
+    "kaynak": [
+     "urun_kurali",
+     "vikipedi_frozen_tr"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "dağ",
+     "tarif": "Karlı yüksek dağ; tepede Elsa'nın buzdan yaptığı saray vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Karlı ağaçlarla dolu orman.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_frozen2_en"
+     ],
+     "not": "İkinci filmde büyülü bir orman var; kartta yalnız ağaçlı orman olarak kullanılır."
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Krallığın önündeki fiyort kıyısı ve limanı; kimse suya girmez.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_frozen_en",
+      "urun_kurali"
+     ]
+    },
+    {
+     "etiket": "şato",
+     "tarif": "Elsa'nın kraliçesi olduğu krallığın sarayı; büyük salonlar ve avlu.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:anna",
+     "kisa_ad": "Anna",
+     "tip": "adli",
+     "okunus": "anna",
+     "yuzey_bicimleri": [
+      "Anna",
+      "kardeş",
+      "kardeşi"
+     ],
+     "iliski": {
+      "deger": "Elsa'nın cesur küçük kız kardeşi.",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     "tur": {
+      "deger": "prenses",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:olaf",
+     "kisa_ad": "Olaf",
+     "tip": "adli",
+     "okunus": "olaf",
+     "yuzey_bicimleri": [
+      "Olaf",
+      "kardan adam"
+     ],
+     "iliski": {
+      "deger": "Elsa'nın büyüsüyle canlanan neşeli kardan adam; sıcak sarılmaları ve yazı sever.",
+      "kaynak": [
+       "vikipedi_frozen_en",
+       "vikipedi_olaf_en"
+      ]
+     },
+     "tur": {
+      "deger": "kardan adam",
+      "kaynak": [
+       "vikipedi_frozen_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_olaf_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kristoff",
+     "kisa_ad": "Kristoff",
+     "tip": "adli",
+     "okunus": "kristof",
+     "yuzey_bicimleri": [
+      "Kristoff"
+     ],
+     "iliski": {
+      "deger": "Buz toplayıp satan cesur dağ adamı; ren geyiği Sven'in arkadaşı.",
+      "kaynak": [
+       "vikipedi_frozen_tr",
+       "vikipedi_frozen_en"
+      ]
+     },
+     "tur": {
+      "deger": "adam",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:sven",
+     "kisa_ad": "Sven",
+     "tip": "adli",
+     "okunus": "sven",
+     "yuzey_bicimleri": [
+      "Sven",
+      "ren geyiği",
+      "geyik"
+     ],
+     "iliski": {
+      "deger": "Kristoff'un ren geyiği; kızağı çeker.",
+      "kaynak": [
+       "vikipedi_sven_en"
+      ]
+     },
+     "tur": {
+      "deger": "ren geyiği",
+      "kaynak": [
+       "vikipedi_sven_en"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_sven_en"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Sven konuşmaz; sesle ve hareketle anlatır.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Sven|[Gg]eyik|[Gg]eyiği)\\b\\b",
+      "(?:Sven|[Gg]eyik|[Gg]eyiği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_sven_en"
+     ]
+    },
+    {
+     "kural": "Anna Elsa'nın küçük kız kardeşidir; Elsa ablasıdır.",
+     "yasak_duzenli_ifadeler": [
+      "Elsa'nın\\s+abla",
+      "Anna'nın\\s+küçük\\s+(?:kız\\s+)?kardeş"
+     ],
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "kural": "Olaf Elsa'nın büyüsüyle yapılmış kardan adamdır; hikayede erimez ya da parçalanmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\bOlaf\\w*\\s+(?:[\\w']+\\s+){0,2}eri(?:di|meye|yordu|mişti|yecek)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_olaf_en",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Elsa'nın gücü kimseyi dondurmaz ve incitmez.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "vikipedi_frozen_tr",
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Hans",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     {
+      "ad": "Weselton",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     {
+      "ad": "Pabbie",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     {
+      "ad": "Oaken",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     {
+      "ad": "Marshmallow",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     },
+     {
+      "ad": "Bruni",
+      "kaynak": [
+       "vikipedi_frozen2_en"
+      ]
+     },
+     {
+      "ad": "Arendelle",
+      "kaynak": [
+       "vikipedi_frozen_tr"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Anne babanın gemi yolculuğu, fırtına, troller, kurtlar ve kar canavarı hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_frozen_tr",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "buz",
+    "kar",
+    "kraliçe",
+    "saray",
+    "kızak",
+    "fiyort",
+    "geyik"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Anna",
+     "kart": [
+      "yan:anna"
+     ]
+    },
+    {
+     "urun": "Olaf",
+     "kart": [
+      "yan:olaf"
+     ]
+    },
+    {
+     "urun": "Kristoff",
+     "kart": [
+      "yan:kristoff"
+     ]
+    },
+    {
+     "urun": "Sven (konuşmaz)",
+     "kart": [
+      "yan:sven"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "Orman yeri ikinci filmdeki büyülü ormandan geliyor; yalnız 'karlı ağaçlı orman' olarak kullanılır."
+   ]
+  },
+  {
+   "kimlik": "chase",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Chase",
+    "kaynak": [
+     "urun_karari",
+     "pawpatrol_chase"
+    ]
+   },
+   "okunus": {
+    "deger": "çeys",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Paw Patrol",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_paw_tr"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Chase, bir kurtarma ekibinin polis köpeği olan bir çoban köpeği yavrusudur.",
+    "kaynak": [
+     "pawpatrol_chase",
+     "vikipedi_paw_en"
+    ]
+   },
+   "tur": {
+    "deger": "köpek",
+    "kaynak": [
+     "pawpatrol_chase"
+    ],
+    "lemmalar": [
+     "köpek",
+     "yavru"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Burnuyla koku alarak çözüm bulur.",
+     "anahtar_kok": "koku",
+     "anahtar_ifade": "\\bkok(?:u|la)\\w*",
+     "ornek_bicimler": [
+      "koku",
+      "kokladı",
+      "kokusunu"
+     ],
+     "kaynak": [
+      "pawpatrol_chase"
+     ]
+    },
+    {
+     "deger": "Ekibin polis köpeğidir; kurallara uyar.",
+     "anahtar_kok": "kural",
+     "anahtar_ifade": "\\bkural\\w*",
+     "ornek_bicimler": [
+      "kural",
+      "kurallara"
+     ],
+     "kaynak": [
+      "pawpatrol_chase"
+     ]
+    },
+    {
+     "deger": "Mavi bir şapka takar.",
+     "anahtar_kok": "şapka",
+     "anahtar_ifade": "\\bşapka\\w*",
+     "ornek_bicimler": [
+      "şapka",
+      "şapkası"
+     ],
+     "kaynak": [
+      "pawpatrol_chase"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Chase kaybolanı bulur ve küçük sorunları çözer; kimseyi kovalamaz, yakalamaz ya da cezalandırmaz. Kimse yabancıyla bir yere gitmez. 'Tehlike' yerine 'bir sorun var' denir. Kediler ve tüyler yüzünden hapşırması hikayeye konmaz.",
+    "kaynak": [
+     "urun_kurali",
+     "pawpatrol_chase"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "dağ",
+     "tarif": "Kasabanın yakınındaki karlı dağ.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_paw_en",
+      "vikipedi_paw_bolumler_en"
+     ]
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Kasabanın kıyısı; kumsal ve iskele.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_paw_en",
+      "vikipedi_paw_bolumler_en"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Kasabanın yakınındaki ağaçlık kamp yeri.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_paw_bolumler_en"
+     ],
+     "not": "Yalnız bölüm adları: 'Pups Save the Camping Trip', 'Pups Save the Treetop Trekkers'."
+    },
+    {
+     "etiket": "park",
+     "tarif": "Kasabadaki çocuk oyun parkı.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Ekibin gözetleme kulesi ve köpeklerin kulübeleri.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_paw_en",
+      "pawpatrol_ryder"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:ryder",
+     "kisa_ad": "Ryder",
+     "tip": "adli",
+     "okunus": "raydır",
+     "yuzey_bicimleri": [
+      "Ryder"
+     ],
+     "iliski": {
+      "deger": "On yaşında bir çocuk; ekibin lideri. Köpekleri sahiplenip eğitmiştir, işe uygun köpeği o seçer.",
+      "kaynak": [
+       "pawpatrol_ryder"
+      ]
+     },
+     "tur": {
+      "deger": "oğlan",
+      "kaynak": [
+       "pawpatrol_ryder"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:marshall",
+     "kisa_ad": "Marshall",
+     "tip": "adli",
+     "okunus": "marşıl",
+     "yuzey_bicimleri": [
+      "Marshall"
+     ],
+     "iliski": {
+      "deger": "Ekibin itfaiyeci köpeği; altı yaşında bir dalmaçyalı. Biraz sakardır ama cesur ve yardımseverdir.",
+      "kaynak": [
+       "pawpatrol_marshall"
+      ]
+     },
+     "tur": {
+      "deger": "köpek",
+      "kaynak": [
+       "pawpatrol_marshall"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:skye",
+     "kisa_ad": "Skye",
+     "tip": "adli",
+     "okunus": "skay",
+     "yuzey_bicimleri": [
+      "Skye"
+     ],
+     "iliski": {
+      "deger": "Helikopter kullanan pilot köpek; ekibin en küçüğü, küçük hayvanları çok sever.",
+      "kaynak": [
+       "pawpatrol_skye"
+      ]
+     },
+     "tur": {
+      "deger": "köpek",
+      "kaynak": [
+       "pawpatrol_skye"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:rubble",
+     "kisa_ad": "Rubble",
+     "tip": "adli",
+     "okunus": "rabıl",
+     "yuzey_bicimleri": [
+      "Rubble"
+     ],
+     "iliski": {
+      "deger": "İnşaat köpeği bir buldok; güçlü, şakacıdır ve yemek yemeyi sever.",
+      "kaynak": [
+       "pawpatrol_rubble"
+      ]
+     },
+     "tur": {
+      "deger": "köpek",
+      "kaynak": [
+       "pawpatrol_rubble"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Chase slogan söylemez; kimse kendi adıyla konuşmaz.",
+     "yasak_duzenli_ifadeler": [
+      "[Gg]örevde\\s*!",
+      "\\bChase\\s+[Gg]örevde"
+     ],
+     "kaynak": [
+      "eski_veri_olcumu",
+      "pawpatrol_chase"
+     ]
+    },
+    {
+     "kural": "Ryder bir çocuktur, köpek değildir.",
+     "yasak_duzenli_ifadeler": [
+      "\\bRyder\\s+(?:adlı|adında)\\s+(?:bir\\s+)?köpe[kğ]",
+      "\\bRyder\\s+bir\\s+köpe[kğ]",
+      "\\bköpek\\s+Ryder\\b"
+     ],
+     "kaynak": [
+      "pawpatrol_ryder"
+     ]
+    },
+    {
+     "kural": "Görevler karışmaz: Chase polis, Marshall itfaiyeci, Skye pilot, Rubble inşaat köpeğidir.",
+     "yasak_duzenli_ifadeler": [
+      "(?:[İi]tfaiyeci|[Pp]ilot)\\s+Chase\\b",
+      "\\bChase\\s*,?\\s+(?:ekibin\\s+)?(?:itfaiyeci|pilot)",
+      "(?:[Pp]olis|[Pp]ilot)\\s+(?:köpeği\\s+)?Marshall\\b",
+      "(?:[Pp]olis|[İi]tfaiyeci)\\s+(?:köpeği\\s+)?Skye\\b"
+     ],
+     "kaynak": [
+      "pawpatrol_chase",
+      "pawpatrol_marshall",
+      "pawpatrol_skye",
+      "pawpatrol_rubble"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Rocky",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Zuma",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Everest",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Tracker",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Goodway",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Chickaletta",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Turbot",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Humdinger",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Robo-Dog",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Jake",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Liberty",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     },
+     {
+      "ad": "Rex",
+      "kaynak": [
+       "vikipedi_paw_en"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Araçların kovalamacası, sirenle hız ve kötü karakterler hikayeye girmez.",
+      "kaynak": [
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "polis",
+    "koku",
+    "şapka",
+    "itfaiye",
+    "helikopter",
+    "kule",
+    "kulübe"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Ryder",
+     "kart": [
+      "yan:ryder"
+     ]
+    },
+    {
+     "urun": "Marshall",
+     "kart": [
+      "yan:marshall"
+     ]
+    },
+    {
+     "urun": "Skye",
+     "kart": [
+      "yan:skye"
+     ]
+    },
+    {
+     "urun": "Rubble",
+     "kart": [
+      "yan:rubble"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "Yabancı adların okunuşu (Ryder->raydır, Marshall->marşıl, Skye->skay, Rubble->rabıl) onaylansın."
+   ]
+  },
+  {
+   "kimlik": "orumcek_adam",
+   "grup": "populer",
+   "onayli": false,
+   "ad": {
+    "deger": "Örümcek Adam",
+    "kaynak": [
+     "urun_karari"
+    ]
+   },
+   "okunus": {
+    "deger": "örümcek adam",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Spidey ve İnanılmaz Arkadaşları",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_spidey_en"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Örümcek Adam, arkadaşlarıyla birlikte şehre yardım eden, ağ atabilen genç bir süper kahramandır.",
+    "kaynak": [
+     "vikipedi_spidey_en"
+    ]
+   },
+   "tur": {
+    "deger": "kahraman",
+    "kaynak": [
+     "vikipedi_spidey_en"
+    ],
+    "lemmalar": [
+     "kahraman",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Bileğinden ağ atar.",
+     "anahtar_kok": "ağ",
+     "anahtar_ifade": "\\bağ(?:ı|ını|ına|ından|la|lar\\w*|dan|a|ıyla)?\\b",
+     "ornek_bicimler": [
+      "ağ",
+      "ağını",
+      "ağla"
+     ],
+     "kaynak": [
+      "vikipedi_spidey_en",
+      "vikipedi_spiderman_en"
+     ]
+    },
+    {
+     "deger": "Duvarlara tırmanabilir.",
+     "anahtar_kok": "tırman",
+     "anahtar_ifade": "\\btırman\\w*",
+     "ornek_bicimler": [
+      "tırmandı",
+      "tırmanarak"
+     ],
+     "kaynak": [
+      "vikipedi_spiderman_en"
+     ]
+    },
+    {
+     "deger": "Örümcek hissi bir sorun olduğunu ona haber verir.",
+     "anahtar_kok": "örümcek hissi",
+     "anahtar_ifade": "\\börümcek\\s+hiss\\w*",
+     "ornek_bicimler": [
+      "örümcek hissi"
+     ],
+     "kaynak": [
+      "vikipedi_spidey_bolumler_en",
+      "vikipedi_spiderman_en"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Ağ ve tırmanma yalnız süper güç olarak kullanılır; çocuğun taklit edebileceği ev içi tırmanma (dolap, masa, pencere, perde) yoktur; 'tehlike' yerine 'bir sorun olduğunu haber verir' yazılır. Kavga ve vurma yoktur.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "deniz",
+     "tarif": "Şehrin kumsalı ve limanı.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_spidey_bolumler_en"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Şehrin büyük parkı; oyun alanı, ağaçlar ve çiçek bahçesi vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_spidey_bolumler_en"
+     ]
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Takımın gizli üssü.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:ghost_spider",
+     "kisa_ad": "Ghost-Spider",
+     "tip": "adli",
+     "okunus": "goust spaydır",
+     "yuzey_bicimleri": [
+      "Ghost-Spider"
+     ],
+     "iliski": {
+      "deger": "Örümcek Adam'ın ve Spin'in arkadaşı; iyi davul çalar, kostümüyle havada süzülebilir.",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     "tur": {
+      "deger": "kahraman",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:spin",
+     "kisa_ad": "Spin",
+     "tip": "adli",
+     "okunus": "spin",
+     "yuzey_bicimleri": [
+      "Spin"
+     ],
+     "iliski": {
+      "deger": "Örümcek Adam'ın en iyi arkadaşı; görünmez olabilir, çok güzel resim yapar.",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     "tur": {
+      "deger": "kahraman",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:hulk",
+     "kisa_ad": "Hulk",
+     "tip": "adli",
+     "okunus": "halk",
+     "yuzey_bicimleri": [
+      "Hulk"
+     ],
+     "iliski": {
+      "deger": "Takıma bazen yardım eden kocaman, yeşil ve çok güçlü bir süper kahraman.",
+      "kaynak": [
+       "vikipedi_spidey_en",
+       "vikipedi_hulk_en",
+       "vikipedi_spidey_bolumler_en"
+      ]
+     },
+     "tur": {
+      "deger": "kahraman",
+      "kaynak": [
+       "vikipedi_hulk_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "'Tehlike' kelimesi kullanılmaz; örümcek hissi bir sorun olduğunu haber verir.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Tt]ehlike\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Ev içinde eşyalara tırmanılmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Dd]olab|[Dd]olap|[Mm]asa|[Kk]itaplı|[Pp]encere|[Pp]erde|[Kk]oltu[kğ]|[Ss]andalye|[Rr]af)\\w*\\s+(?:[\\w']+\\s+){0,2}tırman\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Kavga, yumruk ve dövüş yoktur; sorun yardımla ve ağla çözülür.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Yy]umru[kğ]\\w*",
+      "\\b[Dd]övüş\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Spidey",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Peter",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Miles",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Gwen",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Ghosty",
+      "kaynak": [
+       "vikipedi_spidey_bolumler_en"
+      ]
+     },
+     {
+      "ad": "May",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Rhino",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Doc Ock",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Goblin",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Electro",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Black Cat",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Sandman",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Black Panther",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Iron Man",
+      "kaynak": [
+       "vikipedi_spidey_en"
+      ]
+     },
+     {
+      "ad": "Lizard",
+      "kaynak": [
+       "vikipedi_spidey_bolumler_en"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Kötü karakterler, robotlar ve dev bilgisayar hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_spidey_en",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "ağ",
+    "kahraman",
+    "tırman",
+    "örümcek",
+    "üs"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Ghost-Spider",
+     "kart": [
+      "yan:ghost_spider"
+     ],
+     "not": "Dizide gerçek adı Gwen; kısa ad önerisi kullanıcıya sorulacak."
+    },
+    {
+     "urun": "Spin",
+     "kart": [
+      "yan:spin"
+     ]
+    },
+    {
+     "urun": "Hulk",
+     "kart": [
+      "yan:hulk"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "Ghost-Spider kısa adı: 'Ghost-Spider' mı, 'Gwen' mi? Okunuş 'goust spaydır' onaylansın."
+   ]
+  },
+  {
+   "kimlik": "tosbi",
+   "grup": "temel",
+   "onayli": false,
+   "ad": {
+    "deger": "Tosbi",
+    "kaynak": [
+     "urun_karari",
+     "urun_tanimi"
+    ]
+   },
+   "okunus": {
+    "deger": "tosbi",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Tosbi, yavaş ama sabırlı ve bilge bir kaplumbağadır.",
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   "tur": {
+    "deger": "kaplumbağa",
+    "kaynak": [
+     "urun_tanimi"
+    ],
+    "lemmalar": [
+     "kaplumbağa"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Sabırlıdır.",
+     "anahtar_kok": "sabır",
+     "anahtar_ifade": "\\bsab[ıi]r\\w*",
+     "ornek_bicimler": [
+      "sabırla",
+      "sabırlı"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Bilgedir.",
+     "anahtar_kok": "bilge",
+     "anahtar_ifade": "\\bbilge\\w*",
+     "ornek_bicimler": [
+      "bilge"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Kabuğuna saklanabilir.",
+     "anahtar_kok": "kabuk",
+     "anahtar_ifade": "\\bkabu[kğ]\\w*",
+     "ornek_bicimler": [
+      "kabuğuna",
+      "kabuk"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Kabuğuna saklanması korkudan değil, dinlenmek ya da yağmurdan korunmak için gösterilir; Tosbi derin suya girmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:baykus",
+     "kisa_ad": "baykuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "baykuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "baykuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:balik",
+     "kisa_ad": "balık",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "balık"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "balık",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Tosbi yavaştır; koşmaz, hızla gitmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\bTosbi\\s+(?:[\\w']+\\s+){0,2}(?:koştu|koşarak|hızla|hızlıca|fırladı)\\b"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "kabuk",
+    "kaplumbağa"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "baykuş",
+     "kart": [
+      "yan:baykus"
+     ]
+    },
+    {
+     "urun": "kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    },
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "balık",
+     "kart": [
+      "yan:balik"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   ]
+  },
+  {
+   "kimlik": "tekir",
+   "grup": "temel",
+   "onayli": false,
+   "ad": {
+    "deger": "Tekir",
+    "kaynak": [
+     "urun_karari",
+     "urun_tanimi"
+    ]
+   },
+   "okunus": {
+    "deger": "tekir",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Tekir, çizgili ve çok meraklı bir kedidir.",
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   "tur": {
+    "deger": "kedi",
+    "kaynak": [
+     "urun_tanimi"
+    ],
+    "lemmalar": [
+     "kedi"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Tüyleri çizgilidir.",
+     "anahtar_kok": "çizgi",
+     "anahtar_ifade": "\\bçizgi\\w*",
+     "ornek_bicimler": [
+      "çizgili"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Çok meraklıdır; her şeye yakından bakar.",
+     "anahtar_kok": "merak",
+     "anahtar_ifade": "\\bmerak\\w*",
+     "ornek_bicimler": [
+      "merakla",
+      "meraklı"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Sevinince mırlar.",
+     "anahtar_kok": "mırla",
+     "anahtar_ifade": "\\bmırla\\w*|\\bmırıl\\w*",
+     "ornek_bicimler": [
+      "mırladı",
+      "mırlayarak"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Merakı yüzünden yükseğe tırmanmaz, suya girmez, dar yerlere sıkışmaz; merakını bakarak ve sorarak gösterir.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "deniz",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çiçeklerle dolu, ağaçlı bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:fare",
+     "kisa_ad": "fare",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "fare"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "fare",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:balik",
+     "kisa_ad": "balık",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "balık"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "balık",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Tekir hiçbir hayvanı kovalamaz, yakalamaz ya da yemez; fare, kuş ve balık onun arkadaşıdır.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Ff]are|[Kk]uş|[Bb]alı[kğ]|[Ss]incab|[Ss]incap)\\w*\\s+(?:[\\w']+\\s+){0,2}(?:kovaladı|yakaladı|yedi)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "mırla",
+    "çizgili"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "fare",
+     "kart": [
+      "yan:fare"
+     ]
+    },
+    {
+     "urun": "balık",
+     "kart": [
+      "yan:balik"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   ]
+  },
+  {
+   "kimlik": "pamuk",
+   "grup": "temel",
+   "onayli": false,
+   "ad": {
+    "deger": "Pamuk",
+    "kaynak": [
+     "urun_karari",
+     "urun_tanimi"
+    ]
+   },
+   "okunus": {
+    "deger": "pamuk",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Pamuk, bembeyaz, uzun kulaklı ve biraz utangaç bir tavşandır.",
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   "tur": {
+    "deger": "tavşan",
+    "kaynak": [
+     "urun_tanimi"
+    ],
+    "lemmalar": [
+     "tavşan"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Uzun kulakları vardır.",
+     "anahtar_kok": "kulak",
+     "anahtar_ifade": "\\bkula[kğ]\\w*",
+     "ornek_bicimler": [
+      "kulakları",
+      "kulağını"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Zıplamayı çok sever.",
+     "anahtar_kok": "zıpla",
+     "anahtar_ifade": "\\bzıpla\\w*|\\bzıplı\\w*",
+     "ornek_bicimler": [
+      "zıpladı",
+      "zıplayarak"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Havucu çok sever.",
+     "anahtar_kok": "havuç",
+     "anahtar_ifade": "\\bhavu[çc]\\w*",
+     "ornek_bicimler": [
+      "havuç",
+      "havucu"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Yüksek yerden zıplamaz; utangaçlığı kimsenin alay konusu olmaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "deniz",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:baykus",
+     "kisa_ad": "baykuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "baykuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "baykuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:keci",
+     "kisa_ad": "keçi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "keçi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "keçi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "havuç",
+    "zıpla"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    },
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "baykuş",
+     "kart": [
+      "yan:baykus"
+     ]
+    },
+    {
+     "urun": "keçi",
+     "kart": [
+      "yan:keci"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   ]
+  },
+  {
+   "kimlik": "karabas",
+   "grup": "temel",
+   "onayli": false,
+   "ad": {
+    "deger": "Karabaş",
+    "kaynak": [
+     "urun_karari",
+     "urun_tanimi"
+    ]
+   },
+   "okunus": {
+    "deger": "karabaş",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Karabaş, sadık ve neşeli bir köpektir.",
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   "tur": {
+    "deger": "köpek",
+    "kaynak": [
+     "urun_tanimi"
+    ],
+    "lemmalar": [
+     "köpek"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Sadıktır; arkadaşını hiç bırakmaz.",
+     "anahtar_kok": "sadık",
+     "anahtar_ifade": "\\bsadık\\w*",
+     "ornek_bicimler": [
+      "sadık"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Koşmayı ve top oynamayı sever.",
+     "anahtar_kok": "top",
+     "anahtar_ifade": "\\btop(?:u|a|la|un|unu|una|uyla|tan|lar\\w*)?\\b",
+     "ornek_bicimler": [
+      "top",
+      "topu",
+      "topla"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    },
+    {
+     "deger": "Sevinince kuyruğunu sallar.",
+     "anahtar_kok": "kuyruk",
+     "anahtar_ifade": "\\bkuyru[kğ]\\w*",
+     "ornek_bicimler": [
+      "kuyruğunu"
+     ],
+     "kaynak": [
+      "urun_tanimi"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Topun ya da bir hayvanın peşinden yola, suya ya da yüksek yere koşmaz; havlaması kimseyi korkutmaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi",
+      "urun_karari"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:keci",
+     "kisa_ad": "keçi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "keçi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "keçi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ],
+      "onay_bekliyor": true,
+      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Karabaş hiçbir hayvanı kovalamaz ya da yakalamaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Ss]incab|[Ss]incap|[Kk]irpi|[Kk]eçi|[Kk]uş)\\w*\\s+(?:[\\w']+\\s+){0,2}(?:kovaladı|yakaladı)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "kuyruk",
+    "top"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    },
+    {
+     "urun": "keçi",
+     "kart": [
+      "yan:keci"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [
+    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   ]
+  }
+ ]
+}
