@@ -1,0 +1,478 @@
+{
+ "parti": 20,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v1/hakem/K/puan_20.json",
+ "madde_sirasi": [
+  "K4",
+  "C5",
+  "C2",
+  "C3",
+  "C1",
+  "C4",
+  "C6",
+  "K5",
+  "K3",
+  "K7",
+  "K8",
+  "K2",
+  "K6",
+  "K1"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: K4, C5, C2, C3, C1, C4, C6, K5, K3, K7, K8, K2, K6, K1 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v1/hakem/K/puan_20.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "tosbi",
+  "grup": "temel",
+  "onayli": true,
+  "ad": {
+   "deger": "Tosbi",
+   "kaynak": [
+    "urun_karari",
+    "urun_tanimi"
+   ]
+  },
+  "okunus": {
+   "deger": "tosbi",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "temel figür",
+   "kaynak": [
+    "urun_karari"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Tosbi, yavaş ama sabırlı ve bilge bir kaplumbağadır.",
+   "kaynak": [
+    "urun_tanimi"
+   ]
+  },
+  "tur": {
+   "deger": "kaplumbağa",
+   "kaynak": [
+    "urun_tanimi"
+   ],
+   "lemmalar": [
+    "kaplumbağa"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Sabırlıdır.",
+    "anahtar_kok": "sabır",
+    "anahtar_ifade": "\\bsab[ıi]r\\w*",
+    "ornek_bicimler": [
+     "sabırla",
+     "sabırlı"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "deger": "Bilgedir.",
+    "anahtar_kok": "bilge",
+    "anahtar_ifade": "\\bbilge\\w*",
+    "ornek_bicimler": [
+     "bilge"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "deger": "Kabuğuna saklanabilir.",
+    "anahtar_kok": "kabuk",
+    "anahtar_ifade": "\\bkabu[kğ]\\w*",
+    "ornek_bicimler": [
+     "kabuğuna",
+     "kabuk"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Kabuğuna saklanması korkudan değil, dinlenmek ya da yağmurdan korunmak için gösterilir; Tosbi derin suya girmez.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "orman",
+    "tarif": "Ağaçlarla dolu, sessiz bir orman.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   },
+   {
+    "etiket": "dağ",
+    "tarif": "Dağda çiçekli, taşlı bir yer.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   },
+   {
+    "etiket": "deniz",
+    "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:baykus",
+    "kisa_ad": "baykuş",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "baykuş"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "baykuş",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:kirpi",
+    "kisa_ad": "kirpi",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "kirpi"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "kirpi",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:sincap",
+    "kisa_ad": "sincap",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "sincap"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "sincap",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:balik",
+    "kisa_ad": "balık",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "balık"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "balık",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "deniz"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Tosbi yavaştır; koşmaz, hızla gitmez.",
+    "yasak_duzenli_ifadeler": [
+     "\\bTosbi\\s+(?:[\\w']+\\s+){0,2}(?:koştu|koşarak|hızla|hızlıca|fırladı)\\b"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+    "yasak_duzenli_ifadeler": [],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [],
+   "ogeler": []
+  },
+  "izinli_dunya_kokleri": [
+   "kabuk",
+   "kaplumbağa"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "baykuş",
+    "kart": [
+     "yan:baykus"
+    ]
+   },
+   {
+    "urun": "kirpi",
+    "kart": [
+     "yan:kirpi"
+    ]
+   },
+   {
+    "urun": "sincap",
+    "kart": [
+     "yan:sincap"
+    ]
+   },
+   {
+    "urun": "balık",
+    "kart": [
+     "yan:balik"
+    ]
+   }
+  ],
+  "k7_izinli": [
+   "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "arac",
+    "cagdas",
+    "ev_esyasi",
+    "mutfak",
+    "giysi",
+    "okul"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+  },
+  "kararlar": [
+   "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/tosbi#cc1eea3c32",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "deniz",
+    "yan": [
+     "balık"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi aynı anda taşların arasına sığmadı",
+    "cozum": "sırayla oynamayı söyleyip sabırla bekledi"
+   },
+   "govde": "Rüzgar hafif hafif esiyordu. Tosbi ile balık küçük bir çekirdeği taşların arasından geçiriyorlardı. Ama ikisi aynı anda taşların arasına girdi ve oraya sığmadı. \"Sırayla oynayalım. Önce sen geçir, balık,\" dedi Tosbi. Tosbi su kenarında sabırla bekledi. Balık suda yüzen çekirdeği burnuyla itti. Çekirdek iki taşın arasından geçti. Sonra balık çekirdeği Tosbi'ye geri getirdi. Tosbi de çekirdeği ayağıyla yavaşça itti. Çekirdek yine taşların arasından geçti. Sırayla oynayınca Tosbi de balık da kıyıda çekirdeği geçirdi.",
+   "ozellik": {
+    "anahtar_kok": "sabır",
+    "deger": "Sabırlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/tosbi#185a1da923",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "orman",
+    "yan": [
+     "sincap"
+    ]
+   },
+   "plan": {
+    "sorun": "sincap çok hızlıydı ve tüyü hep o yakalıyordu",
+    "cozum": "sırayla tutmayı söyleyip tüyü sincaba üfledi"
+   },
+   "govde": "Bir sabah ormanda hafif bir rüzgar esiyordu. Tosbi ile sincap beyaz bir tüyle oynuyordu. Ormanda tek bir ağaç bile yoktu. Ama sincap çok hızlıydı ve tüyü hep o yakalıyordu. Sincap tüyün peşinden koşturdu ve yine yakaladı. Tosbi yavaştı ve ona hiç sıra gelmiyordu. Tosbi bilgeydi ve biraz düşündü. \"Sırayla oynayalım, bir kez sen tut, bir kez ben,\" dedi Tosbi. Sincap başını salladı ve tüyü havaya üfledi. Tüy yavaşça Tosbi'nin önüne indi. Tosbi tüyü dikkatle yakaladı. Sonra tüyü uzağa, sincaba doğru üfledi. Sincap sevinçle koşturdu. \"Şimdi sıra sende, sincap!\" dedi Tosbi.",
+   "ozellik": {
+    "anahtar_kok": "bilge",
+    "deger": "Bilgedir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: bilgeydi (bilge)"
+   ]
+  },
+  {
+   "id": "urun/tosbi#475f123042",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "orman",
+    "yan": [
+     "baykuş"
+    ]
+   },
+   "plan": {
+    "sorun": "baykuşun dalına güneş vuruyordu ve uyuyamıyordu",
+    "cozum": "gölgede kalan kütüğü onunla paylaştı"
+   },
+   "govde": "Tosbi devasa bir ağacın gölgesinde, bir kütüğün yanında dinleniyordu. Baykuş yukarıda bir dalda oturdu ve esnedi. Güneş onun dalına vuruyordu ve baykuş bu yüzden uyuyamıyordu. \"Gözlerim çok yoruldu,\" dedi baykuş. Bilge Tosbi kütüğe baktı. Kütük de gölgede kalıyordu ve ikisine yeterdi. \"Gel, baykuş. Kütüğün üstü serin, birlikte dinlenelim,\" dedi Tosbi. Baykuş daldan indi ve kütüğün üstüne kondu. Bir kez daha esnedi ve gözlerini kapadı. Tosbi de kütüğün yanında başını yere koydu. Devasa ağacın gölgesinde Tosbi ile baykuş yan yana dinleniyordu.",
+   "ozellik": {
+    "anahtar_kok": "bilge",
+    "deger": "Bilgedir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: bilge (bilge)"
+   ]
+  },
+  {
+   "id": "urun/tosbi#f35505713b",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "orman",
+    "yan": [
+     "baykuş"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi de aynı şık yaprağı istedi",
+    "cozum": "sırayla yaprak seçmeyi söyledi"
+   },
+   "govde": "Tosbi ormanda yere yan yana yapraklar diziyordu. Baykuş daldan aşağı geldi ve oyuna katıldı. Ama ikisi de aynı sarı yaprağı istedi, çünkü o yaprak çok şıktı. Tosbi yüksek bir kayanın ucuna kadar çıktı. Bilge Tosbi yapraklara baktı ve biraz düşündü. \"Sırayla seçelim. İlk yaprağı sen seç, baykuş,\" dedi Tosbi. Baykuş şık sarı yaprağı pençesiyle aldı ve sıraya koydu. Sonra Tosbi kırmızı bir yaprağı ayağıyla sıraya itti. Baykuş kahverengi bir yaprak seçti. Tosbi de yeşil bir yaprak seçti. Yaprak sırası yavaş yavaş uzadı. Sırayla seçince Tosbi ile baykuş çok eğlendi.",
+   "ozellik": {
+    "anahtar_kok": "bilge",
+    "deger": "Bilgedir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: bilge (bilge)"
+   ]
+  },
+  {
+   "id": "urun/tosbi#38d443ba72",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "orman",
+    "yan": [
+     "sincap"
+    ]
+   },
+   "plan": {
+    "sorun": "sincap hızlıydı ve tüyü hep o yakalıyordu",
+    "cozum": "sırayla üflemeyi söyledi"
+   },
+   "govde": "Bir sabah Tosbi ile sincap ormanda bir tüyle oynuyordu. Tüyü üflüyor ve havaya uçuruyorlardı. Ama sincap hızlıydı ve tüyün arkasından koşturup hep ilk o yakalıyordu. Tosbi yavaştı ve ona hiç sıra gelmiyordu. Bilge Tosbi biraz düşündü. \"Sincap, sırayla üfleyelim. Bir sen, bir ben,\" dedi Tosbi. \"Olur,\" dedi sincap. Sincap tüyü getirdi ve Tosbi'nin önüne bıraktı. Tosbi tüyü yavaşça üfledi. Tüy ağaçların arasında uzağa uçtu. Sincap tüyü getirip kendi sırasında üfledi. \"Sıra yine sende, Tosbi!\" dedi sincap.",
+   "ozellik": {
+    "anahtar_kok": "bilge",
+    "deger": "Bilgedir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: bilge (bilge)"
+   ]
+  }
+ ]
+}
