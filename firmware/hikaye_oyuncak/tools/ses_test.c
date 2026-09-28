@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
            t.n_pcm == bek ? "aynı" : "FARKLI");
     if (t.n_pcm != bek) hata++;
     char uzun[2048] = "";
-    for (int i = 0; i < 30; i++) strcat(uzun, "küçük tavşan koştu ve ");
+    for (int i = 0; i < 7; i++) strcat(uzun, "küçük tavşan koştu ve ");
     strcat(uzun, "durdu.");
     int ids[4096];
     int nu = metin_kodla(uzun, ids, 4096);

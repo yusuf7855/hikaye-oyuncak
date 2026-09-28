@@ -244,15 +244,17 @@ static void ses_satir_ac(const SesT *t, int r, float *w) {
   }
 }
 
-// Y[i*ys + r] = b[r] + sum_c W[r][c] * X[i*xs + c], i < n. Satır başına bir açma, dört kare birlikte
+// Y[i*ys + r] = b[r] + sum_c W[r][c] * X[i*xs + c], i < n (gelu: sonuca GELU; iki çekirdeğe bölünsün diye burada). Satır başına bir açma, dört kare birlikte
 // (her karenin toplama sırası tek kare yoluyla aynı: sonuç bit bit aynı).
 typedef struct {
   const SesT *w, *b;
   const float *X;
-  int n, xs, ys;
+  int n, xs, ys, gelu;
   float *Y;
   float *const *satir;
 } SesMatIs;
+
+static inline float ses_gelu(float x) { return 0.5f * x * (1.f + erff(x * 0.70710678118654752f)); }
 
 static void ses_mat_is(void *arg, int r0, int r1, int isci) {
   const SesMatIs *a = (const SesMatIs *)arg;
@@ -271,22 +273,26 @@ static void ses_mat_is(void *arg, int r0, int r1, int isci) {
       }
       float *y = a->Y + (size_t)i * ys + r;
       y[0] = s0 + bb; y[ys] = s1 + bb; y[2 * ys] = s2 + bb; y[3 * ys] = s3 + bb;
+      if (a->gelu) { y[0] = ses_gelu(y[0]); y[ys] = ses_gelu(y[ys]); y[2 * ys] = ses_gelu(y[2 * ys]); y[3 * ys] = ses_gelu(y[3 * ys]); }
     }
     for (; i < n; i++) {
       const float *x = a->X + (size_t)i * xs;
       float s = 0.f;
       for (int c = 0; c < cols; c++) s += wr[c] * x[c];
-      a->Y[(size_t)i * ys + r] = s + bb;
+      a->Y[(size_t)i * ys + r] = a->gelu ? ses_gelu(s + bb) : s + bb;
     }
   }
 }
 
-static void ses_mat(Ses *s, const SesT *w, const SesT *b, const float *X, int n, int xs, float *Y, int ys) {
+static void ses_mat_g(Ses *s, const SesT *w, const SesT *b, const float *X, int n, int xs, float *Y, int ys, int gelu) {
   if (n <= 0) return;
-  SesMatIs a = {w, b, X, n, xs, ys, Y, s->satir};
+  SesMatIs a = {w, b, X, n, xs, ys, gelu, Y, s->satir};
   s->mac += (double)n * w->satir * w->sutun;
   if (s->paralel && w->satir >= 16) s->paralel(ses_mat_is, &a, w->satir);
   else ses_mat_is(&a, 0, w->satir, 0);
+}
+static void ses_mat(Ses *s, const SesT *w, const SesT *b, const float *X, int n, int xs, float *Y, int ys) {
+  ses_mat_g(s, w, b, X, n, xs, Y, ys, 0);
 }
 
 static void ses_ln(float *x, int d, const SesT *g, const SesT *b) {
@@ -299,8 +305,6 @@ static void ses_ln(float *x, int d, const SesT *g, const SesT *b) {
   float r = 1.f / sqrtf(v + 1e-5f);
   for (int i = 0; i < d; i++) x[i] = (x[i] - m) * r * ses_v(g, i) + ses_v(b, i);
 }
-
-static inline float ses_gelu(float x) { return 0.5f * x * (1.f + erff(x * 0.70710678118654752f)); }
 
 // ConvNeXt: x satır i = kare x_bas+i (gerekli kareler mevcut; [0, T) dışı sıfır). Çıkış kareleri [t0, t1)
 // -> out satır t-t0. out = x + gamma * pw2(gelu(pw1(LN(dw(x))))).
@@ -326,8 +330,7 @@ static void ses_blok(Ses *s, const SesBlok *b, const float *x, int x_bas, int T,
       ses_ln(z, d, &b->ln_g, &b->ln_b);
     }
     s->mac += (double)n * d * k;
-    ses_mat(s, &b->pw1_w, &b->pw1_b, s->z, n, d, s->hid, h);
-    for (int i = 0; i < n * h; i++) s->hid[i] = ses_gelu(s->hid[i]);
+    ses_mat_g(s, &b->pw1_w, &b->pw1_b, s->z, n, d, s->hid, h, 1);
     ses_mat(s, &b->pw2_w, &b->pw2_b, s->hid, n, h, s->u, d);
     for (int i = 0; i < n; i++) {
       const float *xr = x + (size_t)(a + i - x_bas) * d, *u = s->u + (size_t)i * d;
