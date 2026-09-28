@@ -4540,7 +4540,7 @@
     },
     {
      "etiket": "ev",
-     "tarif": "Takımın gizli üssü.",
+     "tarif": "Takımın gizli evi.",
      "dizide_karsiligi": "dogrulandi",
      "kaynak": [
       "vikipedi_spidey_en"
@@ -4649,6 +4649,16 @@
      ],
      "kaynak": [
       "urun_kurali"
+     ]
+    },
+    {
+     "kural": "'Üs' kelimesi kullanılmaz (çocuk 'üst' ile karıştırır); takımın yeri 'gizli ev' diye anlatılır.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Üü]s(?:s[üu]\\w*|se|ten|ler\\w*)?\\b",
+      "\\b[Gg]izli\\s+üs\\w*"
+     ],
+     "kaynak": [
+      "kullanici_karari"
      ]
     },
     {
@@ -4769,8 +4779,7 @@
     "ağ",
     "kahraman",
     "tırman",
-    "örümcek",
-    "üs"
+    "örümcek"
    ],
    "urun_yan_eslesmesi": [
     {

@@ -302,7 +302,7 @@ class KartKontrol(unittest.TestCase):
     def test_gercek_kartlar_temiz(self):
         h, u, s = self.denetle(self.kart)
         self.assertEqual(h, [])
-        self.assertEqual((s["kart"], s["regex"], s["ornek_yakalandi"]), (14, 48, 48))
+        self.assertEqual((s["kart"], s["regex"], s["ornek_yakalandi"]), (14, 50, 50))
 
     def test_bozulmalar_yakalanir(self):
         bozuk = {
@@ -355,6 +355,9 @@ class Tohum(Ortak):
                 if x["diyalog"] == "var" or vh.TEMALAR[x["tema"]][1]:
                     self.assertTrue(x["yan"], x)
             self.assertLessEqual(max(p for p, _ in pay["tema"].values()), vh.TEMA_TAVAN)
+            self.assertLessEqual(sum(p for k, (p, _) in pay["tema"].items() if k in vh.AHLAKI_TEMALAR),
+                                 vh.AHLAKI_TAVAN, ad)
+            self.assertLessEqual({x["kapanis"] for x in t}, {"duygu", "sonuc", "replik", "ders"})
         masa = vh.tohum_uret(vh.FigurBilgi(vh._figur_bul(self.bg, "Maşa"), self.bg), 200, 7, self.bg)
         self.assertTrue(any(len(x["yan"]) == 2 for x in masa))
 

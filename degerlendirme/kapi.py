@@ -1166,7 +1166,7 @@ def k11(kayit, blok, bg, ih, taslak_kart):
 class KotaSayaci:
     """K12 (Aşama 1'de): figür başına yürüyen sayaçlar; kotayı aşan kusursuz hikâye yedek havuza gider.
     Arayüz: ekle(kayit, tohum) -> [(kod, açıklama)] (aşılan kotalar), durum() -> {figür: {oran...}}."""
-    ESIKLER = {"son_cumle_cunku": 0.15, "son_cumle_duygu": 0.35, "adinda_acilis": 0.15, "acilis_4gram": 0.20,
+    ESIKLER = {"son_cumle_cunku": 0.15, "son_cumle_duygu": 0.50, "adinda_acilis": 0.15, "acilis_4gram": 0.20,
                "o_gunden_sonra": 0.05, "plan_sorunu": 0.10, "tohum_payi_sapma": 0.05}
 
     def ekle(self, kayit, tohum=None):

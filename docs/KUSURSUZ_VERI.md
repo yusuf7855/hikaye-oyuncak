@@ -131,13 +131,13 @@ baslangic.py, secici.h ve firmware aynı biçime geçer. Sistem yan karakteri se
 `veri_hakem.py tohum --figur Tosbi --n 400 --tohum 2026` çıktı olarak data/urun_v1/tohum/tosbi.jsonl üretir. Her tohumda şu alanlar bulunur:
 - figür
 - yer: ağırlık kart sırasına göre azalır ve her yer ≥%10 alır (3 yer: %45/35/20; 4 yer: %40/30/20/10; Chase'in 5 yeri: %30/25/20/15/10)
-- tema: 12 tema, tanımları kılavuzda ve tek sahneye uyarlanmış; hiçbiri figür başına %12'yi geçmez
+- tema: 17 tema, tanımları kılavuzda ve tek sahneye uyarlanmış; ağırlıklı (veri_hakem.py TEMA_AGIRLIK); hiçbiri figür başına %12'yi geçmez; ahlaki çatışma temaları (paylaşmak, yardım istemek, özür dilemek, sırayla oynamak) birlikte ≤%30
 - yan: 0–1 adlı + 0–1 isimsiz (%30 yansız, %40 tek yan, %30 iki yan)
 - tek bir figür özelliği
 - sözlükten rastgele 1 isim + 1 fiil + 1 sıfat (canlı ya da rol olmayan)
 - diyalog: %60 var, %40 yok
 - açılış türü: figür adı / zaman / yer / ses-hava, eşit dağılım. '<Ad> adında … yaşardı' bir açılış türü değildir.
-- kapanış türü: eylem %30, replik %25, görüntü %20, ders %15, duygu %10
+- kapanış türü: duygu %35, sonuç %30, replik %20, ders %15 (her türde sorun çözülmüş ve son cümle sıcak bir kapanış verir)
 Ders artık ayrı bir %30'luk özellik değil, bir kapanış türüdür.
 
 **Geçme şartı:** Bütün paylar hedefin ±5 puanı içinde. Figür içinde aynı (yer, tema, isim) üçlüsü tekrarlanmaz. Bütün kelimeler tohum_kelimeleri.json'da. Yan ve özellik kaynaklı kartta var.
@@ -263,7 +263,7 @@ GEREKÇE:
 
 Her kabulde figür başına yürüyen sayaçlar tutulur:
 - son cümlede 'çünkü' ≤%15
-- son cümle duygu fiiliyle (gülümsedi, sevindi, mutlu oldu) ≤%35
+- son cümle duygu fiiliyle (gülümsedi, sevindi, mutlu oldu) ≤%50 (duygu kapanışı %35 ve sonuç kapanışında 'mutlu mutlu' olağan)
 - '<Ad> adında' açılışı ≤%15
 - en sık açılış 4-gramı ≤%20
 - 'O günden sonra' ≤%5
@@ -315,12 +315,12 @@ k>0 ise veri 'kusursuz' sayılmaz; kök neden döngüsü çalışır ve yeni sü
 - Kural 6, figür özelliği: Yalnız tohumdaki özellik kullanılır; bir kez, olayda işe yarar biçimde ve kartın 'güvenli özellik kullanımı' satırına uygun. Özellikler sıralanmaz, betimlenmez. Slogan ve kalıp replik yok.
 - Kural 7, sade kelime: Kelimeler sade_sozluk_sik.txt'den seçilir; en çok 2 liste dışı kelime. Deyim, mecaz, soyut kavram ve şapkalı harf yok; 'hâlâ' yerine 'yine' ya da 'daha' kullanılır. Tohumdaki isim, fiil ve sıfat geçmeli; biri listeden başka bir kelimeyle değiştirilebilir ve değişiklik yazılır.
 - Kural 8, dil: Anlatım -dı'lı geçmiş zamanda. Her replikte konuşan belli ('dedi Niloya'). Kimse kendi kendine konuşmaz ya da kendine adıyla seslenmez. Plan satırları da aynı dil ve yazım kurallarına uyar, çünkü cihazda model planı kendisi yazıyor.
-- Kural 9, son: Hikâye tohumdaki kapanış türüyle biter: eylem, replik, görüntü, ders ya da duygu. Son güvenli olur ve sorun çözülmüş olur. Son cümlede 'çünkü' ile açıklama ve 'gülümsedi/sevindi' kalıbı yalnız kapanış türü 'duygu' ise kullanılır. Ders, olaydan çıkan tek ve somut bir cümledir. Korku, yaralanma, hastalık ve taklit edilince tehlikeli davranış yok.
+- Kural 9, son: Son 1-2 cümle hikâyeyi kapatır: sorunun çözüldüğü görünür ve son cümle sıcak, doyurucu bir kapanış verir. Hikâye çıplak bir eylemle ya da durgun bir resimle bitmez. Son, tohumdaki kapanış türüyle yazılır: duygu, sonuç, replik ya da ders; 'çünkü' ile açıklama yalnız 'duygu' türünde. Son güvenli olur. Korku, yaralanma, hastalık ve taklit edilince tehlikeli davranış yok.
 - Kural 10, biçim ve öz-denetim: '### Figür | yer | yan' / '@plan: sorun | çözüm' (her biri 3–9 küçük harfli kelime, özel ad yok) / '@tohum: id' / gövde. Yazdıktan sonra `veri_hakem.py kontrol` koşulur. İşaretli hikâyede en çok 1 yerel düzeltme yapılır; yine geçmezse hikâye boş bırakılır, zorlanmaz.
 - Kural bütçesi (kural patlamasına karşı): Kılavuz tek sayfa ve 10 maddedir. Yeni bir kusur türü kılavuza değil koda ya da hakem listesine eklenir. Kılavuza yeni madde ancak bir madde çıkarılarak girer. Kılavuzda kullanıcının onayladığı 2 iyi örnek bulunur; farklı figürlerden ve farklı kapanış türlerinden seçilir. Kötü örnek konmaz.
-- Sistem tarafı, çeşitlilik (yazara kural olarak değil, tohumla gelir; TinyStories/SimpleStories yöntemi): Her tohumda sözlükten rastgele 1 isim + 1 fiil + 1 sıfat (canlı ya da rol olmayan). Diyalog %60, diyalogsuz %40. Açılış türü: figür adı / zaman / yer / ses-hava, eşit. Kapanış türü: eylem %30, replik %25, görüntü %20, ders %15, duygu %10. Figür içinde aynı kelime üçlüsü tekrarlanmaz. Hikâye yapısı dayatılmaz; iskeletli üretim deneyi başarısız olmuştu.
+- Sistem tarafı, çeşitlilik (yazara kural olarak değil, tohumla gelir; TinyStories/SimpleStories yöntemi): Her tohumda sözlükten rastgele 1 isim + 1 fiil + 1 sıfat (canlı ya da rol olmayan). Diyalog %60, diyalogsuz %40. Açılış türü: figür adı / zaman / yer / ses-hava, eşit. Kapanış türü: duygu %35, sonuç %30, replik %20, ders %15. Figür içinde aynı kelime üçlüsü tekrarlanmaz. Hikâye yapısı dayatılmaz; iskeletli üretim deneyi başarısız olmuştu.
 - Sistem tarafı, yer dağılımı: Ağırlık kart sırasına göre azalır, doğa yerleri öndedir (ızgarada doğa 4,77, diğer yerler 3,87 almıştı). Her yer ≥%10 alır. 3 yer: %45/35/20. 4 yer: %40/30/20/10. 5 yer (Chase): %30/25/20/15/10. Böylece figür başına 200 hikâyede en küçük yer de ≥20 hikâye alır.
-- Sistem tarafı, tema tanımları (tek sahneye ve güvenlik kurallarına uyarlandı): kaybolan eşya; yeni arkadaş (ilk adımı figür atar); paylaşmak; yardım istemek (çözüm, figürün yardım istemesidir); yeni bir şeyi denemek; sahne içinde beklemek (sıra, fırındaki kek, yağmurun dinmesi); özür dilemek; sıkışmış, kaybolmuş ya da aç bir hayvana yardım (hasta ya da yaralı hayvan değil); bir şey yapmak; yağmur ya da kar günü; aynı sahnede hazırlanıp verilen sürpriz; sırayla oynamak. Hiçbiri figür başına %12'yi geçmez. Tema eğitim başlığına ve hakeme gitmez.
+- Sistem tarafı, tema tanımları (tek sahneye ve güvenlik kurallarına uyarlandı; ağırlık parantezde): merak edip keşfetmek (%10); eğlenceli bir oyun ve küçük aksilik (%10); figür başkasına yardım eder (%8); küçük bir kutlama ya da sürpriz hazırlamak (%7); doğada bir şeyi fark etmek ve küçük bir hedef (%7); hayali oyun (%7); kaybolan eşya (%5); yeni bir şeyi denemek (%5); bir şey yapmak (%4); yağmur ya da kar günü (%3); sıkışmış, kaybolmuş ya da aç bir hayvana yardım, hasta ya da yaralı hayvan değil (%3); yeni arkadaş, ilk adımı figür atar (%2); ilginç bir şeyi sahne içinde beklemek, yalnız yağmurun dinmesi değil (%1); paylaşmak, yardım istemek, özür dilemek, sırayla oynamak (%7'şer, birlikte %28). Figürde kullanılamayan temanın payı kalanlara oranla dağılır. Hiçbiri figür başına %12'yi geçmez; ahlaki çatışma temaları birlikte ≤%30. Tema eğitim başlığına ve hakeme gitmez.
 
 ## Otomatik kontroller
 
@@ -336,7 +336,7 @@ k>0 ise veri 'kusursuz' sayılmaz; kök neden döngüsü çalışır ve yeni sü
 - K9 Yakın kopya: Normalleştirilmiş metinde birebir kopya olmaz; kelime 3-gram Jaccard <0,5 ve ROUGE-L <0,7. Karşılaştırma aynı figürün kabul havuzuna karşı yapılır; son kontrolde bütün figürlere ve urun_v1 doğrulama bölmesine karşı da yapılır. Saf Python yeter.
 - K10 Model kaybı (RAPOR, kapı değil): c3 ön eğitim modeliyle gövdede token başına ortalama kayıp hesaplanır; ad tokenları hariç tutulur. Figür başına dağılım raporlanır. Pilotun 12'şer kabulünden p90 eşiği anlamlı değildir ve c3'ün oyuncak kaybı (5,80 / genel 2,15) başlık ve ad biçimine bağlıdır. Zorluk göstergesini (nadir kelime, r=0,66) K3 zaten kesiyor. Hesap CPU'da nice -n 19 ile yapılır.
 - K11 Kimlik ve sürüm: Kimlik 'urun/<figür>#' + sha1(kanonik kayıt)[:10] biçimindedir; bütün puan ve kararlar sha1'e bağlanır. Sürüm şu bileşenlerin içerik sha256'larından oluşur: kapi.py ve import ettiği modüller, sec.py, urun_kayit.py (serileştirme dahil), canli_rol.json, izinli_kelimeler.json, tohum_kelimeleri.json, Zemberek beyaz listesi, sade_sozluk.json, kart, HAKEM_*.md, Zemberek ve tokenizer sürümü. Biri değişirse son kontrol ilgili katmanı bütün kabullere yeniden koşar; istem değişirse hedefli yeniden hakem uygulanır.
-- K12 Dağılım ve kalıp kotası (kabul anında yürüyen; son kontrolde tekrar): Figür başına son cümlede 'çünkü' ≤%15; duygu fiiliyle kapanış ≤%35; '<Ad> adında' açılışı ≤%15; en sık açılış 4-gramı ≤%20; 'O günden sonra' ≤%5; en sık plan sorunu ≤%10. Yer, tema, yan sayısı, diyalog, açılış ve kapanış payları tohum hedefinin ±5 puanı içinde; her tohum özelliğinin kabul oranı raporlanır. Self-BLEU her 50 kabulde raporlanır.
+- K12 Dağılım ve kalıp kotası (kabul anında yürüyen; son kontrolde tekrar): Figür başına son cümlede 'çünkü' ≤%15; duygu fiiliyle kapanış ≤%50; '<Ad> adında' açılışı ≤%15; en sık açılış 4-gramı ≤%20; 'O günden sonra' ≤%5; en sık plan sorunu ≤%10. Yer, tema, yan sayısı, diyalog, açılış ve kapanış payları tohum hedefinin ±5 puanı içinde; her tohum özelliğinin kabul oranı raporlanır. Self-BLEU her 50 kabulde raporlanır.
 - Kanarya kuralı: Kanaryalar K1–K9 ve K11'den geçmek zorundadır; kodun yakaladığı kanarya atılır, bu türler yalnız kod birim testinde kullanılır. Kanaryalar ayrı bir ad alanında tutulur ve eğitim klasörüne ya da izin listesine asla yazılamaz.
 - prepare_ft2 korumaları: --yalniz ile birlikte --plan, --haric, --bolme ya da elle --kaynak verilemez. Doğrulama yalnız izin listesindeki 'dogrulama' kayıtlarından alınır. İzin listesindeki her sha1 tam bir kez bulunmalı; listede olmayan oyuncak hikâyesi bulunursa betik durur. Manifest model klasörüne yazılır. KAYNAK varsayılanı kaldırılır.
 - Genel dilim süzme (yalnız Aşama 1'in B kolu): 8M'lik genel TinyStories dilimi yalnız K7 (güvenlik ve hastalık), K8 (tekrar) ve Zemberek çözümlenemeyen kelime ile süzülür. K5 zaman kuralı uygulanmaz, çünkü -mış masal anlatımı kusur değil üsluptur. LLM hakem kullanılmaz.
@@ -622,10 +622,33 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   hakemden önce iki yakın kopyanın birlikte kabul edilmesi önlenir; turdaki ilk aday kalır.
 - prepare_ft2 --yalniz onaysız kartla kabul edilmiş veriyi ('# taslak_kart' izin notu ya da kabul.jsonl'de
   taslak_kart) reddeder; yalnız duman testi için --taslak-kart-izin.
-- Kılavuzun iki iyi örneği (Tosbi/görüntü, Niloya/replik) ve HAKEM_M/D/K.md'deki eleştiri örnekleri kullanıcı
+- Kılavuzun iki iyi örneği (ilk hâli Tosbi/görüntü, Niloya/replik; kapanış kararından sonra Tosbi/duygu, Niloya/replik) ve HAKEM_M/D/K.md'deki eleştiri örnekleri kullanıcı
   yetkisiyle yazıldı; hepsi kod kapılarından geçer (kusurlu örnekler yalnız hakemin görebileceği türdendir).
 - Zemberek (zemberek-python 0.2.3, setuptools<70) .venv'e kuruldu; K5 çözümlemesi artık atlanmıyor.
 - Pilot tur 2'den sonra (kullanıcı yetkisiyle karar): tohum kategorilerine `hazir_yiyecek`, `bostan`, `calgi`, `buyu`
   eklendi. Doğa figürleri (Tosbi, Tekir, Pamuk, Karabaş) üçünü de, Doru `hazir_yiyecek` ve `calgi`'yı yasaklar;
   `buyu` Elsa ve Keloğlan dışında yasak. Kartlar yeniden kilitlendi; pilotun 3 kabulü eğitimden önce K4 ve K
   merceğinden yeniden geçmeli.
+- 21 hikâyeyi okuduktan sonra (kullanıcı geri bildirimi) — son: 'eylem' ve 'görüntü' kapanışları hikâyeyi yarım
+  bırakıyordu ('Sonra Elsa uzun zinciri sarayın kapısına astı.', '... kırmızı hazine kutusu duruyordu.'). Her hikâye
+  sorun çözülmüş ve sıcak bir kapanış cümlesiyle biter; kapanış türleri duygu %35 (olaya bağlı his, 'çünkü' serbest),
+  sonuç %30 ('oyunlarına mutlu mutlu devam ettiler'), replik %20 (kapanış, teşekkür ya da sevinç repliği; ardından
+  cümle yok), ders %15 ('bundan sonra' serbest). Kılavuz Kural 9 ve tohum tanımları yeniden yazıldı; Kural 3'e
+  'açık küçük hedef ve doyurucu sonuç' eklendi (madde sayısı 10 kaldı). HAKEM_M.md M9 kapanışsız sonu (çıplak eylem,
+  durgun resim, açılmayan hazine kutusu) ve 'hiçbir şey olmayan' hikâyeyi işaretler. Kılavuzun Tosbi örneği yağmur
+  beklemek yerine merak/keşif ve duygu kapanışıyla yeniden yazıldı; Niloya örneği ve HAKEM_M tabanları sıcak bir
+  son cümle aldı (hepsi `veri_hakem.py kontrol`dan geçer). K12'nin duygu fiili kotası %35 → %50 (duygu kapanışı
+  tek başına %35).
+- 21 hikâyeyi okuduktan sonra (kullanıcı geri bildirimi) — tema: hikâyeler hep 'hata → özür → düzeltme'
+  mantığındaydı; 'beklemek' (kayanın altında yağmurun dinmesini bekleyen köpek) anlamsızdı. Temalar ağırlıklı oldu
+  (TEMA_AGIRLIK): yeni temalar merak_kesif, oyun_eglence, yardim_etmek (hasta ya da yaralı hayvan değil),
+  kutlama_hazirlik ('surpriz' buna katıldı), doga_gozlem, taklit_hayal; ahlaki çatışma temaları (paylaşmak, yardım
+  istemek, özür dilemek, sırayla oynamak) birlikte %28 ve tohum_denetle ≤%30'u denetler; 'beklemek' yalnız ilginç bir
+  hedefle (fırındaki kek) ve %1. Kılavuz Kural 3: sorun çoğunlukla dışarıdan gelir; figürün kendi hatası yalnız özür
+  temasında olur. `tohum --figur hepsi --n 400 --tohum 2026` 14 figürde geçer. data/urun_v1/tohum altındaki eski
+  tohumlar değiştirilmedi; yeni temalar yeni tohum üretiminde gelir.
+- 21 hikâyeyi okuduktan sonra (kullanıcı geri bildirimi) — Örümcek Adam: ev tarifi 'Takımın gizli üssü.' 'gizli
+  üste' yazdırıyordu ve çocuk 'üst' ile karıştırıyor. Tarif 'Takımın gizli evi.' oldu, 'üs' izinli dünya
+  köklerinden çıktı ve bir dünya kuralı ('üs', 'üssü', 'üsse', 'gizli üste' yasak; 'üst', 'üstüne' serbest) eklendi.
+  Kart yeniden kilitlendi (`kart-kontrol --kilitle`); Örümcek Adam'ın eski kabulleri K4 ve K merceğinden yeniden
+  geçmeli.

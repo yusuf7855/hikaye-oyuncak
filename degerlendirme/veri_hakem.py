@@ -281,9 +281,9 @@ KURAL_ORNEKLERI = {
               ["Chase burnuyla kokladı.", "Ryder köpeklere seslendi.", "Pilot Skye uçtu.",
                "İtfaiyeci Marshall geldi.", "Polis köpeği Chase geldi."]),
     "orumcek_adam": (["Örümcek Adam tehlikeyi sezdi.", "Spin dolaba hızla tırmandı.", "Hulk yumruğunu kaldırdı.",
-                      "Masaya tırmandı."],
+                      "Masaya tırmandı.", "Takım gizli üsse koştu.", "Spin gizli üste bekledi."],
                      ["Örümcek Adam duvara tırmandı.", "Örümcek hissi bir sorun olduğunu haber verdi.",
-                      "Hulk ağacı dikti."]),
+                      "Hulk ağacı dikti.", "Kutuyu rafın üstüne koydu.", "Takım gizli eve koştu."]),
     "tosbi": (["Tosbi hızla koştu.", "Tosbi ormana doğru koştu."], ["Tosbi yavaşça yürüdü.", "Tavşan hızla koştu."]),
     "tekir": (["Fareyi hızla kovaladı.", "Kuşu yakaladı."], ["Tekir topu yakaladı.", "Kuş ağaca kondu."]),
     "pamuk": ([], ["Pamuk havucu yedi."]),
@@ -667,20 +667,37 @@ def cmd_kart_kontrol(a):
 TOHUM_SURUM = "tohum/1"
 # Tema kimliği -> (tanım, gerek). gerek: None | 'yan' (en az bir yan) | 'isimsiz' (isimsiz yan: yeni arkadaş,
 # tanıdık aile üyesi 'yeni' olamaz) | 'hayvan' (türü canlı listesinde olan bir yan). Tanımlar KILAVUZ_URUN.md.
+# Kullanıcı geri bildirimi: hikayeler hep 'hata -> özür -> düzeltme' mantığındaydı; ahlaki çatışma temaları
+# (paylaşmak, yardım istemek, özür dilemek, sırayla oynamak) birlikte en çok %28'dir. Sorun çoğunlukla dışarıdan
+# gelir (hava, takılan top, merak uyandıran bir ses); figürün kendi hatası yalnız özür temasında olur.
 TEMALAR = {
+    "merak_kesif": ("merak edip keşfetmek (bir ses, bir iz, bir kabuk; sonunda ne olduğu ortaya çıkar)", None),
+    "oyun_eglence": ("eğlenceli ya da komik bir oyun ve oyunda küçük bir aksilik", None),
+    "yardim_etmek": ("figür başkasına yardım eder (hasta ya da yaralı hayvan değil)", "yan"),
+    "kutlama_hazirlik": ("aynı sahnede küçük bir kutlama ya da sürpriz hazırlamak", "yan"),
+    "doga_gozlem": ("doğada bir şeyi fark etmek (gökkuşağı, kelebekler, kardaki şekiller) ve küçük bir hedef", None),
+    "taklit_hayal": ("hayali oyun (kaptan, aşçı, kaşif olmak gibi) ve oyunda küçük bir hedef", None),
     "kaybolan_esya": ("kaybolan eşya", None),
-    "yeni_arkadas": ("yeni arkadaş (ilk adımı figür atar)", "isimsiz"),
-    "paylasmak": ("paylaşmak", "yan"),
-    "yardim_istemek": ("yardım istemek (çözüm, figürün yardım istemesidir)", "yan"),
     "yeni_sey_denemek": ("yeni bir şeyi denemek", None),
-    "beklemek": ("sahne içinde beklemek (sıra, fırındaki kek, yağmurun dinmesi)", None),
-    "ozur_dilemek": ("özür dilemek", "yan"),
-    "hayvana_yardim": ("sıkışmış, kaybolmuş ya da aç bir hayvana yardım (hasta ya da yaralı hayvan değil)", "hayvan"),
     "bir_sey_yapmak": ("bir şey yapmak", None),
     "yagmur_kar": ("yağmur ya da kar günü", None),
-    "surpriz": ("aynı sahnede hazırlanıp verilen sürpriz", "yan"),
+    "hayvana_yardim": ("sıkışmış, kaybolmuş ya da aç bir hayvana yardım (hasta ya da yaralı hayvan değil)", "hayvan"),
+    "yeni_arkadas": ("yeni arkadaş (ilk adımı figür atar)", "isimsiz"),
+    "beklemek": ("ilginç bir şeyi sahne içinde beklemek (fırındaki kek, açılacak bir çiçek; yalnız yağmurun dinmesi değil)",
+                 None),
+    "paylasmak": ("paylaşmak", "yan"),
+    "yardim_istemek": ("yardım istemek (çözüm, figürün yardım istemesidir)", "yan"),
+    "ozur_dilemek": ("özür dilemek (figürün kendi hatası yalnız bu temada olur)", "yan"),
     "sirayla_oynamak": ("sırayla oynamak", "yan"),
 }
+# Tema ağırlığı (toplam 1); figürde kullanılamayan temanın payı kalanlara oranla dağılır.
+TEMA_AGIRLIK = {"merak_kesif": 0.10, "oyun_eglence": 0.10, "yardim_etmek": 0.08, "kutlama_hazirlik": 0.07,
+                "doga_gozlem": 0.07, "taklit_hayal": 0.07, "kaybolan_esya": 0.05, "yeni_sey_denemek": 0.05,
+                "bir_sey_yapmak": 0.04, "yagmur_kar": 0.03, "hayvana_yardim": 0.03, "yeni_arkadas": 0.02,
+                "beklemek": 0.01, "paylasmak": 0.07, "yardim_istemek": 0.07, "ozur_dilemek": 0.07,
+                "sirayla_oynamak": 0.07}
+AHLAKI_TEMALAR = ("paylasmak", "yardim_istemek", "ozur_dilemek", "sirayla_oynamak")
+AHLAKI_TAVAN = 0.30
 TEMA_TAVAN = 0.12
 YER_AGIRLIK = {1: [1.0], 2: [0.6, 0.4], 3: [0.45, 0.35, 0.20], 4: [0.40, 0.30, 0.20, 0.10],
                5: [0.30, 0.25, 0.20, 0.15, 0.10]}
@@ -688,9 +705,13 @@ ACILIS = {"figur_adi": "figürün adıyla başlar ('Tosbi ...')",
           "zaman": "bir zaman ifadesiyle başlar ('Bir sabah ...')",
           "yer": "yerle başlar ('Ormanda ...')",
           "ses_hava": "bir ses ya da havayla başlar ('Rüzgar esiyordu.', 'Bir kuş ötüyordu.')"}
-KAPANIS = {"eylem": (0.30, "figür son bir şey yapar"), "replik": (0.25, "son cümle bir konuşmadır"),
-           "goruntu": (0.20, "sahneden son bir resim"), "ders": (0.15, "olaydan çıkan tek ve somut bir cümle"),
-           "duygu": (0.10, "figürün hissi")}
+# Her hikaye sorun çözülmüş ve sıcak bir kapanış cümlesiyle biter; çıplak bir eylem ya da durgun bir resimle
+# bitmez (kullanıcı geri bildirimi: 'eylem' ve 'görüntü' kapanışları hikayeyi yarım bırakıyordu).
+KAPANIS = {"duygu": (0.35, "figürün ya da karakterlerin olaya bağlı hissi; 'çünkü' kullanılabilir"),
+           "sonuc": (0.30, "ardından mutlulukla ne yaptıkları ya da olayın sonucu ('oyunlarına mutlu mutlu "
+                           "devam ettiler')"),
+           "replik": (0.20, "son cümle sıcak bir konuşmadır: kapanış, teşekkür ya da sevinç; ardından cümle yok"),
+           "ders": (0.15, "olaya bağlı tek ve somut bir cümle; 'bundan sonra' kullanılabilir")}
 DIYALOG = {"var": 0.60, "yok": 0.40}
 YAN_SAYISI = {0: 0.30, 1: 0.40, 2: 0.30}
 PAY_TOLERANS = 0.05
@@ -744,7 +765,8 @@ class FigurBilgi:
         return any(y["hayvan"] for y in self.yanlar)
 
     def hedefler(self):
-        return {"yer": self.yer_hedef, "tema": {t: 1 / len(self.temalar) for t in self.temalar},
+        return {"yer": self.yer_hedef, "tema": {t: TEMA_AGIRLIK[t] / sum(TEMA_AGIRLIK[x] for x in self.temalar)
+                                              for t in self.temalar},
                 "yan_sayisi": {str(k): v for k, v in self.yan_hedef.items()}, "diyalog": dict(DIYALOG),
                 "acilis": {k: 1 / len(ACILIS) for k in ACILIS}, "kapanis": {k: v[0] for k, v in KAPANIS.items()},
                 "ozellik": {o: 1 / len(self.ozellikler) for o in self.ozellikler}}
@@ -898,8 +920,9 @@ def tohum_uret(fb, n, tohum, bg, baslangic=1):
 
 
 def tohum_denetle(tohumlar, fb, bg):
-    """Adım 3 geçme şartı: paylar hedefin ±5 puanı içinde, tema <= %12, (yer, tema, isim) ve kelime üçlüsü
-    tekrarsız, kelimeler tohum_kelimeleri.json'da, yan ve özellik kaynaklı kartta, kısıtlar tutarlı."""
+    """Adım 3 geçme şartı: paylar hedefin ±5 puanı içinde, tema <= %12, ahlaki çatışma temaları birlikte <= %30,
+    (yer, tema, isim) ve kelime üçlüsü tekrarsız, kelimeler tohum_kelimeleri.json'da, yan ve özellik kaynaklı
+    kartta, kısıtlar tutarlı."""
     hatalar = []
     n = len(tohumlar)
     if not n:
@@ -916,6 +939,10 @@ def tohum_denetle(tohumlar, fb, bg):
                 hatalar.append(f"{alan}={k}: pay %{100 * p:.1f}, hedef %{100 * hedef.get(k, 0):.1f} (±5 puan)")
             if alan == "tema" and p > TEMA_TAVAN + 1e-9:
                 hatalar.append(f"tema {k} %{100 * p:.1f} > %12")
+    ahlaki = sum(t["tema"] in AHLAKI_TEMALAR for t in tohumlar) / n
+    if ahlaki > AHLAKI_TAVAN + PAY_TOLERANS + 1e-9:
+        hatalar.append(f"ahlaki çatışma temaları (paylaşmak, yardım istemek, özür, sırayla) %{100 * ahlaki:.1f} > "
+                       f"%{100 * AHLAKI_TAVAN:.0f} (±5 puan)")
     kel = tohum_kelimeleri(bg)
     ucluler, hucreler, idler = collections.Counter(), collections.Counter(), collections.Counter()
     yan_adlari = {y["ad"]: y for y in fb.yanlar}
@@ -987,7 +1014,7 @@ def cmd_tohum(a):
             tohumlar = tohum_uret(fb, a.n, a.tohum, bg)
             jsonl_yaz(yol, tohumlar)
         hatalar, pay = tohum_denetle(tohumlar, fb, bg)
-        print(f"{fb.ad}: {len(tohumlar)} tohum -> {Y.goreli(yol)}; tema {len(fb.temalar)}/12, yan sayısı hedefi "
+        print(f"{fb.ad}: {len(tohumlar)} tohum -> {Y.goreli(yol)}; tema {len(fb.temalar)}/{len(TEMALAR)}, yan sayısı hedefi "
               f"{ {k: v for k, v in fb.yan_hedef.items()} }; {'GEÇTİ' if not hatalar else f'{len(hatalar)} HATA'}")
         if a.ayrinti:
             for alan, d in pay.items():
