@@ -288,7 +288,9 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
 
 ## 16 aday (aynı model, E5b seçici, 8 yerine 16 aday)
 
-- Test: seçimin değiştiği 19 vakada 11–8 (%58). Doğrulama seti sürüyor.
+- Genel ikili, yalnız seçimin değiştiği vakalar: test 11–8, doğrulama 39–31; toplam **50–39 (%56)**, iki sette de
+  aynı yönde. Seçim vakaların ~%54'ünde değişmiyor. Bedeli: aday üretim süresi iki katı. Kartta şu an 1,6 token/s ile
+  8 aday ~10 dk, 16 aday ~20 dk sürer; hız artmadan kullanılamaz. Firmware 16'ya kadar izin veriyor.
 
 ## Kartın hafif seçicisi ve tam seçici (E5b) — karta taşındı
 
