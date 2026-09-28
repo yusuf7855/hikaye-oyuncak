@@ -82,6 +82,7 @@ OZELLIK_AYKIRI = {
     "Elsa": ["Elsa buzdan hiçbir şey yapamadı.", "Elsa kar ve buzdan hiç hoşlanmazdı."],
     "Chase": ["Chase kuralları hiç dinlemedi.", "Chase hiçbir kokuyu alamadı."],
     "Örümcek Adam": ["Örümcek Adam hiç ağ atamadı.", "Örümcek Adam duvara hiç çıkamadı."],
+    "Hello Kitty": ["Hello Kitty kurabiye yapmayı hiç sevmezdi.", "Hello Kitty yeni arkadaşlarla hiç tanışmak istemedi."],
     "Tosbi": ["Tosbi bir anda dalın yanına vardı.", "Tosbi hiç beklemek istemedi ve hemen kızdı."],
     "Tekir": ["Tekir hiçbir şeyi merak etmezdi.", "Tekir hiçbir şeye bakmak istemedi."],
     "Pamuk": ["Pamuk zıplamayı hiç sevmezdi.", "Pamuk havucu hiç sevmezdi."],

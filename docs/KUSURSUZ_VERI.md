@@ -652,3 +652,19 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   köklerinden çıktı ve bir dünya kuralı ('üs', 'üssü', 'üsse', 'gizli üste' yasak; 'üst', 'üstüne' serbest) eklendi.
   Kart yeniden kilitlendi (`kart-kontrol --kilitle`); Örümcek Adam'ın eski kabulleri K4 ve K merceğinden yeniden
   geçmeli.
+- Hello Kitty yeni popüler figür (kullanıcı isteği). Kart kaynaklı (Sanrio resmi sitesi ve blogu, Vikipedi EN/TR,
+  Hello Kitty çizgi dizileri listesi): kırmızı kurdeleli beyaz kedi; özellikler arkadaş edinmek, kurabiye yapmak,
+  elmalı turta; yerler park, orman, ev (park ve orman yalnız bölüm adlarına dayanır: 'A Trip to Rainbow Park',
+  'Happy Campers'); yanlar Mimi (kaynakta Mimmy, ikiz kız kardeşi), annesi, babası. Çizimde ağzı yok ama dizilerde
+  konuşur: hikâyede konuşur, ağzından söz edilmez; Londra/şehir yolculuğu, marka ve mağaza yok; tohumda teknoloji,
+  çağdaş araç ve büyü yok. Dear Daniel, evcil hayvanlar, dede/nine ve öteki Sanrio karakterleri yasak adlarda.
+  Kart onaylı (kullanıcı yetkisiyle karar) ve urun_v1, urun_v2 kilitlerine eklendi (öteki kilitler değişmedi);
+  `tohum urun_v2 --figur "Hello Kitty" --n 400 --tohum 2027` geçti, ilk yazım istemi data/urun_v2/istem/hello_kitty_1.md.
+- Yalnız çizgi film karakterleri (kullanıcı isteği): temel figürler Tosbi, Tekir, Pamuk, Karabaş ürün listesinden
+  çıktı (data/urun_figurleri.json 'cikarilanlar', 'cikarilma_nedeni'; eski girdileri 'cikarilan_temel'). Kartları
+  urun_kartlari.json'da değişmeden durur (kilitler bozulmaz); kart-kontrol onları denetler ama etkin saymaz,
+  `tohum --figur hepsi` atlar, kapı K1 onların hikâyesini reddeder (K1.figur) ve adları 'cikarilan_figur' olarak
+  öteki figürlerin hikâyelerinde yasaktır. Etkin liste 11 figür: Niloya, Maşa, Pepee, Keloğlan, Doru, Hayri, Şakir,
+  Elsa, Chase, Örümcek Adam, Hello Kitty. Kapı mekaniği testleri Tosbi tabanlarıyla yazıldığından testler bu
+  figürlerin etkin olduğu bir kopya listeyle koşar (tests/test_urun_kapi.py); gerçek listeyi ayrı testler sınar.
+  Tosbi'nin mevcut aday ve kabulleri silinmedi ama eğitime girmemeli.

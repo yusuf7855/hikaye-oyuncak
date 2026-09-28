@@ -1,6 +1,6 @@
 {
  "surum": 1,
- "aciklama": "Ürünün 14 figürünün kaynaklı kartları (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları').",
+ "aciklama": "Ürün figürlerinin kaynaklı kartları (11 etkin figür; data/urun_figurleri.json 'cikarilanlar' listesindeki figürlerin kartları durur ama kullanılmaz) (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları'). Hello Kitty kartı kullanıcı isteğiyle eklendi ve kullanıcı yetkisiyle onaylandı.",
  "sema": {
   "olgu": "{'deger': ..., 'kaynak': [kaynak kimliği, ...]} ; ek alanlar: 'onay_bekliyor', 'not_'",
   "yer.dizide_karsiligi": "dogrulandi | kismen | dogrulanmadi | yok | urun_tanimi",
@@ -619,6 +619,74 @@
    "baslik": "Kullanıcı kararları (kullanıcı 'en iyisi neyse' dedi; kullanıcı yetkisiyle uygulandı)",
    "dosya": "docs/KUSURSUZ_VERI.md",
    "erisim": "2026-09-28"
+  },
+  "sanrio_hk": {
+   "tur": "yapimci",
+   "baslik": "Sanrio resmi sitesi: Hello Kitty karakter tanıtımı",
+   "url": "https://www.sanrio.com/collections/hello-kitty/character-mimmy",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Hello Kitty was born in the suburbs of London. She lives with her parents and her twin sister Mimmy who is her best friend.",
+    "Her hobbies include baking cookies and making new friends. As she always says, 'you can never have too many friends!'"
+   ]
+  },
+  "sanrio_hk_ay": {
+   "tur": "yapimci",
+   "baslik": "Sanrio resmi blogu: Sanrio Friend of the Month: Hello Kitty",
+   "url": "https://www.sanrio.com/blogs/sanrio/sanrio-friend-of-the-month-hello-kitty",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "a bright little girl with a heart of gold",
+    "hails from the suburbs of London, England",
+    "has a soft spot for Mama's apple pie",
+    "Mama: Mary White ... known for apple pie",
+    "Papa: George White ... reliable, dry humor",
+    "Grandma: Margaret White; Grandpa: Anthony White"
+   ]
+  },
+  "vikipedi_hk_en": {
+   "tur": "vikipedi",
+   "baslik": "Wikipedia (EN): Hello Kitty",
+   "url": "https://en.wikipedia.org/wiki/Hello_Kitty",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Sanrio depicts Hello Kitty as a British anthropomorphic white cat with a red bow and no visible mouth.",
+    "According to her backstory, she lives in a London suburb with her family, and is close to her twin sister Mimmy, who is depicted with a yellow bow.",
+    "She is portrayed as a bright and kind-hearted girl, very close to her twin sister Mimmy.",
+    "She is good at baking cookies and loves her mama's homemade apple pie.",
+    "Her twin sister Mimmy is described as \"shy and very girly\", interested in sewing and dreaming of marriage.",
+    "While Hello Kitty wears a red bow on her left ear, Mimmy wears a yellow one on her right.",
+    "Their papa George is described as dependable, humorous but also absent-minded.",
+    "Their mama Mary is portrayed as a good cook who loves doing housework.",
+    "Grandpa Anthony likes to tell stories and grandma Margaret likes sewing.",
+    "Hello Kitty is also depicted with several animal friends, including the mice Joey and Judy, the bears Tippy and Thomas, the raccoon Tracy and the squirrel Rorry.",
+    "Hello Kitty's boyfriend Dear Daniel in 1999, Charmmy Kitty, Hello Kitty's pet cat, and Sugar, her pet hamster, both in 2004, and her superhero alter-ego Ichigoman in 2011.",
+    "Another explanation Sanrio has given for Hello Kitty's lack of a mouth is that she \"speaks from the heart.\""
+   ]
+  },
+  "vikipedi_hk_tr": {
+   "tur": "vikipedi",
+   "baslik": "Vikipedi: Hello Kitty",
+   "url": "https://tr.wikipedia.org/wiki/Hello_Kitty",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "şirket yetkilileri Hello Kitty karakterinin \"Londra'nın banliyölerinde doğup büyümüş Kitty White isimli küçük bir kız\" olduğunu ifade etmiştir.",
+    "Şirketin web sitesinde Hello Kitty'nin anne ve babasının adı \"George\" ve \"Mary\" ... olarak duyrulmuştur.",
+    "\"Mimmy\" adında, sarı fiyonklu ikiz kardeşi vardır."
+   ]
+  },
+  "vikipedi_hk_diziler_en": {
+   "tur": "bolum",
+   "baslik": "Wikipedia (EN): List of Hello Kitty animated series",
+   "url": "https://en.wikipedia.org/wiki/List_of_Hello_Kitty_animated_series",
+   "erisim": "2026-09-28",
+   "alintilar": [
+    "Hello Kitty and Friends (1989) cast: Karen Bernstein - Hello Kitty; Mary Long - Mimmy; Elizabeth Hanna - Mama; Paul De La Rosa - Papa",
+    "Hello Kitty's Paradise: an animated series featuring the adventures of Hello Kitty and her twin sister Mimmy",
+    "Hello Kitty's Paradise episodes: A Trip to Rainbow Park; Making Cookies; Happy Birthday Papa; A Day Out with Dad",
+    "Hello Kitty's Paradise cast: Melissa Fahn - Hello Kitty; Laura Summer - Mimmy; Jennifer Darling - Mama; Tony Pope - Papa",
+    "Supercute Adventures episodes: Happy Campers; Hello Kitty's Apple Pie Surprise; Hello Kitty's Summer Camp Adventures; Hello Kitty's Picnic"
+   ]
   }
  },
  "kartlar": [
@@ -4816,6 +4884,474 @@
    },
    "kararlar": [
     "Kısa ad resmi 'Ghost-Spider', okunuş 'goust spaydır'; 'Gwen' yasak adlarda kalır."
+   ]
+  },
+  {
+   "kimlik": "hello_kitty",
+   "grup": "populer",
+   "onayli": true,
+   "ad": {
+    "deger": "Hello Kitty",
+    "kaynak": [
+     "urun_karari",
+     "sanrio_hk"
+    ]
+   },
+   "okunus": {
+    "deger": "helo kiti",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Hello Kitty",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_hk_diziler_en"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Hello Kitty, ailesiyle birlikte bir evde yaşayan, kırmızı kurdeleli, beyaz ve iyi kalpli bir kedidir.",
+    "kaynak": [
+     "vikipedi_hk_en",
+     "sanrio_hk"
+    ]
+   },
+   "tur": {
+    "deger": "kedi",
+    "kaynak": [
+     "vikipedi_hk_en",
+     "vikipedi_hk_tr"
+    ],
+    "lemmalar": [
+     "kedi",
+     "kız"
+    ],
+    "not": "Sanrio onu kedi biçiminde küçük bir kız olarak anlatır (vikipedi_hk_tr); görünüşü beyaz bir kedidir (vikipedi_hk_en)."
+   },
+   "ozellikler": [
+    {
+     "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır.",
+     "anahtar_kok": "arkadaş",
+     "anahtar_ifade": "\\barkadaş\\w*",
+     "ornek_bicimler": [
+      "arkadaş",
+      "arkadaşlar",
+      "arkadaşıyla"
+     ],
+     "kaynak": [
+      "sanrio_hk",
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "deger": "Kurabiye yapmayı çok sever.",
+     "anahtar_kok": "kurabiye",
+     "anahtar_ifade": "\\bkurabiye\\w*",
+     "ornek_bicimler": [
+      "kurabiye",
+      "kurabiyeler",
+      "kurabiyeleri"
+     ],
+     "kaynak": [
+      "sanrio_hk",
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "deger": "En çok elmalı turtayı sever.",
+     "anahtar_kok": "turta",
+     "anahtar_ifade": "\\bturta\\w*",
+     "ornek_bicimler": [
+      "turta",
+      "turtayı",
+      "turtası"
+     ],
+     "kaynak": [
+      "sanrio_hk_ay",
+      "vikipedi_hk_en"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Kurabiye ve turta bir büyükle birlikte yapılır; fırını ve sıcak tepsiyi annesi ya da babası tutar. Kimse yabancıyla bir yere gitmez; kimse tek başına uzağa gitmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "park",
+     "tarif": "Evin yakınındaki büyük park; çimenler, çiçekler ve piknik yapılan ağaçların gölgesi vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_hk_diziler_en"
+     ],
+     "not": "Yalnız bölüm adları: 'A Trip to Rainbow Park' (Hello Kitty's Paradise), 'Hello Kitty's Picnic' (Supercute Adventures)."
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Kasabanın yakınındaki küçük orman; ağaçların arasında bir kamp yeri vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_hk_diziler_en"
+     ],
+     "not": "Yalnız bölüm adları: 'Happy Campers', 'Hello Kitty's Summer Camp Adventures' (Supercute Adventures)."
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Ailenin birlikte yaşadığı ev; kurabiye yapılan bir mutfağı vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "sanrio_hk",
+      "vikipedi_hk_en",
+      "vikipedi_hk_diziler_en"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:mimi",
+     "kisa_ad": "Mimi",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Mimi",
+      "kardeş",
+      "kardeşi",
+      "ikiz",
+      "ikizi"
+     ],
+     "iliski": {
+      "deger": "Hello Kitty'nin ikiz kız kardeşi ve en iyi arkadaşı; utangaçtır ve sarı kurdele takar.",
+      "kaynak": [
+       "sanrio_hk",
+       "vikipedi_hk_en",
+       "vikipedi_hk_tr"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_hk_diziler_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:anne",
+     "kisa_ad": "annesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "anne",
+      "annesi",
+      "anneciğim",
+      "Anne"
+     ],
+     "iliski": {
+      "deger": "Hello Kitty'nin annesi; çok iyi yemek yapar, elmalı turtası çok güzeldir.",
+      "kaynak": [
+       "vikipedi_hk_en",
+       "sanrio_hk_ay"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_hk_diziler_en"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:baba",
+     "kisa_ad": "babası",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "baba",
+      "babası",
+      "babacığım",
+      "Baba"
+     ],
+     "iliski": {
+      "deger": "Hello Kitty'nin babası; güvenilir ve komiktir, bazen bir şeyi unutur.",
+      "kaynak": [
+       "vikipedi_hk_en",
+       "sanrio_hk_ay"
+      ]
+     },
+     "tur": {
+      "deger": "baba",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_hk_diziler_en"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Hello Kitty, Mimi, annesi ve babası konuşur. Hikayede Hello Kitty'nin ağzından söz edilmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\bKitty'nin\\s+ağz\\w*",
+      "\\bağz[ıi]\\s+(?:yok|olmayan)\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_hk_en",
+      "vikipedi_hk_diziler_en",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Mimi, Hello Kitty'nin ikiz kız kardeşidir; ablası ya da kuzeni değildir. Mimi sarı kurdele takar.",
+     "yasak_duzenli_ifadeler": [
+      "[Aa]bla(?:sı|m)?\\s*,?\\s+Mimi\\b",
+      "[Kk]uzen(?:i|im)?\\s*,?\\s+Mimi\\b",
+      "\\bMimi\\s*,?\\s+(?:Hello\\s+Kitty'nin\\s+)?(?:abla|kuzen)\\w*",
+      "\\bMimi(?:'nin)?\\s+kırmızı\\s+kurdele\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_hk_en",
+      "sanrio_hk"
+     ]
+    },
+    {
+     "kural": "Hikaye evde, parkta ya da ormanda tek sahnede geçer; Londra'ya ya da başka bir şehre yolculuk yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "\\bLondra\\w*",
+      "\\b[İi]ngiltere\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_hk_en",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Hello Kitty bir marka ya da satılan bir eşya olarak anılmaz; mağaza ve alışveriş yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Mm]arka(?:sı|lar|nın|yı|dır)?\\b",
+      "\\bSanrio\\w*",
+      "\\b[Mm]ağaza\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "kural_ornekleri": [
+    [
+     "Hello Kitty'nin ağzı gülümsedi.",
+     "Onun ağzı yoktu.",
+     "Ablası Mimi geldi.",
+     "Kuzeni Mimi güldü.",
+     "Mimi, Hello Kitty'nin ablasıydı.",
+     "Mimi kırmızı kurdelesini taktı.",
+     "Hello Kitty Londra'ya gitti.",
+     "İngiltere çok uzaktı.",
+     "Bu bir Sanrio oyuncağıydı.",
+     "Mağazaya gittiler.",
+     "Hello Kitty bir markadır."
+    ],
+    [
+     "Hello Kitty gülümsedi.",
+     "Kardeşi Mimi geldi.",
+     "Mimi sarı kurdelesini taktı.",
+     "İkizi Mimi güldü.",
+     "Hello Kitty parka gitti.",
+     "Annesi turtayı fırından çıkardı.",
+     "Mimi kurabiyeyi ağzına attı."
+    ]
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Dear Daniel",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Daniel",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Charmmy Kitty",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Charmmy",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Sugar",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Ichigoman",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Mimmy",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Kitty White",
+      "kaynak": [
+       "vikipedi_hk_tr"
+      ]
+     },
+     {
+      "ad": "George",
+      "kaynak": [
+       "vikipedi_hk_en",
+       "vikipedi_hk_tr"
+      ]
+     },
+     {
+      "ad": "Mary",
+      "kaynak": [
+       "vikipedi_hk_en",
+       "vikipedi_hk_tr"
+      ]
+     },
+     {
+      "ad": "Anthony",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Margaret",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Joey",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Judy",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Tippy",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Thomas",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Tracy",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "Rorry",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     },
+     {
+      "ad": "My Melody",
+      "kaynak": [
+       "vikipedi_hk_en"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Marka, mağaza, alışveriş, uçak ya da trenle şehir yolculuğu ve zamanda yolculuk hikayeye girmez.",
+      "kaynak": [
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "kurdele",
+    "kurabiye",
+    "turta",
+    "piknik",
+    "kamp"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Mimi (ikiz kız kardeşi)",
+     "kart": [
+      "yan:mimi"
+     ],
+     "not": "Kaynaklarda 'Mimmy'; Türkçe okunuşa uygun kısa ad 'Mimi'. 'Mimmy' yasak adlarda (tek yazım)."
+    },
+    {
+     "urun": "Annesi",
+     "kart": [
+      "yan:anne"
+     ],
+     "not": "Kaynaktaki adı Mary; yalnız rolüyle anılır."
+    },
+    {
+     "urun": "Babası",
+     "kart": [
+      "yan:baba"
+     ],
+     "not": "Kaynaktaki adı George; yalnız rolüyle anılır."
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: kasabada ev, park ve orman; araçla yolculuk ve büyü yok."
+   },
+   "kararlar": [
+    "Konuşma: çizimde ağzı görünmez ama dizilerde seslendirilir ve konuşur; hikayede konuşur, ağzından söz edilmez (kullanıcı yetkisiyle karar).",
+    "Tür: görünüşü beyaz bir kedi (kırmızı kurdeleli); kart türü 'kedi', 'kız' da lemma (kullanıcı yetkisiyle karar).",
+    "Yerler: park ve orman yalnız bölüm adlarına dayanır (kismen), genel tarifle kalır; Londra ve şehir yolculuğu yok (kullanıcı yetkisiyle karar).",
+    "Yanlar: Mimi (kaynakta Mimmy), annesi ve babası; Dear Daniel, evcil hayvanları, dedesi, ninesi, hayvan arkadaşları ve öteki Sanrio karakterleri kartta yok (kullanıcı yetkisiyle karar)."
    ]
   },
   {

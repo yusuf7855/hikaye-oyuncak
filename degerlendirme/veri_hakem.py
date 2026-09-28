@@ -372,9 +372,11 @@ def kart_kontrol(kart_yolu, urun_yolu, kilit=None):
     urun_fig.update({f["ad"]: ("temel", f) for f in urun["temel"]})
     kartlar = veri.get("kartlar", [])
     adlar = [_olgu(k.get("ad")) for k in kartlar]
-    if set(adlar) != set(urun_fig) or len(adlar) != len(urun_fig):
-        hata(f"figür kümesi ürün listesiyle aynı değil: eksik {sorted(set(urun_fig) - set(adlar))}, "
-             f"fazla {sorted(set(adlar) - set(urun_fig))}")
+    # ürün listesinin 'cikarilanlar'ındaki figürün kartı durabilir (etkin değil): yine denetlenir, sayılmaz
+    etkin = [a for a in adlar if a not in set(urun.get("cikarilanlar", []))]
+    if set(etkin) != set(urun_fig) or len(etkin) != len(urun_fig):
+        hata(f"figür kümesi ürün listesiyle aynı değil: eksik {sorted(set(urun_fig) - set(etkin))}, "
+             f"fazla {sorted(set(etkin) - set(urun_fig))}")
     if len({k.get("kimlik") for k in kartlar}) != len(kartlar):
         hata("kart kimlikleri tekil değil")
     tum_yan_adlari = {}
@@ -627,7 +629,7 @@ def kart_kontrol(kart_yolu, urun_yolu, kilit=None):
     kullanilmayan = set(kaynaklar) - kullanilan
     if kullanilmayan:
         uyari(f"kullanılmayan kaynaklar: {sorted(kullanilmayan)}")
-    sayac["kart"], sayac["kaynak"] = len(kartlar), len(kaynaklar)
+    sayac["kart"], sayac["kaynak"], sayac["etkin"] = len(kartlar), len(kaynaklar), len(etkin)
     return hatalar, uyarilar, sayac
 
 
@@ -638,7 +640,7 @@ def cmd_kart_kontrol(a):
     kilit_yolu = Y.v("kart_kilidi.json")
     kilit = json_oku(kilit_yolu, {})
     hatalar, uyarilar, s = kart_kontrol(kart_yolu, a.urun or kapi.FIGUR, kilit)
-    print(f"kart: {s['kart']}  kaynak: {s['kaynak']}  kaynaklı olgu: {s['olgu']}  onay bekleyen olgu: "
+    print(f"kart: {s['kart']} (etkin {s['etkin']})  kaynak: {s['kaynak']}  kaynaklı olgu: {s['olgu']}  onay bekleyen olgu: "
           f"{s['onay_bekliyor']}  onaylı kart: {s['onayli']}")
     print(f"kural düzenli ifadesi: {s['regex']}  ihlal örneği yakalandı: {s['ornek_yakalandi']}  "
           f"temiz örnek geçti: {s['ornek_temiz']}")
@@ -991,17 +993,23 @@ def _bg(zemberek=True):
     return _kapi().Baglam(zemberek=zemberek)
 
 
+def etkin_kartlar(bg):
+    """Ürün listesindeki (etkin) figürlerin kartları; 'cikarilanlar'daki figürlerin kartları durur ama 'hepsi'ye
+    girmez (kullanıcı isteği: yalnız çizgi film karakterleri)."""
+    return [k for k in bg.kart_dosyasi["kartlar"] if _olgu(k["ad"]) in bg.figurler]
+
+
 def _figur_bul(bg, ad):
     for k in bg.kart_dosyasi["kartlar"]:
         if ad in (_olgu(k["ad"]), k["kimlik"]) or _figur_kimligi(ad) == k["kimlik"]:
             return k
-    raise SystemExit(f"figür bulunamadı: {ad!r} (14 ürün figüründen biri)")
+    raise SystemExit(f"figür bulunamadı: {ad!r} (ürün figürlerinden biri)")
 
 
 def cmd_tohum(a):
     Y = Yollar(a.ad, a.kok)
     bg = _bg(zemberek=False)
-    figurler = [k for k in bg.kart_dosyasi["kartlar"]] if a.figur == "hepsi" else [_figur_bul(bg, a.figur)]
+    figurler = etkin_kartlar(bg) if a.figur == "hepsi" else [_figur_bul(bg, a.figur)]
     kod = 0
     for kart in figurler:
         fb = FigurBilgi(kart, bg)

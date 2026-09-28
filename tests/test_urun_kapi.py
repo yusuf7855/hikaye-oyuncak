@@ -27,6 +27,27 @@ import kapi  # noqa: E402
 import sade_sozluk  # noqa: E402
 import urun_kayit as uk  # noqa: E402
 
+
+def _test_figur_listesi():
+    """Kapı mekaniği testleri Tosbi, Pamuk gibi temel figürlerle yazıldı; kullanıcı isteğiyle (yalnız çizgi film
+    karakterleri) bu figürler ürün listesinden çıktı ama kartları duruyor. Testler, çıkarılan temel figürlerin
+    etkin olduğu bir kopya listeyle koşar (kapi.FIGUR bu süreçte o kopyayı gösterir); gerçek listeyi
+    test_veri_hakem.KartKontrol sınar."""
+    fig = json.loads((ROOT / "data" / "urun_figurleri.json").read_text(encoding="utf-8"))
+    geri = [f["ad"] for f in fig.get("cikarilan_temel", [])]
+    fig["temel"] = fig["temel"] + fig.get("cikarilan_temel", [])
+    fig["cikarilanlar"] = [a for a in fig["cikarilanlar"] if a not in geri]
+    fd, yol = tempfile.mkstemp(prefix="test_urun_figurleri_", suffix=".json")
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        json.dump(fig, f, ensure_ascii=False)
+    import atexit
+    atexit.register(lambda: os.path.exists(yol) and os.remove(yol))
+    return yol
+
+
+GERCEK_FIGUR = kapi.FIGUR
+kapi.FIGUR = _test_figur_listesi()
+
 TABANLAR = """\
 ### Tosbi | orman | baykuş
 @plan: kırmızı balon yüksek bir dala takıldı | baykuştan yardım isteyip balonu indirdi
@@ -394,3 +415,29 @@ class YanlisAlarm(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GercekFigurListesi(unittest.TestCase):
+    """Kullanıcı isteği: yalnız çizgi film karakterleri. Gerçek ürün listesiyle 11 etkin figür (Hello Kitty dahil);
+    çıkarılan temel figürün (Tosbi) hikâyesi K1'de düşer ve 'hepsi' onu atlar."""
+
+    def setUp(self):
+        kapi.FIGUR, self._eski = GERCEK_FIGUR, kapi.FIGUR
+        self.bg = kapi.Baglam(zemberek=False)
+
+    def tearDown(self):
+        kapi.FIGUR = self._eski
+
+    def test_etkin_figurler(self):
+        import veri_hakem as vh
+        self.assertEqual(len(self.bg.figurler), 11)
+        self.assertIn("Hello Kitty", self.bg.figurler)
+        for ad in ("Tosbi", "Tekir", "Pamuk", "Karabaş"):
+            self.assertNotIn(ad, self.bg.figurler)
+            self.assertIn(ad, self.bg.cikarilanlar)
+            self.assertIn(ad, self.bg.kartlar)            # kart durur
+        self.assertEqual(sorted(vh._olgu(k["ad"]) for k in vh.etkin_kartlar(self.bg)), sorted(self.bg.figurler))
+
+    def test_cikarilan_figurun_hikayesi_duser(self):
+        b, kayit, tohum = next(x for x in tabanlar() if x[1]["figur"] == "Tosbi")
+        self.assertIn("K1.figur", kodlar(kapi.denetle(b, tohum, self.bg)))

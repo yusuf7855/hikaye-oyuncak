@@ -286,6 +286,10 @@ class PrepareYalniz(unittest.TestCase):
 
 # ---------------------------------------------------------------- kart-kontrol
 
+def kart_bul(veri, kimlik):
+    return next(k for k in veri["kartlar"] if k["kimlik"] == kimlik)
+
+
 class KartKontrol(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="kart_"))
@@ -302,7 +306,20 @@ class KartKontrol(unittest.TestCase):
     def test_gercek_kartlar_temiz(self):
         h, u, s = self.denetle(self.kart)
         self.assertEqual(h, [])
-        self.assertEqual((s["kart"], s["regex"], s["ornek_yakalandi"]), (14, 50, 50))
+        self.assertEqual((s["kart"], s["etkin"], s["regex"], s["ornek_yakalandi"]), (15, 11, 61, 61))
+
+    def test_cikarilan_figurun_karti_etkin_sayilmaz(self):
+        """Kullanıcı isteği: yalnız çizgi film karakterleri. Temel figürlerin kartları durur ama ürün listesinde
+        'cikarilanlar'dadır: kart-kontrol onları denetler, etkin saymaz; çıkarılmamış fazla kart hatadır."""
+        urun = json.loads((ROOT / "data" / "urun_figurleri.json").read_text())
+        self.assertEqual([f["ad"] for f in urun["populer"]][-1], "Hello Kitty")
+        self.assertEqual((len(urun["populer"]), urun["temel"]), (11, []))
+        self.assertTrue({"Tosbi", "Tekir", "Pamuk", "Karabaş"} <= set(urun["cikarilanlar"]))
+        urun["cikarilanlar"].remove("Tosbi")
+        yol = self.tmp / "urun.json"
+        yol.write_text(json.dumps(urun, ensure_ascii=False))
+        h, _, _ = vh.kart_kontrol(ROOT / "data" / "urun_kartlari.json", yol)
+        self.assertTrue(any("fazla ['Tosbi']" in x for x in h), h)
 
     def test_bozulmalar_yakalanir(self):
         bozuk = {
@@ -315,10 +332,10 @@ class KartKontrol(unittest.TestCase):
             "urun_dayanakli": lambda k: k["kartlar"][0]["yanlar"][0]["tur"].__setitem__("kaynak", ["urun_karari"]),
             "deyim": lambda k: k["kartlar"][3]["yerler"][0].__setitem__("tarif", "Herkesin içi rahat eder."),
             # yazarın kopyalayacağı metin kapılarla çatışmaz: K7 kalıbı ve kökü nadir kelime (Tosbi kartı)
-            "k7_tarif": lambda k: k["kartlar"][10]["yerler"][2].__setitem__("tarif", "Kıyı; derin su var."),
-            "nadir_tarif": lambda k: k["kartlar"][10]["yerler"][1].__setitem__("tarif", "Çiçekli bir dağ yamacı."),
-            "yan_yeri": lambda k: k["kartlar"][10]["yanlar"][3]["yerler"].__setitem__("deger", ["çöl"]),
-            "kategori": lambda k: k["kartlar"][10]["tohum_yasak_kategoriler"]["deger"].append("uzay"),
+            "k7_tarif": lambda k: kart_bul(k, "tosbi")["yerler"][2].__setitem__("tarif", "Kıyı; derin su var."),
+            "nadir_tarif": lambda k: kart_bul(k, "tosbi")["yerler"][1].__setitem__("tarif", "Çiçekli bir dağ yamacı."),
+            "yan_yeri": lambda k: kart_bul(k, "tosbi")["yanlar"][3]["yerler"].__setitem__("deger", ["çöl"]),
+            "kategori": lambda k: kart_bul(k, "tosbi")["tohum_yasak_kategoriler"]["deger"].append("uzay"),
         }
         for ad, f in bozuk.items():
             k = copy.deepcopy(self.kart)
@@ -328,14 +345,14 @@ class KartKontrol(unittest.TestCase):
 
     def test_kilit(self):
         k = copy.deepcopy(self.kart)
-        for i, x in enumerate(k["kartlar"]):
-            x["onayli"] = i == 10
+        for x in k["kartlar"]:
+            x["onayli"] = x["kimlik"] == "tosbi"
         h, u, s = self.denetle(k, {})
         self.assertEqual((h, s["onayli"]), ([], 1))
         self.assertTrue(any("kilitlenmemiş" in x for x in u))
-        kilit = {"tosbi": {"sha1": vh.kart_sha1(k["kartlar"][10])}}
+        kilit = {"tosbi": {"sha1": vh.kart_sha1(kart_bul(k, "tosbi"))}}
         self.assertEqual(self.denetle(k, kilit)[0], [])
-        k["kartlar"][10]["yerler"][0]["tarif"] = "Başka bir tarif."
+        kart_bul(k, "tosbi")["yerler"][0]["tarif"] = "Başka bir tarif."
         self.assertTrue(any("kilitten sonra değişti" in x for x in self.denetle(k, kilit)[0]))
 
 

@@ -358,7 +358,7 @@ def k1(blok, kayit, tohum, bg, ih):
     for h in blok.get("bicim_hatalari", []):
         _ihlal(ih, "K1.bicim", h)
     if kayit["figur"] not in bg.figurler:
-        _ihlal(ih, "K1.figur", f"figür 14 ürün figüründen biri değil: {kayit['figur']!r}")
+        _ihlal(ih, "K1.figur", f"figür etkin ürün figürlerinden biri değil: {kayit['figur']!r}")
         return
     if kayit["figur"] not in bg.kartlar:
         _ihlal(ih, "K1.figur", f"figürün kartı yok: {kayit['figur']}")
