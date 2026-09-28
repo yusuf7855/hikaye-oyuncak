@@ -200,6 +200,14 @@ KATEGORI = {
     "giysi": """elbise şapka ceket kazak atkı eldiven çorap ayakkabı etek gömlek pantolon yelek kemer önlük eşarp bluz
                 palto bot pelerin şal başörtüsü mayo yağmurluk patik kıyafet giysi kolye bileklik bilezik yüzük küpe
                 toka taç fiyonk kurdele maske gözlük çanta mücevher inci elmas kristal kumaş ipek kadife""",
+    "hazir_yiyecek": """reçel bisküvi çörek dondurma ekmek gevrek hamur jöle kaymak kek krema kurabiye limonata pasta
+                        peynir poğaça salata simit sos süt şeker şekerleme tereyağı turşu tuz un yağ yemek yoğurt
+                        içecek baharat karabiber vanilya reçelli çikolatalı kremalı peynirli soslu vanilyalı şekerli
+                        biberli limonlu sabunlu""",
+    "bostan": """patlıcan soğan fasulye bezelye brokoli karnabahar kereviz marul patates domates salatalık turp biber
+                 sebze avokado muz limon portakal karpuz kavun mısır pirinç yulaf""",
+    "calgi": "davul düdük flüt gitar keman trompet",
+    "buyu": "büyülü sihirli",
     "okul": """kitap defter kalem silgi cetvel tebeşir sayfa harita takvim bulmaca mektup zarf mürekkep damga boya
                fırça kart etiket kağıt karton nota davetiye satranç""",
 }
@@ -304,7 +312,7 @@ def uret():
         assert not set(l) & etiketlenen, set(l) & etiketlenen
     kategori = {k: tr_sirala(tekil(ayir(v))) for k, v in KATEGORI.items()}
     for k, v in kategori.items():
-        assert set(v) <= set(isim), (k, set(v) - set(isim))
+        assert set(v) <= set(isim) | set(sifat), (k, set(v) - set(isim) - set(sifat))   # sıfat da olabilir (reçelli)
     tum = [w for v in kategori.values() for w in v]
     assert len(tum) == len(set(tum)), "bir kelime tek kategoride olur"
     for w, cs in CANLI_GEREKTIRIR.items():

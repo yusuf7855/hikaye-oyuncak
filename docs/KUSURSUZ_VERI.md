@@ -625,3 +625,7 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
 - Kılavuzun iki iyi örneği (Tosbi/görüntü, Niloya/replik) ve HAKEM_M/D/K.md'deki eleştiri örnekleri kullanıcı
   yetkisiyle yazıldı; hepsi kod kapılarından geçer (kusurlu örnekler yalnız hakemin görebileceği türdendir).
 - Zemberek (zemberek-python 0.2.3, setuptools<70) .venv'e kuruldu; K5 çözümlemesi artık atlanmıyor.
+- Pilot tur 2'den sonra (kullanıcı yetkisiyle karar): tohum kategorilerine `hazir_yiyecek`, `bostan`, `calgi`, `buyu`
+  eklendi. Doğa figürleri (Tosbi, Tekir, Pamuk, Karabaş) üçünü de, Doru `hazir_yiyecek` ve `calgi`'yı yasaklar;
+  `buyu` Elsa ve Keloğlan dışında yasak. Kartlar yeniden kilitlendi; pilotun 3 kabulü eğitimden önce K4 ve K
+  merceğinden yeniden geçmeli.
