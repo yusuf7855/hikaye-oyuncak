@@ -133,6 +133,9 @@ static void head_hazirla() {
 
 static const char *HEAD_AD[] = {"eski (tek çekirdek, flash)", "yeni, flash", "yeni, PSRAM"};
 
+static int istem_onbellek_k = -1;   // KV'sinde istemi hazır tutulan (seçim, yer); -1 yok
+static float *istem_logit = NULL;   // o istemin son token'ından sonraki logit'ler (PSRAM)
+
 static void alloc_scratch() {
   Cfg *c = &model.c;
   int D = c->dim, L = c->n_layers, P = c->ple_dim, F = c->ffn, S = c->seq_len;
@@ -147,6 +150,7 @@ static void alloc_scratch() {
   s.trow = (float *)sram_or_die(L * P * 4, "trow");
   s.scores = (float *)sram_or_die(S * 4, "scores");
   s.logits = (float *)ps_or_die((size_t)model.out_vocab * 4, "logits");
+  istem_logit = (float *)heap_caps_malloc((size_t)model.out_vocab * 4, MALLOC_CAP_SPIRAM);  // yoksa önbelleksiz
   s.kcache = (float *)ps_or_die((size_t)L * S * D * 4, "kcache");
   s.vcache = (float *)ps_or_die((size_t)L * S * D * 4, "vcache");
 }
@@ -189,11 +193,17 @@ static Aday aday_uret(int sec, int yer, bool canli) {
   OrnAyar ayar = {SICAKLIK, TOP_K, TEKRAR, yasak, ny, govde_yasak, 2, idx, olas};
   OrnDurum st; orn_sifirla(&st);
   int k = sec * N_YER + yer, pos = 0, tok = 0;
+  // İstem her adayda aynı: bir kez işlenir. Sonraki adaylar yalnız istemden sonraki KV konumlarına yazdığından
+  // istemin KV'si bozulmaz; istem sonundaki logit'ler saklanıp geri yüklenir (sonuç bit bit aynı, ~%10 hız).
+  bool hazir = istem_onbellek_k == k && istem_logit;
   for (int i = ISTEM_OFF[k]; i < ISTEM_OFF[k + 1]; i++) {  // istem tekrar penceresine girer (gen.c varsayılanı)
     tok = ISTEM_ID[i];
     orn_ekle(&st, tok);
-    llm_forward(&model, tok, pos++, &s);
+    if (hazir) pos++;
+    else llm_forward(&model, tok, pos++, &s);
   }
+  if (hazir) memcpy(s.logits, istem_logit, (size_t)model.out_vocab * sizeof(float));
+  else if (istem_logit) { memcpy(istem_logit, s.logits, (size_t)model.out_vocab * sizeof(float)); istem_onbellek_k = k; }
   orn_plan_baslat(&st, NL_ID);
   Aday a = {0, 0, 0.f, false, false};
   double lp = 0; int n_lp = 0;
@@ -302,6 +312,7 @@ static void profil_yaz() {
 
 // "b": aynı istemle 48 adım, head'in üç yolu için ayrı ayrı ölçer; en hızlısını seçili bırakır.
 static void hiz_testi() {
+  istem_onbellek_k = -1;  // test KV'yi başka istemle doldurur
   int secilen = head_mod, en = head_mod;
   double en_ms = 1e30;
   for (int mod = 0; mod < 3; mod++) {

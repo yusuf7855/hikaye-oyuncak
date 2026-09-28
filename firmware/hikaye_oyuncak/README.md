@@ -88,6 +88,8 @@ head ve örnekleme. **Bu satırları, `b` çıktısını ve birkaç hikâyeyi ba
 - head iki çekirdeğe bölünür,
 - yer varsa head kodları (1,3 MB) açılışta PSRAM'e kopyalanır.
 Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b` komutu eski ve yeni yolları karşılaştırır.
+- Çok adayda istem (~16 token) bir kez işlenir: sonraki adaylar istemin KV'sini ve son logit'lerini yeniden kullanır
+  (sonuç aynı, aday başına ~%10 daha az hesap).
 
 ## Sorun giderme
 
