@@ -301,3 +301,12 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
 - `firmware/hikaye_oyuncak/secici.h`: sec.puanla'nın C karşılığı (+ 76 bin kelimelik sözlük, ~290 KB flash),
   1320 havuz adayı + 20 bin bozulmuş kopyada Python ile 0 fark. Kartta varsayılan açık (SECICI_TAM 1, güvenlik
   kuralı açık).
+
+## Tek figür ızgarası (12 figür × 6 yer × 2, kart modeli hf_c2ft_plan + E5b)
+
+- Rubrik (4 hakem, her biri aynı 36 vakanın iki sürümünü puanladı): **8 aday 4,33**, **1 aday 2,97** (planı bozulup
+  gövdesi boş kalan 13/144 hariç 3,10). Tek adaya düşmek ~1,3 puan kaybettiriyor; kabul edilemez.
+- Yer ortalamaları (8 aday, yer başına 24 hikâye): dağ 5,1 · deniz 4,7 · orman 4,5 · park 4,1 · şato 3,8 · ev 3,7.
+  Doğa yerleri (dağ/deniz/orman) 4,77, diğerleri 3,87. Figür × yer hücreleri 2 hikâyelik, çok gürültülü; figür başına
+  yer seçimi yerine "doğa yerlerini tercih et" kuralı daha güvenilir.
+- Figür ortalamaları: Tosbi 5,5 … Cikcik 3,0 (tablo: bu turun raporu).
