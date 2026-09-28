@@ -108,4 +108,10 @@ Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b`
 - Örnekleme bilgisayardaki `gen`/`degerlendirme/uret.py` ile aynıdır (plan modu, sıcaklık 0.5, top-k 40, tekrar
   1.1, gövdede satır sonu yasağı). Aynı yazılım bilgisayarda sahte ESP32 başlıklarıyla derlenip denendi.
 - Tek adayda plan bozulursa (plan yerine hikâye başlarsa) iki kez yeniden denenir.
-- Seçici burada hafiftir (güven, bitiş, figür adı sayımı); tam kurallar (`degerlendirme/sec.py`) sonraki adım.
+- Seçici: `secici.h`, `degerlendirme/sec.py` puanla'nın birebir C kopyası (hakemlerin gördüğü E5b/olay2 seçicisi:
+  kural + olay + plan + yer cezaları, uydurma-kelime sözlüğü, güvenlik). Aday satırında sıfır olmayan kural
+  cezaları parantez içinde yazılır. Eski hafif seçici (güven, bitiş, figür adı sayımı) `#define SECICI_TAM 0` ile;
+  güvenlik cezası `SECICI_GUVENLIK` (varsayılan 1). Sözlük `generated/sozluk.h` (~290 KB flash;
+  `tools/sozluk_paketle.py` ile `degerlendirme/sozluk.pkl`'den üretilir). Eşitlik testi (bütün havuz adayları +
+  bozulmuş sentetik adaylar, puan ve kural kural):
+  `python firmware/hikaye_oyuncak/tools/secici_karsilastir.py --guvenlik --sentetik 5000`

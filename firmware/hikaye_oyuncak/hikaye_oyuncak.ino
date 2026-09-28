@@ -7,8 +7,11 @@
 //
 // Seri monitör (115200): "1 3" = 1. figür, 3. yer | "1,5 3" = iki figür | "r" = rastgele | "?" = liste |
 // "b" = hız testi (head'in üç yolu, token başına ms dökümü).
-// Sona aday sayısı: "1 3 4" = 4 aday üret, hafif seçiciyle en iyisini yaz (puanla()). Aday sayısı yoksa (1) canlı
+// Sona aday sayısı: "1 3 4" = 4 aday üret, seçiciyle en iyisini yaz (puanla()). Aday sayısı yoksa (1) canlı
 // yazar. Kart her hikâyeden sonra token/s ve süreyi yazar.
+// Seçici: SECICI_TAM 1 (varsayılan) = secici.h, sec.py puanla'nın birebir C kopyası (hakemlerin gördüğü E5b/olay2
+// seçicisi; generated/sozluk.h ~290 KB flash); 0 = eski hafif seçici (puanla_hafif, yalnız token sayımı).
+// SECICI_GUVENLIK 1 (varsayılan): çocuğa uygun olmayan içerik cezası da açık (sec.py: ürün yolunda her zaman açık).
 
 #include "esp_partition.h"
 #include "esp_heap_caps.h"
@@ -24,6 +27,15 @@
 #include "generated/ornekle.h"
 #include "generated/vocab.h"
 #include "generated/istemler.h"
+#ifndef SECICI_TAM
+#define SECICI_TAM 1
+#endif
+#ifndef SECICI_GUVENLIK
+#define SECICI_GUVENLIK 1
+#endif
+#if SECICI_TAM
+#include "secici.h"
+#endif
 
 static const int BAGLAM = 224;       // KV önbelleği: 10 katman x 224 x 160 x 4 B x 2 = 2.9 MB
 static const int N_URET = 240;       // en fazla bu kadar token (plan + gövde)
@@ -206,7 +218,8 @@ static Aday aday_uret(int sec, int yer, bool canli) {
 
 // Hafif seçici (sec.py'nin kartta ucuz alt kümesi): 2 x ortalama log-olasılık, bitmemiş hikâye -2, figür adı
 // gövdede 2'den az -3, son %40'ta yok -3, çok kısa (<60 token) -2, plan bozuk elenir.
-static float puanla(const Aday &a, int sec) {
+// Bilgisayardaki kopyası: degerlendirme/kart_secici.py.
+static float puanla_hafif(const Aday &a, int sec) {
   if (a.plan_bozuk) return -1e9f;
   float p = 2.f * a.lp - (a.bitti ? 0.f : 2.f);
   int govde = a.n - a.n_plan, son = a.n_plan + (int)(govde * 0.6f);
@@ -220,6 +233,60 @@ static float puanla(const Aday &a, int sec) {
     if (!sonda) p -= 3.f;
   }
   return p;
+}
+
+#if SECICI_TAM
+// token'ların ham UTF-8 baytlarını buf'a ekler (VOCAB_BLOB); döner: yeni uzunluk (cap'te kesilir)
+static int coz_ekle(const int16_t *t, int n, char *buf, int len, int cap) {
+  for (int i = 0; i < n; i++) {
+    int tok = t[i];
+    if (tok < 0 || tok >= VOCAB_N) continue;
+    int b = VOCAB_OFF[tok], e = VOCAB_OFF[tok + 1];
+    if (len + (e - b) > cap) break;
+    memcpy(buf + len, VOCAB_BLOB + b, e - b);
+    len += e - b;
+  }
+  return len;
+}
+
+// Tam seçici (secici.h = sec.puanla): gövde metni uret.py'deki gibi çözülüp kırpılır (.strip()), plan "Sorun:" +
+// plan token'ları. Plan bozuk ya da gövde boşsa elenir (uret.py: plan_bozuk).
+static char govde_buf[4096], plan_buf[1024];
+static inline bool ascii_bosluk(char c) { return c == ' ' || (c >= '\t' && c <= '\r'); }
+static float puanla_tam(const Aday &a, int sec, int yer) {
+  if (a.plan_bozuk) return -1e9f;
+  int gn = coz_ekle(aday_tok + a.n_plan, a.n - a.n_plan, govde_buf, 0, sizeof govde_buf);
+  int bas = 0;
+  while (bas < gn && ascii_bosluk(govde_buf[bas])) bas++;
+  while (gn > bas && ascii_bosluk(govde_buf[gn - 1])) gn--;
+  if (gn == bas) return -1e9f;
+  memcpy(plan_buf, "Sorun:", 6);
+  int pn = coz_ekle(aday_tok, a.n_plan, plan_buf, 6, sizeof plan_buf);
+  int fig[2], nf = 0;
+  fig[nf++] = SECIM_A[sec];
+  if (SECIM_B[sec] >= 0) fig[nf++] = SECIM_B[sec];
+  return (float)secici_puanla(govde_buf + bas, gn - bas, plan_buf, pn, fig, nf, yer, a.bitti, a.lp, SECICI_GUVENLIK);
+}
+
+// Son puanlanan adayın sıfır olmayan kural cezaları: " (sonda_yok 3, plan 2)"
+static void kural_yaz() {
+  bool ilk = true;
+  for (int i = 0; i < SK_N; i++) {
+    if (secici_kural[i] == 0) continue;
+    Serial.printf("%s%s %.1f", ilk ? " (" : ", ", SECICI_KURAL_AD[i], secici_kural[i]);
+    ilk = false;
+  }
+  if (!ilk) Serial.print(")");
+}
+#endif
+
+static float puanla(const Aday &a, int sec, int yer) {
+#if SECICI_TAM
+  return puanla_tam(a, sec, yer);
+#else
+  (void)yer;
+  return puanla_hafif(a, sec);
+#endif
 }
 
 // Token başına ms: girdi, dikkat, FFN, PLE, head (llm.h LLM_PROFILE) ve örnekleme.
@@ -277,9 +344,15 @@ static void hikaye(int sec, int yer, int K) {
       a = aday_uret(sec, yer, true);
     }
     toplam += a.n + (a.bitti ? 1 : 0);
-    float p = puanla(a, sec);
-    if (K > 1) Serial.printf("aday %d/%d: %d token, güven %.3f, %s -> puan %.2f\n", j + 1, K, a.n, a.lp,
-                             a.plan_bozuk ? "plan bozuk" : a.bitti ? "bitti" : "yarım", p);
+    float p = puanla(a, sec, yer);
+    if (K > 1) {
+      Serial.printf("aday %d/%d: %d token, güven %.3f, %s -> puan %.2f", j + 1, K, a.n, a.lp,
+                    a.plan_bozuk ? "plan bozuk" : a.bitti ? "bitti" : "yarım", p);
+#if SECICI_TAM
+      if (!a.plan_bozuk) kural_yaz();
+#endif
+      Serial.println();
+    }
     if (p > en_p) { en_p = p; en_n = a.n; memcpy(en_tok, aday_tok, a.n * sizeof(int16_t)); }
   }
   if (K > 1) {
