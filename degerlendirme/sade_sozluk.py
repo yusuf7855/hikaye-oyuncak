@@ -209,6 +209,7 @@ CEKIMLI = {u: re.compile(f"(?:m{A}|{'y' if u else ''}{A}m{A}|{'y' if u else ''}{
            for u in (True, False)}                      # çekimli fiil: arkasına hâl eki gelmez (yardım != yar+dım)
 SIFAT_FIIL = re.compile(f"(?:y?{A}n|{D}{I}[kğ]|y?{A}{C}{A}[kğ]){_isim_kuyrugu(False)}?|m{A}{_isim_kuyrugu(True)}?")
 # ^ koşanları, yaptıkları, koşmaları: sıfat-fiil ve ad-fiil çoğul ve hâl alır (koşmak almaz)
+YETERSIZ = re.compile(f"y?{A}m{A}")                        # yapama (tek başına)
 HAL_YA_DA_KOPULA = re.compile(f"[yn]?{I}|[yn]?{A}|{D}{A}n?|n?{I}n|y?l{A}|{_kopula(True)}|{_kopula(False)}")
 BELIRSIZ_ISIM = re.compile(f"{I}|{A}|{I}?[mn]|s{I}|y{I}|y{A}|n{I}|n{A}|l{A}|{I}n|{I}z")   # ayı = ay+ı mı?
 BELIRSIZ_IYELIK = re.compile(f"{I}?[mn]|{I}z|s{I}")      # doğum = doğu+m mu? (iyelik, sıkı eşik)
@@ -332,15 +333,15 @@ class Kokcu:
             return False
         if g == s and self.cekimli_fiil(g) and not self.hal_alir(g):    # yardım != yardı+m
             return False
-        if g in self.ad and tf(g, 0) < nx:                              # arasında != Aras+ında, karla != Karl+a
+        if g == s and g in self.ad and tf(g, 0) < nx:                   # arasında != Aras+ında, karla != Karl+a
             return False
         if BELIRSIZ_ISIM.fullmatch(t):                                  # ayı != ay+ı, kadın != kat+ın
             if self.yalin_cogul(x) or (x[-1] in UNLU and self.y_kaynastirir(x)):
                 return False
             if (10 if BELIRSIZ_IYELIK.fullmatch(t) else 100) * tf(g, 0) < nx:   # doğum != doğu+m
                 return False
-            if len(t) == 1 and s[-1] in "syn" and s[-2] in UNLU and tf(s[:-1], 0) >= tf(s, 0):
-                return False                                            # gagası != gagas+ı
+            if len(t) == 1 and s[-1] in "syn" and s[-2] in UNLU and tf(s, 0) < 20 and tf(s[:-1], 0) >= tf(s, 0):
+                return False                                            # gagası != gagas+ı (saray+ı kalır)
         return True
 
     def adaylar(self, x):
@@ -353,8 +354,9 @@ class Kokcu:
                     continue
                 if sozcuk and not SIFAT_FIIL.fullmatch(t):             # parmak != par+mak, kalıp != kal+ıp
                     continue
-                if CEKIMLI[unlu].fullmatch(t) and not SIFAT_FIIL.fullmatch(t) and self.hal_alir(x):
-                    continue                                            # yardım != yar+dım, yer != ye+r
+                if (CEKIMLI[unlu].fullmatch(t) and not SIFAT_FIIL.fullmatch(t) or YETERSIZ.fullmatch(t)) \
+                        and self.hal_alir(x):
+                    continue                                            # yardım != yar+dım, sinema != sin+eme
                 yield g, "fiil"
                 break
             else:
@@ -427,7 +429,10 @@ def fiil_kokleri(tf, en_az_tf=5):
                             for g in (s, s + "a", s + "e"):
                                 kanit[g][sinif] += n
                         continue
-                    if sinif not in ("mak", "maya", "di") and (e in unlu) != (s[-1] in UNLU):
+                    if sinif == "di":                         # ünlüden sonra yalnız -dı (bileti = bilet+i)
+                        if s[-1] in UNLU and e not in unlu:
+                            continue
+                    elif sinif not in ("mak", "maya") and (e in unlu) != (s[-1] in UNLU):
                         continue
                     kanit[s][sinif] += n
                     if e[0] in UNLU and s[-1] == "d":        # gidip, ederek -> git-, et-
@@ -435,7 +440,7 @@ def fiil_kokleri(tf, en_az_tf=5):
         return kanit
 
     def gecer(g, k):
-        guclu = sum(1 for c in GUCLU_KANIT if k[c])
+        guclu = sum(1 for c in GUCLU_KANIT if k[c] >= 5)     # tek tük yazım hatası kanıt sayılmaz
         top = sum(k.values())
         bicim = len(g) >= 3 or (len(g) == 2 and (g[0] in UNLU or g in ("ye", "de")))
         return (bicim and top >= en_az_tf and (guclu >= 2 or (guclu >= 1 and k["di"] >= 20))
@@ -445,9 +450,12 @@ def fiil_kokleri(tf, en_az_tf=5):
     kanit = say(True, ilk)
     fiil = {g: k["mak"] + k["di"] for g, k in kanit.items() if gecer(g, k)}
 
+    def asil(b):                                              # ed -> et, yi -> ye
+        return b in fiil or (b[-1:] == "d" and b[:-1] + "t" in fiil) or b in ("yi", "di")
+
     def turemis(g):
         for ek in ("ma", "me", "yama", "yeme", "ama", "eme", "abil", "ebil", "yabil", "yebil"):
-            if g.endswith(ek) and g[:-len(ek)] in fiil:
+            if g.endswith(ek) and len(g) > len(ek) and asil(g[:-len(ek)]):
                 return True
         if g[-1] in "ae" and g[:-1] in fiil:                  # bula- (bul+a-madı) atılır, kapa- (kapadı) kalır
             return kanit[g]["di"] < 0.05 * kanit[g[:-1]]["di"]

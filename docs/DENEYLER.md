@@ -310,3 +310,10 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
   Doğa yerleri (dağ/deniz/orman) 4,77, diğerleri 3,87. Figür × yer hücreleri 2 hikâyelik, çok gürültülü; figür başına
   yer seçimi yerine "doğa yerlerini tercih et" kuralı daha güvenilir.
 - Figür ortalamaları: Tosbi 5,5 … Cikcik 3,0 (tablo: bu turun raporu).
+
+## Tek figür modeli (c3ft_tek: c3 + v6 verisi eksi ikili hikâyeler, 2995 hikâye)
+
+- Son doğrulama 2,893 (doğrulama setinde ikili hikâyeler de var; kıyaslanamaz).
+- Tek figür ızgarası (144 vaka, 8 aday + E5b), kör genel ikili, kart modeline (izgara8) karşı: **79–65 (%55)**,
+  tek yönlü p≈0,14. Küçük ama kart modelinden iyi yönde; üstelik popüler karakterleri biliyor (ızgarada ölçülmedi).
+- Sonraki adım: kusursuz veri hattı (docs/KUSURSUZ_VERI.md) ile ürün figürlerine özel veri.
