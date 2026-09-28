@@ -31,13 +31,13 @@
 #endif
 
 #ifndef SES_PARCA
-#define SES_PARCA 32        // akışta bir adımda çözücüye giren kare (0,5 s ses)
+#define SES_PARCA 16        // akışta bir adımda çözücüye giren kare (0,26 s ses)
 #endif
 #ifndef SES_ALT
 #define SES_ALT 16          // noktasal katmanlarda birlikte işlenen kare
 #endif
 #ifndef SES_MAX_SEMBOL
-#define SES_MAX_SEMBOL 200  // tek seferde sentezlenen en uzun sembol dizisi (uzunlar boşluktan bölünür)
+#define SES_MAX_SEMBOL 128  // tek seferde sentezlenen en uzun sembol dizisi (uzunlar boşluk/virgülden bölünür)
 #endif
 #ifndef SES_MAX_KOD
 #define SES_MAX_KOD 1024    // ses_cumle'nin tek cümlede okuduğu en çok sembol
@@ -45,6 +45,11 @@
 #define SES_MAX_BLOK 12
 #define SES_PCM_N 1024
 #define SES_PI 3.14159265358979323846
+#if defined(__GNUC__)
+#define SES_API static __attribute__((unused))
+#else
+#define SES_API static
+#endif
 
 enum { SES_F32 = 0, SES_F16 = 1, SES_Q4 = 2, SES_Q8 = 3 };
 
@@ -91,7 +96,7 @@ typedef struct Ses {
   float perde_kaydir;   // yarım ton
   SesParalel paralel;
   // çalışma alanı
-  float *ex, *ey, *ez, *tahmin, *pA, *pB, *z, *hid, *u, *col, *dwt, *satir[2];
+  float *ex, *alan, *tahmin, *pA, *pB, *z, *hid, *u, *col, *dwt, *satir[2];
   int *sure, *kod_buf;
   SesAkis akis[2 * SES_MAX_BLOK + 1];
   int n_akis, kmax;
@@ -107,6 +112,7 @@ typedef struct Ses {
   void (*kanca_mel)(void *kul, const float *mel, int n_kare);        // [n_kare x n_mel]
   void (*kanca_dalga)(void *kul, const float *x, int n);             // kırpılmamış float
   void *kanca_kul;
+  size_t bellek_buyuk, bellek_sicak;   // ayrılan tamponlar (bayt)
   double mac;           // son sentezdeki çarpma sayısı (tahmini süre için)
 } Ses;
 
@@ -161,7 +167,7 @@ static uint32_t ses_utf8(const unsigned char **p, const unsigned char *son) {
 
 // metin.py temizle() + kodla(): küçük harf, tırnak/üç nokta/uzun tire dönüşümü, kesme işareti silinir,
 // bilinmeyen -> boşluk, boşluklar teke iner, baştan/sondan kırpılır. Döner: sembol sayısı (en çok kap).
-static int metin_kodla_n(const char *metin, size_t bayt, int *ids, int kap) {
+SES_API int metin_kodla_n(const char *metin, size_t bayt, int *ids, int kap) {
   const unsigned char *p = (const unsigned char *)metin, *son = p + bayt;
   int n = 0, bosluk = 0;
   while (p < son && n < kap) {
@@ -181,7 +187,7 @@ static int metin_kodla_n(const char *metin, size_t bayt, int *ids, int kap) {
   }
   return n;
 }
-static int metin_kodla(const char *metin, int *ids, int kap) { return metin_kodla_n(metin, strlen(metin), ids, kap); }
+SES_API int metin_kodla(const char *metin, int *ids, int kap) { return metin_kodla_n(metin, strlen(metin), ids, kap); }
 
 // ---------------------------------------------------------------- tensörler
 static inline float ses_f16(uint16_t h) {
@@ -350,24 +356,31 @@ static void ses_vgiris(Ses *s, const float *x, int x_bas, int T, int t0, int t1,
   }
 }
 
-// Akış katmanına n yeni kare verir; hesaplanabilen çıkış karelerini out'a yazar, sayısını döner (-1: taşma).
+// Akış katmanına n yeni kare verir; hesaplanabilen çıkış karelerini out'a yazar, sayısını döner (-1: hata).
+// Tampon 2r + SES_PARCA kare tutar; daha fazlası gelirse (akışın sonunda) parça parça işlenir.
 static int ses_akis_it(Ses *s, SesAkis *a, const float *in, int n, int T, float *out) {
-  if (a->son - a->bas + n > a->kap) { ses_hata = "akış tamponu taştı"; return -1; }
-  memcpy(a->buf + (size_t)(a->son - a->bas) * a->d_in, in, (size_t)n * a->d_in * sizeof(float));
-  a->son += n;
-  int hedef = a->son >= T ? T : a->son - a->r, m = 0;
-  if (hedef > a->cikan) {
-    m = hedef - a->cikan;
-    if (a->tip == 0) ses_blok(s, a->b, a->buf, a->bas, T, a->cikan, hedef, out);
-    else ses_vgiris(s, a->buf, a->bas, T, a->cikan, hedef, out);
-    a->cikan = hedef;
-  }
-  int yeni = a->cikan - a->r;
-  if (yeni > a->bas) {
-    memmove(a->buf, a->buf + (size_t)(yeni - a->bas) * a->d_in, (size_t)(a->son - yeni) * a->d_in * sizeof(float));
-    a->bas = yeni;
-  }
-  return m;
+  int top = 0;
+  do {
+    int k = a->kap - (a->son - a->bas);
+    if (k > n) k = n;
+    if (k <= 0 && n > 0) { ses_hata = "akış tamponu taştı"; return -1; }
+    memcpy(a->buf + (size_t)(a->son - a->bas) * a->d_in, in, (size_t)k * a->d_in * sizeof(float));
+    a->son += k; in += (size_t)k * a->d_in; n -= k;
+    int hedef = a->son >= T ? T : a->son - a->r;
+    if (hedef > a->cikan) {
+      float *o = out + (size_t)top * a->d_out;
+      if (a->tip == 0) ses_blok(s, a->b, a->buf, a->bas, T, a->cikan, hedef, o);
+      else ses_vgiris(s, a->buf, a->bas, T, a->cikan, hedef, o);
+      top += hedef - a->cikan;
+      a->cikan = hedef;
+    }
+    int yeni = a->cikan - a->r;
+    if (yeni > a->bas) {
+      memmove(a->buf, a->buf + (size_t)(yeni - a->bas) * a->d_in, (size_t)(a->son - yeni) * a->d_in * sizeof(float));
+      a->bas = yeni;
+    }
+  } while (n > 0);
+  return top;
 }
 
 // ---------------------------------------------------------------- iSTFT (ortak.Istft: hann, center, w² bölme)
@@ -487,6 +500,7 @@ static int ses_blok_bul(const uint8_t *img, size_t boyut, const char *onek, int 
   return 0;
 }
 
+static void *ses_ay(struct Ses *s, SesAyir ayir, size_t n, int sicak);
 static void *ses_varsayilan_ayir(size_t n, int sicak) {
 #ifdef ESP_PLATFORM
   void *p = sicak ? heap_caps_malloc(n, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT) : NULL;
@@ -497,9 +511,16 @@ static void *ses_varsayilan_ayir(size_t n, int sicak) {
 #endif
 }
 
+static void *ses_ay(struct Ses *s, SesAyir ayir, size_t n, int sicak) {
+  void *p = ayir(n, sicak);
+  if (p) { if (sicak) s->bellek_sicak += n; else s->bellek_buyuk += n; }
+  return p;
+}
+
 // Döner 0; hata: -1 (ses_hata). img flash'ta (mmap) ya da RAM'de kalmalı. ayir NULL: heap_caps / malloc.
-// Tamponlar bir kez ayrılır (serbest bırakılmaz): ~0,5 MB büyük + ~0,2 MB sıcak (varsayılan boyutlarda).
-static int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
+// Tamponlar bir kez ayrılır (serbest bırakılmaz); varsayılan boyutlarda ~470 KB büyük (PSRAM olabilir) +
+// ~210 KB sıcak (dahili SRAM tercih). Miktar: s->bellek_buyuk / s->bellek_sicak.
+SES_API int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
   memset(s, 0, sizeof *s);
   s->hiz = 1.f;
   if (!ayir) ayir = ses_varsayilan_ayir;
@@ -559,8 +580,10 @@ static int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
   }
 
   // akış katmanları: çözücü blokları, vocoder girişi, vocoder blokları
-  int toplam_r = s->n_coz * (s->k_coz / 2) + s->vk_giris / 2 + s->n_vblok * (s->vk / 2), onceki = 0;
-  s->kmax = SES_PARCA + toplam_r;
+  // (akış tamponları ve kodlayıcının geçici tamponları aynı alanı paylaşır: ikisi aynı anda kullanılmaz)
+  int toplam_r = s->n_coz * (s->k_coz / 2) + s->vk_giris / 2 + s->n_vblok * (s->vk / 2);
+  size_t akis_n = 0;
+  s->kmax = SES_PARCA + toplam_r;   // bir adımda bir katmandan çıkabilecek en çok kare (akış sonunda)
   s->n_akis = 0;
   for (int i = 0; i < s->n_coz + 1 + s->n_vblok; i++) {
     SesAkis *a = &s->akis[s->n_akis++];
@@ -568,9 +591,8 @@ static int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
     else if (i == s->n_coz) { a->tip = 1; a->b = NULL; a->d_in = M; a->d_out = vd; }
     else { a->tip = 0; a->b = &s->vblok[i - s->n_coz - 1]; a->d_in = a->d_out = vd; }
     a->r = (a->tip == 1 ? s->vk_giris : a->b->k) / 2;
-    a->kap = 2 * a->r + SES_PARCA + onceki;
-    onceki += a->r;
-    if (!(a->buf = (float *)ayir((size_t)a->kap * a->d_in * sizeof(float), 0))) goto yer_yok;
+    a->kap = 2 * a->r + SES_PARCA;
+    akis_n += (size_t)a->kap * a->d_in;
   }
   {
     int dm = ad > vd ? ad : vd;
@@ -585,31 +607,37 @@ static int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
     if (s->vk > km) km = s->vk;
     if (cm < km) cm = km;
     const size_t F = sizeof(float), N = s->n_fft;
-    s->ex = (float *)ayir(SES_MAX_SEMBOL * de * F, 0);
-    s->ey = (float *)ayir(SES_MAX_SEMBOL * de * F, 0);
-    s->ez = (float *)ayir(SES_MAX_SEMBOL * de * F, 0);
-    s->tahmin = (float *)ayir(SES_MAX_SEMBOL * 3 * F, 0);
-    s->sure = (int *)ayir(SES_MAX_SEMBOL * sizeof(int), 0);
-    s->kod_buf = (int *)ayir(SES_MAX_KOD * sizeof(int), 0);
-    s->pA = (float *)ayir((size_t)s->kmax * dm * F, 0);
-    s->pB = (float *)ayir((size_t)s->kmax * dm * F, 0);
-    s->z = (float *)ayir(SES_ALT * dm * F, 1);
-    s->hid = (float *)ayir(SES_ALT * hm * F, 1);
-    s->u = (float *)ayir(SES_ALT * um * F, 1);
-    s->col = (float *)ayir(SES_ALT * M * s->vk_giris * F, 1);
-    s->dwt = (float *)ayir(km * dm * F, 1);
-    s->satir[0] = (float *)ayir(cm * F, 1);
-    s->satir[1] = (float *)ayir(cm * F, 1);
-    s->fre = (float *)ayir(N * F, 1);
-    s->fim = (float *)ayir(N * F, 1);
-    s->pen = (float *)ayir(N * F, 1);
-    s->pen2 = (float *)ayir(N * F, 1);
-    s->ola = (float *)ayir(N * F, 1);
-    s->tc = (float *)ayir(N / 2 * F, 1);
-    s->ts = (float *)ayir(N / 2 * F, 1);
-    s->ters = (int16_t *)ayir(N * sizeof(int16_t), 1);
-    s->pcm = (int16_t *)ayir(SES_PCM_N * sizeof(int16_t), 1);
-    if (!s->ex || !s->ey || !s->ez || !s->tahmin || !s->sure || !s->kod_buf || !s->pA || !s->pB || !s->z ||
+    size_t alan_n = (size_t)SES_MAX_SEMBOL * (de + dt);
+    if (akis_n > alan_n) alan_n = akis_n;
+    s->ex = (float *)ses_ay(s, ayir, SES_MAX_SEMBOL * de * F, 0);
+    s->alan = (float *)ses_ay(s, ayir, alan_n * F, 0);
+    if (!s->alan) goto yer_yok;
+    for (int i = 0, o = 0; i < s->n_akis; i++) {
+      s->akis[i].buf = s->alan + o;
+      o += s->akis[i].kap * s->akis[i].d_in;
+    }
+    s->tahmin = (float *)ses_ay(s, ayir, SES_MAX_SEMBOL * 3 * F, 0);
+    s->sure = (int *)ses_ay(s, ayir, SES_MAX_SEMBOL * sizeof(int), 0);
+    s->kod_buf = (int *)ses_ay(s, ayir, SES_MAX_KOD * sizeof(int), 0);
+    s->pA = (float *)ses_ay(s, ayir, (size_t)s->kmax * dm * F, 0);
+    s->pB = (float *)ses_ay(s, ayir, (size_t)s->kmax * dm * F, 0);
+    s->z = (float *)ses_ay(s, ayir, SES_ALT * dm * F, 1);
+    s->hid = (float *)ses_ay(s, ayir, SES_ALT * hm * F, 1);
+    s->u = (float *)ses_ay(s, ayir, SES_ALT * um * F, 1);
+    s->col = (float *)ses_ay(s, ayir, SES_ALT * M * s->vk_giris * F, 1);
+    s->dwt = (float *)ses_ay(s, ayir, km * dm * F, 1);
+    s->satir[0] = (float *)ses_ay(s, ayir, cm * F, 1);
+    s->satir[1] = (float *)ses_ay(s, ayir, cm * F, 1);
+    s->fre = (float *)ses_ay(s, ayir, N * F, 1);
+    s->fim = (float *)ses_ay(s, ayir, N * F, 1);
+    s->pen = (float *)ses_ay(s, ayir, N * F, 1);
+    s->pen2 = (float *)ses_ay(s, ayir, N * F, 1);
+    s->ola = (float *)ses_ay(s, ayir, N * F, 1);
+    s->tc = (float *)ses_ay(s, ayir, N / 2 * F, 1);
+    s->ts = (float *)ses_ay(s, ayir, N / 2 * F, 1);
+    s->ters = (int16_t *)ses_ay(s, ayir, N * sizeof(int16_t), 1);
+    s->pcm = (int16_t *)ses_ay(s, ayir, SES_PCM_N * sizeof(int16_t), 1);
+    if (!s->ex || !s->tahmin || !s->sure || !s->kod_buf || !s->pA || !s->pB || !s->z ||
         !s->hid || !s->u || !s->col || !s->dwt || !s->satir[0] || !s->satir[1] || !s->fre || !s->fim ||
         !s->pen || !s->pen2 || !s->ola || !s->tc || !s->ts || !s->ters || !s->pcm)
       goto yer_yok;
@@ -638,13 +666,13 @@ yer_yok:
 
 // ---------------------------------------------------------------- sentez
 // ids[0..n) (n <= SES_MAX_SEMBOL) -> ses; PCM cb'ye akar. Döner: örnek sayısı (<0 hata).
-static long ses_sentez(Ses *s, const int *ids, int n, SesPcm cb, void *kul) {
+SES_API long ses_sentez(Ses *s, const int *ids, int n, SesPcm cb, void *kul) {
   if (n <= 0) return 0;
   if (n > SES_MAX_SEMBOL) { ses_hata = "cümle çok uzun"; return -1; }
   const int ad = s->ad, dt = s->d_tah, M = s->n_mel;
   s->cb = cb; s->cb_kul = kul; s->n_pcm = 0; s->n_ornek = 0; s->mac = 0;
-  // gömme + kodlayıcı
-  float *x = s->ex, *y = s->ey;
+  // gömme + kodlayıcı (x = ex; geçici tamponlar akış alanında: y [N x de], q [N x d_tah])
+  float *x = s->ex, *y = s->alan;
   for (int i = 0; i < n; i++) {
     int id = ids[i] >= 0 && ids[i] < s->n_sembol ? ids[i] : 0;
     ses_satir_ac(&s->gomme, id, x + (size_t)i * ad);
@@ -653,8 +681,9 @@ static long ses_sentez(Ses *s, const int *ids, int n, SesPcm cb, void *kul) {
     ses_blok(s, &s->kod[b], x, 0, n, 0, n, y);
     float *t = x; x = y; y = t;
   }
-  // tahminci (x kodlayıcı çıkışı, y ve ez boş)
-  float *p = y, *q = s->ez;
+  if (x != s->ex) { memcpy(s->ex, x, (size_t)n * ad * sizeof(float)); y = x; x = s->ex; }
+  // tahminci (x kodlayıcı çıkışı; y ve q boş)
+  float *p = y, *q = s->alan + (size_t)SES_MAX_SEMBOL * (ad > dt ? ad : dt);
   ses_mat(s, &s->tah_giris_w, &s->tah_giris_b, x, n, ad, p, dt);
   for (int b = 0; b < s->n_tah; b++) {
     ses_blok(s, &s->tah[b], p, 0, n, 0, n, q);
@@ -673,8 +702,8 @@ static long ses_sentez(Ses *s, const int *ids, int n, SesPcm cb, void *kul) {
     if (kay != 0.f) s->tahmin[i * 3 + 1] += kay;
   }
   if (s->kanca_sure) s->kanca_sure(s->kanca_kul, s->sure, n);
-  // koşullama: h = x + perde_gomme(perde) + enerji_gomme(enerji) -> q (x kodlayıcı çıkışı; p, q boş)
-  float *h = q;
+  // koşullama: h = (x + perde_gomme(perde)) + enerji_gomme(enerji), x'in yerine
+  float *h = x;
   float wp[3], we[3];
   for (int c = 0; c < ad; c++) {
     ses_satir_ac(&s->perde_w, c, wp);
@@ -742,7 +771,7 @@ static long ses_sentez(Ses *s, const int *ids, int n, SesPcm cb, void *kul) {
 }
 
 // Bir cümle: metin -> ses. SES_MAX_SEMBOL'den uzunsa son boşluk/virgülden bölünür. Döner: örnek sayısı.
-static long ses_cumle_n(Ses *s, const char *metin, size_t bayt, SesPcm cb, void *kul) {
+SES_API long ses_cumle_n(Ses *s, const char *metin, size_t bayt, SesPcm cb, void *kul) {
   int n = metin_kodla_n(metin, bayt, s->kod_buf, SES_MAX_KOD), bas = 0;
   long top = 0;
   while (bas < n) {
@@ -763,11 +792,11 @@ static long ses_cumle_n(Ses *s, const char *metin, size_t bayt, SesPcm cb, void 
   }
   return top;
 }
-static long ses_cumle(Ses *s, const char *metin, SesPcm cb, void *kul) {
+SES_API long ses_cumle(Ses *s, const char *metin, SesPcm cb, void *kul) {
   return ses_cumle_n(s, metin, strlen(metin), cb, kul);
 }
 
-static void ses_sessizlik(Ses *s, int ms, SesPcm cb, void *kul) {
+SES_API void ses_sessizlik(Ses *s, int ms, SesPcm cb, void *kul) {
   s->cb = cb; s->cb_kul = kul; s->n_pcm = 0;
   int n = (int)((long)s->sr * ms / 1000);
   while (n > 0) {
@@ -780,7 +809,7 @@ static void ses_sessizlik(Ses *s, int ms, SesPcm cb, void *kul) {
 
 // Metni cümlelere böler (. ! ? … ve satır sonu; ardından gelen tırnak/ayraçlar cümleye dahil), her cümleyi
 // seslendirir, aralara ara_ms sessizlik koyar. dur() 1 dönerse (NULL olabilir) cümle aralarında durur.
-static long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_ms, int (*dur)(void *kul)) {
+SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_ms, int (*dur)(void *kul)) {
   const char *p = metin, *bas = metin;
   long top = 0;
   int ilk = 1;
