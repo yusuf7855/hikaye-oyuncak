@@ -1,10 +1,10 @@
 {
- "aciklama": "K4 kapalı dünya listesi (KUSURSUZ_VERI.md Adım 0b). Sade sözlüğün sık kök listesindeki (data/sade_sozluk_sik.txt) canlı ve rol kökleri elle etiketlendi; ayrıca sık liste dışındaki bilinen hayvan, yaratık, akrabalık ve meslek adları eklendi (sik_disinda: yalın biçimin tr-tinystories sıklığı; 0 = 5'ten az ya da iki kelime). Metinde bu lemmaların TEKİL biçimi {figürün türü} ∪ {tohumdaki yanların yüzey biçimleri} dışında geçerse K4 reddeder; çoğul biçim (kuşlar) arka plandır, K merceğine not gider. belirsiz: anlamı bağlama göre canlı/rol olan ya da olmayan kelimeler; kullanıcı onayına kadar K4 bunları ret değil not olarak işaretler (önerilen kullanım). Değişirse K4 bütün kabullere yeniden koşulur (sürüm: sha256).",
- "surum": 1,
+ "aciklama": "K4 kapalı dünya listesi (KUSURSUZ_VERI.md Adım 0b). Sade sözlüğün sık kök listesindeki (data/sade_sozluk_sik.txt) canlı ve rol kökleri elle etiketlendi; ayrıca sık liste dışındaki bilinen hayvan, yaratık, akrabalık ve meslek adları eklendi (sik_disinda: yalın biçimin tr-tinystories sıklığı; 0 = 5'ten az ya da iki kelime). Metinde bu lemmaların TEKİL biçimi {figürün türü} ∪ {tohumdaki yanların yüzey biçimleri} dışında geçerse K4 reddeder; çoğul biçim (kuşlar) arka plandır, K merceğine not gider. belirsiz: anlamı bağlama göre canlı/rol olan ya da olmayan kelimeler. Kullanıcı kararı: KARAKTER (canlı, konuşan, rol) olarak yasak; K4 bunları reddeder, yalnız cansız ya da oyuncak anlamı açıksa geçirir ve K merceğine not yollar: önünde 'oyuncak' var, ardından canlı/rol ismi geliyor (sıfat: 'yaşlı at') ya da 'nesne_kaliplari'ndan biri geçişi kapsıyor ('bir sürü', 'meşe palamudu'). Değişirse K4 bütün kabullere yeniden koşulur (sürüm: sha256).",
+ "surum": 2,
  "kaynak": {
   "sade_sozluk": "data/sade_sozluk.json",
-  "sade_sozluk_sha256": "987bd813a151441a9cd3f23c40493db7cdbfc6e8ea6bfe872ee89d3744c6d5b4",
-  "sik_txt_sha256": "16482f7fba6f3aebe1ff765e10f2b05901e08a711797afeee7491f2d354bc0f0",
+  "sade_sozluk_sha256": "a3608353a9b39a9d2f7928d57c79978e32faf01afd7b72a50111ee11a78c525a",
+  "sik_txt_sha256": "bd9a145f2ed4aed59306987fa3e139c6a33acfcd0a605530ac0aca5edb1df6b9",
   "kok_yontemi": {
    "ad": "ek",
    "surum": "ek_soyma_1"
@@ -21,6 +21,7 @@
   "at": "hayvan",
   "ateşböceği": "hayvan",
   "atmaca": "hayvan",
+  "aygır": "hayvan",
   "ayı": "hayvan",
   "ayıbalığı": "hayvan",
   "balık": "hayvan",
@@ -123,6 +124,7 @@
   "midilli": "hayvan",
   "midye": "hayvan",
   "mors": "hayvan",
+  "mumya": "yaratık",
   "oğlak": "hayvan",
   "orangutan": "hayvan",
   "öküz": "hayvan",
@@ -178,6 +180,7 @@
   "yengeç": "hayvan",
   "yılan": "hayvan",
   "yunus": "hayvan",
+  "yusufçuk": "hayvan",
   "zebra": "hayvan",
   "zombi": "yaratık",
   "zürafa": "hayvan"
@@ -202,6 +205,7 @@
   "baba": "aile",
   "babaanne": "aile",
   "bahçıvan": "meslek/unvan",
+  "balerin": "meslek/unvan",
   "balıkçı": "meslek/unvan",
   "bay": "insan",
   "bayan": "insan",
@@ -219,14 +223,18 @@
   "dansçı": "meslek/unvan",
   "dayı": "aile",
   "dede": "aile",
+  "değirmenci": "meslek/unvan",
   "denizci": "meslek/unvan",
   "dilenci": "insan",
   "dişçi": "meslek/unvan",
   "doktor": "meslek/unvan",
   "dondurmacı": "meslek/unvan",
   "dost": "insan",
+  "düşman": "meslek/unvan",
+  "ebe": "meslek/unvan",
   "ebeveyn": "aile",
   "eczacı": "meslek/unvan",
+  "efe": "meslek/unvan",
   "enişte": "aile",
   "erkek": "insan",
   "eş": "aile",
@@ -239,8 +247,10 @@
   "hakim": "meslek/unvan",
   "hanım": "insan",
   "hanımefendi": "insan",
+  "hekim": "meslek/unvan",
   "hemşire": "meslek/unvan",
   "hırsız": "meslek/unvan",
+  "hizmetçi": "meslek/unvan",
   "ikiz": "aile",
   "insan": "insan",
   "işçi": "meslek/unvan",
@@ -256,21 +266,26 @@
   "kaşif": "meslek/unvan",
   "kız": "aile",
   "kişi": "insan",
+  "kitapçı": "meslek/unvan",
   "komşu": "insan",
   "korsan": "meslek/unvan",
+  "kovboy": "meslek/unvan",
   "köylü": "insan",
   "kral": "meslek/unvan",
   "kraliçe": "meslek/unvan",
   "kuaför": "meslek/unvan",
   "kuzen": "aile",
   "kütüphaneci": "meslek/unvan",
+  "lider": "meslek/unvan",
   "madenci": "meslek/unvan",
+  "makinist": "meslek/unvan",
   "manav": "meslek/unvan",
   "marangoz": "meslek/unvan",
   "memur": "meslek/unvan",
   "misafir": "insan",
   "müdür": "meslek/unvan",
   "mühendis": "meslek/unvan",
+  "müşteri": "meslek/unvan",
   "müzisyen": "meslek/unvan",
   "nene": "aile",
   "nine": "aile",
@@ -286,19 +301,24 @@
   "pastacı": "meslek/unvan",
   "patron": "meslek/unvan",
   "pilot": "meslek/unvan",
+  "pizzacı": "meslek/unvan",
   "polis": "meslek/unvan",
   "postacı": "meslek/unvan",
   "prens": "meslek/unvan",
   "prenses": "meslek/unvan",
   "rehber": "meslek/unvan",
   "ressam": "meslek/unvan",
+  "sanatçı": "meslek/unvan",
   "satıcı": "meslek/unvan",
+  "savaşçı": "meslek/unvan",
+  "seyirci": "meslek/unvan",
   "sihirbaz": "meslek/unvan",
   "simitçi": "meslek/unvan",
   "sultan": "meslek/unvan",
   "sürücü": "meslek/unvan",
   "şarkıcı": "meslek/unvan",
   "şef": "meslek/unvan",
+  "şekerci": "meslek/unvan",
   "şoför": "meslek/unvan",
   "şövalye": "meslek/unvan",
   "taksici": "meslek/unvan",
@@ -311,113 +331,179 @@
   "veteriner": "meslek/unvan",
   "vezir": "meslek/unvan",
   "yargıç": "meslek/unvan",
+  "yarışmacı": "meslek/unvan",
   "yeğen": "aile",
-  "yenge": "aile"
+  "yenge": "aile",
+  "yetişkin": "meslek/unvan",
+  "yolcu": "meslek/unvan"
  },
  "belirsiz": {
   "ayıcık": {
    "aday": "canli",
-   "neden": "oyuncak ayı / yavru ayı"
+   "neden": "oyuncak ayı / yavru ayı",
+   "nesne_kaliplari": []
   },
   "bakkal": {
    "aday": "rol",
-   "neden": "dükkan / dükkancı; Rafadan Tayfa'da Kamil'in ailesinin bakkalı"
+   "neden": "dükkan / dükkancı; Rafadan Tayfa'da Kamil'in ailesinin bakkalı",
+   "nesne_kaliplari": []
   },
   "bebek": {
    "aday": "rol",
-   "neden": "insan bebek / oyuncak bebek"
+   "neden": "insan bebek / oyuncak bebek",
+   "nesne_kaliplari": []
   },
   "bilge": {
    "aday": "rol",
-   "neden": "bilge kişi (Doru kartında Kırat 'bilge at') / sıfat"
+   "neden": "bilge kişi (Doru kartında Kırat 'bilge at') / sıfat",
+   "nesne_kaliplari": [
+    "\\bbilge\\s+bir\\b",
+    "\\bbilge(?:ydi|dir|ymiş|ce)\\b"
+   ]
   },
   "biri": {
    "aday": "rol",
-   "neden": "belgisiz zamir: 'biri geldi' yeni karakter, 'ikisinden biri' değil"
+   "neden": "belgisiz zamir: 'biri geldi' yeni karakter, 'ikisinden biri' değil",
+   "nesne_kaliplari": [
+    "\\b\\w+(?:dan|den|tan|ten)\\s+biri\\w*",
+    "\\bher\\s+biri\\w*"
+   ]
   },
   "birisi": {
    "aday": "rol",
-   "neden": "belgisiz zamir, yeni karakter getirebilir"
+   "neden": "belgisiz zamir, yeni karakter getirebilir",
+   "nesne_kaliplari": [
+    "\\b\\w+(?:dan|den|tan|ten)\\s+birisi\\w*"
+   ]
   },
   "cırcır": {
    "aday": "canli",
-   "neden": "'cırcır böceği' / ses yansıması"
+   "neden": "'cırcır böceği' / ses yansıması",
+   "nesne_kaliplari": []
   },
   "dev": {
    "aday": "canli",
-   "neden": "masal devi / 'dev bir' (çok büyük) sıfatı"
+   "neden": "masal devi / 'dev bir' (çok büyük) sıfatı",
+   "nesne_kaliplari": [
+    "\\bdev\\s+(?:bir|gibi)\\b"
+   ]
   },
   "gelincik": {
    "aday": "canli",
-   "neden": "hayvan / çiçek; Doru kartında küçük bir kuşun adı"
+   "neden": "hayvan / çiçek; Doru kartında küçük bir kuşun adı",
+   "nesne_kaliplari": [
+    "\\bgelincik\\s+çiçe\\w*"
+   ]
   },
   "genç": {
    "aday": "rol",
-   "neden": "genç kişi / sıfat"
+   "neden": "genç kişi / sıfat",
+   "nesne_kaliplari": [
+    "\\bgenç\\s+bir\\b",
+    "\\bgenç(?:ti|tir|miş)\\b"
+   ]
   },
   "grup": {
    "aday": "rol",
-   "neden": "topluluk"
+   "neden": "topluluk",
+   "nesne_kaliplari": []
   },
   "hala": {
    "aday": "rol",
-   "neden": "babanın kız kardeşi / 'hâlâ'nın şapkasız yazımı (tr-tinystories'te çoğunlukla 'hâlâ' anlamında)"
+   "neden": "babanın kız kardeşi / 'hâlâ'nın şapkasız yazımı (tr-tinystories'te çoğunlukla 'hâlâ' anlamında)",
+   "nesne_kaliplari": []
   },
   "halk": {
    "aday": "rol",
-   "neden": "topluluk"
+   "neden": "topluluk",
+   "nesne_kaliplari": []
   },
   "kalabalık": {
    "aday": "rol",
-   "neden": "insan topluluğu / 'kalabalık' sıfatı"
+   "neden": "insan topluluğu / 'kalabalık' sıfatı",
+   "nesne_kaliplari": [
+    "\\bkalabalık\\s+bir\\b",
+    "\\bkalabalık(?:tı|tır)\\b"
+   ]
   },
   "koca": {
    "aday": "rol",
-   "neden": "eş / 'koca bir' (büyük) sıfatı; 'Koca Ayı' Maşa kartında yan adı"
+   "neden": "eş / 'koca bir' (büyük) sıfatı; 'Koca Ayı' Maşa kartında yan adı",
+   "nesne_kaliplari": [
+    "\\bkoca\\s+(?:bir|koca)\\b"
+   ]
   },
   "palamut": {
    "aday": "canli",
-   "neden": "balık / meşe palamudu (sincap hikâyelerinde çoğunlukla meyve)"
+   "neden": "balık / meşe palamudu (sincap hikâyelerinde çoğunlukla meyve)",
+   "nesne_kaliplari": [
+    "\\bmeşe\\s+palamu\\w*"
+   ]
   },
   "robot": {
    "aday": "canli",
-   "neden": "oyuncak robot / konuşan karakter"
+   "neden": "oyuncak robot / konuşan karakter",
+   "nesne_kaliplari": []
   },
   "sevgili": {
    "aday": "rol",
-   "neden": "hitap ('sevgili arkadaşım') / kişi"
+   "neden": "hitap ('sevgili arkadaşım') / kişi",
+   "nesne_kaliplari": []
   },
   "sürü": {
    "aday": "canli",
-   "neden": "hayvan topluluğu: tek tek canlı değil ama yeni canlılar getirir"
+   "neden": "hayvan topluluğu: tek tek canlı değil ama yeni canlılar getirir",
+   "nesne_kaliplari": [
+    "\\bbir\\s+sürü\\b"
+   ]
   },
   "takım": {
    "aday": "rol",
-   "neden": "oyuncu topluluğu / eşya takımı"
+   "neden": "oyuncu topluluğu / eşya takımı",
+   "nesne_kaliplari": [
+    "\\btakım\\s+elbise\\w*",
+    "\\b(?:çay|boya|kalem|oyun)\\s+takım\\w*"
+   ]
   },
   "usta": {
    "aday": "rol",
-   "neden": "meslek sahibi / 'usta' sıfatı"
+   "neden": "meslek sahibi / 'usta' sıfatı",
+   "nesne_kaliplari": [
+    "\\busta\\s+bir\\b",
+    "\\busta(?:ydı|dır)\\b"
+   ]
   },
   "yaban": {
    "aday": "canli",
-   "neden": "'yaban arısı', 'yaban domuzu' / 'yaban mersini' (meyve)"
+   "neden": "'yaban arısı', 'yaban domuzu' / 'yaban mersini' (meyve)",
+   "nesne_kaliplari": [
+    "\\byaban\\s+mersin\\w*"
+   ]
   },
   "yabancı": {
    "aday": "rol",
-   "neden": "tanımadık kişi / 'yabancı' sıfatı"
+   "neden": "tanımadık kişi / 'yabancı' sıfatı",
+   "nesne_kaliplari": []
   },
   "yardımcı": {
    "aday": "rol",
-   "neden": "yardımcı kişi / 'yardımcı oldu' deyimi"
+   "neden": "yardımcı kişi / 'yardımcı oldu' deyimi",
+   "nesne_kaliplari": [
+    "\\byardımcı\\s+ol\\w*"
+   ]
   },
   "yaşlı": {
    "aday": "rol",
-   "neden": "yaşlı kişi / sıfat ('yaşlı ağaç')"
+   "neden": "yaşlı kişi / sıfat ('yaşlı ağaç')",
+   "nesne_kaliplari": [
+    "\\byaşlı\\s+bir\\b",
+    "\\byaşlı(?:ydı|dır|ymış)\\b"
+   ]
   },
   "yazar": {
    "aday": "rol",
-   "neden": "meslek / 'yazar' (yazmak, geniş zaman)"
+   "neden": "meslek / 'yazar' (yazmak, geniş zaman)",
+   "nesne_kaliplari": []
   }
  },
  "sik_disinda": {
@@ -427,11 +513,10 @@
   "akrep": 9,
   "alabalık": 0,
   "antrenör": 54,
-  "astronot": 146,
   "ateşböceği": 89,
   "atmaca": 0,
+  "aygır": 0,
   "ayıbalığı": 0,
-  "bahçıvan": 297,
   "bay": 5988,
   "bayan": 2707,
   "beyefendi": 65,
@@ -450,51 +535,36 @@
   "denizatı": 45,
   "denizkızı": 90,
   "denizyıldızı": 13,
-  "deve": 218,
   "dilenci": 13,
-  "dişçi": 111,
   "ebeveyn": 0,
   "eczacı": 12,
-  "elf": 147,
   "enik": 0,
   "enişte": 0,
-  "erkek": 166,
   "eş": 59,
   "eşekarısı": 0,
-  "fırıncı": 389,
   "flamingo": 44,
   "gezgin": 66,
   "goblin": 18,
-  "hakem": 131,
   "hakim": 538,
   "hamsi": 0,
   "hamster": 24,
   "hanım": 2013,
-  "hanımefendi": 288,
-  "hipopotam": 220,
-  "horoz": 318,
   "iguana": 0,
   "istakoz": 0,
-  "işçi": 58,
   "jaguar": 15,
   "kanarya": 47,
   "kapıcı": 19,
   "karaca": 26,
   "karı": 296,
   "kasap": 86,
-  "kaşif": 98,
   "kelebekçik": 0,
   "kene": 11,
   "kırlangıç": 26,
   "koç": 26,
-  "kokarca": 189,
   "köpekçik": 22,
   "kumru": 5,
-  "kunduz": 164,
   "kuşçuk": 27,
-  "kuzen": 5,
   "kuzucuk": 24,
-  "kütüphaneci": 281,
   "lama": 11,
   "leylek": 201,
   "madenci": 15,
@@ -504,25 +574,19 @@
   "memur": 58,
   "midye": 37,
   "mors": 16,
-  "müdür": 98,
   "mühendis": 13,
   "nene": 49,
-  "oduncu": 156,
   "oğlak": 0,
-  "oğlan": 401,
   "orangutan": 0,
   "öküz": 18,
   "padişah": 36,
   "pastacı": 17,
-  "patron": 160,
   "pelikan": 15,
-  "pony": 398,
-  "porsuk": 183,
-  "rakun": 183,
   "rehber": 86,
   "saksağan": 31,
   "samur": 0,
   "sansar": 0,
+  "seyirci": 0,
   "sıçan": 170,
   "sıpa": 0,
   "sırtlan": 7,
@@ -531,11 +595,8 @@
   "somon": 0,
   "sultan": 5,
   "sümüklüböcek": 0,
-  "sürücü": 216,
   "şahin": 119,
-  "şef": 261,
   "şempanze": 0,
-  "taksici": 212,
   "tavşancık": 49,
   "tavuskuşu": 30,
   "tay": 36,
@@ -550,18 +611,17 @@
   "vaşak": 0,
   "vezir": 79,
   "yarasa": 112,
-  "yargıç": 169,
   "yavrucuk": 0,
   "yeğen": 0,
   "yenge": 0,
   "zombi": 8
  },
  "sayilar": {
-  "canli": 170,
-  "rol": 130,
+  "canli": 173,
+  "rol": 150,
   "belirsiz": 26,
-  "sik_listeden": 191,
-  "sik_disinda": 134
+  "sik_listeden": 240,
+  "sik_disinda": 108
  },
- "sha256": "4280f83899f98ea5721d3bef2c44132d466d35627f261d648c62aceb563cf7a6"
+ "sha256": "31b0d23c1d858ce82f3177343d2128d8aa5f2bff86923a904f5932d3d65b0bc9"
 }

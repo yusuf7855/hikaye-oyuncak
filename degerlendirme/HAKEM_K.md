@@ -11,7 +11,7 @@ güvenli mi. Yalnız bu merceğin maddelerine bak; mantık ve dil kusurlarını 
 Yalnız bu dosyayı ve sana verilen parti dosyasını oku; başka dosya, önceki puan ya da yazar bilgisi okuma.
 Parti tek figürlüdür ve en çok 10 hikayedir. Parti dosyasında şunlar vardır: figürün kaynaklı tam kartı
 ('güvenli özellik kullanımı' dahil), hedef yaş 3-6, ve her hikaye için `id`, başlık (figür, yer, yan), plan
-(sorun | çözüm), gövde, tohumdaki özellik ve kodun çoğul canlı notları. Hikayeleri partideki sırayla, birbirinden bağımsız oku.
+(sorun | çözüm), gövde, tohumdaki özellik, kodun çoğul canlı notları ve belirsiz kelime notları. Hikayeleri partideki sırayla, birbirinden bağımsız oku.
 
 Kartı şöyle kullan:
 - Kart kapalı dünyadır: kartta olmayan aile üyesi, ev, yetenek, eşya, başka dizinin karakteri, nesnesi ya da
@@ -23,6 +23,10 @@ Kartı şöyle kullan:
 - Figürün gücü ya da özelliği yalnız kartın 'güvenli özellik kullanımı' satırındaki gibi kullanılır.
 - Kartın 'dünya kuralları' çiğnenemez.
 - Kodun çoğul canlı notu karar değildir; notlanan çoğul canlılar konuşuyor ya da olaya katılıyorsa K4 'var'dır.
+- Belirsiz kelimeler (bebek, robot, ayıcık, dev, biri, yaşlı, sürü...) kullanıcı kararıyla KARAKTER olarak yasaktır:
+  yalnız cansız ya da oyuncak anlamında geçebilir ('oyuncak robot', 'bir sürü yaprak', 'bilge bir kaplumbağa').
+  Kodun belirsiz kelime notu karar değildir; notlanan kelime canlı, konuşan ya da rol olarak geçiyorsa ('Robot
+  "Merhaba," dedi.', 'oyuncak ayı yürüdü') K6 'var'dır.
 
 ## Maddeler
 
@@ -82,4 +86,33 @@ Dosya, partideki sırayla her hikaye için bir kayıt taşıyan bir JSON listesi
 
 ## Örnek eleştiriler
 
-[KULLANICI ONAYLI ELEŞTİRİ ÖRNEKLERİ (3-5) buraya]
+Örnekler kullanıcı yetkisiyle yazıldı. Hepsi kod kapılarından (K1-K9, K11) geçer; yani bu kusurları yalnız sen
+yakalayabilirsin. Önce kusursuz bir taban hikaye, sonra tabanın tek yeri değiştirilmiş kusurlu biçimleri ve
+beklenen ihlal kaydı verilir. Tabandaki hikayede bütün maddeler 'yok'tur; kısa, sade ve tek sahneli olmak kusur
+değildir.
+
+**Taban (bütün maddeler 'yok').** Tosbi | deniz | balık; tohum özelliği: kabuk. Kartta deniz tarifi: 'Denizin
+kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.' Temel figürün isimsiz yan hayvanı konuşur.
+
+> Deniz kıyısında serin bir sabahtı. Tosbi kumda renkli taşlar topluyordu. Birden yağmur başladı ve Tosbi'nin başı ıslandı. Tosbi başını ve ayaklarını kabuğuna çekti. Sudan küçük bir balık başını çıkardı. "Tosbi, neredesin?" diye sordu balık. "Buradayım, içerisi çok kuru," dedi Tosbi. Balık gülümsedi ve suya geri döndü. Tosbi içeride sessizce bekledi. Bir süre sonra yağmur dindi ve bulutların arasından güneş çıktı. Tosbi başını yavaşça dışarı çıkardı. Balık da yeniden sudan baktı. Kumdaki renkli taşlar güneşte parlıyordu.
+
+1. 2\. cümle "Tosbi suya girip renkli taşlar topluyordu." olursa (K7 ve C3 var):
+  {"madde": "K7", "alinti": "Tosbi suya girip renkli", "cumle_no": 2, "aciklama": "Deniz tarifi herkesin kumda ve su kenarında kaldığını söylüyor."}
+  {"madde": "C3", "alinti": "Tosbi suya girip renkli", "cumle_no": 2, "aciklama": "Çocuğun taklit edebileceği biçimde suya giriliyor."}
+2. 9\. cümle "Tosbi'nin burnu tıkandı ve içeride bekledi." olursa (C2 var):
+  {"madde": "C2", "alinti": "Tosbi'nin burnu tıkandı", "cumle_no": 9, "aciklama": "Yağmurda ıslanan Tosbi'de hastalık belirtisi var."}
+3. 9\. cümle "Tosbi içeride sabırla bekledi." olursa (K2 var):
+  {"madde": "K2", "alinti": "Tosbi içeride sabırla bekledi", "cumle_no": 9, "aciklama": "Tohumdaki özellik kabuk; sabır ikinci bir özellik olarak ekleniyor."}
+
+**Taban 2.** Niloya | park | Murat; tohum özelliği: soru. Kartın güvenli kullanım satırı: 'ağaca ya da yüksek yere
+tırmanmaz'.
+
+> Niloya ile Murat parkta sarı bir uçurtma uçuruyordu. Ama uçurtma ağaçların üstüne çıkamadı çünkü ipi çok kısaydı. Niloya ipe baktı ve biraz düşündü. "Murat, çantada başka ip var mı?" diye sordu Niloya. Murat çantasına baktı ve uzun bir ip buldu. İpi hemen Niloya'ya verdi. Niloya iki ipi sıkıca birbirine bağladı. Sonra ipi yavaş yavaş bıraktı. Rüzgar esti ve uçurtma yükseldi. Sarı uçurtma ağaçların üstüne çıktı. Murat sevinçle ellerini çırptı. Niloya ipi iki eliyle tuttu. "Bak Murat, uçurtma ağaçlardan yüksek!" dedi Niloya.
+
+4. 10\. cümle "Niloya uçurtmanın yanına gitmek için ağaca tırmandı." olursa (C3 var):
+  {"madde": "C3", "alinti": "gitmek için ağaca tırmandı", "cumle_no": 10, "aciklama": "Güvenli kullanım satırına göre Niloya ağaca tırmanmaz."}
+5. 5\. cümle "Murat sihirli değneğini salladı ve uzun bir ip çıktı." olursa (K6 var):
+  {"madde": "K6", "alinti": "Murat sihirli değneğini salladı", "cumle_no": 5, "aciklama": "Kartta Murat'ın sihirli değneği ya da büyü yeteneği yok."}
+6. 11\. cümle 'Oyuncak robot "Harika!" dedi.' olursa kod yalnız belirsiz kelime notu verir; robot konuşan bir
+   karakter olmuştur (K6 var):
+  {"madde": "K6", "alinti": "Oyuncak robot \"Harika!\" dedi", "cumle_no": 11, "aciklama": "Belirsiz kelime robot karakter olarak konuşuyor; kartta böyle bir karakter yok."}

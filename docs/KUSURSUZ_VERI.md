@@ -50,9 +50,9 @@ VERİ KÜMESİ DÜZEYİ:
 **Kim:** Kod (Claude oturumu yazar); kullanıcı tohum kelimeleri ile canlı/rol listesine göz atar
 
 PİLOTTAN ÖNCE:
-(a) `nice -n 19 .venv/bin/python degerlendirme/sade_sozluk.py olustur --nadir 20 --cok-nadir 5 --az-token 200` çıktı olarak data/sade_sozluk.json (sha256'lı) ve data/sade_sozluk_sik.txt (~2100 kök) üretir.
-(b) data/canli_rol.json: sözlükteki ~2100 kökten canlı ya da rol olanlar bir kez elle etiketlenir (keçi, kuzu, porsuk, martı, serçe, anne, dede, hala, abla…). K4'ün kapalı dünyası bu listeye dayanır; sec.HAYVAN'da 'keçi' bile yok.
-(c) data/tohum_kelimeleri.json: somut ~600 isim, ~400 fiil, ~200 sıfat. Soyut, korkutucu, CANLI ve ROL isimleri çıkarılır.
+(a) `nice -n 19 .venv/bin/python degerlendirme/sade_sozluk.py olustur --nadir 20 --cok-nadir 5 --az-token 200 --sik 3000 --kok ek` çıktı olarak data/sade_sozluk.json (sha256'lı) ve data/sade_sozluk_sik.txt (3000 kök; kullanıcı kararı 1) üretir.
+(b) data/canli_rol.json: sözlükteki 3000 kökten canlı ya da rol olanlar bir kez elle etiketlenir (keçi, kuzu, porsuk, martı, serçe, anne, dede, hala, abla…). K4'ün kapalı dünyası bu listeye dayanır; sec.HAYVAN'da 'keçi' bile yok.
+(c) data/tohum_kelimeleri.json: somut ~600 isim, ~400 fiil, ~200 sıfat. Soyut, korkutucu, CANLI ve ROL isimleri çıkarılır. (b) ve (c) elle etiketlenir; etiketler degerlendirme/tohum_etiket.py'dedir (`tohum_etiket.py --yaz` iki JSON'u yazar).
 (d) Zemberek kurulur (zemberek-python, setuptools<70; olmazsa Java jar). Figür ve yan adları özel ad olarak eklenir.
 (e) degerlendirme/urun_kayit.py yazılır. İçinde kanonik kayıt, kelime listesine bağlı normalizasyon, sha1 ve TEK serileştirme fonksiyonu bulunur.
 (f) degerlendirme/kapi.py yazılır: K1–K8 ve K11. kontrol.py ile sec.py kuralları buraya taşınır. sec.YABANCI'daki 'Anna' ve 'Mert' gibi ürün yanları ayıklanır. firmware/hikaye_oyuncak/secici.h'deki karşılıklar da aynı listeden üretilir.
@@ -581,3 +581,47 @@ Bu şartlar sağlanmadan tam ölçeğe geçilmez.
    yalnız cansız/oyuncak anlamı açık olanlar ('oyuncak bebek', 'ayıcık' = oyuncak ayı) karakter sayılmaz.
 3. Temel figürlerin isimsiz yan hayvanları konuşur (figürler de konuşuyor; dünya tutarlı).
 4. Karakaçan (Keloğlan'ın eşeği) ve Yumak (Basri Amca'nın köpeği) konuşmaz.
+
+Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" dedi):
+
+- Karar 1: `sade_sozluk.py olustur --sik 3000 --kok ek` (en az kök sıklığı 506 → 137; ilk 2100 kök aynı kaldı). Yeni
+  900 kök elle etiketlendi: +isim, +fiil, +sıfat ve yeni canlı/rol adları (yusufçuk, aygır, mumya, kovboy, lider,
+  yolcu...). Sonuç 461 isim / 393 fiil / 236 sıfat (hedef 600/400/200; isimde kalan açık, soyut, yer, vücut ve
+  tehlikeli isimlerin dışlanmasından). Etiket kaynağı degerlendirme/tohum_etiket.py.
+- Karar 2: K4 belirsiz kelimeyi reddeder (K4.belirsiz); yalnız önünde 'oyuncak' varsa, ardından canlı/rol ismi
+  geliyorsa (sıfat: 'bilge kaplumbağa') ya da canli_rol.json'daki kelimeye özel nesne kalıbı ('bir sürü', 'meşe
+  palamudu', 'yardımcı ol-') geçişi kapsıyorsa geçirir ve K merceğine not yollar. Kartın izinli dünya kökü olan
+  belirsizler (Hayri'de 'bakkal', Doru'da 'sürü') nottur. HAKEM_K.md: notlanan kelime canlı ya da konuşan olarak
+  geçerse K6 'var'. Kılavuz Kural 5'e tek cümle eklendi. Elsa'nın 'halkını korur' özelliği 'kız kardeşini korur'
+  oldu (halk belirsiz). Tohum kelimeleri belirsizleri ve ürün adlarıyla aynı kelimeleri (pamuk) hiç almaz.
+- Karar 3 ve 4: kartlarda temel figürlerin 16 isimsiz yanı konusur: true, Karakaçan ve Yumak konusur: false;
+  kaynak 'kullanici_karari', onay_bekliyor bayrakları kalktı.
+- K3 az görülmüş token eşiği 20 (ret); 20-199 arası yalnız rapor (aday.jsonl 'az_token_200').
+- Açık noktalar, en ihtiyatlı kaynaklı seçimle kapandı (her kartın 'kararlar' alanı): Niloya'da 'babaannesi'; Maşa'da
+  dağ = kaynaktaki tepe; Pepee'de orman ve park genel tarifle kalır, kısa ad 'Nenee'; Keloğlan'da şato sahipsiz taş
+  saray (Kara Vezir ve padişah girmez), dağ = köyün tepesi, kısa ad 'eşeği'; Doru'da park = sürünün çayırı (etiket
+  firmware için 'park'), kısa ad 'annesi', Gelincik yasak adlarda; Hayri'de yerler genel tarifle kalır, Hale yasak
+  adlarda; Şakir'de park genel; Elsa'da orman karlı orman; Chase okunuşları kabul; Örümcek Adam'da kısa ad
+  'Ghost-Spider' (Gwen yasak). Yer listesi ürün listesiyle aynı kaldı; yer çıkarılmadı. 14 kart onaylı ve
+  `veri_hakem.py kart-kontrol --kilitle` ile data/urun_v1/kart_kilidi.json'a kilitlendi.
+- Kart metni kapılarla çatışmaz: kart-kontrol artık yazarın kopyalayacağı metinde (yer tarifi, özellik, kimlik
+  cümlesi, yan ilişkisi) K7 kalıbını ve kökü de yüzeyi de nadir (< 20) kelimeyi hata sayar. 'yamaç', 'ağaçlı',
+  'ağaçlık', 'tepelik', 'oyunbaz', 'anaç', 'kapkara', 'dalmaçyalı', 'isimsiz'... sade kelimeyle yeniden yazıldı;
+  Chase'te 'iskele' izinli dünya kökü oldu. Yer tariflerinden 'Kimse derin suya girmez' çıktı ('Herkes kumda ve su
+  kenarında kalır'); güvenli kullanım satırı 'derin suya girmez' diyen kartlarda (Tosbi, Pepee, Maşa, Doru)
+  'derin suya girmedi' yankısı k7_izinli ile K7'ye takılmaz. K4'te cümle başındaki yaygın kelime ardından fiil ya da
+  bağlaç olmayan kelime gelince ad sayılmaz ('Kara bulutlar'); ürün adları ('Pamuk') yalnız 'gibi' ile sıfat sayılır.
+- Tohum kartın dünyasına uyar (Adım 3): yanın 'yerler' alanı (Tosbi'de balık yalnız denizde; kirpi, sincap ve
+  baykuş orman ve dağda; Pamuk'ta keçi dağ ve deniz kıyısında), kartın 'tohum_yasak_kategoriler' alanı (doğa
+  dünyası: Tosbi, Tekir, Pamuk, Karabaş, Doru — teknoloji, araç, çağdaş eşya, ev eşyası, mutfak, giysi, okul yok;
+  masal ve köy: Keloğlan, Elsa, Niloya, Maşa — teknoloji, çağdaş araç ve çağdaş eşya yok; Şakir ve Örümcek Adam —
+  teknoloji yok) ve kelimenin gerektirdiği canlı (tasma/kemik köpek, havlamak köpek, ötmek kuş...). Kartın kendi
+  metninde geçen kelime yasak kategoride olsa da gelir (Niloya'nın parkında kaydırak). tohum_denetle bunları da
+  denetler.
+- K9 havuzu aynı turdaki önceki adayları da içerir (kapı ve yazar kontrolünde; aynı tohumun kendi kaydı hariç):
+  hakemden önce iki yakın kopyanın birlikte kabul edilmesi önlenir; turdaki ilk aday kalır.
+- prepare_ft2 --yalniz onaysız kartla kabul edilmiş veriyi ('# taslak_kart' izin notu ya da kabul.jsonl'de
+  taslak_kart) reddeder; yalnız duman testi için --taslak-kart-izin.
+- Kılavuzun iki iyi örneği (Tosbi/görüntü, Niloya/replik) ve HAKEM_M/D/K.md'deki eleştiri örnekleri kullanıcı
+  yetkisiyle yazıldı; hepsi kod kapılarından geçer (kusurlu örnekler yalnız hakemin görebileceği türdendir).
+- Zemberek (zemberek-python 0.2.3, setuptools<70) .venv'e kuruldu; K5 çözümlemesi artık atlanmıyor.

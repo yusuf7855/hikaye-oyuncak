@@ -65,4 +65,29 @@ Dosya, partideki sırayla her hikaye için bir kayıt taşıyan bir JSON listesi
 
 ## Örnek eleştiriler
 
-[KULLANICI ONAYLI ELEŞTİRİ ÖRNEKLERİ (3-5) buraya]
+Örnekler kullanıcı yetkisiyle yazıldı. Hepsi kod kapılarından (K1-K9, K11) geçer; yani bu kusurları yalnız sen
+yakalayabilirsin. Önce kusursuz bir taban hikaye, sonra tabanın tek yeri değiştirilmiş kusurlu biçimleri ve
+beklenen ihlal kaydı verilir. Tabandaki hikayede bütün maddeler 'yok'tur; kısa, sade ve tek sahneli olmak kusur
+değildir.
+
+**Taban (bütün maddeler 'yok').** Niloya | park | Murat.
+
+> Niloya ile Murat parkta sarı bir uçurtma uçuruyordu. Ama uçurtma ağaçların üstüne çıkamadı çünkü ipi çok kısaydı. Niloya ipe baktı ve biraz düşündü. "Murat, çantada başka ip var mı?" diye sordu Niloya. Murat çantasına baktı ve uzun bir ip buldu. İpi hemen Niloya'ya verdi. Niloya iki ipi sıkıca birbirine bağladı. Sonra ipi yavaş yavaş bıraktı. Rüzgar esti ve uçurtma yükseldi. Sarı uçurtma ağaçların üstüne çıktı. Murat sevinçle ellerini çırptı. Niloya ipi iki eliyle tuttu. "Bak Murat, uçurtma ağaçlardan yüksek!" dedi Niloya.
+
+1. 10\. cümle "Sarı uçurtma ağaçların üst çıktı." olursa (D1 var):
+  {"madde": "D1", "alinti": "uçurtma ağaçların üst çıktı", "cumle_no": 10, "aciklama": "Tamlama eki ve yönelme eki eksik; 'ağaçların üstüne' olmalı."}
+2. 9\. cümle "Rüzgar esti ve uçurtma yüzdü." olursa (D2 var):
+  {"madde": "D2", "alinti": "esti ve uçurtma yüzdü", "cumle_no": 9, "aciklama": "Uçurtma yüzmez; fiil öznesine uymuyor."}
+3. 4\. cümlenin yerine 'Murat da ipe baktı. "Çantada başka ip var mı?" diye sordu.' gelirse (D4 var):
+  {"madde": "D4", "alinti": "Çantada başka ip var mı?", "cumle_no": 5, "aciklama": "Soruyu kimin sorduğu belli değil; son özne Murat ama çanta Murat'ın."}
+4. 12\. cümle "Niloya'da ipi iki eliyle tuttu." olursa (D8 var):
+  {"madde": "D8", "alinti": "Niloya'da ipi iki", "cumle_no": 12, "aciklama": "Bağlaç olan 'da' ayrı yazılır: 'Niloya da'."}
+
+**Taban 2.** Tosbi | deniz | balık.
+
+> Deniz kıyısında serin bir sabahtı. Tosbi kumda renkli taşlar topluyordu. Birden yağmur başladı ve Tosbi'nin başı ıslandı. Tosbi başını ve ayaklarını kabuğuna çekti. Sudan küçük bir balık başını çıkardı. "Tosbi, neredesin?" diye sordu balık. "Buradayım, içerisi çok kuru," dedi Tosbi. Balık gülümsedi ve suya geri döndü. Tosbi içeride sessizce bekledi. Bir süre sonra yağmur dindi ve bulutların arasından güneş çıktı. Tosbi başını yavaşça dışarı çıkardı. Balık da yeniden sudan baktı. Kumdaki renkli taşlar güneşte parlıyordu.
+
+5. 9\. cümle '"Burada beklerim," dedi Tosbi kendi kendine.' olursa (D5 var):
+  {"madde": "D5", "alinti": "dedi Tosbi kendi kendine", "cumle_no": 9, "aciklama": "Tosbi kendi kendine konuşuyor."}
+6. 13\. cümle "Kumdaki renkli taşlar güneşe gülümsüyordu." olursa (D6 var):
+  {"madde": "D6", "alinti": "taşlar güneşe gülümsüyordu", "cumle_no": 13, "aciklama": "Taşlar gülümsemez; mecaz 3 yaşındaki çocuğa uygun değil."}

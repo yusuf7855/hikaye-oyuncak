@@ -558,6 +558,49 @@ def kart_kontrol(kart_yolu, urun_yolu, kilit=None):
             for a in yasak_adlari:
                 if ad_gecer(metin, a):
                     hata(f"{yol}: yasak ad geçiyor ({a})")
+        # yazarın kopyalayacağı metin (yer tarifi, özellik, kimlik, yan ilişkisi) kod kapılarıyla çatışmaz (Adım 1):
+        # K7 kalıbı yok (kartın k7_izinli beyaz listesi hariç), kökü ön eğitimde nadir (< 20) kelime yok
+        kapi_ = _kapi()
+        try:
+            k7_izin = [re.compile(x) for x in k.get("k7_izinli", [])]
+        except re.error as e:
+            hata(f"{kim}.k7_izinli: düzenli ifade derlenmiyor: {e}")
+            k7_izin = []
+        adlar_k = {_tr_kucuk(w) for a in [ad or ""] + [b for y in yanlar for b in y.get("yuzey_bicimleri", [])]
+                   + [a.get("ad", "") for a in ys.get("adlar", [])] + (k.get("tur") or {}).get("lemmalar", [])
+                   + list(urun_fig) for w in re.findall(r"[\wçğıöşüÇĞİÖŞÜ]+", a)}
+        izinli_k = {_tr_kucuk(x) for x in k.get("izinli_dunya_kokleri", [])}
+        sozluk = kapi_.sade_sozluk.yukle()
+        yazar_metni = ([(f"{kim}.yerler[{y.get('etiket')}].tarif", y.get("tarif", "")) for y in yerler]
+                       + [(f"{kim}.yerler[{y.get('etiket')}].kosullu", kt.get("tarif", ""))
+                          for y in yerler for kt in y.get("kosullu_tarifler", [])]
+                       + [(f"{kim}.ozellik{i}", o.get("deger", "")) for i, o in enumerate(oz)]
+                       + [(f"{kim}.kimlik_cumlesi", kc)]
+                       + [(f"{kim}.{y.get('yan_kimlik')}.{a}", _olgu(y.get(a)) or "") for y in yanlar
+                          for a in ("iliski", "huy")])
+        for yol, metin in yazar_metni:
+            for es in kapi_.guvenlik_eslesmeleri(metin):
+                bas = _tr_kucuk(metin).find(es[2])
+                if not any(m.start() <= bas < m.end() for r in k7_izin for m in r.finditer(_tr_kucuk(metin))):
+                    hata(f"{yol}: K7 kalıbı ({es[1]}: {es[2]!r}); yazar kopyalarsa hikâye düşer")
+            for w in kapi_.sade_sozluk.kelimeler(metin):
+                kok = sozluk.kok(w)
+                if w in adlar_k or any(w.startswith(i) or kok.rstrip("-") == i for i in izinli_k):
+                    continue
+                if sozluk.tf.get(w, 0) < sozluk.esik["nadir"] and sozluk.d["kok"].get(kok, 0) < sozluk.esik["nadir"]:
+                    hata(f"{yol}: nadir kelime {w!r} (kök {kok!r}); sade kelimeyle yazılmalı ya da izinli dünya kökü olmalı")
+        for y in yanlar:
+            if "yerler" in y:
+                olgu(f"{kim}.{y.get('yan_kimlik')}.yerler", y["yerler"], list)
+                fazla = set(_olgu(y["yerler"]) or []) - set(etiketler)
+                if fazla or not _olgu(y["yerler"]):
+                    hata(f"{kim}.{y.get('yan_kimlik')}.yerler: kartta olmayan ya da boş yer listesi ({sorted(fazla)})")
+        if "tohum_yasak_kategoriler" in k:
+            olgu(f"{kim}.tohum_yasak_kategoriler", k["tohum_yasak_kategoriler"], list)
+            bilinen = set(json_oku(kapi_.TOHUM_KELIME, {}).get("kategori", {}))
+            bilinmeyen = set(_olgu(k["tohum_yasak_kategoriler"]) or []) - bilinen
+            if bilinmeyen:
+                hata(f"{kim}.tohum_yasak_kategoriler: bilinmeyen kategori {sorted(bilinmeyen)}")
         olumlu_metin = _tr_kucuk(" ".join(m for yol, m in metinler(k)
                                           if any(p in yol for p in (".deger", ".tarif", ".kural"))))
         yumusa = {"k": "ğ", "ç": "c", "p": "b", "t": "d"}
@@ -654,7 +697,9 @@ PAY_TOLERANS = 0.05
 
 
 class FigurBilgi:
-    """Kart -> tohum üretiminin gördüğü dünya: yerler, özellikler, yanlar (kategori, hayvan mı, konuşur mu)."""
+    """Kart -> tohum üretiminin gördüğü dünya: yerler, özellikler, yanlar (kategori, hayvan mı, konuşur mu, hangi
+    yerlerde bulunur) ve tohum kelimesinin dünyaya uyması (kartın 'tohum_yasak_kategoriler' alanı, kelimenin
+    gerektirdiği canlılar: tohum kelimesi kartın izin vermediği bir canlı ya da çağ dışı bir eşya getirmez)."""
 
     def __init__(self, kart, bg):
         self.kart = kart
@@ -668,7 +713,16 @@ class FigurBilgi:
             kelimeler = re.findall(r"[a-zçğıöşü]+", tur)
             hayvan = any(w in bg.canli or bg.kok(w) in bg.canli for w in kelimeler)
             self.yanlar.append({"ad": y["kisa_ad"], "kat": "isimsiz" if y["tip"] == "isimsiz" else "adli",
-                                "hayvan": hayvan, "konusur": bool(_olgu(y.get("konusur")))})
+                                "hayvan": hayvan, "konusur": bool(_olgu(y.get("konusur"))),
+                                "yerler": _olgu(y.get("yerler")) or list(self.yerler),
+                                "turler": set(kelimeler) | {bg.kok(w) for w in kelimeler}})
+        self.tur_lemmalari = {_tr_kucuk(t) for t in (kart["tur"].get("lemmalar") or [_olgu(kart["tur"])])}
+        self.yasak_kategoriler = set(_olgu(kart.get("tohum_yasak_kategoriler")) or [])
+        self.kategori, self.gerektirir = bg.tohum_kategori, bg.canli_gerektirir
+        # kartın kendi yazar metninde geçen kelimeler yasak kategoride olsa da gelebilir (Niloya'nın parkında kaydırak)
+        metin = " ".join([y.get("tarif", "") for y in kart["yerler"]] + [o.get("deger", "") for o in kart["ozellikler"]]
+                         + [_olgu(kart["kimlik_cumlesi"]) or ""] + list(kart.get("izinli_dunya_kokleri", [])))
+        self.kart_kelimeleri = {bg.kok(w).rstrip("-") for w in _kapi().sade_sozluk.kelimeler(metin)}
         self.kategoriler = {y["kat"] for y in self.yanlar}
         self.temalar = [t for t, (_, g) in TEMALAR.items() if self._tema_mumkun(g)]
         if not self.yanlar:
@@ -695,8 +749,22 @@ class FigurBilgi:
                 "acilis": {k: 1 / len(ACILIS) for k in ACILIS}, "kapanis": {k: v[0] for k, v in KAPANIS.items()},
                 "ozellik": {o: 1 / len(self.ozellikler) for o in self.ozellikler}}
 
-    def yan_secenekleri(self, sayi, tema, diyalog):
-        ys = self.yanlar
+    def kelime_uygun(self, w, yanlar=()):
+        """Tohum kelimesi figürün dünyasına uyuyor mu: yasak kategoride değil (kartın kendi kelimesi hariç) ve
+        gerektirdiği canlı (tasma -> köpek) figürün türü ya da tohumdaki bir yanın türü."""
+        if self.kategori.get(w) in self.yasak_kategoriler and w.rstrip("-") not in self.kart_kelimeleri:
+            return False
+        gerek = self.gerektirir.get(w)
+        if gerek:
+            turler = set(self.tur_lemmalari)
+            for y in self.yanlar:
+                if y["ad"] in yanlar:
+                    turler |= y["turler"]
+            return bool(turler & set(gerek))
+        return True
+
+    def yan_secenekleri(self, sayi, tema, diyalog, yer=None):
+        ys = [y for y in self.yanlar if yer is None or yer in y["yerler"]]
         if sayi == 0:
             adaylar = [()]
         elif sayi == 1:
@@ -734,15 +802,15 @@ def _tohum_ihlali(s, fb):
     v = 0
     if s["kapanis"] == "replik" and s["diyalog"] == "yok":
         v += 1
-    if not fb.yan_secenekleri(s["yan_sayisi"], s["tema"], s["diyalog"]):
+    if not fb.yan_secenekleri(s["yan_sayisi"], s["tema"], s["diyalog"], s["yer"]):
         v += 1
     return v
 
 
 def _kisitli_ata(slotlar, fb, rng, adim=200_000):
-    """Payları koruyan takaslarla (tema, yan sayısı, diyalog, kapanış) kısıtlarını sağlar: replik -> diyalog var;
-    tema gereği ve diyalog -> uygun yan seçeneği."""
-    alanlar = ("tema", "yan_sayisi", "diyalog", "kapanis")
+    """Payları koruyan takaslarla (yer, tema, yan sayısı, diyalog, kapanış) kısıtlarını sağlar: replik -> diyalog
+    var; tema gereği, diyalog ve yer -> o yerde bulunan uygun yan seçeneği."""
+    alanlar = ("yer", "tema", "yan_sayisi", "diyalog", "kapanis")
     ihl = [_tohum_ihlali(s, fb) for s in slotlar]
     n = len(slotlar)
     for _ in range(adim):
@@ -783,8 +851,9 @@ class _Deste:
 
 
 def tohum_kelimeleri(bg):
-    """tohum_kelimeleri.json listeleri; canlı, rol ve belirsiz olanlar yine de ayıklanır (Adım 0c)."""
-    yasak = bg.canli | bg.rol | bg.belirsiz
+    """tohum_kelimeleri.json listeleri; canlı, rol ve belirsiz olanlar ile ürün adlarıyla aynı kelimeler (pamuk,
+    yumak) yine de ayıklanır (Adım 0c)."""
+    yasak = bg.canli | bg.rol | bg.belirsiz | bg.urun_adlari()
     return {t: sorted(w for w in bg.tohum_kelime[t] if w.rstrip("-") not in yasak) for t in ("isim", "fiil", "sifat")}
 
 
@@ -803,16 +872,17 @@ def tohum_uret(fb, n, tohum, bg, baslangic=1):
     mastar = json_oku(_kapi().TOHUM_KELIME, {}).get("fiil_mastar", {})
     out = []
     for i, s in enumerate(slotlar):
-        secenek = fb.yan_secenekleri(s["yan_sayisi"], s["tema"], s["diyalog"])
+        secenek = fb.yan_secenekleri(s["yan_sayisi"], s["tema"], s["diyalog"], s["yer"])
         en_az = min(sum(kullanim[y["ad"]] for y in c) for c in secenek)
         c = rng.choice([c for c in secenek if sum(kullanim[y["ad"]] for y in c) == en_az])
         for y in c:
             kullanim[y["ad"]] += 1
         sira = [y["ad"] for y in fb.yanlar]
         yan = sorted((y["ad"] for y in c), key=sira.index)     # tohumdaki yan sırası = kart sırası
+        uygun = lambda w: fb.kelime_uygun(w, yan)        # noqa: E731
         for _ in range(1000):
-            isim = deste["isim"].cek(lambda w: (s["yer"], s["tema"], w) not in hucreler)
-            fiil, sifat = deste["fiil"].cek(), deste["sifat"].cek()
+            isim = deste["isim"].cek(lambda w: (s["yer"], s["tema"], w) not in hucreler and uygun(w))
+            fiil, sifat = deste["fiil"].cek(uygun), deste["sifat"].cek(uygun)
             if (isim, fiil, sifat) not in ucluler:
                 break
         else:
@@ -858,6 +928,12 @@ def tohum_denetle(tohumlar, fb, bg):
         for alan in ("isim", "fiil", "sifat"):
             if t[alan] not in kel[alan]:
                 hatalar.append(f"{t['id']}: {alan} {t[alan]!r} tohum_kelimeleri.json listesinde değil")
+            elif not fb.kelime_uygun(t[alan], t["yan"]):
+                hatalar.append(f"{t['id']}: {alan} {t[alan]!r} figürün dünyasına uymuyor (kategori ya da gerektirdiği canlı)")
+        yan_yer = {y["ad"]: y["yerler"] for y in fb.yanlar}
+        for y in t["yan"]:
+            if y in yan_yer and t["yer"] not in yan_yer[y]:
+                hatalar.append(f"{t['id']}: yan {y!r} {t['yer']!r} yerinde bulunmaz ({', '.join(yan_yer[y])})")
         if t["yer"] not in fb.yerler:
             hatalar.append(f"{t['id']}: yer {t['yer']!r} kartta yok")
         if t["ozellik"] not in fb.ozellikler:
@@ -874,7 +950,7 @@ def tohum_denetle(tohumlar, fb, bg):
             hatalar.append(f"{t['id']}: replik kapanışı diyalogsuz")
         if t["tema"] in TEMALAR and t["yan"] and t["tema"] in fb.temalar:
             c = {y for y in t["yan"] if y in yan_adlari}
-            if c not in [{y["ad"] for y in x} for x in fb.yan_secenekleri(len(c), t["tema"], t["diyalog"])]:
+            if c not in [{y["ad"] for y in x} for x in fb.yan_secenekleri(len(c), t["tema"], t["diyalog"], t["yer"])]:
                 hatalar.append(f"{t['id']}: yanlar tema/diyalog gereğini karşılamıyor")
         elif not t["yan"] and (t["diyalog"] == "var" or TEMALAR.get(t["tema"], ("", None))[1]):
             hatalar.append(f"{t['id']}: yansız tohumda diyalog ya da yan isteyen tema")
@@ -940,6 +1016,13 @@ def _kabul_havuzu(Y, figur, tohum=None):
             if k["figur"] == figur and (tohum is None or k.get("tohum") != tohum)]
 
 
+def _tur_havuzu(onceki, figur, tohum):
+    """K9 havuzunun tur parçası: aynı turda (bu kapı/kontrol koşusunda) daha önce denetlenip kod kapılarından geçmiş
+    adaylar [(kimlik, gövde)]; aynı tohumun adayı hariç. Hakemden önce iki yakın kopyanın birlikte kabul edilmesini
+    önler: turdaki ilk aday kalır, sonraki K9'a takılır. onceki: [(figür, tohum, kimlik, gövde, geçti)]."""
+    return [(k, g) for f, t, k, g, gecti in onceki if gecti and f == figur and t != tohum]
+
+
 def _kontrol_durumu_yolu(Y, dosya):
     return Y.v("kontrol", os.path.basename(dosya) + ".json")
 
@@ -998,8 +1081,11 @@ def cmd_kontrol(a):
     durum_yolu = _kontrol_durumu_yolu(Y, a.dosya)
     durum = json_oku(durum_yolu, {})
     gecen, gorulen = 0, collections.Counter(b["tohum"] for b in bloklar)
+    onceki = []
     for b in bloklar:
-        r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, _kabul_havuzu(Y, b["figur"], b["tohum"]), a.taslak_kart)
+        havuz = _kabul_havuzu(Y, b["figur"], b["tohum"]) + _tur_havuzu(onceki, b["figur"], b["tohum"])
+        r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, havuz, a.taslak_kart)
+        onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"]))
         anahtar = b["tohum"] or f"satir{b['satir']}"
         if gorulen[b["tohum"]] > 1:
             r["ihlaller"].append({"kod": "K1.tohum_tekrar", "kapi": "K1",
@@ -1043,13 +1129,15 @@ def cmd_kapi(a):
     yeni, bilinmeyen = [], set()
     kapi_say, kod_say, tohum_kaynakli = collections.Counter(), collections.Counter(), 0
     TOHUM_KODLARI = {"K1.tohum", "K1.yer", "K1.yan", "K4.ozellik", "K4.tohum_kelime", "K4.degisim"}
+    onceki = []                                          # K9: turdaki önceki adaylar da havuzda
     for dosya in dosyalar:
         with open(dosya, encoding="utf-8") as f:
             bloklar = uk.ayristir(f.read())
         denemeler = _istem_denemeleri(Y, dosya)
         durum = json_oku(_kontrol_durumu_yolu(Y, dosya), {})
         for b in bloklar:
-            r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, _kabul_havuzu(Y, b["figur"], b["tohum"]), a.taslak_kart)
+            havuz = _kabul_havuzu(Y, b["figur"], b["tohum"]) + _tur_havuzu(onceki, b["figur"], b["tohum"])
+            r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, havuz, a.taslak_kart)
             deneme = denemeler.get(b["tohum"], 1)
             surumler = durum.get(b["tohum"] or f"satir{b['satir']}", [])
             yama, fark = _yama_bilgisi(surumler, b["ham"])
@@ -1063,6 +1151,7 @@ def cmd_kapi(a):
                 r["gecti"] = False
             gorulen_tohum.add((b["tohum"], deneme))
             gorulen_sha1.add(r["sha1"])
+            onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"]))
             kodlar = {x["kod"] for x in r["ihlaller"]}
             for k in kodlar:
                 kod_say[k] += 1
@@ -1434,6 +1523,7 @@ def gorunum(lens, rec, bg, tohumlar):
         g["k6_isaretleri"] = [n["aciklama"] for n in rec.get("notlar", []) if "D" in n.get("mercek", "")]
     if lens == "K":
         g["cogul_canli_notlari"] = [n["aciklama"] for n in rec.get("notlar", []) if n["kod"] == "K6.cogul_canli"]
+        g["belirsiz_kelime_notlari"] = [n["aciklama"] for n in rec.get("notlar", []) if n["kod"] == "K6.belirsiz"]
     return g
 
 

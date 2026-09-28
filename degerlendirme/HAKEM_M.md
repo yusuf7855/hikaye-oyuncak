@@ -61,4 +61,30 @@ Dosya, partideki sırayla her hikaye için bir kayıt taşıyan bir JSON listesi
 
 ## Örnek eleştiriler
 
-[KULLANICI ONAYLI ELEŞTİRİ ÖRNEKLERİ (3-5) buraya]
+Örnekler kullanıcı yetkisiyle yazıldı. Hepsi kod kapılarından (K1-K9, K11) geçer; yani bu kusurları yalnız sen
+yakalayabilirsin. Önce kusursuz bir taban hikaye, sonra tabanın tek yeri değiştirilmiş kusurlu biçimleri ve
+beklenen ihlal kaydı verilir. Tabandaki hikayede bütün maddeler 'yok'tur; kısa, sade ve tek sahneli olmak kusur
+değildir.
+
+**Taban (bütün maddeler 'yok').** Niloya | park | Murat.
+Plan: uçurtma ağaçların üstüne çıkamadı çünkü ipi kısaydı | ağabeyinden ip isteyip iki ipi bağladı
+
+> Niloya ile Murat parkta sarı bir uçurtma uçuruyordu. Ama uçurtma ağaçların üstüne çıkamadı çünkü ipi çok kısaydı. Niloya ipe baktı ve biraz düşündü. "Murat, çantada başka ip var mı?" diye sordu Niloya. Murat çantasına baktı ve uzun bir ip buldu. İpi hemen Niloya'ya verdi. Niloya iki ipi sıkıca birbirine bağladı. Sonra ipi yavaş yavaş bıraktı. Rüzgar esti ve uçurtma yükseldi. Sarı uçurtma ağaçların üstüne çıktı. Murat sevinçle ellerini çırptı. Niloya ipi iki eliyle tuttu. "Bak Murat, uçurtma ağaçlardan yüksek!" dedi Niloya.
+
+1. 7\. cümle "Murat iki ipi sıkıca birbirine bağladı." olursa sorunu yan karakter çözer (M4 var):
+  {"madde": "M4", "alinti": "Murat iki ipi sıkıca birbirine bağladı", "cumle_no": 7, "aciklama": "Sorunu Niloya değil Murat çözüyor; yan karakter yalnız yardım etmeli."}
+2. 3\. cümle "Niloya yerde kırmızı bir top gördü ve düşündü." olursa top bir daha geçmez (M6 var):
+  {"madde": "M6", "alinti": "yerde kırmızı bir top gördü", "cumle_no": 3, "aciklama": "Top sebepsiz beliriyor ve olayda hiçbir işe yaramıyor."}
+3. Plan "uçurtmanın ipi koptu ve uçurtma kayboldu | ..." olursa plan gövdeyi söylemez (M10 var):
+  {"madde": "M10", "alinti": "uçurtmanın ipi koptu ve uçurtma kayboldu", "cumle_no": 0, "aciklama": "Gövdede ip kopmuyor; ip kısa olduğu için uçurtma yükselmiyor."}
+
+**Taban 2.** Tosbi | deniz | balık (plan: yağmur başladı ve başı ıslandı | başını kabuğuna çekip yağmurun dinmesini
+bekledi):
+
+> Deniz kıyısında serin bir sabahtı. Tosbi kumda renkli taşlar topluyordu. Birden yağmur başladı ve Tosbi'nin başı ıslandı. Tosbi başını ve ayaklarını kabuğuna çekti. Sudan küçük bir balık başını çıkardı. "Tosbi, neredesin?" diye sordu balık. "Buradayım, içerisi çok kuru," dedi Tosbi. Balık gülümsedi ve suya geri döndü. Tosbi içeride sessizce bekledi. Bir süre sonra yağmur dindi ve bulutların arasından güneş çıktı. Tosbi başını yavaşça dışarı çıkardı. Balık da yeniden sudan baktı. Kumdaki renkli taşlar güneşte parlıyordu.
+
+4. 7\. cümle '"Buradayım, burası çok ıslak," dedi Tosbi.' olursa çözüm işe yaramamışken hikaye çözülmüş gibi biter
+   (M7 var):
+  {"madde": "M7", "alinti": "Buradayım, burası çok ıslak", "cumle_no": 7, "aciklama": "Tosbi kuru kalmak için kabuğuna girdi ama içerisinin ıslak olduğunu söylüyor."}
+5. 10\. cümle "Yağmur ancak akşam dindi ve gökyüzünde ay çıktı." olursa sahne akşama atlar (M8 var):
+  {"madde": "M8", "alinti": "Yağmur ancak akşam dindi", "cumle_no": 10, "aciklama": "Hikaye sabah başlıyor ve akşama atlıyor; tek zaman kuralı çiğneniyor."}

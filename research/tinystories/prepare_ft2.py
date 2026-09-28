@@ -20,6 +20,8 @@ Kullanım: PYTHONPATH=src python -m research.tinystories.prepare_ft2 [--vocab 16
   biçim hatalı blok ya da kanarya sha1'i görülürse betik durur. Doğrulama yalnız 'dogrulama' işaretli kayıtlardır.
   Çıktı klasörüne (ve --manifest ile verilen yola, ör. model klasörü) manifest_urun.json yazılır.
   --yansiz: Yan alansız kol (aynı kayıtlar, ' | Yan: …' yok).
+  Onaysız (taslak) kartla kabul edilmiş veri ('# taslak_kart' izin notu ya da kabul.jsonl'de taslak_kart) REDDEDİLİR;
+  yalnız duman testi için --taslak-kart-izin ile geçer (manifest'te taslak_kart: true).
 """
 import argparse
 import hashlib
@@ -156,6 +158,17 @@ def kanarya_sha1leri(izin_yolu):
     return out
 
 
+def taslak_kart_mi(izin_yolu, notlar):
+    """İzin listesi onaysız kartla kabul edilmiş veri içeriyor mu: '# taslak_kart' notu ya da aynı klasördeki
+    kabul.jsonl'de taslak_kart: true."""
+    if any("taslak_kart" in n for n in notlar):
+        return True
+    kabul = Path(izin_yolu).resolve().parent / "kabul.jsonl"
+    if kabul.exists():
+        return any(json.loads(s).get("taslak_kart") for s in kabul.read_text(encoding="utf-8").splitlines() if s.strip())
+    return False
+
+
 def yalniz_oku(izin_yolu, kanaryalar=frozenset()):
     """İzin listesindeki hikâyeler: (eğitim, doğrulama, bilgi). İzin dosyasının klasöründeki bütün *.txt (izin
     dosyası hariç) yazar biçimli okunur; listede olmayan hikâye, eksik ya da iki kez bulunan sha1, biçim hatası ya
@@ -215,13 +228,15 @@ def main(argv=None):
                     help="ürün verisi: YALNIZ bu izin listesindeki hikâyeler (data/urun_v1/izin.txt)")
     ap.add_argument("--yansiz", action="store_true", help="--yalniz: Yan alansız kol")
     ap.add_argument("--manifest", default=None, help="--yalniz: manifest'in ek kopyası (ör. model klasörü)")
+    ap.add_argument("--taslak-kart-izin", action="store_true",
+                    help="--yalniz: onaysız kartla kabul edilmiş veriye izin ver (yalnız duman testi)")
     args = ap.parse_args(argv)
     if not 0.0 <= args.plan_orani <= 1.0:
         raise SystemExit("--plan-orani 0 ile 1 arasında olmalı")
     if args.yalniz:
         return urun_main(args)
-    if args.yansiz or args.manifest:
-        raise SystemExit("--yansiz ve --manifest yalnız --yalniz ile")
+    if args.yansiz or args.manifest or args.taslak_kart_izin:
+        raise SystemExit("--yansiz, --manifest ve --taslak-kart-izin yalnız --yalniz ile")
     rng = random.Random(args.seed)
 
     hikayeler = []
@@ -348,6 +363,10 @@ def urun_main(args):
     egitim, dogrulama, bilgi = yalniz_oku(args.yalniz, kanarya_sha1leri(args.yalniz))
     if not egitim:
         raise YalnizHata("izin listesinde eğitim kaydı yok")
+    taslak = taslak_kart_mi(args.yalniz, bilgi["notlar"])
+    if taslak and not args.taslak_kart_izin:
+        raise YalnizHata("izin listesinde onaysız (taslak) kartla kabul edilmiş veri var; eğitime girmez "
+                         "(yalnız duman testi için --taslak-kart-izin)")
     rng = random.Random(args.seed)
     yan = not args.yansiz
     src = ROOT / "data" / args.genel / f"vocab-{args.vocab}"
@@ -409,7 +428,7 @@ def urun_main(args):
         "tekrar": args.tekrar, "kopya": len(egitim) * args.tekrar, "planli_kopya": planli_kopya,
         "plan_orani": args.plan_orani, "yan_alani": yan, "seed": args.seed, "genel": args.genel,
         "genel_token": int(len(genel)), "train_token": len(train), "val_token": len(val), "uzun_256": uzun,
-        "taslak_kart": any("taslak_kart" in n for n in bilgi["notlar"]),
+        "taslak_kart": taslak,
         "bilesenler": {"serilestirme": uk.SURUM, "urun_kayit.py": _sha256(Path(uk.__file__)),
                        "prepare_ft2.py": _sha256(Path(__file__)), "tokenizer": _sha256(out / "tokenizer.json"),
                        "kabul_surum_ozetleri": surumler,

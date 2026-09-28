@@ -17,15 +17,17 @@ Kapılar (kod: açıklama; ayrıntı docs/KUSURSUZ_VERI.md):
   K4 kapalı dünya     büyük harfli ad ∈ {figür} ∪ {tohumdaki adlı yanlar}; öteki figürler, çıkarılanlar, eski 12,
                       kartın yasak adları, başka kartların yanları, sec.YABANCI ret; TEKİL canlı/rol lemması
                       (canli_rol.json) ∈ {figür türü} ∪ {tohum yanlarının yüzey biçimleri ve türü} ∪ {izinli dünya
-                      kökleri, tohum dışı yanların türleri hariç}; tohumdaki her yan metinde; figür adı ilk 2 cümlede
+                      kökleri, tohum dışı yanların türleri hariç}; belirsiz kelime (canli_rol.json) yalnız açık
+                      cansız/oyuncak anlamında; cümle başındaki yaygın kelime sıfat olarak ('Kara bulutlar') ad
+                      sayılmaz; tohumdaki her yan metinde; figür adı ilk 2 cümlede
                       ve son %40'ta; kartın yasak düzenli ifadeleri 0; tohum özelliğinin anahtar ifadesi >= 1;
                       tohumdaki isim, fiil ve sıfat lemmaları gövdede ('@degisim' ile en çok biri değişebilir)
   K5 biçimbilim       Zemberek çözümlemesi (kurulu değilse ATLANIR ve sonuçta 'atlanan' olarak yazılır);
                       kesme ekinin okunuşa uyumu (Tosbi'nın, Chase'den ret); sertleşme (koşdu, ağaçdan);
                       zaman kuralı: tırnak dışındaki yüklemin son zaman eki -dı (yalın -yor, -mış, -acak, geniş
                       zaman, -dır, var/yok/değil ret; -mış/-acak sıfat-fiilleri ve 'yiyecek' gibi adlar yüklem değil)
-  K6 işaretler        ret değil, hakeme not: bitişik de/da ve ki şüphesi, çoğul arka plan canlıları, belirsiz
-                      canlı/rol kelimeleri, sec.py ve kontrol.py'nin sezgisel olay kuralları
+  K6 işaretler        ret değil, hakeme not: bitişik de/da ve ki şüphesi, çoğul arka plan canlıları, cansız
+                      anlamda geçen belirsiz kelimeler (karakter anlamı K4 retidir), sec.py ve kontrol.py'nin sezgisel olay kuralları
   K7 güvenlik/sağlık  sec.GUVENLIK + ek kalıplar + hastalık kökleri; 'kanadı' yalnız vücut parçasından sonra kanama
   K8 tekrar           aynı cümle, 3-gram tekrarı > 2, 'X ve X', kekeme tekrar, kendine gönderme, kendine adıyla
                       seslenme, aynı konuşmacının ardışık iki cümlede konuşması, iki kez tanıtma
@@ -186,9 +188,14 @@ class Baglam:
         with open(CANLI_ROL, encoding="utf-8") as f:
             cr = json.load(f)
         self.canli, self.rol, self.belirsiz = set(cr["canli"]), set(cr["rol"]), set(cr["belirsiz"])
+        # belirsizlerin cansız/oyuncak kalıpları (kullanıcı kararı: karakter olarak yasak, nesne olarak serbest)
+        self.nesne_kaliplari = {w: [re.compile(k) for k in (v.get("nesne_kaliplari") or [])]
+                                for w, v in cr["belirsiz"].items() if isinstance(v, dict)}
         with open(TOHUM_KELIME, encoding="utf-8") as f:
             tk = json.load(f)
         self.tohum_kelime = {"isim": set(tk["isim"]), "fiil": set(tk["fiil"]), "sifat": set(tk["sifat"])}
+        self.tohum_kategori = {w: k for k, ws in tk.get("kategori", {}).items() for w in ws}   # kelime -> kategori
+        self.canli_gerektirir = dict(tk.get("canli_gerektirir", {}))
         self.sozluk = sade_sozluk.yukle()
         self.sozluk_hatalari = sade_sozluk.dogrula()
         self._tok = None
@@ -222,6 +229,17 @@ class Baglam:
         tf = self.sozluk.tf.get(w, 0)
         return tf * (1 - (self.sozluk.adlar.get(w) or 0)) >= 50
 
+    def urun_adlari(self):
+        """Ürünün bütün adları (küçük harf): figürler, eski ve çıkarılan figürler, kart yanları ve kartların yasak
+        adları. Çok kelimeli adlardan yalnız yaygın olmayan kelimeler girer ('Kara Vezir' -> vezir)."""
+        if not hasattr(self, "_urun_adlari"):
+            adlar = self.figurler + self.eski + self.cikarilanlar
+            for k in self.kartlar.values():
+                adlar += [y["kisa_ad"] for y in k["yanlar"] if y["tip"] == "adli"]
+                adlar += [a["ad"] for a in k.get("yasaklar", {}).get("adlar", []) if not a.get("belirsiz")]
+            self._urun_adlari = {kucuk(p) for a in adlar for p in a.split() if " " not in a or not self.yaygin(p)}
+        return self._urun_adlari
+
     def ad_gibi(self, w):
         """Cümle başındaki büyük harfli kelime ad mı: sözlükte ad olarak geçiyor ya da kelime ve kökü nadir."""
         low = kucuk(w)
@@ -231,7 +249,17 @@ class Baglam:
         return s.tf.get(low, 0) < 20 and s.d["kok"].get(s.kok(low), 0) < 20
 
 
+_ZEMBEREK = []
+
+
 def _zemberek_yukle():
+    """(çözümleyici, neden); süreç içinde bir kez yüklenir (yükleme ~5 sn)."""
+    if not _ZEMBEREK:
+        _ZEMBEREK.append(_zemberek_kur())
+    return _ZEMBEREK[0]
+
+
+def _zemberek_kur():
     try:
         from zemberek import TurkishMorphology
     except Exception as e:  # kurulu değil
@@ -540,16 +568,47 @@ def _ad_kaldir(metin, ifadeler):
     return metin
 
 
+def _canli_rol_lemma(w, bg):
+    """Kelime bir canlı/rol lemması mı (kök, kendisi ya da küçültmesi): lemma ya da None."""
+    k = bg.kok(w)
+    if k.endswith("-"):
+        return None
+    adaylar = [k, w]
+    m = DIMINUTIF.match(w)
+    if m:
+        adaylar += [m.group(1), bg.kok(m.group(1))]
+    return next((a for a in adaylar if (a in bg.canli or a in bg.rol) and a not in ESSESLI_CANLI_ROL), None)
+
+
+def belirsiz_nesne_mi(low, bas, son, lemma, bg):
+    """Belirsiz kelimenin bu geçişi açıkça cansız/oyuncak anlamında mı: önündeki iki kelimede 'oyuncak', hemen
+    ardından bir canlı/rol ismi (sıfat kullanımı: 'yaşlı at'; o isim ayrıca denetlenir) ya da canli_rol.json'daki
+    nesne kalıplarından biri geçişi kapsıyor ('bir sürü', 'meşe palamudu')."""
+    once = re.findall(rf"[{HARF}]+", low[max(0, bas - 40):bas])[-2:]
+    if "oyuncak" in once:
+        return True
+    sonra = re.match(rf"\s+([{HARF}]+)", low[son:])
+    if sonra and _canli_rol_lemma(sonra.group(1), bg):
+        return True
+    return any(m.start() <= bas and son <= m.end()
+               for k in bg.nesne_kaliplari.get(lemma, []) for m in k.finditer(low))
+
+
 def canli_rol_tara(govde, d, yanlar, bg):
-    """(ihlaller, notlar): tekil kart dışı canlı/rol, çoğul canlı ve belirsiz kelimeler."""
+    """(ihlaller, notlar): tekil kart dışı canlı/rol, çoğul canlı ve belirsiz kelimeler. Belirsiz kelime (canli_rol.json
+    'belirsiz') kullanıcı kararıyla KARAKTER olarak yasaktır: açıkça cansız/oyuncak anlamında değilse ihlaldir
+    (lemma, 'belirsiz:' önekiyle); cansızsa K merceğine not gider. Kartın izinli dünya kökü olanlar (Rafadan
+    Tayfa'da 'bakkal', Doru'da 'sürü') ve eşsesliler (karı, eş) yalnız nottur."""
     ifadeler = [d.ad] + [b for y in yanlar if y in d.yanlar for b in d.yan_bicimleri(d.yanlar[y])]
     low = _ad_kaldir(kucuk(govde.replace("’", "'")), ifadeler)
     izin = _canli_izin(d, yanlar, bg)
     if "kardeş" in izin:                                   # kız kardeşi: 'kız' ayrı bir karakter değil
         low = re.sub(r"\b(kız|erkek)(?=\s+kardeş)", lambda m: " " * len(m.group(0)), low)
+    low = sade_sozluk.KESME_EKI.sub(lambda m: " " * len(m.group(0)), low)   # konum korunur (kelimeler() ile aynı)
     hayvan_var = any(t in bg.canli for t in izin)
     ih, nt = [], []
-    for w in sade_sozluk.kelimeler(low):
+    for km in sade_sozluk.KELIME.finditer(low):
+        w = km.group(0)
         k = bg.kok(w)
         if k.endswith("-"):
             continue
@@ -560,8 +619,12 @@ def canli_rol_tara(govde, d, yanlar, bg):
         isabet = [a for a in adaylar if (a in bg.canli or a in bg.rol) and a not in ESSESLI_CANLI_ROL]
         if not isabet:
             b = [a for a in adaylar if a in bg.belirsiz or a in ESSESLI_CANLI_ROL]
-            if b:
+            if not b:
+                continue
+            if b[0] in ESSESLI_CANLI_ROL or b[0] in izin or belirsiz_nesne_mi(low, km.start(), km.end(), b[0], bg):
                 nt.append(("belirsiz", w, b[0]))
+            else:
+                ih.append((w, "belirsiz:" + b[0]))
             continue
         lemma = isabet[0]
         if w.startswith(lemma) and w[len(lemma):].startswith(("lar", "ler")):
@@ -571,6 +634,21 @@ def canli_rol_tara(govde, d, yanlar, bg):
         else:
             ih.append((w, lemma))
     return ih, nt
+
+
+def _sifat_kullanimi(g, son, w, bg):
+    """Cümle başındaki büyük harfli yaygın kelime ad değil de sıfat mı ('Kara bulutlar', 'Pamuk gibi'): ardından
+    küçük harfli, fiil ya da bağlaç olmayan bir kelime gelir. Ürün adları (figür, yan, eski ve çıkarılan figürler)
+    yalnız 'gibi' ile sıfat sayılır: 'Pamuk koştu' da 'Pamuk çok sevindi' de ad kalır."""
+    sonra = re.match(rf" +([{HARF}]+)", g[son:])
+    if not sonra:
+        return False
+    s = sonra.group(1)
+    if s == "gibi":
+        return True
+    if not bg.yaygin(w) or kucuk(w) in bg.urun_adlari() or s in BAGLAC | {"ile", "da", "de", "ki", "ise"}:
+        return False
+    return not bg.kok(s).endswith("-")
 
 
 def _var_mi(desen, metin):
@@ -617,19 +695,24 @@ def k4(blok, kayit, tohum, bg, ih, nt):
         low = kucuk(w)
         if low in izin or low in raporlanan or low in bilinmeyen:
             continue
-        if _cumle_basi(g, m.start()) and not m.group(2) and not bg.ad_gibi(w):
+        if _cumle_basi(g, m.start()) and not m.group(2) and (not bg.ad_gibi(w) or _sifat_kullanimi(g, m.end(), w, bg)):
             continue
         bilinmeyen.append(low)
         _ihlal(ih, "K4.ad", f"izinli olmayan ad: {w} (izinli: {d.ad}" + (f", {', '.join(yanlar)})" if yanlar else ")"))
     # canlı / rol
     kotu, notlar = canli_rol_tara(g, d, yanlar, bg)
     for w, lemma in dict.fromkeys(kotu):
-        _ihlal(ih, "K4.canli_rol", f"kart/tohum dışı tekil canlı ya da rol: {w} ({lemma})")
+        if lemma.startswith("belirsiz:"):
+            _ihlal(ih, "K4.belirsiz", f"belirsiz kelime karakter olarak yasak (yalnız açık cansız/oyuncak anlamı "
+                                      f"geçer: 'oyuncak {lemma[9:]}'): {w}")
+        else:
+            _ihlal(ih, "K4.canli_rol", f"kart/tohum dışı tekil canlı ya da rol: {w} ({lemma})")
     for tur, w, lemma in dict.fromkeys(notlar):
         if tur == "cogul":
             _not(nt, "K6.cogul_canli", "K,D", f"çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): {w}")
         else:
-            _not(nt, "K6.belirsiz", "K", f"belirsiz canlı/rol kelimesi (onay bekliyor): {w} ({lemma})")
+            _not(nt, "K6.belirsiz", "K", f"belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da "
+                                         f"rol ise K6 ihlalidir: {w} ({lemma})")
     # tohumdaki her yan metinde
     kelimeler = sade_sozluk.kelimeler(g)
     kokler = {bg.kok(w) for w in kelimeler} | set(kelimeler)

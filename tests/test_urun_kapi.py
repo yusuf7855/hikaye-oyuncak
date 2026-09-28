@@ -15,6 +15,7 @@ import os
 import random
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -307,6 +308,39 @@ class K5K7(unittest.TestCase):
         self.assertEqual(kapi.guvenlik_eslesmeleri("Gözyaşlarına boğuldu."), [])
 
 
+class KartVeKararlar(unittest.TestCase):
+    """Kullanıcı kararları ve kart-kapı uyumu: belirsiz kelime karakter olarak ret, cansız/oyuncak anlamında not;
+    cümle başındaki yaygın kelime ('Kara bulutlar') ad sayılmaz ama ürün adı ('Pamuk') sayılır; kartın güvenli
+    kullanım satırındaki olumsuz ifadenin yankısı ('derin suya girmedi') K7'ye takılmaz."""
+
+    def degistir(self, eski, yeni):
+        blok, kayit, tohum = tabanlar()[0]
+        self.assertIn(eski, kayit["govde"])
+        k = {**kayit, "govde": kayit["govde"].replace(eski, yeni)}
+        return kapi.denetle(k, tohum, baglam())
+
+    def test_belirsiz_karakter_ret_nesne_not(self):
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra dalda oturan baykuşu ve bir robotu gördü.")
+        self.assertIn("K4.belirsiz", kodlar(s))
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra dalda oturan baykuşu ve oyuncak robotu gördü.")
+        self.assertNotIn("K4.belirsiz", kodlar(s))
+        self.assertIn("K6.belirsiz", {x["kod"] for x in s["notlar"]})
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra dalda bir sürü yaprak ve baykuşu gördü.")
+        self.assertNotIn("K4.belirsiz", kodlar(s))
+
+    def test_cumle_basi_yaygin_kelime(self):
+        s = self.degistir("Ormanda sakin bir sabah vardı.", "Kara bulutlar ormanın üstündeydi.")
+        self.assertEqual({k for k in kodlar(s) if k.startswith("K4")}, set(), s["ihlaller"])
+        s = self.degistir("Baykuş başını salladı.", "Pamuk başını salladı.")
+        self.assertTrue({k for k in kodlar(s) if k.startswith("K4")}, s["ihlaller"])
+
+    def test_kartin_olumsuz_ifadesi_k7_degil(self):
+        s = self.degistir("Önce sabırla bekledi ama balon inmedi.", "Tosbi derin suya girmedi ve sabırla bekledi.")
+        self.assertFalse([k for k in kodlar(s) if k.startswith("K7")], s["ihlaller"])
+        s = self.degistir("Önce sabırla bekledi ama balon inmedi.", "Tosbi derin suya girdi ve sabırla bekledi.")
+        self.assertIn("K7.guvenlik", kodlar(s))
+
+
 class K9K11(unittest.TestCase):
     def test_yakin_kopya(self):
         _, kayit, _ = tabanlar()[0]
@@ -318,11 +352,18 @@ class K9K11(unittest.TestCase):
         self.assertEqual(kapi.yakin_kopya(g, [("b", baska["govde"])]), [])
 
     def test_onaysiz_kart_ret(self):
-        bg = baglam()
+        kartlar = json.loads(Path(kapi.KART).read_text(encoding="utf-8"))
+        for k in kartlar["kartlar"]:
+            k["onayli"] = False
+        with tempfile.TemporaryDirectory() as d:
+            yol = Path(d) / "kart.json"
+            yol.write_text(json.dumps(kartlar, ensure_ascii=False), encoding="utf-8")
+            bg = kapi.Baglam(kart=str(yol), zemberek=False)
         blok, _, tohum = tabanlar()[0]
         s = kapi.denetle(blok, tohum, bg)
         self.assertIn("K11.kart_onay", kodlar(s))
         self.assertFalse(s["taslak_kart"])
+        self.assertNotIn("K11.kart_onay", kodlar(kapi.denetle(blok, tohum, baglam())))    # depodaki kartlar onaylı
 
 
 class SozlukTokenizer(unittest.TestCase):

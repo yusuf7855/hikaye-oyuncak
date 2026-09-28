@@ -30,10 +30,21 @@ import veri_hakem as vh  # noqa: E402
 from research.tinystories import prepare_ft2  # noqa: E402
 from tests.test_urun_kapi import TABANLAR, TOHUMLAR  # noqa: E402
 
-# Tosbi çeşitlemesi: aynı figürden ikinci hikâye (kanarya tabanı ve K partisi için)
-TOSBI2 = TABANLAR.split("\n\n")[0].replace("@tohum: tosbi-0001", "@tohum: tosbi-0002").replace(
-    "Ormanda sakin bir sabah vardı.", "Ormanda serin bir sabah vardı.")
+# Tosbi'nin ikinci hikâyesi: aynı figür ve tohum alanları, başka metin (kanarya tabanı ve K partisi için; K9'a
+# takılmaz). YAKIN_KOPYA ise ilk Tosbi hikâyesinin tek cümlesi değişmiş kopyasıdır (aynı turda K9).
+TOSBI2 = """\
+### Tosbi | orman | baykuş
+@plan: balonun ipi bir çalıya dolandı | baykuştan yardım isteyip ipi çözdü
+@tohum: tosbi-0002
+Ormanda serin bir sabah vardı. Tosbi ağaçların arasında kırmızı bir balon buldu. Balonun ipi bir çalıya \
+dolanmıştı. Tosbi ipi çekti ama ip çözülmedi. Tosbi sabırla düşündü ve biraz bekledi. O sırada baykuş yakındaki \
+bir dala kondu. "Baykuş, bu ipi çözebilir misin?" diye sordu Tosbi. Baykuş aşağı uçtu ve gagasıyla düğümü yavaşça \
+açtı. Tosbi ipin ucunu sıkıca tuttu. Balon çalıdan kurtuldu ve havada sallandı. "Teşekkür ederim," dedi Tosbi. \
+Baykuş başını salladı ve dalına döndü. Tosbi kırmızı balonla ağaçların arasında yürüdü."""
 TOHUM2 = {**TOHUMLAR[0], "id": "tosbi-0002"}
+YAKIN_KOPYA = TABANLAR.split("\n\n")[0].replace("@tohum: tosbi-0001", "@tohum: tosbi-0003").replace(
+    "Ormanda sakin bir sabah vardı.", "Ormanda serin bir sabah vardı.")
+TOHUM3 = {**TOHUMLAR[0], "id": "tosbi-0003"}
 
 
 def sessiz(f, *a, **k):
@@ -164,6 +175,24 @@ class PrepareYalniz(unittest.TestCase):
     def test_yansiz_manifest_yalniz_disinda_hata(self):
         with self.assertRaises(SystemExit):
             prepare_ft2.main(["--yansiz", "--genel-token", "0", "--out", str(self.tmp / "o")])
+        with self.assertRaises(SystemExit):
+            prepare_ft2.main(["--taslak-kart-izin", "--genel-token", "0", "--out", str(self.tmp / "o")])
+
+    def test_taslak_kart_reddedilir(self):
+        """Onaysız kartla kabul edilmiş veri (izin notu ya da kabul.jsonl) --taslak-kart-izin olmadan eğitime girmez;
+        ret çıktı yazılmadan olur."""
+        d = {s: ("dogrulama" if i == 0 else "egitim") for i, s in enumerate(self.sha)}
+        for hazirla in (lambda: self.izin_yaz(d, ek="# taslak_kart: evet\n"),
+                        lambda: (self.izin_yaz(d), (self.veri / "kabul.jsonl").write_text(
+                            json.dumps({"sha1": self.sha[1], "taslak_kart": True}) + "\n"))):
+            hazirla()
+            with self.assertRaisesRegex(prepare_ft2.YalnizHata, "taslak"):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    prepare_ft2.main(["--yalniz", str(self.izin), "--genel-token", "0", "--out", str(self.tmp / "o")])
+            self.assertFalse((self.tmp / "o").exists())
+        (self.veri / "kabul.jsonl").unlink()
+        self.izin_yaz(d)
+        self.assertFalse(prepare_ft2.taslak_kart_mi(self.izin, prepare_ft2.izin_oku(self.izin)[1]))
 
     def test_izin_disi_hikaye(self):
         d = {s: "egitim" for s in self.sha[1:]}
@@ -285,6 +314,11 @@ class KartKontrol(unittest.TestCase):
             "regex": lambda k: k["kartlar"][0]["dunya_kurallari"][0]["yasak_duzenli_ifadeler"].append("(("),
             "urun_dayanakli": lambda k: k["kartlar"][0]["yanlar"][0]["tur"].__setitem__("kaynak", ["urun_karari"]),
             "deyim": lambda k: k["kartlar"][3]["yerler"][0].__setitem__("tarif", "Herkesin içi rahat eder."),
+            # yazarın kopyalayacağı metin kapılarla çatışmaz: K7 kalıbı ve kökü nadir kelime (Tosbi kartı)
+            "k7_tarif": lambda k: k["kartlar"][10]["yerler"][2].__setitem__("tarif", "Kıyı; derin su var."),
+            "nadir_tarif": lambda k: k["kartlar"][10]["yerler"][1].__setitem__("tarif", "Çiçekli bir dağ yamacı."),
+            "yan_yeri": lambda k: k["kartlar"][10]["yanlar"][3]["yerler"].__setitem__("deger", ["çöl"]),
+            "kategori": lambda k: k["kartlar"][10]["tohum_yasak_kategoriler"]["deger"].append("uzay"),
         }
         for ad, f in bozuk.items():
             k = copy.deepcopy(self.kart)
@@ -294,7 +328,8 @@ class KartKontrol(unittest.TestCase):
 
     def test_kilit(self):
         k = copy.deepcopy(self.kart)
-        k["kartlar"][10]["onayli"] = True
+        for i, x in enumerate(k["kartlar"]):
+            x["onayli"] = i == 10
         h, u, s = self.denetle(k, {})
         self.assertEqual((h, s["onayli"]), ([], 1))
         self.assertTrue(any("kilitlenmemiş" in x for x in u))
@@ -336,6 +371,44 @@ class Tohum(Ortak):
         for parca in ("keçi", "Şuşu", "replik", "kimliği tekrarlanıyor"):
             self.assertTrue(any(parca in x for x in h), parca)
 
+    def test_kartin_dunyasi(self):
+        """Tohum kartın dünyasına uyar: yan yalnız kartın izin verdiği yerde (Tosbi'nin ormanında balık yok), kelime
+        yasak kategoriden gelmez (doğa dünyasında telefon, masal köyünde mikrofon yok) ve gerektirdiği canlı
+        figürün ya da tohumdaki yanın türüdür (Tosbi'ye yansız 'havlamak' gelmez)."""
+        kat, gerek = self.bg.tohum_kategori, self.bg.canli_gerektirir
+        for ad in ("Tosbi", "Keloğlan", "Tekir", "Pamuk", "Doru", "Niloya"):
+            fb = vh.FigurBilgi(vh._figur_bul(self.bg, ad), self.bg)
+            t = vh.tohum_uret(fb, 400, 2026, self.bg)
+            self.assertEqual(vh.tohum_denetle(t, fb, self.bg)[0], [], ad)
+            yan_yer = {y["ad"]: y["yerler"] for y in fb.yanlar}
+            for x in t:
+                self.assertTrue(all(x["yer"] in yan_yer[y] for y in x["yan"]), x)
+                for alan in ("isim", "fiil", "sifat"):
+                    w = x[alan]
+                    self.assertFalse(kat.get(w) in fb.yasak_kategoriler and w not in fb.kart_kelimeleri, (ad, w))
+                    if w in gerek:
+                        turler = fb.tur_lemmalari.union(*[y["turler"] for y in fb.yanlar if y["ad"] in x["yan"]])
+                        self.assertTrue(turler & set(gerek[w]), (ad, w, x["yan"]))
+            if ad == "Tosbi":
+                self.assertFalse([x for x in t if "balık" in x["yan"] and x["yer"] != "deniz"])
+                self.assertTrue([x for x in t if "balık" in x["yan"]])
+                self.assertFalse({x["isim"] for x in t} & {"telefon", "mikrofon", "bilgisayar", "araba", "pizza"})
+            if ad == "Keloğlan":
+                self.assertFalse({x["isim"] for x in t} & {"telefon", "mikrofon", "televizyon", "tren", "pizza"})
+        # bozuk tohum yakalanır: ormanda balık, doğa dünyasında telefon, köpeksiz havlamak
+        fb = vh.FigurBilgi(vh._figur_bul(self.bg, "Tosbi"), self.bg)
+        bozuk = copy.deepcopy(vh.tohum_uret(fb, 30, 1, self.bg))
+        bozuk[0].update(yer="orman", yan=["balık"])
+        bozuk[1]["isim"] = "telefon"
+        bozuk[2].update(fiil="havla-", yan=[])
+        h, _ = vh.tohum_denetle(bozuk, fb, self.bg)
+        for parca in ("'balık' 'orman' yerinde bulunmaz", "'telefon' figürün dünyasına", "'havla-' figürün dünyasına"):
+            self.assertTrue(any(parca in x for x in h), (parca, h))
+        # kartın kendi metnindeki kelime yasak kategoride olsa da gelebilir (Niloya'nın parkında kaydırak)
+        niloya = vh.FigurBilgi(vh._figur_bul(self.bg, "Niloya"), self.bg)
+        self.assertEqual(kat.get("kaydırak"), "cagdas")
+        self.assertTrue(niloya.kelime_uygun("kaydırak") and not niloya.kelime_uygun("pizza"))
+
     def test_komut(self):
         r, out = self.vh("tohum", "--figur", "Tekir", "--n", "100", "--tohum", "3")
         self.assertEqual(r, 0, out)
@@ -351,13 +424,19 @@ class YazarVeKapi(Ortak):
     def test_yaz_istemi(self):
         (Path(self.Y.tohum("keloglan"))).write_text("")
         sessiz(vh.main, ["tohum", "--figur", "Keloğlan", "--n", "30", "--ustune-yaz", "--kok", self.tmp])
-        with self.assertRaises(SystemExit):     # onaysız kart
-            self.vh("yaz-istemi", "--figur", "Keloğlan")
-        r, _ = self.vh("yaz-istemi", "--figur", "Keloğlan", "--n", "12", "--taslak-kart")
+        bg_taslak = copy.copy(self.bg)             # onaysız kartla istem yazılmaz (depodaki kartlar onaylı)
+        bg_taslak.kart_dosyasi = copy.deepcopy(self.bg.kart_dosyasi)
+        for k in bg_taslak.kart_dosyasi["kartlar"]:
+            k["onayli"] = False
+        with self.assertRaises(SystemExit):
+            sessiz(vh.yaz_istemi, self.Y, "Keloğlan", bg=bg_taslak)
+        r, _ = self.vh("yaz-istemi", "--figur", "Keloğlan", "--n", "12")
         self.assertEqual(r, 0)
         md = Path(self.Y.v("istem", "keloglan_2.md")).read_text()
         ist = vh.json_oku(self.Y.v("istem", "keloglan_2.json"))
         self.assertEqual(len(ist["tohumlar"]), 12)
+        self.assertFalse(ist["taslak_kart"])
+        self.assertNotIn("KULLANICI ONAYLI", md)          # kılavuzdaki örnekler dolu, yer tutucu yok
         self.assertIn("aday/keloglan_2.txt", md)
         self.assertIn("veri_hakem.py kontrol", md)
         self.assertIn("**Kural bütçesi.**", md)          # kılavuz birebir
@@ -399,6 +478,23 @@ class YazarVeKapi(Ortak):
         aday = self.kapi()
         self.assertEqual(len(aday), 9)
         self.assertTrue(any("K1.tohum_tekrar" in {x["kod"] for x in r["ihlaller"]} for r in aday.values()))
+
+    def test_k9_ayni_turdaki_aday(self):
+        """K9 havuzu aynı turdaki önceki adayları da içerir: kabul havuzu boşken yakın kopyanın ikincisi düşer,
+        ilki geçer; aynı tohumun kendi kabulü havuza girmez."""
+        t = Path(self.Y.tohum("tosbi"))
+        t.write_text(t.read_text() + json.dumps(TOHUM3, ensure_ascii=False) + "\n")
+        (Path(self.Y.v("aday")) / "tosbi_2.txt").write_text(YAKIN_KOPYA + "\n")
+        aday = self.kapi()
+        tosbi = {r["tohum"]: r for r in aday.values() if r["figur"] == "Tosbi"}
+        self.assertTrue(tosbi["tosbi-0001"]["gecti"] and tosbi["tosbi-0002"]["gecti"])
+        k9 = [x for x in tosbi["tosbi-0003"]["ihlaller"] if x["kapi"] == "K9"]
+        self.assertTrue(k9 and tosbi["tosbi-0001"]["kimlik"] in k9[0]["aciklama"], tosbi["tosbi-0003"]["ihlaller"])
+        # yazarın öz-denetimi de aynı dosyadaki önceki hikâyeyi havuzda görür
+        (Path(self.Y.v("aday")) / "tosbi_3.txt").write_text(TABANLAR.split("\n\n")[0] + "\n\n" + YAKIN_KOPYA + "\n")
+        r, out = self.vh("kontrol", self.Y.v("aday", "tosbi_3.txt"), "--taslak-kart")
+        self.assertEqual(r, 1)
+        self.assertIn("K9.", out)
 
 
 # ---------------------------------------------------------------- hazirla, oku, karar, altin, uyum
@@ -539,8 +635,10 @@ class Kurul(Ortak):
         s = vh.karar_ver(self.Y, pilot=True, taslak_kart=True, bg=self.bg)
         self.assertEqual(len(s["kabul"]), 4)
         self.assertTrue(any("kaynak_degisti" in k for k in s["bekleyen"]))
-        # onaysız kart --taslak-kart olmadan kabul edilmez
-        self.assertEqual(len(vh.karar_ver(self.Y, pilot=True, bg=self.bg)["kabul"]), 0)
+        # onaysız kart --taslak-kart olmadan kabul edilmez (depodaki kartlar onaylı: onayı kaldırılmış kopya)
+        bg_taslak = copy.copy(self.bg)
+        bg_taslak.kartlar = {a: {**k, "onayli": False} for a, k in self.bg.kartlar.items()}
+        self.assertEqual(len(vh.karar_ver(self.Y, pilot=True, bg=bg_taslak)["kabul"]), 0)
         # uyum
         u = vh.uyum_hesapla(self.Y)
         self.assertEqual(u["mercek"]["M"]["ikisi_var"], 1)            # iki hakem de uydurma alıntıyla 'var'
@@ -695,12 +793,10 @@ class Sizinti(Ortak):
         aday2 = self.kapi()                  # ör. kapı sürümü değişti: kapı yeniden koşar
         for s in kabul:                      # hiçbir kabul kendisinin kopyası sayılmaz
             self.assertFalse([x for x in aday2[s]["ihlaller"] if aday2[s]["kimlik"] in x["aciklama"]])
-        # TOSBI2, Tosbi'nin yakın kopyası: aynı turda ikisi de kabul edildi (K9 yalnız kabul havuzuna bakar);
-        # kapı yeniden koşunca birbirlerini yakalarlar. Öteki kabuller geçer.
-        tosbi = {s for s in kabul if aday2[s]["figur"] == "Tosbi"}
-        self.assertEqual([s[:8] for s in kabul - tosbi if not aday2[s]["gecti"]], [])
+        # iki Tosbi hikâyesi birbirinin yakın kopyası değil: kapı yeniden koşunca bütün kabuller yine geçer
+        self.assertEqual([s[:8] for s in kabul if not aday2[s]["gecti"]], [])
         self.assertEqual({k["sha1"] for k in vh.karar_ver(self.Y, pilot=True, taslak_kart=True, bg=self.bg)["kabul"]},
-                         kabul - tosbi)
+                         kabul)
 
 
 class EskiKomutlar(unittest.TestCase):

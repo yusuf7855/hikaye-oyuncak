@@ -4,7 +4,8 @@ Türkçe TinyStories ön eğitim metninden (c3'ün gördüğü train.bin bölüm
 token sıklıkları ve ad biçimleri çıkarılır.
 
 Kullanım: nice -n 19 .venv/bin/python degerlendirme/sade_sozluk.py olustur --nadir 20 --cok-nadir 5 --az-token 200
-                [--sik 2100] [--kok otomatik|ek|zemberek|f5]           (~1 dk, tek çekirdek, torch yok)
+                [--sik 3000] [--kok otomatik|ek|zemberek|f5]           (~1 dk, tek çekirdek, torch yok)
+          (depodaki sözlük: --sik 3000 --kok ek; Zemberek kuruluyken "otomatik" zemberek seçer)
           .venv/bin/python degerlendirme/sade_sozluk.py olc <metin|dosya> [--haric Tosbi,baykuş] [--json]
           .venv/bin/python degerlendirme/sade_sozluk.py dogrula [--tokenizer hf_c3ft_v6/tokenizer.json]
 Çıktı: data/sade_sozluk.json    yuzey (tf >= --cok-nadir; listede olmayan biçim daha az geçer), kok, sik (sıklık
@@ -13,7 +14,7 @@ Kullanım: nice -n 19 .venv/bin/python degerlendirme/sade_sozluk.py olustur --na
                                 (ham metin, train/val.bin, tokenizer ve K2 tokenizer sha256'ları, denetim) ve
                                 sha256 ('sha256' dışındaki içeriğin kanonik JSON'unun sha256'sı; dosya sha256'sı
                                 ayrıca K11 sürümüne girer)
-       data/sade_sozluk_sik.txt  --sik (2100) sık kök, alfabe sırasıyla (fiil kökleri '-' ile biter: koş-, oyna-);
+       data/sade_sozluk_sik.txt  --sik (3000) sık kök, alfabe sırasıyla (fiil kökleri '-' ile biter: koş-, oyna-);
                                 sha256'sı sözlükte (sik_txt_sha256)
 
 Kaynak: data/tr_tinystories/raw/tr-tinystories.txt; prepare_tr2 bu metni <|endoftext|> ile böler, tokenize edip
@@ -771,7 +772,7 @@ def main():
     o.add_argument("--nadir", type=int, default=20)
     o.add_argument("--cok-nadir", type=int, default=5)
     o.add_argument("--az-token", type=int, default=200)
-    o.add_argument("--sik", type=int, default=2100, help="sık kök listesinin boyu")
+    o.add_argument("--sik", type=int, default=3000, help="sık kök listesinin boyu")
     o.add_argument("--kok", choices=("otomatik", "ek", "zemberek", "f5"), default="otomatik")
     o.add_argument("--cikti", default=CIKTI)
     o.add_argument("--sik-cikti", default=SIK_CIKTI)

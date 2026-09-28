@@ -1,6 +1,6 @@
 {
  "surum": 1,
- "aciklama": "Ürünün 14 figürünün kaynaklı kartları (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz.",
+ "aciklama": "Ürünün 14 figürünün kaynaklı kartları (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları').",
  "sema": {
   "olgu": "{'deger': ..., 'kaynak': [kaynak kimliği, ...]} ; ek alanlar: 'onay_bekliyor', 'not_'",
   "yer.dizide_karsiligi": "dogrulandi | kismen | dogrulanmadi | yok | urun_tanimi",
@@ -9,7 +9,11 @@
   "ozellik.anahtar_ifade": "K4'ün 'anahtar kök geçti mi' denetimi için düzenli ifade; ornek_bicimler bu ifadeye uyar.",
   "dunya_kurallari": "En çok 5 kural; yasak_duzenli_ifadeler normalleştirilmiş plan ve gövdeye uygulanır (Python re).",
   "yasaklar.adlar": "Dizide olan ama kartta olmayan adlar; 'belirsiz': true olanlar ortak kelimedir, yalnız cümle içinde büyük harfle geçince ad sayılmalı.",
-  "urun_yan_eslesmesi": "data/urun_figurleri.json yan girdisi -> kart yan kimliği."
+  "urun_yan_eslesmesi": "data/urun_figurleri.json yan girdisi -> kart yan kimliği.",
+  "yan.yerler": "İsteğe bağlı olgu: yanın bulunabileceği yer etiketleri (yoksa kartın bütün yerleri). Tohum üretimi yanı yalnız bu yerlerle eşler (ormanda balık yok).",
+  "tohum_yasak_kategoriler": "Olgu: tohum kelimesi olarak bu figüre gelmeyecek dünya kategorileri (data/tohum_kelimeleri.json 'kategori'); kartın kendi metninde geçen kelime hariç.",
+  "k7_izinli": "Figüre özel K7 beyaz listesi (Python re): kartın güvenli kullanım satırındaki olumsuz ifadenin yankısı.",
+  "kararlar": "Açık noktaların çözümü (kullanıcı yetkisiyle karar; docs/KUSURSUZ_VERI.md 'Kullanıcı kararları')."
  },
  "kaynaklar": {
   "urun_tanimi": {
@@ -609,13 +613,19 @@
    "alintilar": [
     "an immense, green-skinned, hulking brute, possessing a limitless degree of physical strength"
    ]
+  },
+  "kullanici_karari": {
+   "tur": "kullanici",
+   "baslik": "Kullanıcı kararları (kullanıcı 'en iyisi neyse' dedi; kullanıcı yetkisiyle uygulandı)",
+   "dosya": "docs/KUSURSUZ_VERI.md",
+   "erisim": "2026-09-28"
   }
  },
  "kartlar": [
   {
    "kimlik": "niloya",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Niloya",
     "kaynak": [
@@ -703,7 +713,7 @@
    "yerler": [
     {
      "etiket": "orman",
-     "tarif": "Köyün yanındaki ağaçlık yer; meyve ağaçları ve fındık ağaçları vardır.",
+     "tarif": "Köyün yanında ağaçların olduğu yer; meyve ağaçları ve fındık ağaçları vardır.",
      "dizide_karsiligi": "kismen",
      "kaynak": [
       "niloya_com_bolumler",
@@ -713,7 +723,7 @@
     },
     {
      "etiket": "dağ",
-     "tarif": "Köyün tepelik yerleri ve yayla; kekik toplanan yeşil yamaçlar.",
+     "tarif": "Köyün yanındaki tepeler ve yayla; kekik toplanan yeşil tepeler.",
      "dizide_karsiligi": "dogrulandi",
      "kaynak": [
       "niloya_com_bolumler",
@@ -785,7 +795,7 @@
       "Mete"
      ],
      "iliski": {
-      "deger": "Murat'ın en yakın arkadaşı; Niloya ile yaşıttır ve onun da arkadaşıdır.",
+      "deger": "Murat'ın en yakın arkadaşı; Niloya ile aynı yaştadır ve onun da arkadaşıdır.",
       "kaynak": [
        "vikipedi_niloya",
        "niloya_com_mete"
@@ -1083,15 +1093,28 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "Ürün listesindeki 'Ninesi' kaynaklarda 'Babaanne'dir; kısa ad 'babaannesi' onaylansın mı?",
-    "Orman yeri dizide 'orman' adıyla geçmiyor (ağaçlık tepe, meyve ve fındık ağaçları var)."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: köy."
+   },
+   "kararlar": [
+    "Ninesi: kaynaktaki 'babaanne'; kısa ad 'babaannesi' (kullanıcı yetkisiyle karar).",
+    "Orman: köyün yanındaki ağaçlık yer olarak kalır; tarif kaynakta geçen meyve ve fındık ağaçlarıyla sınırlı."
    ]
   },
   {
    "kimlik": "masa",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Maşa",
     "kaynak": [
@@ -1113,7 +1136,7 @@
     ]
    },
    "kimlik_cumlesi": {
-    "deger": "Maşa, ormanın yakınındaki evinde yaşayan, çok enerjik ve oyunbaz küçük bir kızdır.",
+    "deger": "Maşa, ormanın yakınındaki evinde yaşayan, çok enerjik ve oyun seven küçük bir kızdır.",
     "kaynak": [
      "mashabear_tr",
      "vikipedi_en_masha"
@@ -1212,7 +1235,7 @@
       "ayı"
      ],
      "iliski": {
-      "deger": "Maşa'nın eski dostu; eskiden sirkte çalışmış, iyi huylu ve her işi bilen bir ayı.",
+      "deger": "Maşa'nın eski dostu; iyi kalpli ve her işi bilen bir ayı.",
       "kaynak": [
        "mashabear_tr",
        "vikipedi_en_masha"
@@ -1433,14 +1456,30 @@
      "not": "Resmi Türkçe yazım 'Daşa' (mashabear.com/tr-tr)."
     }
    ],
-   "acik_noktalar": [
-    "Dağ yeri için yalnız tepe kaynağı var."
+   "acik_noktalar": [],
+   "k7_izinli": [
+    "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+   ],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: orman evi."
+   },
+   "kararlar": [
+    "Dağ: kaynaktaki tepe olarak kalır (kullanıcı yetkisiyle karar)."
    ]
   },
   {
    "kimlik": "pepee",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Pepee",
     "kaynak": [
@@ -1462,7 +1501,7 @@
     ]
    },
    "kimlik_cumlesi": {
-    "deger": "Pepee, mavi tulumu ve mavi şapkasıyla bilinen, dört yaşında meraklı bir oğlandır.",
+    "deger": "Pepee, mavi tulum ve mavi şapka giyen, dört yaşında meraklı bir oğlandır.",
     "kaynak": [
      "vikipedi_pepee_liste"
     ]
@@ -1525,7 +1564,7 @@
    "yerler": [
     {
      "etiket": "orman",
-     "tarif": "Ağaçlı, çiçekli bir orman.",
+     "tarif": "Ağaçlarla ve çiçeklerle dolu bir orman.",
      "dizide_karsiligi": "dogrulanmadi",
      "kaynak": [
       "urun_karari"
@@ -1534,7 +1573,7 @@
     },
     {
      "etiket": "deniz",
-     "tarif": "Deniz kıyısı; kum ve küçük dalgalar. Kimse derin suya girmez.",
+     "tarif": "Deniz kıyısı; kum ve küçük dalgalar. Herkes kumda ve su kenarında kalır.",
      "dizide_karsiligi": "dogrulandi",
      "kaynak": [
       "tvmaze_pepee",
@@ -1543,7 +1582,7 @@
     },
     {
      "etiket": "park",
-     "tarif": "Salıncaklı, kaydıraklı bir çocuk parkı.",
+     "tarif": "Salıncağı ve kaydırağı olan bir çocuk parkı.",
      "dizide_karsiligi": "dogrulanmadi",
      "kaynak": [
       "urun_karari"
@@ -1901,15 +1940,27 @@
      "not": "Resmi adı 'Annee'."
     }
    ],
-   "acik_noktalar": [
-    "Orman ve park yerleri için kaynak bulunamadı; kalsın mı?",
-    "Nenee/Ninee yazımı: ikisi de yüzey biçimi; kısa ad 'Nenee' onaylansın mı?"
+   "acik_noktalar": [],
+   "k7_izinli": [
+    "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+   ],
+   "tohum_yasak_kategoriler": {
+    "deger": [],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: çağdaş ev."
+   },
+   "kararlar": [
+    "Orman ve park: ürün yer listesinde oldukları için kalır; tarif genel ve dizi bilgisi eklenmez.",
+    "Nene: kısa ad 'Nenee', 'Ninee' yüzey biçimi olarak kalır (kullanıcı yetkisiyle karar)."
    ]
   },
   {
    "kimlik": "keloglan",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Keloğlan",
     "kaynak": [
@@ -2144,11 +2195,10 @@
      "konusur": {
       "deger": false,
       "kaynak": [
-       "vikipedi_keloglan",
-       "sabah_keloglan"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Kaynaklar kirpi Prenses için 'konuşan' der, Karakaçan için demez. kaynakta açık yazmıyor; ihtiyatlı varsayılan, kullanıcı onaylayacak"
+      "not": "Kullanıcı kararı 4: Karakaçan konuşmaz (kaynaklar konuştuğunu söylemiyor)."
      }
     }
    ],
@@ -2351,20 +2401,34 @@
      "kart": [
       "yan:karakacan"
      ],
-     "not": "Tasarım önerisiyle kısa ad 'eşeği' (Karakaçan 4 token); kullanıcı onaylayacak."
+     "not": "Tasarım önerisiyle kısa ad 'eşeği' (Karakaçan 4 token); kullanıcı yetkisiyle karar verildi."
     }
    ],
-   "acik_noktalar": [
-    "Şato yeri: 'saray' tarifi mi, yer çıkarılsın mı?",
-    "Dağ yeri için kaynak bulunamadı.",
-    "Karakaçan konuşur mu? Kart ihtiyatla 'konuşmaz' diyor.",
-    "Karakaçan kısa adı 'eşeği' mi, 'Karakaçan' mı?"
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: masal köyü."
+   },
+   "kararlar": [
+    "Şato: sahibi yazılmayan köyden uzak taş saray tarifi; Kara Vezir ve padişah girmez.",
+    "Dağ: köyün yakınındaki tepe olarak kalır; dizi bilgisi eklenmez.",
+    "Karakaçan konuşmaz (kullanıcı kararı 4).",
+    "Karakaçan kısa adı 'eşeği'; 'Karakaçan' yüzey biçimi (kullanıcı yetkisiyle karar)."
    ]
   },
   {
    "kimlik": "doru",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Doru",
     "kaynak": [
@@ -2458,7 +2522,7 @@
     },
     {
      "etiket": "orman",
-     "tarif": "Vadinin yakınındaki ağaçlık orman.",
+     "tarif": "Vadinin yakınında, ağaçlarla dolu bir orman.",
      "dizide_karsiligi": "dogrulandi",
      "kaynak": [
       "trt_doru"
@@ -2466,7 +2530,7 @@
     },
     {
      "etiket": "park",
-     "tarif": "Sürünün otladığı geniş, çimenli açıklık.",
+     "tarif": "Sürünün çimen yediği geniş bir çayır.",
      "dizide_karsiligi": "yok",
      "kaynak": [
       "urun_karari"
@@ -2487,7 +2551,7 @@
       "Dorukısrak"
      ],
      "iliski": {
-      "deger": "Doru'nun sevecen ve anaç annesi.",
+      "deger": "Doru'nun sevecen annesi.",
       "kaynak": [
        "anibera_doru"
       ]
@@ -2513,7 +2577,7 @@
       "Karatay"
      ],
      "iliski": {
-      "deger": "Doru'nun en yakın arkadaşı; kapkara renkli, neşeli ve heyecanlıdır, bazen yanlış karar verir.",
+      "deger": "Doru'nun en yakın arkadaşı; simsiyah, neşeli ve heyecanlıdır, bazen yanlış karar verir.",
       "kaynak": [
        "anibera_doru"
       ]
@@ -2698,7 +2762,7 @@
      "kart": [
       "yan:dorukisrak"
      ],
-     "not": "Tasarım önerisiyle kısa ad 'annesi' (Dorukısrak 5 token); kullanıcı onaylayacak."
+     "not": "Tasarım önerisiyle kısa ad 'annesi' (Dorukısrak 5 token); kullanıcı yetkisiyle karar verildi."
     },
     {
      "urun": "Karatay",
@@ -2720,16 +2784,37 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "Park yeri: 'çayır' ya da 'yayla' tarifi mi, yer çıkarılsın mı?",
-    "Dorukısrak kısa adı 'annesi' mi?",
-    "Gelincik (sürüdeki gelincik) ürün yan listesine eklensin mi? Şimdilik yasak adlarda."
+   "acik_noktalar": [],
+   "k7_izinli": [
+    "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+   ],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: doğa dünyası (özgür at sürüsü)."
+   },
+   "kararlar": [
+    "Park: sürünün otladığı çayır tarifi; etiket firmware için 'park' kalır.",
+    "Dorukısrak kısa adı 'annesi' (kullanıcı yetkisiyle karar).",
+    "Gelincik yasak adlarda kalır; yan listesine eklenmez."
    ]
   },
   {
    "kimlik": "hayri",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Hayri",
     "kaynak": [
@@ -2825,7 +2910,7 @@
     },
     {
      "etiket": "orman",
-     "tarif": "Şehrin dışındaki ağaçlık kamp yeri.",
+     "tarif": "Şehrin dışında, ağaçların arasındaki kamp yeri.",
      "dizide_karsiligi": "dogrulanmadi",
      "kaynak": [
       "urun_karari",
@@ -2898,7 +2983,7 @@
       "Mert"
      ],
      "iliski": {
-      "deger": "Akın'ın ağabeyi; sakin, soğukkanlı ve düzenlidir, tartışmaları o bitirir.",
+      "deger": "Akın'ın ağabeyi; sakin ve düzenlidir, tartışmaları o bitirir.",
       "kaynak": [
        "vikipedi_rafadan"
       ]
@@ -2924,7 +3009,7 @@
       "Kamil"
      ],
      "iliski": {
-      "deger": "Hayri'nin yakın arkadaşı; uykucudur, çok kitap okur, mahalle bakkalına bakar. Sık sık tartışsalar da birbirlerini çok severler.",
+      "deger": "Hayri'nin yakın arkadaşı; uyumayı ve kitap okumayı çok sever, mahalle bakkalına bakar. Sık sık tartışsalar da birbirlerini çok severler.",
       "kaynak": [
        "vikipedi_rafadan",
        "rafadan_resmi"
@@ -2953,7 +3038,7 @@
       "amca"
      ],
      "iliski": {
-      "deger": "Mahallenin yaşlı, çabuk kızan ama iyi kalpli sakini; bahçesine izinsiz girilmesini sevmez, çocukları sonradan sevmiştir.",
+      "deger": "Mahallede yaşar; çabuk kızar ama iyi kalplidir. Bahçesine izin almadan kimsenin girmesini istemez.",
       "kaynak": [
        "vikipedi_rafadan"
       ]
@@ -2981,7 +3066,7 @@
       "köpeği"
      ],
      "iliski": {
-      "deger": "Basri Amca'nın köpeği; onu sahipsizken Akın bulmuş, Basri Amca'ya emanet etmiştir.",
+      "deger": "Basri Amca'nın köpeği; onu Akın bulmuş ve Basri Amca'ya vermiştir.",
       "kaynak": [
        "vikipedi_rafadan"
       ]
@@ -2995,10 +3080,10 @@
      "konusur": {
       "deger": false,
       "kaynak": [
-       "vikipedi_rafadan"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "kaynakta açık yazmıyor; ihtiyatlı varsayılan, kullanıcı onaylayacak"
+      "not": "Kullanıcı kararı 4: Yumak konuşmaz (kaynaklar konuştuğunu söylemiyor)."
      }
     }
    ],
@@ -3142,16 +3227,25 @@
      "not": "İki ayrı yan kimliğe bölündü (K4 yan sayımı için)."
     }
    ],
-   "acik_noktalar": [
-    "Dizi yalnız mahallede geçiyor: deniz, orman ve park için kaynak yok. Yerler kalsın mı?",
-    "Yumak konuşur mu? Kart ihtiyatla 'konuşmaz' diyor.",
-    "Hale (Hayri'nin kız kardeşi) yan olarak eklensin mi? Şimdilik yasak adlarda."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: çağdaş mahalle."
+   },
+   "kararlar": [
+    "Deniz, orman ve park: ürün yer listesinde oldukları için kalır; tarif genel.",
+    "Yumak konuşmaz (kullanıcı kararı 4).",
+    "Hale yasak adlarda kalır; yan listesine eklenmez."
    ]
   },
   {
    "kimlik": "sakir",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Şakir",
     "kaynak": [
@@ -3528,14 +3622,25 @@
      "not": "Kısa ad 'Necati'; 'Fil Necati' yüzey biçimi."
     }
    ],
-   "acik_noktalar": [
-    "Park yeri için kaynak yok; orman ve deniz yalnız bölüm adlarıyla destekli."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: ekran başında oyun yok."
+   },
+   "kararlar": [
+    "Park: ürün yer listesinde olduğu için kalır; tarif genel."
    ]
   },
   {
    "kimlik": "elsa",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Elsa",
     "kaynak": [
@@ -3586,7 +3691,7 @@
      ]
     },
     {
-     "deger": "Kraliçedir; kız kardeşini ve halkını korur.",
+     "deger": "Kraliçedir; kız kardeşini korur.",
      "anahtar_kok": "kraliçe",
      "anahtar_ifade": "\\bkraliçe\\w*",
      "ornek_bicimler": [
@@ -3887,14 +3992,27 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "Orman yeri ikinci filmdeki büyülü ormandan geliyor; yalnız 'karlı ağaçlı orman' olarak kullanılır."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: masal krallığı."
+   },
+   "kararlar": [
+    "Orman: yalnız karlı, ağaçlı orman olarak kullanılır (kullanıcı yetkisiyle karar)."
    ]
   },
   {
    "kimlik": "chase",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Chase",
     "kaynak": [
@@ -3999,7 +4117,7 @@
     },
     {
      "etiket": "orman",
-     "tarif": "Kasabanın yakınındaki ağaçlık kamp yeri.",
+     "tarif": "Kasabanın yakınında, ağaçların arasındaki kamp yeri.",
      "dizide_karsiligi": "kismen",
      "kaynak": [
       "vikipedi_paw_bolumler_en"
@@ -4016,7 +4134,7 @@
     },
     {
      "etiket": "ev",
-     "tarif": "Ekibin gözetleme kulesi ve köpeklerin kulübeleri.",
+     "tarif": "Ekibin yüksek kulesi ve köpeklerin kulübeleri.",
      "dizide_karsiligi": "dogrulandi",
      "kaynak": [
       "vikipedi_paw_en",
@@ -4034,7 +4152,7 @@
       "Ryder"
      ],
      "iliski": {
-      "deger": "On yaşında bir çocuk; ekibin lideri. Köpekleri sahiplenip eğitmiştir, işe uygun köpeği o seçer.",
+      "deger": "On yaşında bir çocuk; ekibin başıdır. Köpeklere bakar ve işe uygun köpeği o seçer.",
       "kaynak": [
        "pawpatrol_ryder"
       ]
@@ -4061,7 +4179,7 @@
       "Marshall"
      ],
      "iliski": {
-      "deger": "Ekibin itfaiyeci köpeği; altı yaşında bir dalmaçyalı. Biraz sakardır ama cesur ve yardımseverdir.",
+      "deger": "Ekibin itfaiyeci köpeği; altı yaşında, benekli bir köpek. Biraz sakardır ama cesur ve yardımseverdir.",
       "kaynak": [
        "pawpatrol_marshall"
       ]
@@ -4115,7 +4233,7 @@
       "Rubble"
      ],
      "iliski": {
-      "deger": "İnşaat köpeği bir buldok; güçlü, şakacıdır ve yemek yemeyi sever.",
+      "deger": "İnşaat köpeği; güçlü, şakacıdır ve yemek yemeyi sever.",
       "kaynak": [
        "pawpatrol_rubble"
       ]
@@ -4264,7 +4382,8 @@
     "itfaiye",
     "helikopter",
     "kule",
-    "kulübe"
+    "kulübe",
+    "iskele"
    ],
    "urun_yan_eslesmesi": [
     {
@@ -4292,14 +4411,23 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "Yabancı adların okunuşu (Ryder->raydır, Marshall->marşıl, Skye->skay, Rubble->rabıl) onaylansın."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: çağdaş kasaba."
+   },
+   "kararlar": [
+    "Okunuşlar (raydır, marşıl, skay, rabıl) kabul edildi (kullanıcı yetkisiyle karar)."
    ]
   },
   {
    "kimlik": "orumcek_adam",
    "grup": "populer",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Örümcek Adam",
     "kaynak": [
@@ -4653,14 +4781,25 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "Ghost-Spider kısa adı: 'Ghost-Spider' mı, 'Gwen' mi? Okunuş 'goust spaydır' onaylansın."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: dev bilgisayar ve robot yok."
+   },
+   "kararlar": [
+    "Kısa ad resmi 'Ghost-Spider', okunuş 'goust spaydır'; 'Gwen' yasak adlarda kalır."
    ]
   },
   {
    "kimlik": "tosbi",
    "grup": "temel",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Tosbi",
     "kaynak": [
@@ -4741,7 +4880,7 @@
    "yerler": [
     {
      "etiket": "orman",
-     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "tarif": "Ağaçlarla dolu, sessiz bir orman.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -4750,7 +4889,7 @@
     },
     {
      "etiket": "dağ",
-     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "tarif": "Dağda çiçekli, taşlı bir yer.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -4759,7 +4898,7 @@
     },
     {
      "etiket": "deniz",
-     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -4776,7 +4915,7 @@
       "baykuş"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -4790,10 +4929,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -4804,7 +4953,7 @@
       "kirpi"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -4818,10 +4967,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -4832,7 +4991,7 @@
       "sincap"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -4846,10 +5005,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -4860,7 +5029,7 @@
       "balık"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -4874,10 +5043,19 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "deniz"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     }
    ],
@@ -4933,14 +5111,35 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   "acik_noktalar": [],
+   "k7_izinli": [
+    "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+   ],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+   },
+   "kararlar": [
+    "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
    ]
   },
   {
    "kimlik": "tekir",
    "grup": "temel",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Tekir",
     "kaynak": [
@@ -5021,7 +5220,7 @@
    "yerler": [
     {
      "etiket": "deniz",
-     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5030,7 +5229,7 @@
     },
     {
      "etiket": "dağ",
-     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "tarif": "Dağda çiçekli, taşlı bir yer.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5039,7 +5238,7 @@
     },
     {
      "etiket": "park",
-     "tarif": "Çiçeklerle dolu, ağaçlı bir park.",
+     "tarif": "Çiçeklerle ve ağaçlarla dolu bir park.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5056,7 +5255,7 @@
       "sincap"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5070,10 +5269,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "park",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5084,7 +5293,7 @@
       "fare"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5098,10 +5307,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "park",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5112,7 +5331,7 @@
       "balık"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5126,10 +5345,19 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "deniz"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5140,7 +5368,7 @@
       "kuş"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5154,10 +5382,10 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
      }
     }
    ],
@@ -5213,14 +5441,32 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+   },
+   "kararlar": [
+    "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
    ]
   },
   {
    "kimlik": "pamuk",
    "grup": "temel",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Pamuk",
     "kaynak": [
@@ -5302,7 +5548,7 @@
    "yerler": [
     {
      "etiket": "deniz",
-     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5311,7 +5557,7 @@
     },
     {
      "etiket": "dağ",
-     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "tarif": "Dağda çiçekli, taşlı bir yer.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5320,7 +5566,7 @@
     },
     {
      "etiket": "orman",
-     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "tarif": "Ağaçlarla dolu, sessiz bir orman.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5337,7 +5583,7 @@
       "kirpi"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5351,10 +5597,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5365,7 +5621,7 @@
       "sincap"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5379,10 +5635,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5393,7 +5659,7 @@
       "baykuş"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5407,10 +5673,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5421,7 +5697,7 @@
       "keçi"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5435,10 +5711,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "dağ",
+       "deniz"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     }
    ],
@@ -5485,14 +5771,32 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+   },
+   "kararlar": [
+    "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
    ]
   },
   {
    "kimlik": "karabas",
    "grup": "temel",
-   "onayli": false,
+   "onayli": true,
    "ad": {
     "deger": "Karabaş",
     "kaynak": [
@@ -5573,7 +5877,7 @@
    "yerler": [
     {
      "etiket": "dağ",
-     "tarif": "Çiçekli, taşlı bir dağ yamacı.",
+     "tarif": "Dağda çiçekli, taşlı bir yer.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5582,7 +5886,7 @@
     },
     {
      "etiket": "deniz",
-     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Kimse derin suya girmez.",
+     "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5591,7 +5895,7 @@
     },
     {
      "etiket": "orman",
-     "tarif": "Ağaçlı, yapraklı ve sessiz bir orman.",
+     "tarif": "Ağaçlarla dolu, sessiz bir orman.",
      "dizide_karsiligi": "urun_tanimi",
      "kaynak": [
       "urun_tanimi",
@@ -5608,7 +5912,7 @@
       "sincap"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5622,10 +5926,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5636,7 +5950,7 @@
       "kirpi"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5650,10 +5964,20 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5664,7 +5988,7 @@
       "keçi"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5678,10 +6002,19 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+     },
+     "yerler": {
+      "deger": [
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
      }
     },
     {
@@ -5692,7 +6025,7 @@
       "kuş"
      ],
      "iliski": {
-      "deger": "Figürün dünyasındaki isimsiz bir doğa hayvanı.",
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
       "kaynak": [
        "urun_karari"
       ]
@@ -5706,10 +6039,10 @@
      "konusur": {
       "deger": true,
       "kaynak": [
-       "urun_karari"
+       "urun_karari",
+       "kullanici_karari"
       ],
-      "onay_bekliyor": true,
-      "not": "Temel figürlerin dünyası konuşan hayvanlar masalıdır; ürün kararı taslağı, kullanıcı onaylayacak."
+      "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
      }
     }
    ],
@@ -5765,8 +6098,26 @@
      ]
     }
    ],
-   "acik_noktalar": [
-    "İsimsiz yan hayvanların konuşması ürün kararı taslağı; onay bekliyor."
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari"
+    ],
+    "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+   },
+   "kararlar": [
+    "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
    ]
   }
  ]
