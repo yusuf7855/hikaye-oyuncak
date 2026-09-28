@@ -1,0 +1,428 @@
+{
+ "parti": 4,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v1/hakem/K/puan_4.json",
+ "madde_sirasi": [
+  "C2",
+  "C4",
+  "K4",
+  "C5",
+  "C6",
+  "K5",
+  "K6",
+  "C3",
+  "K2",
+  "K7",
+  "C1",
+  "K3",
+  "K8",
+  "K1"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C2, C4, K4, C5, C6, K5, K6, C3, K2, K7, C1, K3, K8, K1 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v1/hakem/K/puan_4.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "tosbi",
+  "grup": "temel",
+  "onayli": true,
+  "ad": {
+   "deger": "Tosbi",
+   "kaynak": [
+    "urun_karari",
+    "urun_tanimi"
+   ]
+  },
+  "okunus": {
+   "deger": "tosbi",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "temel figür",
+   "kaynak": [
+    "urun_karari"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Tosbi, yavaş ama sabırlı ve bilge bir kaplumbağadır.",
+   "kaynak": [
+    "urun_tanimi"
+   ]
+  },
+  "tur": {
+   "deger": "kaplumbağa",
+   "kaynak": [
+    "urun_tanimi"
+   ],
+   "lemmalar": [
+    "kaplumbağa"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Sabırlıdır.",
+    "anahtar_kok": "sabır",
+    "anahtar_ifade": "\\bsab[ıi]r\\w*",
+    "ornek_bicimler": [
+     "sabırla",
+     "sabırlı"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "deger": "Bilgedir.",
+    "anahtar_kok": "bilge",
+    "anahtar_ifade": "\\bbilge\\w*",
+    "ornek_bicimler": [
+     "bilge"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "deger": "Kabuğuna saklanabilir.",
+    "anahtar_kok": "kabuk",
+    "anahtar_ifade": "\\bkabu[kğ]\\w*",
+    "ornek_bicimler": [
+     "kabuğuna",
+     "kabuk"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Kabuğuna saklanması korkudan değil, dinlenmek ya da yağmurdan korunmak için gösterilir; Tosbi derin suya girmez.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "orman",
+    "tarif": "Ağaçlarla dolu, sessiz bir orman.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   },
+   {
+    "etiket": "dağ",
+    "tarif": "Dağda çiçekli, taşlı bir yer.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   },
+   {
+    "etiket": "deniz",
+    "tarif": "Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.",
+    "dizide_karsiligi": "urun_tanimi",
+    "kaynak": [
+     "urun_tanimi",
+     "urun_karari"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:baykus",
+    "kisa_ad": "baykuş",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "baykuş"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "baykuş",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:kirpi",
+    "kisa_ad": "kirpi",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "kirpi"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "kirpi",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:sincap",
+    "kisa_ad": "sincap",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "sincap"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "sincap",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "orman",
+      "dağ"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   },
+   {
+    "yan_kimlik": "yan:balik",
+    "kisa_ad": "balık",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "balık"
+    ],
+    "iliski": {
+     "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "tur": {
+     "deger": "balık",
+     "kaynak": [
+      "urun_karari"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 3: temel figürlerin isimsiz yan hayvanları konuşur."
+    },
+    "yerler": {
+     "deger": [
+      "deniz"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ],
+     "not": "Doğa hayvanı yalnız yaşadığı yerde bulunur (kaynak: tohum dünyası kuralı)."
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Tosbi yavaştır; koşmaz, hızla gitmez.",
+    "yasak_duzenli_ifadeler": [
+     "\\bTosbi\\s+(?:[\\w']+\\s+){0,2}(?:koştu|koşarak|hızla|hızlıca|fırladı)\\b"
+    ],
+    "kaynak": [
+     "urun_tanimi"
+    ]
+   },
+   {
+    "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz ve olaya katılmaz.",
+    "yasak_duzenli_ifadeler": [],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [],
+   "ogeler": []
+  },
+  "izinli_dunya_kokleri": [
+   "kabuk",
+   "kaplumbağa"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "baykuş",
+    "kart": [
+     "yan:baykus"
+    ]
+   },
+   {
+    "urun": "kirpi",
+    "kart": [
+     "yan:kirpi"
+    ]
+   },
+   {
+    "urun": "sincap",
+    "kart": [
+     "yan:sincap"
+    ]
+   },
+   {
+    "urun": "balık",
+    "kart": [
+     "yan:balik"
+    ]
+   }
+  ],
+  "k7_izinli": [
+   "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "arac",
+    "cagdas",
+    "ev_esyasi",
+    "mutfak",
+    "giysi",
+    "okul"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: doğa dünyası."
+  },
+  "kararlar": [
+   "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/tosbi#6f1e48d72f",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "deniz",
+    "yan": [
+     "balık"
+    ]
+   },
+   "plan": {
+    "sorun": "yağmur başladı ve kumdaki resim silindi",
+    "cozum": "yağmur dinince ıslak kuma çubukla yeniden çizdi"
+   },
+   "govde": "Deniz kıyısı sessizdi. Tosbi kumda bir çubukla balık resmi çiziyordu. Birden yağmur başladı ve resim yağmurda silindi. Küçük balık sudan başını çıkardı. \"Resmin gitti, Tosbi,\" dedi balık. Tosbi bilgeydi ve ıslak kuma dikkatle baktı. \"Islak kuma daha iyi çizilir,\" dedi Tosbi. Yağmur dinince çubuğu yeniden aldı. Çizgiler ıslak kumda derin ve net oldu. Balık resmi görünce çok şaşırdı. \"Bu resim ben miyim?\" diye sordu balık. \"Evet, sensin,\" dedi Tosbi. Sonra Tosbi resmin yanına küçük bir kaplumbağa çizdi.",
+   "ozellik": {
+    "anahtar_kok": "bilge",
+    "deger": "Bilgedir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: bilgeydi (bilge)"
+   ]
+  },
+  {
+   "id": "urun/tosbi#50a078ae9f",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "suyu hızlı çırpınca su gözlerine sıçradı",
+    "cozum": "sabırla yavaş yavaş çırpıp köpük yaptı"
+   },
+   "govde": "Bir sabah deniz kıyısında küçük dalgalar vardı. Tosbi ilk kez ayaklarıyla suyu çırpıp köpük yapmayı denedi. Ama çok hızlı çırptı ve su gözlerine sıçradı. Hiç köpük de olmadı. Tosbi bir anda dalın yanına vardı. Tosbi durdu ve biraz bekledi. Sonra sabırla, yavaş yavaş çırpmaya başladı. Önce bir ayak, sonra öbür ayak. Bu kez su gözlerine gelmedi. Suyun üstünde beyaz köpükler oldu. Yavaş çırpmak çok faydalı olmuştu. Köpükler güneşte parlıyordu. Tosbi en büyük köpüğe yavaşça burnunu uzattı.",
+   "ozellik": {
+    "anahtar_kok": "sabır",
+    "deger": "Sabırlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/tosbi#66b2226190",
+   "baslik": {
+    "figur": "Tosbi",
+    "yer": "deniz",
+    "yan": [
+     "balık"
+    ]
+   },
+   "plan": {
+    "sorun": "çukura tek çekirdek sığıyordu ve hepsi dışarı düştü",
+    "cozum": "sabırla bekledi ve çekirdekleri sırayla attılar"
+   },
+   "govde": "Dalgalar yavaşça kıyıya vuruyordu. Tosbi ile balık su kenarındaki küçük bir çukura çekirdek atıyordu. Ama çukura tek çekirdek sığıyordu ve iki çekirdek de dışarı düştü. Tosbi tek başına suyun en derin yerine doğru yürüdü. Balık kuyruğunu suya vurdu. \"Bu büyülü çukur bizi sevmiyor!\" dedi balık. Tosbi sabırla çukura baktı. \"Sırayla atalım, önce sen,\" dedi Tosbi. Balık çekirdeği kuyruğuyla fırlattı. Çekirdek tam çukura girdi. Tosbi çekirdeği çıkarıp kenara koydu. Sonra Tosbi de yavaşça bir çekirdek attı. Onun çekirdeği de çukura girdi. Tosbi ile balık sırayla oynayınca her çekirdek çukura girdi.",
+   "ozellik": {
+    "anahtar_kok": "sabır",
+    "deger": "Sabırlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}

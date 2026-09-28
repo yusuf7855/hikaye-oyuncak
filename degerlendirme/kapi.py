@@ -587,6 +587,8 @@ def belirsiz_nesne_mi(low, bas, son, lemma, bg):
     once = re.findall(rf"[{HARF}]+", low[max(0, bas - 40):bas])[-2:]
     if "oyuncak" in once:
         return True
+    if re.match(r" {2,}", low[son:]):          # ardından örtülmüş figür/yan adı: 'Bilge Tosbi' (addaki sıfat)
+        return True
     sonra = re.match(rf"\s+([{HARF}]+)", low[son:])
     if sonra and _canli_rol_lemma(sonra.group(1), bg):
         return True
@@ -617,6 +619,8 @@ def canli_rol_tara(govde, d, yanlar, bg):
         if m:
             adaylar += [m.group(1), bg.kok(m.group(1))]
         isabet = [a for a in adaylar if (a in bg.canli or a in bg.rol) and a not in ESSESLI_CANLI_ROL]
+        if w == "at" and re.match(r"\s*(?:[.!?,;:\"'”)]|$)", low[km.end():]):
+            continue                                       # cümle sonundaki yalın 'at' emirdir: 'Önce sen at!'
         if not isabet:
             b = [a for a in adaylar if a in bg.belirsiz or a in ESSESLI_CANLI_ROL]
             if not b:

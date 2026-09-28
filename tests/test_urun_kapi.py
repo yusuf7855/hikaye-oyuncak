@@ -328,6 +328,14 @@ class KartVeKararlar(unittest.TestCase):
         s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra dalda bir sürü yaprak ve baykuşu gördü.")
         self.assertNotIn("K4.belirsiz", kodlar(s))
 
+    def test_addaki_sifat_ve_emir_at(self):
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra Bilge Tosbi dalda oturan baykuşu gördü.")
+        self.assertNotIn("K4.belirsiz", kodlar(s))
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Baykuş topu gördü. \"Önce sen at!\" dedi.")
+        self.assertNotIn("K4.canli_rol", kodlar(s))
+        s = self.degistir("Sonra dalda oturan baykuşu gördü.", "Sonra dalda oturan bir at gördü.")
+        self.assertIn("K4.canli_rol", kodlar(s))
+
     def test_cumle_basi_yaygin_kelime(self):
         s = self.degistir("Ormanda sakin bir sabah vardı.", "Kara bulutlar ormanın üstündeydi.")
         self.assertEqual({k for k in kodlar(s) if k.startswith("K4")}, set(), s["ihlaller"])
