@@ -27,7 +27,9 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
 - **D4** Her replikte konuşan belli ve doğru kişi.
 - **D5** Kimse kendi kendine konuşmuyor ya da kendine adıyla seslenmiyor.
 - **D6** Deyim, mecaz ve soyut kavram yok; 3 yaşındaki bir çocuk her kelimeyi biliyor. İstisna: olaydan çıkan
-  tek ve somut ders cümlesi ('Sırayla oynayınca herkes eğlendi') soyut sayılmaz.
+  tek ve somut ders cümlesi ('Sırayla oynayınca herkes eğlendi') soyut sayılmaz. Figürün karttaki özellik kelimesi
+  (sabırlı/sabırla, bilge, yardımsever, cesur…) tohumun istediği kelimedir; D6 sayılmaz. Mecazlı ya da yanlış
+  kullanımı yine D2/D6'dır.
 - **D7** Gereksiz tekrar yok.
 - **D8** Yazım ve noktalama doğru (de/da, ki, kesme, tırnak); plan dahil.
 - **D9** Kimse iki kez tanıtılmıyor; her zamirin kimi gösterdiği belli.

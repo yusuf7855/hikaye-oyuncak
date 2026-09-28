@@ -23,7 +23,7 @@ Kart kapalı dünyadır: kartta yazmayan hiçbir şey hikayeye girmez.
    kavram ve şapkalı harf yok; 'hâlâ' yerine 'yine' ya da 'daha' yazılır. Tohumdaki isim, fiil ve sıfat geçer;
    biri listeden başka bir kelimeyle değiştirilebilir ve değişiklik kayda yazılır.
 8. **Dil.** Anlatım -dı'lı geçmiş zamanda ('yürüdü', 'bakıyordu', 'takılmıştı'). Her replikte konuşan bellidir
-   ('dedi Niloya'). Kimse kendi kendine konuşmaz ya da kendine adıyla seslenmez. Plan satırları da aynı dil ve
+   ('dedi Niloya'); hitaptan önce virgül konur ('Sıra sende, Niloya'). Kimse kendi kendine konuşmaz ya da kendine adıyla seslenmez. Plan satırları da aynı dil ve
    yazım kurallarına uyar; cihazda model planı kendisi yazıyor.
 9. **Son.** Hikaye tohumdaki kapanış türüyle biter: eylem, replik, görüntü, ders ya da duygu. Son güvenlidir ve
    sorun çözülmüştür. Son cümlede 'çünkü' ile açıklama ve 'gülümsedi/sevindi' kalıbı yalnız kapanış türü 'duygu'
@@ -32,7 +32,10 @@ Kart kapalı dünyadır: kartta yazmayan hiçbir şey hikayeye girmez.
 10. **Biçim ve öz-denetim.** Her hikaye dört parçadır:
     `### Figür | yer | yan` / `@plan: sorun | çözüm` / `@tohum: id` / gövde.
     Başlık tohumdaki figür, yer ve yan alanlarının birebir kopyasıdır. Planda sorun ve çözüm her biri 3-9 küçük
-    harfli kelimedir, özel ad yoktur. Yazdıktan sonra `veri_hakem.py kontrol` koşulur. İşaretli hikayede en çok
+    harfli kelimedir, özel ad yoktur. Yazdıktan sonra her hikaye HAKEM_M.md, HAKEM_D.md ve HAKEM_K.md madde
+    listelerine karşı cümle cümle okunur (çelişki, sebepsiz nesne, ikinci sorun, özne-fiil uyumu, tekrar, kart
+    dışı eşya, taklit edilince tehlikeli davranış) ve kusur bulunursa kontrolden önce düzeltilir. Sonra
+    `veri_hakem.py kontrol` koşulur. İşaretli hikayede en çok
     1 yerel düzeltme yapılır; yine geçmezse hikaye boş bırakılır, zorlanmaz.
 
 **Kural bütçesi.** Bu kılavuz tek sayfa ve 10 maddedir. Yeni bir kusur türü kılavuza değil koda ya da hakem

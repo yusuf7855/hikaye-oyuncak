@@ -22,7 +22,9 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
 - **M3** Sorunun sebebi söyleniyor ve akla yatkın.
 - **M4** Sorunu figür çözüyor (yardım istemek de figürün çözümüdür); yan karakter yalnız yardım ediyor.
 - **M5** Çözüm sebebe doğrudan yöneliyor ve en çok 2 adım sürüyor.
-- **M6** Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok.
+- **M6** Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok. Yeri kuran
+  tek kısa betim ('Kumsal sıcaktı.') ayrıntı sayılmaz; ama bir nesne ya da olay işe yarayacakmış gibi kurulup
+  kullanılmıyorsa ya da çözümü sebepsizce getiriyorsa M6'dır.
 - **M7** Çelişki yok ('yürüyemiyorum' deyip sonra tırmanmak gibi).
 - **M8** Tek sahne ve tek zaman: hikaye başlıktaki yerde başlıyor ve bitiyor; gün, gece ya da hafta atlaması yok.
 - **M9** Son, sorunun çözülmesinden çıkıyor; ders varsa vaaz gibi değil, yaşanan olaydan çıkıyor.
