@@ -2,7 +2,8 @@
 
 Bu yazılım, eğittiğimiz modeli **kartın kendisinde** çalıştırır: figür ve yeri seri monitörden seçersiniz, kart
 önce planı (Sorun/Çözüm), sonra hikâyeyi yazar ve hızını (token/s) gösterir. İnternet, SD kart ya da bilgisayar
-gerekmez; bilgisayar yalnızca yükleme ve ekranı okumak için.
+gerekmez; bilgisayar yalnızca yükleme ve ekranı okumak için. Ses modeli (`ses.bin`) ve bir MAX98357A hoparlör
+kartı takılıysa hikâyeyi yazdıktan sonra kartın kendisinde sesli okur (bkz. **5. Ses**).
 
 Şu an yüklenecek model: **v4** (`modeller/c2ft_plan/model.bin`, 11,1 MB) — Hikâye Atölyesi'ndeki en iyi model.
 Büyük model (C3) hazır olunca aynı yazılımla, yalnız model dosyası değiştirilerek denenecek.
@@ -31,7 +32,7 @@ Büyük model (C3) hazır olunca aynı yazılımla, yalnız model dosyası deği
    | Board | **ESP32S3 Dev Module** |
    | Flash Size | **16MB (128Mb)** |
    | PSRAM | **OPI PSRAM** |
-   | Partition Scheme | **Custom** (çizim klasöründeki `partitions.csv`: uygulama 1 MB, model bölümü 0x110000) |
+   | Partition Scheme | **Custom** (çizim klasöründeki `partitions.csv`: uygulama 1 MB, model 0x110000, ses 0xBB0000) |
    | CPU Frequency | 240MHz |
    | USB CDC On Boot | **Enabled** (kartın "USB" yazan girişini kullanıyorsanız); "COM/UART" girişinde **Disabled** |
    | Erase All Flash Before Sketch Upload | **Disabled** (açık olursa model silinir) |
@@ -39,19 +40,31 @@ Büyük model (C3) hazır olunca aynı yazılımla, yalnız model dosyası deği
 
 3. **Upload** (→) düğmesine basın. Derleme birkaç dakika sürebilir.
 
-## 3. Model dosyasını yükleyin (bir kez; model değişince tekrar)
+## 3. Model dosyalarını yükleyin (bir kez; model değişince tekrar)
+
+Flash düzeni (`partitions.csv`):
+
+| Bölüm | Adres | Boyut | İçerik |
+|---|---|---|---|
+| factory (uygulama) | 0x10000 | 1 MB | Arduino'nun yüklediği yazılım |
+| model | **0x110000** | 0xAA0000 (10,6 MB) | LLM `model.bin` (en büyüğü C2: 11 105 372 B, sığar) |
+| ses | **0xBB0000** | 0x440000 (4,25 MB) | ses modeli `ses.bin` (~4,34 MB; `ses/disa_aktar.py` üretir) |
 
 Kart takılıyken, depo klasöründe bir komut penceresi açıp (portu kendinizinkiyle değiştirin):
 
 ```bash
 # Windows
-python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x110000 modeller\c2ft_plan\model.bin
+python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x110000 modeller\c2ft_plan\model.bin 0xBB0000 ses.bin
 # Mac / Linux
-python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x110000 modeller/c2ft_plan/model.bin
+python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x110000 modeller/c2ft_plan/model.bin 0xBB0000 ses.bin
 ```
 
-Yükleme ~1 dakika sürer. Kart yükleme modundan çıkmazsa **RST** düğmesine basın.
-(Sıra önemli değil: yazılım ve model flash'ın farklı yerlerine yazılır.)
+`ses.bin` henüz yoksa komuttan `0xBB0000 ses.bin` kısmını çıkarın: kart konuşmadan eskisi gibi çalışır. Yalnız ses
+modelini değiştirmek için: `... write_flash 0xBB0000 ses.bin`.
+
+Yükleme ~1–1,5 dakika sürer. Kart yükleme modundan çıkmazsa **RST** düğmesine basın.
+(Sıra önemli değil: yazılım ve modeller flash'ın farklı yerlerine yazılır.) Bölüm tablosu değiştiğinde (ses
+bölümü eklendi) yazılımı bir kez yeniden yükleyin; model.bin'in adresi aynı kaldığı için yeniden yüklemek gerekmez.
 
 ## 4. Deneyin
 
@@ -91,6 +104,45 @@ Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b`
 - Çok adayda istem (~16 token) bir kez işlenir: sonraki adaylar istemin KV'sini ve son logit'lerini yeniden kullanır
   (sonuç aynı, aday başına ~%10 daha az hesap).
 
+## 5. Ses (hikâyeyi sesli okuma)
+
+**Bağlantı** (MAX98357A I2S yükselteç kartı, 4–8 Ω hoparlör):
+
+| MAX98357A | ESP32-S3 |
+|---|---|
+| VIN | 5V (ya da 3V3; 5V daha yüksek ses) |
+| GND | GND |
+| BCLK | GPIO4 |
+| LRC | GPIO5 |
+| DIN | GPIO6 |
+| SD, GAIN | boş (varsayılan: iki kanalın ortalaması, 9 dB) |
+
+Ses 16 kHz, 16 bit, mono; I2S'te iki kanala da aynı örnek gönderilir (SD ayarı ne olursa olsun duyulur).
+Konuşurken kart üstündeki RGB LED yeşil yanar.
+
+`ses.bin` yüklüyse açılışta `ses: akustik d=192 ... | hikâyeyi okuma: açık` satırı görünür. Komutlar:
+
+| Yazılan | Anlamı |
+|---|---|
+| `s Bir varmış bir yokmuş.` | yazılan metni okur |
+| `o` | üretilen hikâyeyi otomatik okumayı aç/kapa (ses modeli varsa açık başlar) |
+
+Hikâye cümle cümle okunur: ilk cümle hesaplanırken çalmaya başlar, sonraki cümle çalarken hesaplanır. Okurken seri
+monitöre bir şey yazıp gönderirseniz cümle sonunda durur. Her okumadan sonra
+`[ses: X s konuşma, Y s hesap = Z s hesap / s ses]` yazılır: **Z 1'den küçükse gerçek zamandan hızlıdır**; bu satırı
+bana gönderin.
+
+**ses.bin üretmek** (eğitim bitince, depo klasöründe):
+
+```bash
+python ses/disa_aktar.py --akustik ses_calisma/akustik/son.pt --vocoder ses_calisma/vocoder_gta/son.pt \
+    --cikti ses.bin --altin ses_altin.bin
+```
+
+(GTA ince ayarı yoksa `ses_calisma/vocoder/son.pt`.) Boyutu ve bölüme sığdığını yazar. Kartın C kodunun aynı modelle
+PyTorch'la aynı sonucu verdiğini bilgisayarda denemek için:
+`python firmware/hikaye_oyuncak/tools/ses_test.py --akustik ses_calisma/akustik/son.pt --vocoder ses_calisma/vocoder_gta/son.pt`
+
 ## Sorun giderme
 
 | Belirti | Çözüm |
@@ -98,6 +150,10 @@ Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b`
 | `model bölümü yok` | Partition Scheme **Custom** seçilmemiş; seçip yazılımı yeniden yükleyin. |
 | `model okunamadı` | model.bin yüklenmemiş ya da yanlış adrese yüklenmiş: 3. adım, adres **0x110000**. |
 | `HATA: PSRAM ayrılamadı` | PSRAM ayarı **OPI PSRAM** değil. |
+| `ses bölümü yok` | Yeni `partitions.csv` ile yazılım yeniden yüklenmemiş (Partition Scheme **Custom**). |
+| `ses: ses.bin değil (sihir): konuşma kapalı` | ses.bin yüklenmemiş ya da yanlış adrese: 3. adım, adres **0xBB0000**. |
+| `ses: bellek ayrılamadı` | PSRAM/SRAM yetmedi; bana açılış çıktısını gönderin (`SES_MAX_SEMBOL`, `SES_PARCA` küçültülebilir). |
+| Ses yok ama `[ses: ...]` satırı geliyor | Kablolar: BCLK 4, LRC 5, DIN 6, GND ortak; hoparlör MAX98357A'nın + ve − ucunda. |
 | Seri monitör boş | USB CDC On Boot ayarı kullandığınız USB girişine uymuyor; değiştirip yeniden yükleyin. |
 | Türkçe harfler bozuk | Seri monitör UTF-8 göstermiyor olabilir; Arduino IDE 2 gösterir. |
 
@@ -117,3 +173,9 @@ Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b`
   `tools/sozluk_paketle.py` ile `degerlendirme/sozluk.pkl`'den üretilir). Eşitlik testi (bütün havuz adayları +
   bozulmuş sentetik adaylar, puan ve kural kural):
   `python firmware/hikaye_oyuncak/tools/secici_karsilastir.py --guvenlik --sentetik 5000`
+- Ses: `ses.h` (tek başlık, C/C++), `ses/model.py`'deki Akustik.uret + Vocoder'ın birebir C çıkarımı. Ağırlıklar flash'ta
+  yerinde okunur (akustik 4 bit/32'lik grup, vocoder 8 bit/satır, `kuant.q_agirlik` ile aynı açma). Çözücü ve vocoder
+  kare kare akar (her katman k/2 kare geçmiş tutar; tekrar hesap yok, bellek cümle uzunluğundan bağımsız): ~450 KB
+  PSRAM + ~200 KB SRAM. Matris işleri LLM'in işçi göreviyle iki çekirdeğe bölünür. Metin -> sembol `ses/metin.py` ile
+  aynı. Eşitlik testi (rastgele model kurar, dışa aktarır, C ile PyTorch'u karşılaştırır; süreler birebir, mel ve dalga
+  ~1e-6 göreli fark): `python firmware/hikaye_oyuncak/tools/ses_test.py`

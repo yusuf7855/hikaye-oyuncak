@@ -48,3 +48,6 @@ Deneme: `.venv/bin/python ses/sentezle.py --metin "Bir varmış bir yokmuş." --
 - `ortak.py`: ses ayarları, STFT/iSTFT/mel (evrişimle, MPS'te de çalışır), perde takibi, MAS
 - `model.py`: modeller; `kuant.py`: kart kuantizasyonu; `veri.py`: veri okuma
 - `egit_akustik.py`, `egit_vocoder.py`, `sentezle.py`, `calistir.sh`
+- `disa_aktar.py`: eğitilmiş modelleri karta aktarır (`ses.bin`, ~4,34 MB; akustik 4 bit, vocoder 8 bit) ve C
+  çıkarımını (`firmware/hikaye_oyuncak/ses.h`) sınamak için altın örnekler yazar. Kart adımları:
+  `firmware/hikaye_oyuncak/README.md` (5. Ses).

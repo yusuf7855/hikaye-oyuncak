@@ -2,6 +2,8 @@
 
   python ses/disa_aktar.py --akustik ses_calisma/akustik/son.pt --vocoder ses_calisma/vocoder_gta/son.pt \
       --cikti ses.bin [--altin ses_altin.bin]
+(yollar verilmezse bunlar; vocoder_gta yoksa vocoder/son.pt). Kart: firmware/hikaye_oyuncak/ses.h,
+flash'a 0xBB0000 adresine yazılır (firmware/hikaye_oyuncak/README.md).
 
 Kartta saklama (kuant.py ile birebir; model bu yuvarlamayla QAT eğitildi):
 - Akustik: kuantize edilen her ağırlık (kuant._kuantize_edilecek) 4 bit, satır içinde 32'lik gruplar, grup başına
@@ -36,7 +38,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kuant import _kuantize_edilecek, q_agirlik  # noqa: E402
 from metin import N_SEMBOL, kodla  # noqa: E402
 from model import Akustik, Vocoder  # noqa: E402
-from ortak import HOP, N_FFT, N_MEL, SR  # noqa: E402
+from ortak import HOP, KOK, N_FFT, N_MEL, SR  # noqa: E402
 
 SIHIR, SURUM = b"SES1", 1
 F32, F16, Q4, Q8 = 0, 1, 2, 3
@@ -120,7 +122,8 @@ def kart_tensorleri(model, bit, onek):
 # ---------------------------------------------------------------- yükleme
 def _sd(yol):
     k = torch.load(yol, map_location="cpu", weights_only=False)
-    return k["model"] if isinstance(k, dict) and "model" in k else k
+    sd = k["model"] if isinstance(k, dict) and "model" in k else k
+    return {a.removeprefix("_orig_mod.").removeprefix("module."): v for a, v in sd.items()}
 
 
 def _say(sd, onek):
@@ -220,14 +223,18 @@ def altin_yaz(yol, ak_k, vo_k, cumleler, metinler):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--akustik", required=True)
-    ap.add_argument("--vocoder", required=True)
+    calisma = os.path.join(KOK, "ses_calisma")
+    vo_gta = os.path.join(calisma, "vocoder_gta", "son.pt")
+    ap.add_argument("--akustik", default=os.path.join(calisma, "akustik", "son.pt"))
+    ap.add_argument("--vocoder", default=vo_gta if os.path.exists(vo_gta) else os.path.join(calisma, "vocoder", "son.pt"),
+                    help="varsayılan: vocoder_gta/son.pt, yoksa vocoder/son.pt")
     ap.add_argument("--cikti", default="ses.bin")
     ap.add_argument("--altin", default=None, help="altın örnek dosyası (C denemesi için)")
     ap.add_argument("--cumle", action="append", default=None, help="altın cümle (birden çok verilebilir)")
     ap.add_argument("--butce", type=float, default=0x440000, help="ses bölümü (bayt)")
     a = ap.parse_args()
     torch.set_num_threads(1)
+    print(f"akustik: {a.akustik}\nvocoder: {a.vocoder}")
     ak = akustik_kur(_sd(a.akustik))
     vo = vocoder_kur(_sd(a.vocoder))
     ayar = ayarlar(ak, vo)
