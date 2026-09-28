@@ -807,7 +807,8 @@ SES_API void ses_sessizlik(Ses *s, int ms, SesPcm cb, void *kul) {
   }
 }
 
-// Metni cümlelere böler (. ! ? … ve satır sonu; ardından gelen tırnak/ayraçlar cümleye dahil), her cümleyi
+// Metni cümlelere böler (. ! ? … ve satır sonu; ardından gelen tırnak/ayraçlar cümleye dahil; sonrası küçük
+// harfle sürüyorsa bölmez: "Dur!" dedi.), her cümleyi
 // seslendirir, aralara ara_ms sessizlik koyar. dur() 1 dönerse (NULL olabilir) cümle aralarında durur.
 SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_ms, int (*dur)(void *kul)) {
   const char *p = metin, *bas = metin;
@@ -828,6 +829,16 @@ SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_
         else break;
       }
       if (*p == '\n') p++;
+      else {  // ardından küçük harfle devam ediyorsa ("Dur!" dedi) cümle bitmemiş
+        const unsigned char *q = (const unsigned char *)p;
+        while (*q == ' ' || *q == '\t') q++;
+        if (*q) {
+          int L = 1;
+          while (L < 4 && q[L]) L++;
+          uint32_t c2 = ses_utf8(&q, q + L);
+          if (ses_kucult(c2) == c2 && ses_sembol_id(c2) >= 10) continue;
+        }
+      }
     }
     int harf = 0;
     for (const char *q = bas; q < p; q++)

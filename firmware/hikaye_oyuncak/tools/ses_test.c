@@ -136,6 +136,32 @@ int main(int argc, char **argv) {
     if (!sure_ayni || !boy_ok || mel_rel > 1e-3 || d_rel > 1e-3 || pcm_fark > 2 || !par_ayni) hata++;
     free(t.sure); free(t.mel); free(t.dalga); free(t.pcm); free(t2.sure); free(t2.mel); free(t2.dalga);
   }
+  // cümle bölme (ses_metin) ve uzun cümle (SES_MAX_SEMBOL üstü: boşluktan bölünür)
+  {
+    Topla t;
+    memset(&t, 0, sizeof t);
+    s.kanca_sure = NULL; s.kanca_mel = NULL; s.kanca_dalga = NULL;
+    const char *c1 = "Ali koştu.", *c2 = " \"Dur!\" dedi… ", *c3 = "\nSonra   güldüler";
+    long a1 = ses_cumle(&s, c1, k_pcm, &t), a2 = ses_cumle(&s, c2, k_pcm, &t), a3 = ses_cumle(&s, c3, k_pcm, &t);
+    char birlesik[256];
+    snprintf(birlesik, sizeof birlesik, "%s%s%s", c1, c2, c3);
+    t.n_pcm = 0;
+    long b = ses_metin(&s, birlesik, k_pcm, &t, 250, NULL);
+    long bek = a1 + a2 + a3 + 2 * (s.sr / 4);
+    printf("ses_metin: 3 cümle %ld örnek (beklenen %ld, geri çağrı toplamı %ld) %s\n", b + 2 * (s.sr / 4), bek, t.n_pcm,
+           t.n_pcm == bek ? "aynı" : "FARKLI");
+    if (t.n_pcm != bek) hata++;
+    char uzun[2048] = "";
+    for (int i = 0; i < 30; i++) strcat(uzun, "küçük tavşan koştu ve ");
+    strcat(uzun, "durdu.");
+    int ids[4096];
+    int nu = metin_kodla(uzun, ids, 4096);
+    t.n_pcm = 0;
+    double t0 = simdi();
+    long r = ses_cumle(&s, uzun, k_pcm, &t);
+    printf("uzun cümle: %d sembol (> %d, bölünerek) -> %ld örnek, %.2f s\n", nu, SES_MAX_SEMBOL, r, simdi() - t0);
+    if (r <= 0 || t.n_pcm != r) hata++;
+  }
   printf("metin: %d/%d aynı | en büyük göreli fark: mel %.1e, dalga %.1e\n", n_metin - metin_hata, n_metin,
          en_mel_rel, en_dalga_rel);
   if (top_ses > 0) {
