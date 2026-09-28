@@ -1,5 +1,6 @@
-"""Eğitim verisini hakemle: yalnız 10/10 alan hikâyeler eğitime girer (HAKEM_VERI.md).
+"""Eğitim verisini hakemle.
 
+ESKİ HAT (eski klasörler için kalır; HAKEM_VERI.md, DUZELTICI.md): yalnız 10/10 alan hikâyeler eğitime girer.
 Kullanım: python degerlendirme/veri_hakem.py hazirla <klasör> [--onek tek_kus_2] [--parti-boyu 40] [--ad AD]
           python degerlendirme/veri_hakem.py ozet [<ad> ...]       # -> data/veri_haric.txt (10 almayanlar)
           python degerlendirme/veri_hakem.py duzelt <ad>           # 10 almayanlar -> veri_<ad>/duzelt.json (düzeltici)
@@ -10,8 +11,26 @@ Bir hikâyenin son puanı, en son hakemlendiği partideki puandır (parti_tN, pa
 ("v4/tek_kus_2#5", "populer/elsa_1#3"). Çıktı: degerlendirme/veri_<ad>/parti_N.json, gorev.json.
 ozet bütün veri_* klasörlerindeki puanları toplar; 10'dan düşük (ya da puanı eksik) hikâyelerin kimliklerini
 data/veri_haric.txt'ye yazar: ince ayarda prepare_ft2 --haric data/veri_haric.txt.
+
+ÜRÜN HATTI (docs/KUSURSUZ_VERI.md; Adım 0h). <ad> varsayılanı urun_v1; veri data/<ad>/, hakem işleri
+degerlendirme/<ad>/ altında (--kok <dizin> ile ikisi de <dizin>/data/<ad> ve <dizin>/degerlendirme/<ad> olur).
+  kart-kontrol [--kilitle]            kart şeması, kaynaklar, D denetimi, kural düzenli ifadeleri; onaylı kartın
+                                      sha1'i data/<ad>/kart_kilidi.json'a kilitlenir (Adım 1)
+  tohum --figur F --n 400 --tohum 2026 [--denetle]   data/<ad>/tohum/<figür>.jsonl (Adım 3, 'Sistem tarafı')
+  yaz-istemi --figur F [--n 12]       yazar ajanının tam istemi: data/<ad>/istem/<figür>_<parti>.md (+ .json)
+  kontrol <yazar dosyası>             yazarın öz-denetimi (Kural 10): kapılar + yama sayacı (en çok 1 yama)
+  kapi --figur F | --hepsi            data/<ad>/aday/<figür>_*.txt -> data/<ad>/aday.jsonl (Adım 5)
+  hazirla <ad> --lens M|D|K           hakem partileri (Adım 7): <= 10 hikâye, 0-2 kanarya, dolgu, karıştırma,
+                                      ikinci hakem farklı bileşim ve ters sıra, madde sırası karışık
+  oku [<ad>]                          puan JSON'larını doğrular, 'gecti'yi yeniden hesaplar, alıntıyı metinde
+                                      arar, kanarya yakalamasını denetler (Adım 8) -> hakem/oylar.jsonl
+  karar [<ad>]                        tek yönlü veto; kabul.jsonl, ret.jsonl, kuyruk.jsonl, izin.txt (Adım 8-9)
+  altin sec|oku|kurul                 altın set seçimi, kör etiket şablonu, etiket okuma, kurul partileri (Adım 6)
+  uyum [<ad>] [--pilot]               pozitif uyum, ikinci hakemin tek başına yakalaması, kanarya yakalama,
+                                      altın sette kaçırma/yanlış ret/q̂ ve konum etkisi (Adım 6, Pilot ölçüleri)
+Pilot-0 akışı: tohum -> yaz-istemi -> (yazar) kontrol -> kapi -> hazirla -> (hakem) -> oku -> karar.
 """
-import argparse, glob, importlib.util, json, os, sys
+import argparse, collections, difflib, glob, hashlib, importlib.util, json, math, os, random, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -109,17 +128,3 @@ def ozet(a):
     print(f"{n} hikâye hakemlendi: {on} tam puan (%{100 * on / max(1, n):.0f}), {len(haric)} dışarıda -> data/veri_haric.txt")
 
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    alt = ap.add_subparsers(dest="komut", required=True)
-    h = alt.add_parser("hazirla")
-    h.add_argument("klasor")
-    h.add_argument("--onek", default="")
-    h.add_argument("--parti-boyu", type=int, default=40)
-    h.add_argument("--ad", default=None)
-    o = alt.add_parser("ozet")
-    o.add_argument("adlar", nargs="*")
-    for k in ("duzelt", "tekrar"):
-        alt.add_parser(k).add_argument("ad")
-    a = ap.parse_args()
-    {"hazirla": hazirla, "ozet": ozet, "duzelt": duzelt, "tekrar": tekrar}[a.komut](a)
