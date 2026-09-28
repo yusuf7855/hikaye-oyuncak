@@ -289,3 +289,13 @@ olduğu gibi int4 gömme/çıkış ile kayıp:
 ## 16 aday (aynı model, E5b seçici, 8 yerine 16 aday)
 
 - Test: seçimin değiştiği 19 vakada 11–8 (%58). Doğrulama seti sürüyor.
+
+## Kartın hafif seçicisi ve tam seçici (E5b) — karta taşındı
+
+- Kart şimdiye kadar hafif seçici kullanıyordu (2×lp, bitmemiş, figür adı sayısı, kısa); hakemlerin gördüğü sistem
+  tam seçiciydi (sec.py). Aynı adaylardan hafif seçicinin seçimi (degerlendirme/kart_secici.py): test 18/36,
+  doğrulama 70/129 vakada farklı.
+- Genel ikili (yalnız seçimin farklı olduğu vakalar), hafif seçici tam seçiciye karşı: test **2–16**; doğrulama 34–36 (berabere). Toplam 36–52, tam seçici %59. Test setinde açık, doğrulamada fark yok: tam seçici en azından kötü değil, muhtemelen daha iyi; kartta açık kalıyor.
+- `firmware/hikaye_oyuncak/secici.h`: sec.puanla'nın C karşılığı (+ 76 bin kelimelik sözlük, ~290 KB flash),
+  1320 havuz adayı + 20 bin bozulmuş kopyada Python ile 0 fark. Kartta varsayılan açık (SECICI_TAM 1, güvenlik
+  kuralı açık).
