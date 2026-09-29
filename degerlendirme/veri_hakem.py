@@ -2478,7 +2478,7 @@ def _kontrol_komutu(Y, dosya_rel, taslak_kart):
             + (" --taslak-kart" if taslak_kart else ""))
 
 
-def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
+def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None, ozellik_haric=()):
     bg = bg or _bg(zemberek=False)
     kart = _figur_bul(bg, figur)
     ad, fk = _olgu(kart["ad"]), kart["kimlik"]
@@ -2493,12 +2493,12 @@ def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
             atanan[t["id"]].add(t.get("deneme", 1))
     # yeni yazım en çok YAZIM_TAVANI denemedir; üçüncü deneme yalnız onarımdır (onar-istemi)
     secilen = [t for t in jsonl_oku(Y.v("kuyruk.jsonl")) if t["figur"] == ad and t["deneme"] <= YAZIM_TAVANI
-               and not any(d >= t["deneme"] for d in atanan[t["id"]])]
+               and not any(d >= t["deneme"] for d in atanan[t["id"]]) and t.get("ozellik") not in ozellik_haric]
     secilen = secilen[:n]
     for t in jsonl_oku(Y.tohum(fk)):
         if len(secilen) >= n:
             break
-        if t["id"] not in atanan:
+        if t["id"] not in atanan and t.get("ozellik") not in ozellik_haric:
             secilen.append({**t, "deneme": 1})
     if not secilen:
         raise SystemExit(f"{ad}: yazılacak tohum yok ({Y.goreli(Y.tohum(fk))} ve kuyruk)")
@@ -2555,7 +2555,7 @@ Sen bir çocuk hikâyesi yazarısın. Aşağıdaki {len(secilen)} tohumun her bi
 
 def cmd_yaz_istemi(a):
     Y = Yollar(a.ad, a.kok)
-    yol, secilen = yaz_istemi(Y, a.figur, a.n, a.taslak_kart)
+    yol, secilen = yaz_istemi(Y, a.figur, a.n, a.taslak_kart, ozellik_haric=tuple(a.ozellik_haric or ()))
     d2 = sum(t["deneme"] > 1 for t in secilen)
     print(f"{len(secilen)} tohum ({d2} ikinci deneme) -> {Y.goreli(yol)}")
     return 0
@@ -2826,6 +2826,7 @@ def main(argv=None):
     y.add_argument("--figur", required=True)
     y.add_argument("--n", type=int, default=12)
     y.add_argument("--taslak-kart", action="store_true")
+    y.add_argument("--ozellik-haric", action="append", help="bu özellikteki tohumlar yeni yazıma verilmez (tekrarlanabilir)")
     on = urun(alt.add_parser("onar-istemi"))
     g = on.add_mutually_exclusive_group(required=True)
     g.add_argument("--figur")

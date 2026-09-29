@@ -735,3 +735,10 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   kaldırılması geri alındı. Yalnız M8'deki son 'ders' cümlesi istisnası kalır; o kendi kapanış kuralımızla çelişkiyi
   giderir. Doğru bulunan her kusur onarılır ve hikâye yeni hakemlerden yeniden geçer; onarım tavanı 6 deneme
   (en çok 5 onarım turu). Aynı döngü bütün üretim verisine uygulanır.
+
+- **Şakir 'macera' özelliği yeni yazımdan çıkarıldı (tur 12, hakemler değişmedi).** Kart bu özellik için
+  hikâyede "macera" kelimesini zorunlu kılıyor, dil hakemleri ise bu kelimeyi 3-6 yaş için soyut buluyor (D6).
+  Şakir'in 180 D6 bulgusunun 132'si "macera" alıntılı; kod kapısı ile hakem birbirine ters düşüyordu.
+  `yaz-istemi --ozellik-haric macera` ile Şakir'in yeni tohumları yalnız somut "şapka" özelliğinden seçilir;
+  kart ve hakem yönergeleri aynen kaldı. Yazar istemine ayrıca "tohumdaki özellik çözümü doğuran somut bir
+  eylem olmalı" kuralı eklendi (Elsa ve Hello Kitty'de K2 ret oranı %37'ydi).
