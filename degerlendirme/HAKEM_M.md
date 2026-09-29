@@ -19,7 +19,8 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
 
 - **M1** Sorun ilk 3 cümlede açıkça söyleniyor.
 - **M2** Hikayede yalnız bir sorun var.
-- **M3** Sorunun sebebi söyleniyor ve akla yatkın.
+- **M3** Sorunun sebebi söyleniyor ve akla yatkın; sorun çocuğun önemseyeceği bir şey (önemsiz ya da saçma olay
+  M3'tür: 'kurdele hamurun içine düştü', 'rüzgar oyun yapraklarını dağıttı, topladı, bitti').
 - **M4** Sorunu figür çözüyor (yardım istemek de figürün çözümüdür); yan karakter yalnız yardım ediyor.
 - **M5** Çözüm sebebe doğrudan yöneliyor ve en çok 2 adım sürüyor.
 - **M6** Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok. Yeri kuran
