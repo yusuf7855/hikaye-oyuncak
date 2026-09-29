@@ -1,0 +1,607 @@
+{
+ "parti": 220,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_220.json",
+ "madde_sirasi": [
+  "C1",
+  "C4",
+  "K8",
+  "C6",
+  "C2",
+  "C3",
+  "K7",
+  "C5",
+  "K4",
+  "K1",
+  "K6",
+  "K2",
+  "K5",
+  "K3"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C1, C4, K8, C6, C2, C3, K7, C5, K4, K1, K6, K2, K5, K3 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_220.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "elsa",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Elsa",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_frozen_tr"
+   ]
+  },
+  "okunus": {
+   "deger": "elsa",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Karlar Ülkesi",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_frozen_tr"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Elsa, buzu ve karı yönetebilen, bir krallığın genç kraliçesidir.",
+   "kaynak": [
+    "vikipedi_frozen_tr"
+   ]
+  },
+  "tur": {
+   "deger": "kraliçe",
+   "kaynak": [
+    "vikipedi_frozen_tr"
+   ],
+   "lemmalar": [
+    "kraliçe",
+    "prenses"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir.",
+    "anahtar_kok": "buz",
+    "anahtar_ifade": "\\bbuz\\w*",
+    "ornek_bicimler": [
+     "buzdan",
+     "buzu"
+    ],
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   },
+   {
+    "deger": "Kraliçedir; kız kardeşini korur.",
+    "anahtar_kok": "kraliçe",
+    "anahtar_ifade": "\\bkraliçe\\w*",
+    "ornek_bicimler": [
+     "kraliçe"
+    ],
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Buz ve kar gücü yalnız zararsız, güzel şeyler için kullanılır: kar yağdırır, buzdan şekil yapar. Hiçbir canlı donmaz, üşümez ya da incinmez; kimse buz tutmuş göl ya da deniz üstünde yürümez.",
+   "kaynak": [
+    "urun_kurali",
+    "vikipedi_frozen_tr"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "dağ",
+    "tarif": "Karlı yüksek dağ; tepede Elsa'nın buzdan yaptığı saray vardır.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   },
+   {
+    "etiket": "orman",
+    "tarif": "Karlı ağaçlarla dolu orman.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_frozen2_en"
+    ],
+    "not": "İkinci filmde büyülü bir orman var; kartta yalnız ağaçlı orman olarak kullanılır."
+   },
+   {
+    "etiket": "deniz",
+    "tarif": "Krallığın önündeki fiyort kıyısı ve limanı; kimse suya girmez.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_frozen_en",
+     "urun_kurali"
+    ]
+   },
+   {
+    "etiket": "şato",
+    "tarif": "Elsa'nın kraliçesi olduğu krallığın sarayı; büyük salonlar ve avlu.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:anna",
+    "kisa_ad": "Anna",
+    "tip": "adli",
+    "okunus": "anna",
+    "yuzey_bicimleri": [
+     "Anna",
+     "kardeş",
+     "kardeşi"
+    ],
+    "iliski": {
+     "deger": "Elsa'nın cesur küçük kız kardeşi.",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    "tur": {
+     "deger": "prenses",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:olaf",
+    "kisa_ad": "Olaf",
+    "tip": "adli",
+    "okunus": "olaf",
+    "yuzey_bicimleri": [
+     "Olaf",
+     "kardan adam"
+    ],
+    "iliski": {
+     "deger": "Elsa'nın büyüsüyle canlanan neşeli kardan adam; sıcak sarılmaları ve yazı sever.",
+     "kaynak": [
+      "vikipedi_frozen_en",
+      "vikipedi_olaf_en"
+     ]
+    },
+    "tur": {
+     "deger": "kardan adam",
+     "kaynak": [
+      "vikipedi_frozen_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_olaf_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:kristoff",
+    "kisa_ad": "Kristoff",
+    "tip": "adli",
+    "okunus": "kristof",
+    "yuzey_bicimleri": [
+     "Kristoff"
+    ],
+    "iliski": {
+     "deger": "Buz toplayıp satan cesur dağ adamı; ren geyiği Sven'in arkadaşı.",
+     "kaynak": [
+      "vikipedi_frozen_tr",
+      "vikipedi_frozen_en"
+     ]
+    },
+    "tur": {
+     "deger": "adam",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:sven",
+    "kisa_ad": "Sven",
+    "tip": "adli",
+    "okunus": "sven",
+    "yuzey_bicimleri": [
+     "Sven",
+     "ren geyiği",
+     "geyik"
+    ],
+    "iliski": {
+     "deger": "Kristoff'un ren geyiği; kızağı çeker.",
+     "kaynak": [
+      "vikipedi_sven_en"
+     ]
+    },
+    "tur": {
+     "deger": "ren geyiği",
+     "kaynak": [
+      "vikipedi_sven_en"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "vikipedi_sven_en"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Sven konuşmaz; sesle ve hareketle anlatır.",
+    "yasak_duzenli_ifadeler": [
+     "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Sven|[Gg]eyik|[Gg]eyiği)\\b\\b",
+     "(?:Sven|[Gg]eyik|[Gg]eyiği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+    ],
+    "kaynak": [
+     "vikipedi_sven_en"
+    ]
+   },
+   {
+    "kural": "Anna Elsa'nın küçük kız kardeşidir; Elsa ablasıdır.",
+    "yasak_duzenli_ifadeler": [
+     "Elsa'nın\\s+abla",
+     "Anna'nın\\s+küçük\\s+(?:kız\\s+)?kardeş"
+    ],
+    "kaynak": [
+     "vikipedi_frozen_tr"
+    ]
+   },
+   {
+    "kural": "Olaf Elsa'nın büyüsüyle yapılmış kardan adamdır; hikayede erimez ya da parçalanmaz.",
+    "yasak_duzenli_ifadeler": [
+     "\\bOlaf\\w*\\s+(?:[\\w']+\\s+){0,2}eri(?:di|meye|yordu|mişti|yecek)\\b"
+    ],
+    "kaynak": [
+     "vikipedi_olaf_en",
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "Elsa'nın gücü kimseyi dondurmaz ve incitmez.",
+    "yasak_duzenli_ifadeler": [],
+    "kaynak": [
+     "vikipedi_frozen_tr",
+     "urun_kurali"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Hans",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "ad": "Weselton",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "ad": "Pabbie",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "ad": "Oaken",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "ad": "Marshmallow",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    },
+    {
+     "ad": "Bruni",
+     "kaynak": [
+      "vikipedi_frozen2_en"
+     ]
+    },
+    {
+     "ad": "Arendelle",
+     "kaynak": [
+      "vikipedi_frozen_tr"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Anne babanın gemi yolculuğu, fırtına, troller, kurtlar ve kar canavarı hikayeye girmez.",
+     "kaynak": [
+      "vikipedi_frozen_tr",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "buz",
+   "kar",
+   "kraliçe",
+   "saray",
+   "kızak",
+   "fiyort",
+   "geyik"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Anna",
+    "kart": [
+     "yan:anna"
+    ]
+   },
+   {
+    "urun": "Olaf",
+    "kart": [
+     "yan:olaf"
+    ]
+   },
+   {
+    "urun": "Kristoff",
+    "kart": [
+     "yan:kristoff"
+    ]
+   },
+   {
+    "urun": "Sven (konuşmaz)",
+    "kart": [
+     "yan:sven"
+    ]
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "cagdas"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: masal krallığı."
+  },
+  "kararlar": [
+   "Orman: yalnız karlı, ağaçlı orman olarak kullanılır (kullanıcı yetkisiyle karar)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/elsa#0a4f2b7800",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "şato",
+    "yan": [
+     "Kristoff"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi de topa hep aynı anda vurmak istedi",
+    "cozum": "buzdan kale yapıp sırayla atmayı önerdi"
+   },
+   "govde": "Kuşlar neşeyle ötüyordu. Elsa ile Kristoff sarayın önündeki yeşil çimlerde top oynuyordu. Ama ikisi de topa hep aynı anda vurmak istedi ve oyun durdu. Elsa biraz düşündü. Sonra elinden buz çıkardı ve çimlerin ucuna küçük bir kale yaptı. \"Sırayla atalım, Kristoff. Önce sen at,\" dedi Elsa. Kristoff topa vurdu ve top kaleye girdi. Elsa bunu çok beğendi ve el çırptı. Sonra sıra Elsa'ya geldi. Onun topu da kalenin tam ortasına girdi. \"Sırayla oynamak çok eğlenceli!\" dedi Kristoff. İkisi sırayla birkaç kez daha attı. Elsa bundan sonra her oyunda sırayla oynadı.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): kuşlar"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#8685b3ecf8",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "orman",
+    "yan": [
+     "Kristoff"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi hep aynı anda zıpladı ve kimin kazandığını göremediler",
+    "cozum": "sırayla zıplamayı önerdi"
+   },
+   "govde": "Rüzgar ağaçların arasında hafifçe esiyordu. Elsa ile Kristoff karlı ormanda zıplama oyunu oynuyordu. Ama ikisi hep aynı anda zıpladı ve kimin daha uzağa gittiğini göremediler. \"Sırayla zıplayalım, Kristoff. Kraliçe olarak ilk sırayı sana veriyorum,\" dedi Elsa. Kristoff güldü ve çantasından bir demet turuncu havuç çıkardı. \"Havuçlar yerimizi gösterecek,\" dedi Kristoff. Önce Kristoff zıpladı ve durduğu yere bir havuç koydu. Sonra Elsa zıpladı. Elsa'nın havucu biraz daha ileride durdu. İkisi sırayla birkaç kez daha zıpladı. İkisi de çok sevindi, çünkü artık kimin uzağa zıpladığını görebiliyorlardı.",
+   "ozellik": {
+    "anahtar_kok": "kraliçe",
+    "deger": "Kraliçedir; kız kardeşini korur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#d411fe9ce6",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "buzdan geminin yelkeni yoktu ve gemi gitmedi",
+    "cozum": "cebindeki bezi geminin direğine bağladı"
+   },
+   "govde": "Elsa karlı dağda gemi oyunu oynuyordu. Buzdan direği olan küçük bir gemi yapmıştı. Ama geminin yelkeni yoktu ve rüzgar gemiyi hiç götürmedi. Elsa gemisinin karın üstünde kaymasını istiyordu. Biraz düşündü ve cebinden beyaz bir bez çıkardı. Bezi geminin direğine sıkıca bağladı. Rüzgar esti ve bez yelken gibi şişti. Küçük gemi düz karın üstünde yavaşça kaymaya başladı. Elsa ayağa kalktı ve gemisinin arkasından koştu. Gemi karda uzun bir iz bıraktı. Elsa gemisini tuttu ve yeniden rüzgara bıraktı. Elsa gemi oyununa mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#89fdf98d11",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "dağ",
+    "yan": [
+     "Olaf"
+    ]
+   },
+   "plan": {
+    "sorun": "arkadaşı geldi ama onun hiç yiyeceği yoktu",
+    "cozum": "şeftaliyi ona verdi ve keki ikiye böldü"
+   },
+   "govde": "Bir sabah Elsa sarayın önünde sepetini açtı. Sepette bir şeftali ile çilekli bir kek vardı. O sırada Olaf geldi ama onun hiç yiyeceği yoktu. Olaf sepete baktı ve sessizce bekledi. Elsa, Olaf'ın yazı çok sevdiğini biliyordu. Şeftaliyi ona uzattı, çünkü şeftali yaz gibi kokuyordu. Elsa kanatlarını açıp biraz uçtu. Sonra çilekli keki elleriyle ikiye böldü. Elsa elini salladı ve buzdan iki küçük tabak yaptı. Kekin yarısını Olaf'ın tabağına koydu. Olaf kocaman gülümsedi ve Elsa'ya sarıldı. İkisi yan yana oturdu ve keklerini mutlu mutlu yedi. Elsa bundan sonra yiyeceklerini hep Olaf ile paylaştı.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#6b7f53c11e",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "dağ",
+    "yan": [
+     "Sven"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi de açtı ama yalnız bir havuç vardı",
+    "cozum": "kırılgan havucu ikiye böldü ve geyikle paylaştı"
+   },
+   "govde": "Dağda soğuk bir rüzgar esiyordu. Kraliçe Elsa buzdan sarayının önünde oturuyordu. Sven çok acıkmıştı ve Elsa'nın yanına geldi. Elsa da acıkmıştı ama sepetinde kendi yetiştirdiği tek bir havuç vardı. Sven havuca baktı ve kulaklarını oynattı. \"Gel, Sven, bu havucu birlikte yiyelim,\" dedi Elsa. Havuç soğukta kalmış ve kırılgan olmuştu. Elsa havucu tak diye kolayca ikiye böldü. Yarısını Sven'e verdi, öteki yarısını kendisi yedi. Sven havucu hemen yedi ve Elsa'ya burnunu sürttü. Elsa gülerek onu okşadı. Elsa bundan sonra havuçlarını hep Sven ile paylaştı.",
+   "ozellik": {
+    "anahtar_kok": "kraliçe",
+    "deger": "Kraliçedir; kız kardeşini korur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#8093cc1f91",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "orman",
+    "yan": [
+     "Olaf"
+    ]
+   },
+   "plan": {
+    "sorun": "kızak küçüktü ve ikisi birden sığmadı",
+    "cozum": "sırayla binip tepeden kaymayı önerdi"
+   },
+   "govde": "Elsa ile Olaf karlı ormanda küçük bir tepenin başındaydı. Tepedeki yol dardı, bu yüzden Elsa buzdan küçük, parlak bir kızak yaptı. Ama kızağa ikisi birden sığmadı. \"Önce ben kaymak istiyorum!\" dedi Olaf. Elsa biraz düşündü. \"Sırayla binelim, önce sen kay, Olaf,\" dedi Elsa. Olaf kızağa bindi ve tepeden neşeyle kaydı. Aşağıda el çırptı ve kızağı geri getirdi. \"Sıra sende, Elsa,\" dedi Olaf. Elsa da tepeden hızla kaydı ve güldü. İkisi sırayla tam beş kez kaydı. Sonunda Olaf sevinçle Elsa'nın yanağını öptü. Elsa bundan sonra kızağa hep Olaf ile sırayla bindi.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#5286654b78",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "şato",
+    "yan": [
+     "Anna"
+    ]
+   },
+   "plan": {
+    "sorun": "buzdan heykelden resmin üstüne su damladı",
+    "cozum": "özür diledi ve kardeşiyle yeni bir resim yaptı"
+   },
+   "govde": "Bir sabah Anna sarayın büyük salonunda çizgili bir top resmi yapıyordu. Elsa masada resmin hemen yanına buzdan küçük bir heykel yaptı. Ama salon sıcaktı ve heykelden resmin üstüne su damladı. Resimdeki çizgiler birbirine karıştı. Anna üzüldü ve ıslak resmine baktı. \"Özür dilerim, Anna. Heykeli resmine çok yakın yaptım,\" dedi Elsa. Elsa heykeli hemen dışarıya, soğuk karın üstüne götürdü. Sonra masadan temiz bir kağıt aldı. \"Birlikte yeni bir top çizelim mi?\" diye sordu Elsa. Anna gülümsedi ve başını salladı. İki kardeş yan yana oturdu ve yeni bir top çizdi. Sonra resim yapmaya mutlu mutlu devam ettiler.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#88635a4887",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "buzdan kaydırak yumuşak kumda hep yana düştü",
+    "cozum": "kaydırağı büyük bir kayaya dayadı"
+   },
+   "govde": "Kıyıda hafif bir rüzgar esiyordu. Elsa limanın önünde buzdan süslü bir kaydırak yapmıştı. Ama kum çok yumuşaktı ve kaydırak hep yana düştü. Elsa bu kaydıraktan küçük taşlar yuvarlamak istiyordu. Çevresine baktı ve kumun ucunda büyük bir kaya gördü. Kaydırağı kaldırdı ve yavaşça kayaya dayadı. Bu kez kaydırak hiç düşmedi. Elsa kumdan yuvarlak taşlar topladı. İlk taşı kaydırağın tepesine koydu ve bıraktı. Taş hızla kaydı ve kumda yuvarlandı. Elsa güldü ve ikinci taşı bıraktı. Bu taş daha da uzağa gitti. Elsa çok sevindi, çünkü oyununu yeniden kurmuştu.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/elsa#3721b2ea59",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "deniz",
+    "yan": [
+     "Sven"
+    ]
+   },
+   "plan": {
+    "sorun": "rüzgar esti ve geyiğin havuçları denize yuvarlandı",
+    "cozum": "havuçlarını paylaştı ve buzdan bir kaseye koydu"
+   },
+   "govde": "Limanda kayıklar yavaş yavaş sallanıyordu. Elsa ile Sven hafif karın altında sudan uzakta oturuyordu. Birden rüzgar Sven'in havuç kovasını devirdi ve havuçlar denize yuvarlandı. Sven üzgün üzgün suya baktı, çünkü çok acıkmıştı. Elsa'nın sepetinde yalnız üç havuç vardı. \"Gel, Sven, havuçlarımı seninle paylaşayım,\" dedi Elsa. Havuçlar yine düşmesin diye buzdan derin bir kase yaptı. İki havucu kaseye koydu ve Sven'in önüne itti. Derin kase çok faydalıydı, çünkü havuçlar içinden hiç yuvarlanmadı. Sven sevinçle başını silkti ve havuçları hemen yedi. Elsa da kendi havucunu yedi. Elsa ile Sven kıyıda yan yana mutlu mutlu karı izledi.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: karı (karı)"
+   ]
+  },
+  {
+   "id": "urun/elsa#e832ab1e35",
+   "baslik": {
+    "figur": "Elsa",
+    "yer": "dağ",
+    "yan": [
+     "Kristoff"
+    ]
+   },
+   "plan": {
+    "sorun": "kurdele hep açıldı çünkü fiyonk bağlamayı bilmiyordu",
+    "cozum": "arkadaşından yardım istedi ve fiyonk bağlamayı öğrendi"
+   },
+   "govde": "Bir sabah Elsa dağda, sarayının önünde buzdan küçük bir çiçek yaptı. Çiçeğin sapına kırmızı bir fiyonk bağlamak istedi. Ama fiyonk bağlamayı bilmiyordu ve kurdele hep açıldı. Kristoff biraz ileride kızağını dolduruyordu. Elsa önce çekingen çekingen Kristoff'a baktı. Sonra Kristoff'un yanına yürüdü. \"Kristoff, bana fiyonk bağlamayı öğretir misin?\" diye sordu Elsa. \"Tabii, çok kolay,\" dedi Kristoff. Kristoff her adımı yavaşça gösterdi. Elsa da iki halka yaptı ve onları sıkıca bağladı. Bu kez kurdele hiç açılmadı. \"Teşekkürler, Kristoff, bu fiyonklu çiçek de senin!\" dedi Elsa.",
+   "ozellik": {
+    "anahtar_kok": "buz",
+    "deger": "Elinden buz ve kar çıkar; buzdan şekiller yapabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
