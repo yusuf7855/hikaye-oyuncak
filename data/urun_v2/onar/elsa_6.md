@@ -1,0 +1,262 @@
+# Editör görevi (onarım): Elsa, onarım partisi 6
+
+Sen bir çocuk hikâyesi editörüsün. Aşağıdaki 2 hikâye hakem kurulundan somut, alıntılı bulgularla
+döndü. Her birinden BİR onarılmış hikâye yaz. Hikâyeler 3-6 yaş çocuklara okunacak ve küçük bir dil modelini
+eğitecek. Onarılmış hikâye YENİ bir adaydır: kod kapılarından ve bu bulguları hiç görmeyen yeni hakemlerden
+baştan geçer; bütün maddelere yeniden bakılır. Yeni kusur ekleme.
+
+## Kurallar
+
+- Çıktı dosyan: `data/urun_v2/aday/elsa_onar6.txt`. YALNIZ bu dosyaya yaz; başka dosya yaratma ya da değiştirme. Commit
+  yalnız bu dosyayı içerir. Hakem puanlarını, ret kayıtlarını, parti dosyalarını ve başka hikâyeleri açma.
+- Kelimeler için `data/sade_sozluk_sik.txt` dosyasını oku (sık kökler; fiiller 'koş-' biçiminde).
+- Her hikâye normal aday biçimindedir; tek fark `@onarim` satırıdır (hikâyeler arasında bir boş satır):
+
+```
+### Elsa | <yer> | <yan ya da ->
+@plan: <sorun> | <çözüm>
+@tohum: <aynı tohum kimliği>
+@degisim: <eski> -> <yeni>      (yalnız özgün blokta varsa ve tutuyorsan)
+@onarim: <özgün bloğun sha1'i; her hikâyede verilir>
+<gövde>
+```
+
+- **Yalnız bulguların gösterdiği yeri düzelt** ve tutarlılık için değişmesi gerekeni (ör. çözüm değiştiyse plan
+  satırı, silinen nesnenin sonraki anılışı). Öteki cümleler olduğu gibi kalır.
+- **Tohumu ve hikâyeyi koru:** figür, yer, yan, tema, açılış, kapanış türü, diyalog, özellik ve tohum kelimeleri
+  (isim, fiil, sıfat) aynı kalır; sorun ve çözüm aynı kalır. Tohum kelimelerinden en çok biri değişebilir ve
+  `@degisim` satırına yazılır (özgün bloktaki değişim sayılır).
+- Gövde 70-100 kelime, her cümle en çok 12 kelime, tek paragraf.
+- Bir bulgu sana yanlış görünse bile o cümleyi daha basit ve açık biçimde yeniden söyle: hakem orada takıldı,
+  okuyan çocuk da takılabilir. İşaretlenen kelimeyi ya da yapıyı tekrarlama.
+- Görevi **YENİDEN YAZ** olan hikâyede (M3: çekirdek önemsiz ya da saçma) hikâyeyi aynı tohumdan baştan yaz:
+  çocuğun önemseyeceği, sebebi ilk 3 cümlede söylenen bir sorun ve figürün 1-2 adımlık çözümü; başlık, tohum
+  kimliği ve `@onarim` satırı yine verilir.
+- Onarılmış metin özgünden farklı olmalıdır (aynı metin aynı kayıttır ve reddedilir).
+- Hepsini yazdıktan sonra koş: `.venv/bin/python degerlendirme/veri_hakem.py kontrol data/urun_v2/aday/elsa_onar6.txt --ad urun_v2`
+  İşaretlenen hikâyede EN ÇOK 1 yerel düzeltme yap ve kontrolü bir kez daha koş. Yine geçmeyen hikâyenin bütün
+  bloğunu (başlık dahil) dosyadan sil; zorlama. Geçen hikâyeye dokunma (her değişiklik bir yama sayılır).
+
+## Yazım kılavuzu
+
+# Ürün hikayesi yazım kılavuzu
+
+Bu hikayeler 3-6 yaş çocuklara okunacak ve küçük bir dil modelini eğitecek. Her hikaye bir tohumdan yazılır.
+Yanında figürün kaynaklı kartı (data/urun_kartlari.json) ve sade sözlük (data/sade_sozluk_sik.txt) vardır.
+Kart kapalı dünyadır: kartta yazmayan hiçbir şey hikayeye girmez.
+
+1. **Uzunluk.** Gövde 70-100 kelime. Her cümle en çok 12 kelime, çoğu 5-9 kelime. Tek paragraf.
+2. **Tek sahne, tek zaman.** Hikaye tohumdaki yerde başlar ve biter. 'ertesi', '... gün/hafta sonra',
+   'akşama/sabaha kadar', 'bütün gün', 'o gece', 'günlerce', 'her sabah' gibi zaman atlamaları yok.
+   Bekleme sahnenin içinde olur.
+3. **Tek sorun, açık hedef.** Figürün açık ve küçük bir hedefi vardır (uçurtmayı yükseltmek, sesin nereden
+   geldiğini bulmak) ve hikaye bu hedefe ulaşınca tatmin edici biçimde biter; 'hiçbir şey olmayan' hikaye yok.
+   Hedef çocuğun önemseyeceği bir şeydir (bir arkadaşı sevindirmek, kaybolan oyuncağı bulmak, bozulan oyunu
+   kurtarmak); rüzgarın yaprakları dağıtması gibi önemsiz ya da 'kurdele hamurun içine düştü' gibi saçma olay yok.
+   Sorun ilk 3 cümlede sebebiyle birlikte söylenir ('Top çalıya takıldı.'). Sorun çoğunlukla dışarıdan gelir
+   (hava, takılan top, merak uyandıran bir ses); figürün kendi hatası yalnız özür temasında sorundur. Sorunu figür
+   kendisi 1-2 adımda çözer; yardım istemek de figürün çözümüdür. Yan karakter en fazla yardım eder.
+4. **Figür görünür ve etkin.** Figürün adı ilk 2 cümlede ve sonda geçer. Hikaye onun gözünden anlatılır.
+5. **Yan karakter ve kapalı dünya.** Yalnız başlıktaki Yan alanında yazan karakterler bulunur; kartta yazan kısa
+   adla ve karttaki ilişkiyle (Niloya'nın ağabeyi Murat'tır; Mete, Murat'ın arkadaşıdır). Başka ad, canlı, rol ya
+   da aile üyesi yok; bebek, robot, dev, biri gibi kelimeler karakter olamaz, yalnız cansız anlamda geçer ('oyuncak
+   robot', 'bir sürü yaprak'). Arka plandaki çoğul canlılar ('kuşlar') konuşmaz ve olaya katılmaz. Kartta 'konuşmaz'
+   yazan karakter konuşmaz. Kartta olmayan ev, eşya ya da yetenek uydurulmaz. Yer, kartın o yer için verdiği
+   tarife uyar.
+6. **Figür özelliği.** Yalnız tohumdaki özellik kullanılır: bir kez, olayda işe yarar biçimde ve kartın 'güvenli
+   özellik kullanımı' satırına uygun. Özellikler sıralanmaz, betimlenmez. Slogan ve kalıp replik yok.
+7. **Sade kelime.** Kelimeler sade_sozluk_sik.txt'den seçilir; en çok 2 liste dışı kelime. Deyim, mecaz, soyut
+   kavram ve şapkalı harf yok ('keşfetmek' değil 'bulmak'; 'top gibi' benzetmesi serbest); 'hâlâ' yerine 'yine'
+   ya da 'daha' yazılır. Tohumdaki isim, fiil ve sıfat geçer;
+   biri listeden başka bir kelimeyle değiştirilebilir ve değişiklik kayda yazılır.
+8. **Dil.** Anlatım -dı'lı geçmiş zamanda ('yürüdü', 'bakıyordu', 'takılmıştı'). Her replikte konuşan bellidir
+   ('dedi Niloya'); hitaptan önce virgül konur ('Sıra sende, Niloya'). Kimse kendi kendine konuşmaz ya da kendine adıyla seslenmez. Plan satırları da aynı dil ve
+   yazım kurallarına uyar; cihazda model planı kendisi yazıyor.
+9. **Son.** Son 1-2 cümle hikayeyi kapatır: sorunun çözüldüğü görünür ve son cümle sıcak, doyurucu bir kapanış
+   verir ('İkisi oyunlarına mutlu mutlu devam etti.'). Hikaye hiçbir zaman çıplak bir eylemle ya da durgun bir
+   resimle bitmez; okur 'sonra ne oldu?' diye sormaz. Son, tohumdaki kapanış türüyle yazılır: duygu, sonuç, replik ya
+   da ders; 'çünkü' ile açıklama yalnız 'duygu' türünde kullanılır. Son güvenlidir. Korku, yaralanma, hastalık ve
+   taklit edilince tehlikeli davranış (derin su, yükseğe tırmanma, ateş, yabancıyla gitme, ilaç) yok.
+10. **Biçim ve öz-denetim.** Her hikaye dört parçadır:
+    `### Figür | yer | yan` / `@plan: sorun | çözüm` / `@tohum: id` / gövde.
+    Başlık tohumdaki figür, yer ve yan alanlarının birebir kopyasıdır. Planda sorun ve çözüm her biri 3-9 küçük
+    harfli kelimedir, özel ad yoktur. Yazdıktan sonra her hikaye HAKEM_M.md, HAKEM_D.md ve HAKEM_K.md madde
+    listelerine karşı cümle cümle okunur (çelişki, sebepsiz nesne, ikinci sorun, özne-fiil uyumu, tekrar, kart
+    dışı eşya, taklit edilince tehlikeli davranış) ve kusur bulunursa kontrolden önce düzeltilir. Sonra
+    `veri_hakem.py kontrol` koşulur. İşaretli hikayede en çok
+    1 yerel düzeltme yapılır; yine geçmezse hikaye boş bırakılır, zorlanmaz.
+
+**Kural bütçesi.** Bu kılavuz tek sayfa ve 10 maddedir. Yeni bir kusur türü kılavuza değil koda ya da hakem
+listesine eklenir. Kılavuza yeni madde ancak bir madde çıkarılarak girer. Kötü örnek konmaz.
+
+**Tohum alanları (tanım, kural değil).** Açılış türü: figür adı / zaman ('Bir sabah') / yer / ses-hava;
+'<Ad> adında ... yaşardı' bir açılış türü değildir. Kapanış türü: *duygu* (figürün ya da karakterlerin yaşanan
+olaya bağlı hissi; 'çünkü' kullanılabilir: 'Tosbi çok sevindi, çünkü sesin nereden geldiğini bulmuştu.'),
+*sonuç* (ardından mutlulukla ne yaptıkları ya da olayın sonucu: 'oyunlarına mutlu mutlu devam ettiler'),
+*replik* (son cümle sıcak bir konuşmadır: kapanış, teşekkür ya da sevinç; ardından cümle gelmez), *ders* (olaya
+bağlı tek ve somut bir cümle; 'bundan sonra' kullanılabilir: 'Niloya bundan sonra zorda kalınca büyüklerinden yardım
+istedi.'). Diyalog 'yok' ise hikayede replik yoktur. Temalar tek sahneye uyarlanmıştır: merak edip bulmak (bir
+ses, bir iz, bir kabuk; sonunda ne olduğu ortaya çıkar); eğlenceli ya da komik bir oyun ve oyunda küçük bir
+aksilik; figür başkasına yardım eder (hasta ya da yaralı hayvan değil); aynı sahnede küçük bir kutlama ya da
+sürpriz hazırlamak; doğada bir şeyi fark etmek (gökkuşağı, kelebekler, kardaki şekiller) ve küçük bir hedef; hayali
+oyun (kaptan, aşçı, bahçıvan olmak gibi) ve oyunda küçük bir hedef; kaybolan eşya; yeni bir şeyi denemek; bir şey
+yapmak; yağmur ya da kar günü; sıkışmış, kaybolmuş ya da aç bir hayvana yardım (hasta ya da yaralı hayvan değil);
+yeni arkadaş (ilk adımı figür atar); ilginç bir şeyi sahne içinde beklemek (fırındaki kek, açılacak bir çiçek;
+yalnız yağmurun dinmesi değil); paylaşmak; yardım istemek (çözüm figürün yardım istemesidir); özür dilemek (figürün
+kendi hatası yalnız bu temada olur); sırayla oynamak.
+
+**İyi örnekler** (kullanıcı yetkisiyle seçildi; farklı figür ve farklı kapanış türü; ikisi de `veri_hakem.py kontrol`dan
+geçer):
+
+Tohum: deniz, yan balık, özellik sabır, kelimeler taş/toplamak/renkli, tema merak edip bulmak, açılış yer,
+kapanış duygu.
+
+```
+### Tosbi | deniz | balık
+@plan: sığ sudan bilinmeyen bir ses geldi | sabırla bekledi ve sesi yapan balığı gördü
+@tohum: tosbi-9001
+Deniz kıyısında serin bir sabahtı. Tosbi kumda renkli taşlar topluyordu. Birden sığ sudan garip bir ses geldi. Tosbi bu sesi çok merak etti. Suyun kenarına yavaşça yürüdü ve baktı. Ama suda hiçbir şey göremedi. Tosbi acele etmedi ve sabırla bekledi. Sonunda küçük bir balık sudan zıpladı ve suya geri düştü. "Bu sesi sen mi yapıyorsun?" diye sordu Tosbi. "Evet, bu benim zıplama oyunum," dedi balık. Balık üç kez daha zıpladı ve Tosbi hepsini saydı. Tosbi çok sevindi, çünkü sesin nereden geldiğini bulmuştu.
+```
+
+Tohum: park, yan Murat, özellik soru, kelimeler uçurtma/bağlamak/uzun, tema yardım istemek, açılış figür adı,
+kapanış replik.
+
+```
+### Niloya | park | Murat
+@plan: uçurtma ağaçların üstüne çıkamadı çünkü ipi kısaydı | ağabeyinden ip isteyip iki ipi bağladı
+@tohum: niloya-9001
+Niloya ile Murat parkta sarı bir uçurtma uçuruyordu. Ama uçurtma ağaçların üstüne çıkamadı çünkü ipi çok kısaydı. Niloya ipe baktı ve biraz düşündü. "Murat, çantada başka ip var mı?" diye sordu Niloya. Murat çantasına baktı ve uzun bir ip buldu. İpi hemen Niloya'ya verdi. Niloya iki ipi sıkıca birbirine bağladı. Sonra ipi yavaş yavaş bıraktı. Rüzgar esti ve uçurtma yükseldi. Sarı uçurtma ağaçların üstüne çıktı. Murat sevinçle ellerini çırptı. Niloya ipi iki eliyle tuttu ve güldü. "Teşekkürler, Murat, uçurtmamız artık en yüksekte!" dedi Niloya.
+```
+
+## Kart: Elsa (kaynaklı, kapalı dünya)
+
+- Ad: Elsa (okunuş: elsa; kesme eki okunuşa uyar)
+- Kimlik: Elsa, buzu ve karı yönetebilen, bir krallığın genç kraliçesidir.
+- Tür: kraliçe
+- Güvenli özellik kullanımı: Buz ve kar gücü yalnız zararsız, güzel şeyler için kullanılır: kar yağdırır, buzdan şekil yapar. Hiçbir canlı donmaz, üşümez ya da incinmez; kimse buz tutmuş göl ya da deniz üstünde yürümez.
+- Özellikler:
+  - buz: Elinden buz ve kar çıkar; buzdan şekiller yapabilir. (örnek biçimler: buzdan, buzu)
+  - kraliçe: Kraliçedir; kız kardeşini korur. (örnek biçimler: kraliçe)
+- Yerler:
+  - dağ: Karlı yüksek dağ; tepede Elsa'nın buzdan yaptığı saray vardır.
+  - orman: Karlı ağaçlarla dolu orman.
+  - deniz: Krallığın önündeki fiyort kıyısı ve limanı; kimse suya girmez.
+  - şato: Elsa'nın kraliçesi olduğu krallığın sarayı; büyük salonlar ve avlu.
+- Yanlar (metinde kısa adla; yalnız tohumdaki yanlar hikâyeye girer):
+  - Anna: Elsa'nın cesur küçük kız kardeşi. Tür: prenses; konuşur. Yüzey biçimleri: Anna, kardeş, kardeşi
+  - Olaf: Elsa'nın büyüsüyle canlanan neşeli kardan adam; sıcak sarılmaları ve yazı sever. Tür: kardan adam; konuşur. Yüzey biçimleri: Olaf, kardan adam
+  - Kristoff: Buz toplayıp satan cesur dağ adamı; ren geyiği Sven'in arkadaşı. Tür: adam; konuşur. Yüzey biçimleri: Kristoff
+  - Sven: Kristoff'un ren geyiği; kızağı çeker. Tür: ren geyiği; KONUŞMAZ. Yüzey biçimleri: Sven, ren geyiği, geyik
+- Dünya kuralları:
+  - Sven konuşmaz; sesle ve hareketle anlatır.
+  - Anna Elsa'nın küçük kız kardeşidir; Elsa ablasıdır.
+  - Olaf Elsa'nın büyüsüyle yapılmış kardan adamdır; hikayede erimez ya da parçalanmaz.
+  - Elsa'nın gücü kimseyi dondurmaz ve incitmez.
+- Yasak adlar: Hans, Weselton, Pabbie, Oaken, Marshmallow, Bruni, Arendelle
+- Yasak: Anne babanın gemi yolculuğu, fırtına, troller, kurtlar ve kar canavarı hikayeye girmez.
+- İzinli dünya kelimeleri: buz, kar, kraliçe, saray, kızak, fiyort, geyik
+
+## Onarılacak hikâyeler
+
+### Hikâye 1: tohum elsa-0022 (deneme 1 -> 2)
+
+**Görev:** YENİDEN YAZ: hakem bu hikâyenin çekirdeğini önemsiz ya da saçma buldu (M3). Aynı tohumdan, çocuğun önemseyeceği bir sorunla baştan yaz.
+
+**Tohum:**
+
+```
+### Elsa | dağ | Anna
+@tohum: elsa-0022
+- yer: dağ (Karlı yüksek dağ; tepede Elsa'nın buzdan yaptığı saray vardır.)
+- tema: merak edip bulmak (bir ses, bir iz, bir kabuk; sonunda ne olduğu ortaya çıkar)
+- yan: Anna
+- özellik: buz (Elinden buz ve kar çıkar; buzdan şekiller yapabilir.)
+- kelimeler: isim 'su', fiil 'dolanmak', sıfat 'soslu'
+- diyalog: var
+- açılış: figürün adıyla başlar ('Tosbi ...')
+- kapanış: sonuc (ardından mutlulukla ne yaptıkları ya da olayın sonucu ('oyunlarına mutlu mutlu devam ettiler'))
+```
+
+**Özgün blok:**
+
+```
+### Elsa | dağ | Anna
+@plan: karın altından bir su sesi geliyordu | buzdan kürek yapıp karı itti ve dere buldu
+@tohum: elsa-0022
+@degisim: soslu -> berrak
+Elsa ile Anna sarayın yakınında yürüyordu. Birden karın altından şırıl şırıl bir su sesi geldi. Ama karın üstünde hiç su görünmüyordu. "Bu ses nereden geliyor, Elsa?" diye sordu Anna. İkisi büyük kayanın etrafında dolandı ve dinledi. Ses kayanın dibindeki karın altından geliyordu. Elsa elini salladı ve buzdan küçük bir kürek yaptı. Kürekle karı iki yana itti. Karın altında berrak, küçük bir dere akıyordu. "Demek sesi bu dere yapıyormuş!" dedi Anna. Elsa gülümsedi ve suya parmağıyla dokundu. Sonra Elsa ile Anna derenin yanına oturup suyu mutlu mutlu dinledi.
+```
+
+**Hakem bulguları (1):**
+
+1. **M3** (M merceği) — Sorunun sebebi söyleniyor ve akla yatkın; sorun çocuğun önemseyeceği bir şey (önemsiz ya da saçma olay M3'tür: 'kurdele hamurun içine düştü', 'rüzgar oyun yapraklarını dağıttı, topladı, bitti').
+   - Alıntı: "Birden karın altından şırıl şırıl bir su sesi geldi"
+   - Cümle 2: «Birden karın altından şırıl şırıl bir su sesi geldi.»
+   - Açıklama: Su sesi kimseye zarar vermeyen bir merak; çocuğun önemseyeceği gerçek bir sorun yok.
+
+**Yazacağın bloğun satırları:** başlık ve `@tohum: elsa-0022` birebir aynı, `@degisim: soslu -> berrak` (tutuyorsan), ardından `@onarim: ebf0e61fc2442a31d54a69c1ae7879e06f7709ba`, sonra gövde.
+
+### Hikâye 2: tohum elsa-0023 (deneme 1 -> 2)
+
+**Görev:** YENİDEN YAZ: hakem bu hikâyenin çekirdeğini önemsiz ya da saçma buldu (M3). Aynı tohumdan, çocuğun önemseyeceği bir sorunla baştan yaz.
+
+**Tohum:**
+
+```
+### Elsa | dağ | Sven
+@tohum: elsa-0023
+- yer: dağ (Karlı yüksek dağ; tepede Elsa'nın buzdan yaptığı saray vardır.)
+- tema: paylaşmak
+- yan: Sven
+- özellik: kraliçe (Kraliçedir; kız kardeşini korur.)
+- kelimeler: isim 'takvim', fiil 'yetiştirmek', sıfat 'kırılgan'
+- diyalog: var
+- açılış: bir ses ya da havayla başlar ('Rüzgar esiyordu.', 'Bir kuş ötüyordu.')
+- kapanış: ders (olaya bağlı tek ve somut bir cümle; 'bundan sonra' kullanılabilir)
+```
+
+**Özgün blok:**
+
+```
+### Elsa | dağ | Sven
+@plan: aç geyiğin hiç havucu yoktu | soğuktan kırılgan olan havuçları ikiye böldü ve paylaştı
+@tohum: elsa-0023
+@degisim: takvim -> havuç
+Rüzgar dağda serin serin esiyordu. Kraliçe Elsa sarayın önünde sepetini açtı ve havuçlarını çıkardı. Bu havuçları kendisi yetiştirmişti. O sırada Sven geldi, çok acıkmıştı ama hiç havucu yoktu. Sven sepete baktı ve kulaklarını oynattı. "Gel, Sven, bunları birlikte yiyelim," dedi Elsa. Havuçlar soğuktan kırılgan olmuştu. Elsa her havucu tak diye kolayca ikiye böldü. Yarısını Sven'e verdi, yarısını kendine ayırdı. Sven havuçları çıtır çıtır yedi ve Elsa'ya burnunu sürttü. Elsa gülerek onu okşadı. Elsa bundan sonra havuçlarını hep Sven ile paylaştı.
+```
+
+**Hakem bulguları (7):**
+
+1. **D6** (D merceği) — Deyim, mecaz ve soyut kavram yok; 3 yaşındaki bir çocuk her kelimeyi biliyor. İstisna: olaydan çıkan tek ve somut ders cümlesi ('Sırayla oynayınca herkes eğlendi') soyut sayılmaz. Figürün karttaki özellik kelimesi (sabırlı/sabırla, bilge, yardımsever, cesur…) tohumun istediği kelimedir; D6 sayılmaz. Mecazlı ya da yanlış kullanımı yine D2/D6'dır.
+   - Alıntı: "soğuktan kırılgan olan havuçları"
+   - Cümle 0 (plan satırı): «aç geyiğin hiç havucu yoktu | soğuktan kırılgan olan havuçları ikiye böldü ve paylaştı»
+   - Açıklama: 'Kırılgan' kelimesini 3 yaşındaki çocuk bilmez.
+2. **K2** (K merceği) — Tohumdaki özellik karttaki gibi, bir kez ve işe yarar biçimde kullanılmış; özellik listesi sayılmıyor.
+   - Alıntı: "Kraliçe Elsa sarayın önünde"
+   - Cümle 2: «Kraliçe Elsa sarayın önünde sepetini açtı ve havuçlarını çıkardı.»
+   - Açıklama: Tohumdaki kraliçe özelliği yalnız unvan olarak geçiyor, sorunun çözümünde işe yaramıyor.
+   - Açıklama: Tohumdaki kraliçe özelliği yalnız unvan olarak geçiyor, karttaki gibi kız kardeşi korumak için işe yarar biçimde kullanılmıyor.
+3. **K8** (K merceği) — Diziyi izlemiş bir çocuk figürü ve dünyasını tanır; yanlış bilgi yok.
+   - Alıntı: "Bu havuçları kendisi yetiştirmişti"
+   - Cümle 3: «Bu havuçları kendisi yetiştirmişti.»
+   - Açıklama: Kartın kimlik ve yer bilgisinde karlı dağda havuç yetiştiren bir Elsa yok; diziyle uyuşmayan bilgi.
+4. **M6** (M merceği) — Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok. Yeri kuran tek kısa betim ('Kumsal sıcaktı.') ayrıntı sayılmaz; ama bir nesne ya da olay işe yarayacakmış gibi kurulup kullanılmıyorsa ya da çözümü sebepsizce getiriyorsa M6'dır.
+   - Alıntı: "Bu havuçları kendisi yetiştirmişti"
+   - Cümle 3: «Bu havuçları kendisi yetiştirmişti.»
+   - Açıklama: Havuçları Elsa'nın yetiştirmesi olayda hiçbir işe yaramıyor.
+5. **M3** (M merceği) — Sorunun sebebi söyleniyor ve akla yatkın; sorun çocuğun önemseyeceği bir şey (önemsiz ya da saçma olay M3'tür: 'kurdele hamurun içine düştü', 'rüzgar oyun yapraklarını dağıttı, topladı, bitti').
+   - Alıntı: "ama hiç havucu yoktu"
+   - Cümle 4: «O sırada Sven geldi, çok acıkmıştı ama hiç havucu yoktu.»
+   - Açıklama: Elsa'nın sepet dolusu havucu varken Sven'in havucu olmaması gerçek bir sorun oluşturmuyor.
+6. **D6** (D merceği) — Deyim, mecaz ve soyut kavram yok; 3 yaşındaki bir çocuk her kelimeyi biliyor. İstisna: olaydan çıkan tek ve somut ders cümlesi ('Sırayla oynayınca herkes eğlendi') soyut sayılmaz. Figürün karttaki özellik kelimesi (sabırlı/sabırla, bilge, yardımsever, cesur…) tohumun istediği kelimedir; D6 sayılmaz. Mecazlı ya da yanlış kullanımı yine D2/D6'dır.
+   - Alıntı: "Havuçlar soğuktan kırılgan olmuştu"
+   - Cümle 7: «Havuçlar soğuktan kırılgan olmuştu.»
+   - Açıklama: 'Kırılgan' kelimesini 3 yaşındaki çocuk bilmez.
+   - Açıklama: 'Kırılgan' 3 yaşındaki bir çocuğun bilmediği bir kelime.
+7. **M6** (M merceği) — Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok. Yeri kuran tek kısa betim ('Kumsal sıcaktı.') ayrıntı sayılmaz; ama bir nesne ya da olay işe yarayacakmış gibi kurulup kullanılmıyorsa ya da çözümü sebepsizce getiriyorsa M6'dır.
+   - Alıntı: "Havuçlar soğuktan kırılgan olmuştu"
+   - Cümle 7: «Havuçlar soğuktan kırılgan olmuştu.»
+   - Açıklama: Kırılganlık ve kendisi yetiştirmesi paylaşmak için gereksiz, işlevsiz ayrıntılar.
+   - Açıklama: Havuçların kırılganlığı paylaşmak için gerekli değil; işe yarayacakmış gibi kurulup işlevsiz kalıyor.
+
+**Yazacağın bloğun satırları:** başlık ve `@tohum: elsa-0023` birebir aynı, `@degisim: takvim -> havuç` (tutuyorsan), ardından `@onarim: 9df614e87510220edede173f10429556c73c4b68`, sonra gövde.
