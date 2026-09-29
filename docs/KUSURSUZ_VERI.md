@@ -742,3 +742,7 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   `yaz-istemi --ozellik-haric macera` ile Şakir'in yeni tohumları yalnız somut "şapka" özelliğinden seçilir;
   kart ve hakem yönergeleri aynen kaldı. Yazar istemine ayrıca "tohumdaki özellik çözümü doğuran somut bir
   eylem olmalı" kuralı eklendi (Elsa ve Hello Kitty'de K2 ret oranı %37'ydi).
+
+- **Aşama 1 (urun_v2) tamamlandı, 20 tur.** 11 figürün hepsi ≥50 kabul (toplam 622; 517'si hakem alıntılarıyla
+  onarılıp yeniden hakemden geçti). Hakemler hiç gevşetilmedi. Eğitim `zincir_urun.sh` ile (c3ft_urun): izin listesi
+  581 eğitim / 41 doğrulama, tekrar 4, genel dilim 3M token (8M'de oyuncak payı %4 kalıyordu), 2000 adım, taban c3.
