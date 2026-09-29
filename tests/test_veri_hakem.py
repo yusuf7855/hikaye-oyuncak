@@ -922,20 +922,20 @@ class Onarim(Ortak):
         b = {"tohum": "chase-0001", "onarim": ebeveyn}
         red = {ebeveyn}
         self.assertEqual(vh._onarim_denetle(b, {ebeveyn: {"tohum": "chase-0001", "deneme": 2}}, red), (3, []))
-        d, ih = vh._onarim_denetle(b, {ebeveyn: {"tohum": "chase-0001", "deneme": 3}}, red)
-        self.assertEqual(d, 4)
+        d, ih = vh._onarim_denetle(b, {ebeveyn: {"tohum": "chase-0001", "deneme": vh.DENEME_TAVANI}}, red)
+        self.assertEqual(d, vh.DENEME_TAVANI + 1)
         self.assertEqual([x["kod"] for x in ih], ["K1.deneme_siniri"])
         self.assertEqual([x["kod"] for x in vh._onarim_denetle(b, {ebeveyn: {"tohum": "x", "deneme": 1}}, set())[1]],
                          ["K1.onarim", "K1.onarim"])
         self.assertEqual(vh._onarim_denetle(b, {}, red)[1][0]["kod"], "K1.onarim")
-        # ebeveyn 3. denemeyse: onarım istemi vermez, karar tohumu bırakır
+        # ebeveyn son denemedeyse (DENEME_TAVANI): onarım istemi vermez, karar tohumu bırakır
         kayitlar = vh.jsonl_oku(self.Y.v("aday.jsonl"))
         for x in kayitlar:
             if x["sha1"] == ebeveyn:
-                x["deneme"] = 3
+                x["deneme"] = vh.DENEME_TAVANI
         vh.jsonl_yaz(self.Y.v("aday.jsonl"), kayitlar)
         ist = vh.json_oku(self.Y.v("istem", "chase_1.json"))
-        ist["tohumlar"][0]["deneme"] = 3
+        ist["tohumlar"][0]["deneme"] = vh.DENEME_TAVANI
         vh.json_yaz(self.Y.v("istem", "chase_1.json"), ist)
         self.assertEqual(vh.onarim_adaylari(self.Y, "Chase", "chase"), [])
         s = vh.karar_ver(self.Y, pilot=True, taslak_kart=True, bg=self.bg)

@@ -148,7 +148,7 @@ KANARYA_DAGILIM = (0.2, 0.5, 0.3)              # partide 0 / 1 / 2 kanarya
 ALINTI_MESAFE = 2                              # alıntı eşleşmesinde en çok düzenleme mesafesi (karakter)
 DUR_PENCERE, DUR_KACIRMA, DUR_UYDURMA = 50, 0.10, 0.03
 YAZIM_TAVANI = 2                               # yeni yazımla en çok 2 deneme (Adım 9)
-DENEME_TAVANI = 3                              # onarımla en çok 3 deneme: en çok 2 onarım turu (Onarım döngüsü)
+DENEME_TAVANI = 6                              # onarımla en çok 6 deneme: en çok 5 onarım turu (kullanıcı: düzelte düzelte)
 ONARIM_DISI = {"K1", "altin_kusurlu"}          # figür düzeyi (K1) ve okurun 'kusurlu' etiketi onarılmaz
 
 
@@ -1126,7 +1126,7 @@ def _onarim_denetle(b, aday, reddedilen):
     deneme = p.get("deneme", 1) + 1
     if deneme > DENEME_TAVANI:
         ih.append({"kod": "K1.deneme_siniri", "kapi": "K1",
-                   "aciklama": f"deneme {deneme} (en çok {DENEME_TAVANI}; en çok 2 onarım turu); tohum bırakılır"})
+                   "aciklama": f"deneme {deneme} (en çok {DENEME_TAVANI}); tohum bırakılır"})
     return deneme, ih
 
 

@@ -1,6 +1,6 @@
 # Ürün verisi hakemi: D merceği (dil)
 
-Yalnız kusur ara. Zenginlik, betimleme ve yaratıcılık ödüllendirilmez; kısa ve sade olmak kusur değildir. Şapkasız yazım (rüzgar, kagıt değil kağıt) kuraldır, kusur sayma. Emin değilsen var de ve alıntıla; yalnız D6 (deyim, mecaz, soyut kavram) ve D7 (gereksiz tekrar) maddelerinde kusurdan emin olmadıkça 'yok' de.
+Yalnız kusur ara. Zenginlik, betimleme ve yaratıcılık ödüllendirilmez; kısa ve sade olmak kusur değildir. Şapkasız yazım (rüzgar, kagıt değil kağıt) kuraldır, kusur sayma. Emin değilsen var de ve alıntıla.
 
 Puan verilmez; her madde yok/var olarak işaretlenir. Bu hikayeler 3-6 yaş çocuklara okunacak ve küçük bir dil
 modelini eğitecek; model gördüğü her dil hatasını öğrenir. Cihazda model plan satırını da kendisi yazdığı için
@@ -29,16 +29,12 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
 - **D6** Deyim, mecaz ve soyut kavram yok; 3 yaşındaki bir çocuk her kelimeyi biliyor. İstisna: olaydan çıkan
   tek ve somut ders cümlesi ('Sırayla oynayınca herkes eğlendi') soyut sayılmaz. Figürün karttaki özellik kelimesi
   (sabırlı/sabırla, bilge, yardımsever, cesur…) tohumun istediği kelimedir; D6 sayılmaz. Mecazlı ya da yanlış
-  kullanımı yine D2/D6'dır. Çocuğun bildiği yaygın kelimeler ('bulmak', 'merak etmek', 'sevinmek') ve basit
-  benzetmeler ('top gibi yuvarlak', 'kar gibi beyaz') D6 değildir; D6 yalnız deyim ('burnunu sokmak'), gerçek
-  mecaz ('kalbi eridi') ve soyut isimdir ('cesaret', 'mutluluk', 'hayal gücü'). 'Keşif' ve 'keşfetmek' sınırdadır:
-  kılavuz 'bulmak' ister; tek başına geçtiğinde D6 sayılmaz.
+  kullanımı yine D2/D6'dır.
 - **D7** Gereksiz tekrar yok.
 - **D8** Yazım ve noktalama doğru (de/da, ki, kesme, tırnak); plan dahil.
 - **D9** Kimse iki kez tanıtılmıyor; her zamirin kimi gösterdiği belli.
 
-Bir madde ancak hikayede o kusur yoksa 'yok' alır. Tereddüt ediyorsan 'var' de ve alıntıla (D6 ve D7 hariç:
-bunları yalnız kusurdan eminsen işaretle).
+Bir madde ancak hikayede o kusur yoksa 'yok' alır. Tereddüt ediyorsan 'var' de ve alıntıla.
 
 ## Çıktı
 

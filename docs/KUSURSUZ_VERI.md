@@ -731,3 +731,7 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   kurulmadan kullanılabilir. 'Emin değilsen var de' yalnız M6, D6 ve D7'den kalktı (bunlar yalnız eminken
   işaretlenir); güvenlik, dünya ve dilbilgisi maddelerinde kalır. HAKEM dosyaları kapı sürümüne girdiğinden
   (K11) bütün adaylar için `kapi` yeniden koşulmalı; önceki kabuller o zamana dek 'kapi_surumu_eski' bekler.
+- Hakemler yumuşatılmaz (kullanıcı isteği): M6, D6 ve D7'deki gevşetme ile bu maddelerden 'emin değilsen var de'nin
+  kaldırılması geri alındı. Yalnız M8'deki son 'ders' cümlesi istisnası kalır; o kendi kapanış kuralımızla çelişkiyi
+  giderir. Doğru bulunan her kusur onarılır ve hikâye yeni hakemlerden yeniden geçer; onarım tavanı 6 deneme
+  (en çok 5 onarım turu). Aynı döngü bütün üretim verisine uygulanır.
