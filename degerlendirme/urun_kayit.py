@@ -24,6 +24,7 @@ Yazar dosyası (KILAVUZ Kural 10; ayristir() / blok_yaz()):
   @plan: <sorun> | <çözüm>
   @tohum: <tohum kimliği>
   @degisim: <eski kelime> -> <yeni kelime>   (isteğe bağlı; tohum kelimesi değişikliği, en çok 1)
+  @onarim: <ebeveyn sha1>                    (yalnız onarım adayında: reddedilen ebeveynin sha1'i; kayda girmez)
   <gövde: tek satır, tek paragraf>
   Hikâyeler arasında boş satır. Başka '@' satırı ya da sıra dışı satır biçim hatasıdır (K1).
 Cümle (cumleler()): K2'nin ve hakem 'cumle_no'sunun ortak bölmesi. Cümle . ! ? … (ve ardından gelebilen kapanış
@@ -60,6 +61,7 @@ ASCII = str.maketrans("çğıöşüâîûÇĞİÖŞÜÂÎÛ", "cgiosuaiuCGIOSUAI
 HEADER = re.compile(r"^###[ \t]+(.*)$")
 META = re.compile(r"^@([a-zçğıöşü_]+):[ \t]*(.*)$")
 DEGISIM = re.compile(r"^(\S+)\s*->\s*(\S+)$")
+ONARIM = re.compile(r"^[0-9a-f]{40}$")
 
 
 def kucuk(s):
@@ -165,7 +167,7 @@ def cumleler(metin):
 
 def ayristir(metin):
     """Yazar dosyası -> blok listesi. Her blok: satir, figur, yer, yan (liste), sorun, cozum, tohum, degisim
-    ((eski, yeni) ya da None), govde (ham), bicim_hatalari (K1'e gider), ham (bloğun metni). Normalizasyon yapılmaz;
+    ((eski, yeni) ya da None), onarim (ebeveyn sha1 ya da None), govde (ham), bicim_hatalari (K1'e gider), ham (bloğun metni). Normalizasyon yapılmaz;
     kanonik kayıt için kayit(blok)."""
     satirlar = metin.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     baslar = [i for i, s in enumerate(satirlar) if HEADER.match(s)]
@@ -173,7 +175,7 @@ def ayristir(metin):
     bloklar = []
     if on:
         bloklar.append({"satir": 1, "figur": None, "yer": None, "yan": [], "sorun": None, "cozum": None,
-                        "tohum": None, "degisim": None, "govde": on, "bicim_hatalari": ["başlıksız metin"], "ham": on})
+                        "tohum": None, "degisim": None, "onarim": None, "govde": on, "bicim_hatalari": ["başlıksız metin"], "ham": on})
     for j, i in enumerate(baslar):
         son = baslar[j + 1] if j + 1 < len(baslar) else len(satirlar)
         bloklar.append(_blok(satirlar[i:son], i + 1))
@@ -182,7 +184,7 @@ def ayristir(metin):
 
 def _blok(satirlar, satir_no):
     b = {"satir": satir_no, "figur": None, "yer": None, "yan": [], "sorun": None, "cozum": None, "tohum": None,
-         "degisim": None, "govde": "", "bicim_hatalari": [], "ham": "\n".join(satirlar).strip()}
+         "degisim": None, "onarim": None, "govde": "", "bicim_hatalari": [], "ham": "\n".join(satirlar).strip()}
     hata = b["bicim_hatalari"]
     alanlar = [a.strip() for a in HEADER.match(satirlar[0]).group(1).split("|")]
     if len(alanlar) != 3:
@@ -209,6 +211,11 @@ def _blok(satirlar, satir_no):
                     b["degisim"] = (d.group(1), d.group(2))
                 else:
                     hata.append("@degisim biçimi '<eski> -> <yeni>' olmalı")
+            elif anahtar == "onarim":
+                if ONARIM.match(deger):
+                    b["onarim"] = deger
+                else:
+                    hata.append("@onarim biçimi '<ebeveyn sha1 (40 onaltılık)>' olmalı")
             else:
                 hata.append(f"bilinmeyen satır @{anahtar}")
             continue
@@ -219,9 +226,10 @@ def _blok(satirlar, satir_no):
     while govde and not govde[-1].strip():
         govde.pop()
     b["govde"] = "\n".join(govde).strip()
-    beklenen = ["plan", "tohum"] + (["degisim"] if "degisim" in sira else [])
+    beklenen = ["plan", "tohum"] + [k for k in ("degisim", "onarim") if k in sira]
     if sira != beklenen:
-        hata.append(f"satır sırası {sira} (beklenen {beklenen}: başlık, @plan, @tohum[, @degisim], gövde)")
+        hata.append(f"satır sırası {sira} (beklenen {beklenen}: başlık, @plan, @tohum[, @degisim][, @onarim], "
+                    "gövde)")
     if any(META.match(s) or HEADER.match(s) for s in govde):
         hata.append("gövdede '@' ya da '###' satırı")
     return b
@@ -232,12 +240,14 @@ def kayit(blok):
     return kanonik(blok["figur"], blok["yer"], blok["yan"], blok["sorun"], blok["cozum"], blok["govde"])
 
 
-def blok_yaz(kayit, tohum, degisim=None):
+def blok_yaz(kayit, tohum, degisim=None, onarim=None):
     """Kanonik kayıt -> yazar dosyası bloğu (ayristir'in tersi)."""
     satir = [f"### {kayit['figur']} | {kayit['yer']} | {', '.join(kayit['yan']) or '-'}",
              f"@plan: {kayit['sorun']} | {kayit['cozum']}", f"@tohum: {tohum}"]
     if degisim:
         satir.append(f"@degisim: {degisim[0]} -> {degisim[1]}")
+    if onarim:
+        satir.append(f"@onarim: {onarim}")
     return "\n".join(satir + [kayit["govde"]]) + "\n"
 
 

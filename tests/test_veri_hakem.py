@@ -819,6 +819,144 @@ class Sizinti(Ortak):
                          kabul)
 
 
+class Onarim(Ortak):
+    """Onarım döngüsü: yalnız hakem gerekçesiyle düşen aday editöre alıntılı bulgularla döner; onarılmış hikâye
+    yeni adaydır (deneme ebeveyn + 1, '@onarim'), K9'da kendi ebeveyninin kopyası sayılmaz, en çok deneme 3."""
+    M6 = "Chase burnunu yere yaklaştırdı"
+    D6 = "Chase'in burnu yine işe yaramıştı"
+    hazirla = Kurul.hazirla
+
+    def ilk_tur(self):
+        aday = self.kapi()
+        sha = {r["tohum"]: s for s, r in aday.items()}
+        for L in vh.MERCEKLER:
+            self.hazirla(L, parti_boyu=4, pilot=True, dagilim=(1, 0, 0))
+
+        def karar(L, n, k, h, y, ilk):
+            if y["sha1"] == sha["chase-0001"] and L in "MD":
+                return ("M6", self.M6) if L == "M" else ("D6", self.D6)    # iki M hakemi aynı alıntı
+            if y["sha1"] == sha["niloya-0001"] and L == "K":
+                return ("K1", uk.cumleler(h["govde"])[0])                   # figür düzeyi: onarılmaz
+            return None
+        hakemle(self.Y, karar)
+        r, out = self.vh("karar", "--pilot", "--taslak-kart")
+        self.assertEqual(r, 0, out)
+        return aday, sha
+
+    def test_onar_istemi_ve_yeni_aday(self):
+        aday, sha = self.ilk_tur()
+        ebeveyn = sha["chase-0001"]
+        kuyruk = {t["id"]: t for t in vh.jsonl_oku(self.Y.v("kuyruk.jsonl"))}
+        self.assertTrue(kuyruk["chase-0001"]["onarilabilir"])
+        self.assertEqual(kuyruk["chase-0001"]["ebeveyn"], ebeveyn)
+        self.assertFalse(kuyruk["niloya-0001"]["onarilabilir"])
+        # istem: kılavuz, kart, özgün blok ve tekrarsız, alıntılı bulgular
+        r, out = self.vh("onar-istemi", "--figur", "Chase", "--taslak-kart")
+        self.assertEqual(r, 0, out)
+        md = Path(self.Y.v("onar", "chase_1.md")).read_text()
+        js = vh.json_oku(self.Y.v("onar", "chase_1.json"))
+        self.assertEqual(js["dosya"], "aday/chase_onar1.txt")
+        self.assertEqual(js["tohumlar"], [{"id": "chase-0001", "deneme": 2, "onarim": ebeveyn,
+                                           "ebeveyn_kimlik": aday[ebeveyn]["kimlik"], "yeniden_yaz": False,
+                                           "bulgu": 2}])
+        self.assertIn("**Kural bütçesi.**", md)                   # kılavuz birebir
+        self.assertIn("## Kart: Chase", md)
+        self.assertIn(uk.blok_yaz(aday[ebeveyn]["kayit"], "chase-0001").strip(), md)   # özgün blok
+        self.assertIn(f'Alıntı: "{self.M6}"', md)
+        self.assertIn(f'Alıntı: "{self.D6}"', md)
+        self.assertEqual(md.count(f'Alıntı: "{self.M6}"'), 1)    # iki hakemin aynı bulgusu tek kez
+        self.assertIn("Cümle 6: «Chase burnunu yere yaklaştırdı.»", md)
+        self.assertIn("Her olay bir öncekinden çıkıyor", md)     # madde tanımı
+        self.assertIn(f"@onarim: {ebeveyn}", md)
+        self.assertIn("aday/chase_onar1.txt", md)
+        self.assertIn("kontrol", md)
+        # K1 (figür düzeyi) ile düşen onarılmaz; aynı tohum ikinci kez atanmaz; yeni yazım onu almaz
+        self.assertEqual(vh.onar_istemi(self.Y, "Niloya", taslak_kart=True, bg=self.bg), [])
+        self.assertEqual(vh.onar_istemi(self.Y, "Chase", taslak_kart=True, bg=self.bg), [])
+        with self.assertRaises(SystemExit):
+            sessiz(vh.yaz_istemi, self.Y, "Chase", taslak_kart=True, bg=self.bg)
+        # editör: tek cümle değişir (ebeveynin yakın kopyası)
+        eski = uk.blok_yaz(aday[ebeveyn]["kayit"], "chase-0001")
+        onarilan = eski.replace(self.D6 + ".", "Chase çok sevindi.").replace(
+            "@tohum: chase-0001", f"@tohum: chase-0001\n@onarim: {ebeveyn}")
+        Path(self.Y.v("aday", "chase_onar1.txt")).write_text(onarilan)
+        r, out = self.vh("kontrol", self.Y.v("aday", "chase_onar1.txt"), "--taslak-kart")
+        self.assertEqual(r, 0, out)
+        aday2 = self.kapi()
+        cocuk = next(x for x in aday2.values() if x.get("onarim"))
+        self.assertEqual((cocuk["tohum"], cocuk["deneme"], cocuk["onarim"]), ("chase-0001", 2, ebeveyn))
+        self.assertTrue(cocuk["gecti"], cocuk["ihlaller"])
+        self.assertFalse([x for x in cocuk["ihlaller"] if x["kapi"] == "K9"])
+        self.assertEqual(aday2[ebeveyn]["deneme"], 1)
+        # yeni hakemler: onarım bulguları parti dosyasına girmez
+        for L in vh.MERCEKLER:
+            self.hazirla(L, parti_boyu=4, pilot=True, dagilim=(1, 0, 0))
+            for i in vh.json_oku(self.Y.hakem(L, "gorev.json"))["isler"]:
+                metin = Path(i["parti_dosyasi"]).read_text()
+                self.assertNotIn(ebeveyn, metin)
+                self.assertNotIn("onarim", metin)
+        hakemle(self.Y)
+        r, out = self.vh("karar", "--pilot", "--taslak-kart")
+        self.assertEqual(r, 0, out)
+        self.assertIn("(1 onarım)", out)
+        kabul = {k["sha1"]: k for k in vh.jsonl_oku(self.Y.v("kabul.jsonl"))}
+        self.assertIn(cocuk["sha1"], kabul)
+        self.assertNotIn(ebeveyn, kabul)
+        self.assertEqual((kabul[cocuk["sha1"]]["deneme"], kabul[cocuk["sha1"]]["onarim"]), (2, ebeveyn))
+        self.assertTrue(any(x["sha1"] == ebeveyn for x in vh.jsonl_oku(self.Y.v("ret.jsonl"))))
+        self.assertNotIn("chase-0001", {t["id"] for t in vh.jsonl_oku(self.Y.v("kuyruk.jsonl"))})
+        figur_dosyasi = Path(self.Y.v("chase.txt")).read_text()    # eğitime giden dosyada @onarim yok
+        self.assertIn("Chase çok sevindi.", figur_dosyasi)
+        self.assertNotIn("@onarim", figur_dosyasi)
+
+    def test_k9_ebeveyn_haric(self):
+        onceki = [("Chase", "chase-0001", "urun/chase#a", "gövde", True, "a" * 40),
+                  ("Chase", "chase-0002", "urun/chase#b", "gövde", True, "b" * 40),
+                  ("Chase", "chase-0003", "urun/chase#c", "gövde", True, "c" * 40)]
+        havuz = vh._tur_havuzu(onceki, "Chase", "chase-0001", {"b" * 40})
+        self.assertEqual([k for k, _ in havuz], ["urun/chase#c"])   # kendi ebeveyni ve reddedilen hariç
+
+    def test_deneme_siniri(self):
+        aday, sha = self.ilk_tur()
+        ebeveyn = sha["chase-0001"]
+        b = {"tohum": "chase-0001", "onarim": ebeveyn}
+        red = {ebeveyn}
+        self.assertEqual(vh._onarim_denetle(b, {ebeveyn: {"tohum": "chase-0001", "deneme": 2}}, red), (3, []))
+        d, ih = vh._onarim_denetle(b, {ebeveyn: {"tohum": "chase-0001", "deneme": 3}}, red)
+        self.assertEqual(d, 4)
+        self.assertEqual([x["kod"] for x in ih], ["K1.deneme_siniri"])
+        self.assertEqual([x["kod"] for x in vh._onarim_denetle(b, {ebeveyn: {"tohum": "x", "deneme": 1}}, set())[1]],
+                         ["K1.onarim", "K1.onarim"])
+        self.assertEqual(vh._onarim_denetle(b, {}, red)[1][0]["kod"], "K1.onarim")
+        # ebeveyn 3. denemeyse: onarım istemi vermez, karar tohumu bırakır
+        kayitlar = vh.jsonl_oku(self.Y.v("aday.jsonl"))
+        for x in kayitlar:
+            if x["sha1"] == ebeveyn:
+                x["deneme"] = 3
+        vh.jsonl_yaz(self.Y.v("aday.jsonl"), kayitlar)
+        ist = vh.json_oku(self.Y.v("istem", "chase_1.json"))
+        ist["tohumlar"][0]["deneme"] = 3
+        vh.json_yaz(self.Y.v("istem", "chase_1.json"), ist)
+        self.assertEqual(vh.onarim_adaylari(self.Y, "Chase", "chase"), [])
+        s = vh.karar_ver(self.Y, pilot=True, taslak_kart=True, bg=self.bg)
+        self.assertIn("chase-0001", {t["id"] for t in s["birakilan"]})
+        self.assertNotIn("chase-0001", {t["id"] for t in s["kuyruk"]})
+        # 2. denemede düşen: onarılabilirse 3. deneme (yalnız onarım) kuyrukta, K1 ile düşen bırakılır
+        for x in kayitlar:
+            if x["sha1"] in (ebeveyn, sha["niloya-0001"]):
+                x["deneme"] = 2
+        vh.jsonl_yaz(self.Y.v("aday.jsonl"), kayitlar)
+        for fk in ("chase", "niloya"):
+            ist = vh.json_oku(self.Y.v("istem", f"{fk}_1.json"))
+            ist["tohumlar"][0]["deneme"] = 2
+            vh.json_yaz(self.Y.v("istem", f"{fk}_1.json"), ist)
+        s = vh.karar_ver(self.Y, pilot=True, taslak_kart=True, bg=self.bg)
+        kuyruk = {t["id"]: t for t in s["kuyruk"]}
+        self.assertEqual((kuyruk["chase-0001"]["deneme"], kuyruk["chase-0001"]["onarilabilir"]), (3, True))
+        self.assertIn("niloya-0001", {t["id"] for t in s["birakilan"]})
+        self.assertEqual(len(vh.onarim_adaylari(self.Y, "Chase", "chase")), 1)
+
+
 class EskiKomutlar(unittest.TestCase):
     def test_eski_hazirla_yolu(self):
         """--lens'siz hazirla eski fonksiyona eski varsayılanla (parti 40) gider."""

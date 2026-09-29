@@ -255,7 +255,54 @@ GEREKÇE:
 - Düzeltilen hikâyeler ortalama 4 kelime uzadı. spidey_1#21'de figür özelliği silindi. Tur geçme oranı %65 → %59 → %47 düştü.
 - _2 paketlerinde nadir kelime %36–77 arttı. _2 paketlerini içeren üç model tabandan %42–47'de kaldı. Ancak DENEYLER.md bunu 'ya _2 zararlı ya da v6'nın üstünlüğü kısmen şanstı' diye kaydediyor; kesin kanıt değil.
 
-**Geçme şartı:** Eğitim verisinde hakemden sonra düzeltilmiş metin sayısı 0. 1. ve 2. denemede kabul edilen hikâyelerin insan kusuru ayrı raporlanır. 2. deneme kabulleri insan örnekleminde 2 kat ağırlıkla örneklenir.
+**Geçme şartı:** Eğitim verisinde hakemden sonra düzeltilip yeniden hakemlenmemiş metin sayısı 0 (onarılmış hikâye
+yeni adaydır; aşağıdaki Onarım döngüsü). 1. ve 2. denemede kabul edilen hikâyelerin insan kusuru ayrı raporlanır. 2. deneme kabulleri insan örnekleminde 2 kat ağırlıkla örneklenir.
+
+### 9a. Onarım döngüsü (hakem güdümlü; kullanıcı yetkisiyle karar)
+
+**Kim:** Kod (istem, kapı, karar) + editör ajanı (onarım) + yeni hakemler
+
+urun_v2'nin ilk hakem turunda 85 adaydan yalnız 2'si kabul edildi: hemen her hikâyede 1-3 somut, alıntılı ve
+yerel kusur vardı (yanlış kelime, dilbilgisi, sebepsiz beliren ayrıntı, hafif mecaz). Bunlar gerçek ama
+onarılabilir kusurlardır; hikâyeyi atıp tohumdan yeniden yazmak aynı türden yeni kusurlar üretiyordu. Adım 9'un
+'düzeltme yok' kuralı yerine şu döngü uygulanır:
+
+1. `veri_hakem.py onar-istemi <ad> --figur F | --hepsi [--n 12]`: figürün her tohumunun son yazılan denemesi
+   kurulca reddedilmişse, bütün gerekçeleri hakem merceğinden (M, D, K) geliyorsa, K1 (figür düzeyi) ya da
+   altin_kusurlu (okurun etiketi) değilse, tohumun kabulü yoksa ve sonraki deneme 3'ü aşmıyorsa editör istemi
+   yazılır: `data/<ad>/onar/<figür>_<n>.md` (+ .json atama kaydı). Kod kapısından (K1-K11) ya da kanaryadan düşen
+   hikâye onarılmaz; tohum Adım 9'daki gibi yeni yazıma döner.
+2. İstem, yaz-istemi gibi kılavuzu (KILAVUZ_URUN.md) ve kartı, sonra her hikâye için tohumu, özgün bloğu (başlık,
+   @plan, @tohum, @degisim, gövde) ve hakem bulgularını taşır: mercek, madde, maddenin HAKEM_<L>.md tanımı,
+   birebir alıntı, cümle numarası ve o cümle, açıklamalar. Aynı (mercek, madde, alıntı) tek bulgudur (iki hakemin
+   açıklamaları birleşir). Cümle numarası alıntı metinde aranarak bulunur (kanarya tabanı gerekçesinde
+   hakemin numarası kanaryanındır).
+3. Editör yalnız bulguların gösterdiği yeri ve tutarlılık için değişmesi gerekeni düzeltir; tohum (figür, yer, yan,
+   tema, açılış, kapanış, diyalog, özellik, kelimeler) ve hikâye (sorun, çözüm) korunur, gövde 70-100 kelime.
+   Yanlış görünen bulguda da o cümle daha basit söylenir. M3 hikâyenin çekirdeğini önemsiz ya da saçma bulduysa
+   (açıklamada 'önemsiz', 'saçma', 'gerçek bir sorun değil'...) görev YENİDEN YAZ'dır: aynı tohumdan baştan.
+4. Çıktı `data/<ad>/aday/<figür>_onar<n>.txt`, normal aday biçiminde, aynı @tohum ve ek satır
+   `@onarim: <ebeveyn sha1>` (urun_kayit.ayristir tanır; kanonik kayda ve eğitim dizgisine girmez). Editör
+   `kontrol` koşar (en çok 1 yama, Adım 4 gibi).
+5. Onarılmış hikâye YENİ adaydır: `kapi` ve yeni hakem partilerinden (`hazirla`, `oku`, `karar`) her aday gibi
+   geçer. Hakemler önceki bulguları ve ebeveyni görmez (parti görünümünde deneme, tohum ve @onarim yok).
+6. Deneme sayımı: kapı onarımın denemesini ebeveynden alır (ebeveyn + 1). Ebeveyn aday kayıtlarında yok, başka
+   tohumdan ya da ret.jsonl'de değilse K1.onarim; deneme 3'ü aşarsa K1.deneme_siniri. Aday ve kabul kaydında
+   `onarim` alanı ebeveynin sha1'idir.
+7. K9: aynı tohumun adayı (onarımın reddedilmiş ebeveyni dahil) ve kurulca reddedilmiş adaylar turdaki K9
+   havuzuna girmez; onarım kendi ebeveyninin yakın kopyası sayılmaz, reddedilen hikâye başka tohumun
+   hikâyesini engellemez. Kabul havuzu yalnız kabulleri taşır.
+8. Karar: aynı tohumun önceki reddedilmiş denemesi sonraki denemenin kabulünü engellemez; bir tohumdan en çok bir
+   kabul (ikincisi 'tohum_zaten_kabul' bekler). Kuyruk kaydı `onarilabilir` ve `ebeveyn` taşır. Sınır: yeni
+   yazımla en çok 2 deneme (YAZIM_TAVANI; yaz-istemi 3. denemeyi vermez), onarımla en çok 3 deneme
+   (DENEME_TAVANI; en çok 2 onarım turu). 3. denemede düşen ya da 2. denemede onarılamaz gerekçeyle düşen tohum
+   bırakılır. yaz-istemi ve onar-istemi aynı tohumu aynı denemeye iki kez atamaz (istem/ ve onar/ kayıtları
+   birlikte okunur).
+
+GEREKÇE: Adım 9'daki kaygı, hakemin bulgusunu okuyan düzelticinin metni hakeme göre ayarlaması ve düzeltilen
+metnin yeniden hakemlenmeden girmesiydi. Burada onarım yeni bir adaydır, bütün mercekleri bulguları görmeyen
+yeni hakemlerle baştan geçer ve deneme sınırı kör noktada sonsuz denemeyi engeller. Onarımla kabul edilen
+hikâyeler (kabul kaydında `onarim`) insan örnekleminde ayrı raporlanır.
 
 ### 10. Kabul anında kota ve dağılım izleme
 
@@ -668,3 +715,19 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
   Elsa, Chase, Örümcek Adam, Hello Kitty. Kapı mekaniği testleri Tosbi tabanlarıyla yazıldığından testler bu
   figürlerin etkin olduğu bir kopya listeyle koşar (tests/test_urun_kapi.py); gerçek listeyi ayrı testler sınar.
   Tosbi'nin mevcut aday ve kabulleri silinmedi ama eğitime girmemeli.
+- Onarım döngüsü (kullanıcı yetkisiyle karar; urun_v2'nin ilk hakem turunda 85 adaydan 2 kabul, kusurlar gerçek
+  ama yerel): Adım 9a. `onar-istemi` yalnız hakem merceği gerekçesiyle düşen adayı alıntılı bulgularla editöre
+  verir; onarım `@onarim: <ebeveyn sha1>` taşıyan yeni adaydır, deneme ebeveyn + 1, en çok 3 (2 onarım turu), K9
+  ebeveyni ve reddedilenleri havuza almaz, hakemler bulguları görmez. `kontrol --ad` artık varsayılan olarak
+  dosyanın data/<ad>/aday/ klasöründen gelir (önceden urun_v1'di ve istemdeki komutta `--ad` yoktu; urun_v1
+  dışındaki bir adda yama sayacı ve K9 kabul havuzu yanlış klasörden okunabilirdi) ve istemler `--ad` ile yazılır. İlk koşu: `onar-istemi urun_v2 --hepsi` 11 istem,
+  81 hikâye (21'i M3 yeniden yazımı); 9 aday kod kapısı gerekçesiyle (Pepee) yeni yazıma kalır.
+- Kural çatışması ve aşırı katı maddeler (kullanıcı yetkisiyle karar): 'ders' kapanışı 'bundan sonra' ile biten
+  son cümleye izin veriyordu ama HAKEM_M M8 (tek zaman) onu reddediyordu; M8 artık son cümle olan tek bir ders
+  cümlesinde 'bundan sonra' / 'artık'a izin verir, hikâyenin içinde zaman atlaması yine M8'dir. HAKEM_D D6:
+  çocuğun bildiği yaygın kelimeler ve basit benzetmeler ('top gibi') D6 değildir; yalnız deyim, gerçek mecaz ve
+  soyut isim sayılır; 'keşif/keşfetmek' sınırdadır ve kılavuz ile tema tanımı 'bulmak' der (taklit oyununda 'kaşif'
+  yerine 'bahçıvan'). HAKEM_M M6: yere doğal olarak ait yaygın nesne (kumsalda şemsiye, denizde kova) önceden
+  kurulmadan kullanılabilir. 'Emin değilsen var de' yalnız M6, D6 ve D7'den kalktı (bunlar yalnız eminken
+  işaretlenir); güvenlik, dünya ve dilbilgisi maddelerinde kalır. HAKEM dosyaları kapı sürümüne girdiğinden
+  (K11) bütün adaylar için `kapi` yeniden koşulmalı; önceki kabuller o zamana dek 'kapi_surumu_eski' bekler.

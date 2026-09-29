@@ -1,6 +1,6 @@
 # Ürün verisi hakemi: M merceği (mantık)
 
-Yalnız kusur ara. Zenginlik, betimleme ve yaratıcılık ödüllendirilmez; kısa ve sade olmak kusur değildir. Şapkasız yazım (rüzgar, kagıt değil kağıt) kuraldır, kusur sayma. Emin değilsen var de ve alıntıla.
+Yalnız kusur ara. Zenginlik, betimleme ve yaratıcılık ödüllendirilmez; kısa ve sade olmak kusur değildir. Şapkasız yazım (rüzgar, kagıt değil kağıt) kuraldır, kusur sayma. Emin değilsen var de ve alıntıla; yalnız M6'da (işlevsiz ayrıntı, sebepsiz nesne) kusurdan emin olmadıkça 'yok' de.
 
 Puan verilmez; her madde yok/var olarak işaretlenir. Bu hikayeler 3-6 yaş çocuklara okunacak ve küçük bir dil
 modelini eğitecek; model gördüğü her mantık hatasını öğrenir. Yalnız bu merceğin maddelerine bak; dil ve dünya
@@ -25,9 +25,12 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
 - **M5** Çözüm sebebe doğrudan yöneliyor ve en çok 2 adım sürüyor.
 - **M6** Her olay bir öncekinden çıkıyor; sebepsiz beliren nesne ya da karakter, işlevsiz ayrıntı yok. Yeri kuran
   tek kısa betim ('Kumsal sıcaktı.') ayrıntı sayılmaz; ama bir nesne ya da olay işe yarayacakmış gibi kurulup
-  kullanılmıyorsa ya da çözümü sebepsizce getiriyorsa M6'dır.
+  kullanılmıyorsa ya da çözümü sebepsizce getiriyorsa M6'dır. Yere doğal olarak ait yaygın bir nesne (kumsalda
+  şemsiye, deniz kıyısında kova, parkta bank) önceden kurulmadan kullanılabilir; sebepsiz beliren nesne sayılmaz.
 - **M7** Çelişki yok ('yürüyemiyorum' deyip sonra tırmanmak gibi).
-- **M8** Tek sahne ve tek zaman: hikaye başlıktaki yerde başlıyor ve bitiyor; gün, gece ya da hafta atlaması yok.
+- **M8** Tek sahne ve tek zaman: hikaye başlıktaki yerde başlıyor ve bitiyor; hikayenin içinde gün, gece ya da
+  hafta atlaması yok. İstisna: hikayenin son cümlesi olaydan çıkan tek bir ders cümlesiyse 'bundan sonra' ya da
+  'artık' içerebilir ('Niloya bundan sonra zorda kalınca büyüklerinden yardım istedi.'); bu M8 sayılmaz.
 - **M9** Hikayenin açık ve küçük bir hedefi var ve son bu hedefe doyurucu biçimde ulaşıyor: sorunun çözüldüğü
   görünüyor ve son cümle sıcak bir kapanış veriyor (olaya bağlı bir his, mutlu bir sonuç, sıcak bir replik ya da
   olaydan çıkan somut bir ders). Son cümle kapanışsız, çıplak bir eylem ya da durgun bir resimse ('Sonra Elsa uzun
@@ -36,7 +39,8 @@ Maddeler bu dosyada sabit sırayla yazılıdır; parti talimatı sana başka bir
   varsa vaaz gibi değil, yaşanan olaydan çıkıyor.
 - **M10** Plan satırı hikayenin sorununu ve çözümünü doğru söylüyor.
 
-Bir madde ancak hikayede o kusur yoksa 'yok' alır. Tereddüt ediyorsan 'var' de ve alıntıla.
+Bir madde ancak hikayede o kusur yoksa 'yok' alır. Tereddüt ediyorsan 'var' de ve alıntıla (M6 hariç: M6'yı
+yalnız kusurdan eminsen işaretle).
 
 ## Çıktı
 

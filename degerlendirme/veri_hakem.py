@@ -25,10 +25,14 @@ degerlendirme/<ad>/ altında (--kok <dizin> ile ikisi de <dizin>/data/<ad> ve <d
   oku [<ad>]                          puan JSON'larını doğrular, 'gecti'yi yeniden hesaplar, alıntıyı metinde
                                       arar, kanarya yakalamasını denetler (Adım 8) -> hakem/oylar.jsonl
   karar [<ad>]                        tek yönlü veto; kabul.jsonl, ret.jsonl, kuyruk.jsonl, izin.txt (Adım 8-9)
+  onar-istemi [<ad>] --figur F | --hepsi   hakem güdümlü onarım: yalnız hakem merceği gerekçesiyle düşen adayın
+                                      editör istemi data/<ad>/onar/<figür>_<n>.md (+ .json); çıktı
+                                      aday/<figür>_onar<n>.txt, '@onarim: <ebeveyn sha1>', deneme = ebeveyn + 1 (<= 3)
   altin sec|oku|kurul                 altın set seçimi, kör etiket şablonu, etiket okuma, kurul partileri (Adım 6)
   uyum [<ad>] [--pilot]               pozitif uyum, ikinci hakemin tek başına yakalaması, kanarya yakalama,
                                       altın sette kaçırma/yanlış ret/q̂ ve konum etkisi (Adım 6, Pilot ölçüleri)
 Pilot-0 akışı: tohum -> yaz-istemi -> (yazar) kontrol -> kapi -> hazirla -> (hakem) -> oku -> karar.
+Onarım döngüsü: karar -> onar-istemi -> (editör) kontrol -> kapi -> hazirla -> (yeni hakemler) -> oku -> karar.
 """
 import argparse, collections, difflib, glob, hashlib, importlib.util, json, math, os, random, re, sys
 
@@ -143,6 +147,9 @@ HAKEM_SAYISI = {"M": 2, "D": 2, "K": 1}        # tam ölçek; pilotta K de 2 (--
 KANARYA_DAGILIM = (0.2, 0.5, 0.3)              # partide 0 / 1 / 2 kanarya
 ALINTI_MESAFE = 2                              # alıntı eşleşmesinde en çok düzenleme mesafesi (karakter)
 DUR_PENCERE, DUR_KACIRMA, DUR_UYDURMA = 50, 0.10, 0.03
+YAZIM_TAVANI = 2                               # yeni yazımla en çok 2 deneme (Adım 9)
+DENEME_TAVANI = 3                              # onarımla en çok 3 deneme: en çok 2 onarım turu (Onarım döngüsü)
+ONARIM_DISI = {"K1", "altin_kusurlu"}          # figür düzeyi (K1) ve okurun 'kusurlu' etiketi onarılmaz
 
 
 def _uk():
@@ -673,12 +680,12 @@ TOHUM_SURUM = "tohum/1"
 # (paylaşmak, yardım istemek, özür dilemek, sırayla oynamak) birlikte en çok %28'dir. Sorun çoğunlukla dışarıdan
 # gelir (hava, takılan top, merak uyandıran bir ses); figürün kendi hatası yalnız özür temasında olur.
 TEMALAR = {
-    "merak_kesif": ("merak edip keşfetmek (bir ses, bir iz, bir kabuk; sonunda ne olduğu ortaya çıkar)", None),
+    "merak_kesif": ("merak edip bulmak (bir ses, bir iz, bir kabuk; sonunda ne olduğu ortaya çıkar)", None),
     "oyun_eglence": ("eğlenceli ya da komik bir oyun ve oyunda küçük bir aksilik", None),
     "yardim_etmek": ("figür başkasına yardım eder (hasta ya da yaralı hayvan değil)", "yan"),
     "kutlama_hazirlik": ("aynı sahnede küçük bir kutlama ya da sürpriz hazırlamak", "yan"),
     "doga_gozlem": ("doğada bir şeyi fark etmek (gökkuşağı, kelebekler, kardaki şekiller) ve küçük bir hedef", None),
-    "taklit_hayal": ("hayali oyun (kaptan, aşçı, kaşif olmak gibi) ve oyunda küçük bir hedef", None),
+    "taklit_hayal": ("hayali oyun (kaptan, aşçı, bahçıvan olmak gibi) ve oyunda küçük bir hedef", None),
     "kaybolan_esya": ("kaybolan eşya", None),
     "yeni_sey_denemek": ("yeni bir şeyi denemek", None),
     "bir_sey_yapmak": ("bir şey yapmak", None),
@@ -1051,11 +1058,13 @@ def _kabul_havuzu(Y, figur, tohum=None):
             if k["figur"] == figur and (tohum is None or k.get("tohum") != tohum)]
 
 
-def _tur_havuzu(onceki, figur, tohum):
+def _tur_havuzu(onceki, figur, tohum, reddedilen=frozenset()):
     """K9 havuzunun tur parçası: aynı turda (bu kapı/kontrol koşusunda) daha önce denetlenip kod kapılarından geçmiş
-    adaylar [(kimlik, gövde)]; aynı tohumun adayı hariç. Hakemden önce iki yakın kopyanın birlikte kabul edilmesini
-    önler: turdaki ilk aday kalır, sonraki K9'a takılır. onceki: [(figür, tohum, kimlik, gövde, geçti)]."""
-    return [(k, g) for f, t, k, g, gecti in onceki if gecti and f == figur and t != tohum]
+    adaylar [(kimlik, gövde)]; aynı tohumun adayı (onarımın reddedilmiş ebeveyni dahil) ve kurulca reddedilmiş
+    adaylar (ret.jsonl) hariç. Hakemden önce iki yakın kopyanın birlikte kabul edilmesini önler: turdaki ilk aday
+    kalır, sonraki K9'a takılır. onceki: [(figür, tohum, kimlik, gövde, geçti, sha1)]."""
+    return [(k, g) for f, t, k, g, gecti, s in onceki
+            if gecti and f == figur and t != tohum and s not in reddedilen]
 
 
 def _kontrol_durumu_yolu(Y, dosya):
@@ -1066,10 +1075,59 @@ def _ham_sha1(ham):
     return hashlib.sha1(ham.strip().encode("utf-8")).hexdigest()
 
 
+def _atamalar(Y, fk=None):
+    """Tohum atamaları: yazım (istem/*.json) ve onarım (onar/*.json) kayıtları; fk verilirse yalnız o figürün."""
+    out = []
+    for klasor in ("istem", "onar"):
+        for p in sorted(glob.glob(Y.v(klasor, f"{fk}_*.json" if fk else "*.json"))):
+            ist = json_oku(p)
+            if ist:
+                out.append(ist)
+    return out
+
+
 def _istem_denemeleri(Y, dosya):
-    """Yazar dosyasına atanmış tohumların deneme numaraları (yaz-istemi kaydı): {tohum id: deneme}."""
-    ist = json_oku(Y.v("istem", os.path.basename(dosya)[:-4] + ".json"), {})
+    """Yazar (ya da editör) dosyasına atanmış tohumların deneme numaraları: {tohum id: deneme}."""
+    ad = os.path.basename(dosya)
+    ist = json_oku(Y.v("istem", ad[:-4] + ".json"))
+    if ist is None:
+        ist = next((x for x in _atamalar(Y) if os.path.basename(x.get("dosya") or "") == ad), {})
     return {t["id"]: t.get("deneme", 1) for t in ist.get("tohumlar", [])}
+
+
+def ret_gerekceleri(Y):
+    """{sha1: [ret kaydı, ...]} (son karar koşusunun ret.jsonl'i)."""
+    out = collections.defaultdict(list)
+    for x in jsonl_oku(Y.v("ret.jsonl")):
+        out[x["sha1"]].append(x)
+    return out
+
+
+def onarilabilir(gerekceler):
+    """Onarım döngüsüne girer mi: bütün gerekçeler hakem merceğinden (M, D, K) ve alıntılı/yerli; kod kapısı,
+    kanarya, figür düzeyi (K1) ve okurun 'kusurlu' etiketi (altin_kusurlu) onarılmaz, yeni yazıma gider."""
+    return bool(gerekceler) and all(g.get("mercek") in MERCEKLER and g.get("kaynak") != "kapi"
+                                    and g.get("madde") not in ONARIM_DISI for g in gerekceler)
+
+
+def _onarim_denetle(b, aday, reddedilen):
+    """'@onarim: <ebeveyn sha1>' taşıyan blok: (deneme, ihlaller). Deneme ebeveynin denemesinin bir fazlasıdır;
+    ebeveyn aynı tohumdan, kurulca reddedilmiş (ret.jsonl) olmalı ve deneme DENEME_TAVANI'nı aşmamalı."""
+    p = aday.get(b["onarim"])
+    if p is None:
+        return None, [{"kod": "K1.onarim", "kapi": "K1", "aciklama": f"@onarim ebeveyni {b['onarim'][:10]} aday "
+                                                                   "kayıtlarında yok"}]
+    ih = []
+    if p.get("tohum") != b["tohum"]:
+        ih.append({"kod": "K1.onarim", "kapi": "K1",
+                   "aciklama": f"ebeveynin tohumu {p.get('tohum')}, onarımınki {b['tohum']}"})
+    if b["onarim"] not in reddedilen:
+        ih.append({"kod": "K1.onarim", "kapi": "K1", "aciklama": "ebeveyn kurulca reddedilmemiş (ret.jsonl'de yok)"})
+    deneme = p.get("deneme", 1) + 1
+    if deneme > DENEME_TAVANI:
+        ih.append({"kod": "K1.deneme_siniri", "kapi": "K1",
+                   "aciklama": f"deneme {deneme} (en çok {DENEME_TAVANI}; en çok 2 onarım turu); tohum bırakılır"})
+    return deneme, ih
 
 
 def _yama_bilgisi(surumler, ham):
@@ -1105,7 +1163,11 @@ def _yama_ihlali(r, yama):
 def cmd_kontrol(a):
     """Yazarın öz-denetimi. Her çağrıda hikâyenin metni kontrol durumuna yazılır; ilk kontrolden sonra değişen metin
     yamadır (en çok 1). Kapı kararı değişmez; kalıcı kayıt 'kapi' komutundadır."""
-    Y = Yollar(a.ad, a.kok)
+    ad = a.ad
+    if ad is None:        # dosya data/<ad>/aday/ altındaysa ad oradan (yoksa urun_v1)
+        ust = os.path.dirname(os.path.abspath(a.dosya))
+        ad = os.path.basename(os.path.dirname(ust)) if os.path.basename(ust) == "aday" else "urun_v1"
+    Y = Yollar(ad, a.kok)
     kapi, uk = _kapi(), _uk()
     bg = kapi.Baglam()
     tohumlar = tum_tohumlar(Y)
@@ -1117,10 +1179,17 @@ def cmd_kontrol(a):
     durum = json_oku(durum_yolu, {})
     gecen, gorulen = 0, collections.Counter(b["tohum"] for b in bloklar)
     onceki = []
+    aday, reddedilen = aday_kayitlari(Y), set(ret_gerekceleri(Y))
     for b in bloklar:
-        havuz = _kabul_havuzu(Y, b["figur"], b["tohum"]) + _tur_havuzu(onceki, b["figur"], b["tohum"])
+        havuz = (_kabul_havuzu(Y, b["figur"], b["tohum"])
+                 + _tur_havuzu(onceki, b["figur"], b["tohum"], reddedilen))
         r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, havuz, a.taslak_kart)
-        onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"]))
+        if b.get("onarim"):
+            _, ih = _onarim_denetle(b, aday, reddedilen)
+            if ih:
+                r["ihlaller"] += ih
+                r["gecti"] = False
+        onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"], r["sha1"]))
         anahtar = b["tohum"] or f"satir{b['satir']}"
         if gorulen[b["tohum"]] > 1:
             r["ihlaller"].append({"kod": "K1.tohum_tekrar", "kapi": "K1",
@@ -1165,15 +1234,23 @@ def cmd_kapi(a):
     kapi_say, kod_say, tohum_kaynakli = collections.Counter(), collections.Counter(), 0
     TOHUM_KODLARI = {"K1.tohum", "K1.yer", "K1.yan", "K4.ozellik", "K4.tohum_kelime", "K4.degisim"}
     onceki = []                                          # K9: turdaki önceki adaylar da havuzda
+    aday_tum, reddedilen = aday_kayitlari(Y), set(ret_gerekceleri(Y))   # onarım: ebeveyn ve deneme
     for dosya in dosyalar:
         with open(dosya, encoding="utf-8") as f:
             bloklar = uk.ayristir(f.read())
         denemeler = _istem_denemeleri(Y, dosya)
         durum = json_oku(_kontrol_durumu_yolu(Y, dosya), {})
         for b in bloklar:
-            havuz = _kabul_havuzu(Y, b["figur"], b["tohum"]) + _tur_havuzu(onceki, b["figur"], b["tohum"])
+            havuz = (_kabul_havuzu(Y, b["figur"], b["tohum"])
+                     + _tur_havuzu(onceki, b["figur"], b["tohum"], reddedilen))
             r = kapi.denetle(b, tohumlar.get(b["tohum"]), bg, havuz, a.taslak_kart)
             deneme = denemeler.get(b["tohum"], 1)
+            if b.get("onarim"):                 # onarım yeni adaydır: deneme = ebeveyn + 1 (istem kaydı değil)
+                d_onarim, ih = _onarim_denetle(b, aday_tum, reddedilen)
+                deneme = d_onarim or deneme
+                if ih:
+                    r["ihlaller"] += ih
+                    r["gecti"] = False
             surumler = durum.get(b["tohum"] or f"satir{b['satir']}", [])
             yama, fark = _yama_bilgisi(surumler, b["ham"])
             _yama_ihlali(r, yama)
@@ -1186,7 +1263,7 @@ def cmd_kapi(a):
                 r["gecti"] = False
             gorulen_tohum.add((b["tohum"], deneme))
             gorulen_sha1.add(r["sha1"])
-            onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"]))
+            onceki.append((b["figur"], b["tohum"], r["kimlik"], uk.kayit(b)["govde"], r["gecti"], r["sha1"]))
             kodlar = {x["kod"] for x in r["ihlaller"]}
             for k in kodlar:
                 kod_say[k] += 1
@@ -1195,7 +1272,8 @@ def cmd_kapi(a):
             tohum_kaynakli += bool(kodlar) and kodlar <= TOHUM_KODLARI
             bilinmeyen |= set(r.get("bilinmeyen_kelimeler", []))
             yeni.append({"kimlik": r["kimlik"], "sha1": r["sha1"], "figur": uk.kayit(b)["figur"],
-                         "tohum": b["tohum"], "deneme": deneme, "dosya": os.path.relpath(dosya, Y.veri),
+                         "tohum": b["tohum"], "deneme": deneme, "onarim": b.get("onarim"),
+                         "dosya": os.path.relpath(dosya, Y.veri),
                          "satir": b["satir"], "yamali": yama > 0, "yama_sayisi": yama, "fark": fark,
                          "kontrol_edildi": bool(surumler), "degisim": b["degisim"], "gecti": r["gecti"],
                          "ihlaller": r["ihlaller"], "notlar": r["notlar"], "atlanan": r["atlanan"],
@@ -1862,6 +1940,8 @@ def karar_ver(Y, pilot=False, hakem=None, taslak_kart=False, bg=None):
                     ret.append({"sha1": s, "kimlik": r["kimlik"], "figur": r["figur"], "tohum": r["tohum"],
                                 "deneme": r["deneme"], "yamali": r["yamali"], "mercek": dus["mercek"],
                                 "madde": v["madde"], "alinti": v["alinti"], "uydurma": v["uydurma"],
+                                "cumle_no": v.get("bulunan_cumle") if v.get("bulunan_cumle") is not None
+                                else v.get("cumle_no"),
                                 "aciklama": v["aciklama"], "kaynak": dus["kaynak"], "parti": dus["parti"],
                                 **({"kanarya": dus["kanarya"]} if "kanarya" in dus else {})})
             continue
@@ -1887,25 +1967,32 @@ def karar_ver(Y, pilot=False, hakem=None, taslak_kart=False, bg=None):
         if kart.get("onayli") and kilit.get(kart["kimlik"], {}).get("sha1") not in (None, kart_sha1(kart)):
             bekleyen["kart_kilitten_sonra_degisti"] += 1
             continue
+        if any(k["tohum"] == r["tohum"] for k in kabul):
+            bekleyen["tohum_zaten_kabul (aynı tohumun önceki denemesi kabul edildi)"] += 1
+            continue
         kararlar = [{k: o[k] for k in ("mercek", "parti", "deneme", "hakem", "konum", "rol", "oy", "gecerli")}
                     for o in oylar if o["sha1"] == s]
         t = tohumlar.get(r["tohum"], {})
         kabul.append({"sha1": s, "kimlik": r["kimlik"], "figur": r["figur"], "yer": r["kayit"]["yer"],
-                      "tohum": r["tohum"], "deneme": r["deneme"], "yamali": r["yamali"], "fark": r["fark"],
-                      "degisim": r["degisim"], "tohum_ozellikleri": {k: t.get(k) for k in
+                      "tohum": r["tohum"], "deneme": r["deneme"], "onarim": r.get("onarim"),
+                      "yamali": r["yamali"], "fark": r["fark"], "degisim": r["degisim"], "tohum_ozellikleri": {k: t.get(k) for k in
                                                                     ("tema", "yan", "diyalog", "acilis", "kapanis",
                                                                      "ozellik")},
                       "kararlar": kararlar, "hakem_sayisi": {L: H[L] for L in MERCEKLER},
                       "taslak_kart": bool(r["taslak_kart"] or not kart.get("onayli")),
                       "kart_sha1": kart_sha1(kart), "serilestirme": r["serilestirme"], "surum_ozeti": r["surum"],
                       "bilesenler": {**bg.surum, "karar_kodu": kod_surumu}, "kayit": r["kayit"]})
-    # kuyruk (Adım 9): son denemesi düşen (ya da boş bırakılan) tohum deneme+1 ile döner; iki kez düşen bırakılır
+    # kuyruk (Adım 9, Onarım döngüsü): son denemesi düşen (ya da boş bırakılan) tohum deneme+1 ile döner. Yeni
+    # yazımla en çok YAZIM_TAVANI deneme; yalnız hakem gerekçesiyle düşen (onarılabilir) tohum onarımla
+    # DENEME_TAVANI'na kadar döner. Aynı tohumun önceki reddedilmiş denemesi kabulü engellemez (kabul_tohum).
     ret_sha1 = {x["sha1"] for x in ret}
+    ret_neden = collections.defaultdict(list)
+    for x in ret:
+        ret_neden[x["sha1"]].append(x)
     yazilan = {(r["tohum"], r["deneme"]): r for r in aday.values()}
     kabul_tohum = {k["tohum"] for k in kabul}
     atanan = {}
-    for p in sorted(glob.glob(Y.v("istem", "*.json"))):
-        ist = json_oku(p)
+    for ist in _atamalar(Y):
         for t in ist.get("tohumlar", []):
             d = t.get("deneme", 1)
             if d >= atanan.get(t["id"], (0, None))[0]:
@@ -1926,11 +2013,13 @@ def karar_ver(Y, pilot=False, hakem=None, taslak_kart=False, bg=None):
         t = tohumlar.get(tid)
         if t is None:
             continue
-        if d_son >= 2:
+        onar = neden == "ret" and onarilabilir(ret_neden[r["sha1"]])
+        if d_son >= DENEME_TAVANI or (d_son >= YAZIM_TAVANI and not onar):
             birakilan.append({**t, "deneme": d_son, "neden": neden,
                               "hucre": [t["yer"], t.get("tema"), t.get("kapanis")]})
         else:
-            kuyruk.append({**t, "deneme": d_son + 1, "neden": neden})
+            kuyruk.append({**t, "deneme": d_son + 1, "neden": neden, "onarilabilir": onar,
+                           **({"ebeveyn": r["sha1"]} if neden == "ret" else {})})
     # izin listesi: figür x yer hücresi başına 1 doğrulama (hücrede >= 2 kabul varsa); önceki atama korunur
     onceki = {}
     if os.path.exists(Y.v("izin.txt")):
@@ -1984,8 +2073,9 @@ def cmd_karar(a):
         _yaz(Y.v(f"{_figur_kimligi(f)}.txt"), "\n".join(uk.blok_yaz(k["kayit"], k["tohum"], k["degisim"])
                                                         for k in ks))
     n_ret = len({x["sha1"] for x in s["ret"]})
-    print(f"kabul {len(s['kabul'])}, ret {n_ret} hikâye ({len(s['ret'])} gerekçe), bekleyen "
-          f"{sum(s['bekleyen'].values())}; kuyruk {len(s['kuyruk'])}, bırakılan {len(s['birakilan'])}")
+    print(f"kabul {len(s['kabul'])} ({sum(bool(k.get('onarim')) for k in s['kabul'])} onarım), ret {n_ret} hikâye "
+          f"({len(s['ret'])} gerekçe), bekleyen {sum(s['bekleyen'].values())}; kuyruk {len(s['kuyruk'])} "
+          f"({sum(t['onarilabilir'] for t in s['kuyruk'])} onarılabilir), bırakılan {len(s['birakilan'])}")
     for k, v in s["bekleyen"].most_common():
         print(f"   bekleyen: {k} {v}")
     uyd = sum(1 for x in s["ret"] if x.get("uydurma"))
@@ -2366,6 +2456,28 @@ def _tohum_metni(t, kart):
         f"- kapanış: {t.get('kapanis')} ({KAPANIS.get(t.get('kapanis'), (0, ''))[1]})"])
 
 
+KILAVUZ_YOLU = os.path.join(HERE, "KILAVUZ_URUN.md")
+
+
+def _kilavuz_metni():
+    """(yol, metin): yazara (ve editöre) giden kılavuz; kullanıcı onaylı örnek yoksa yer tutucu çıkarılır."""
+    with open(KILAVUZ_YOLU, encoding="utf-8") as f:
+        kilavuz = f.read().strip()
+    yer_tutucu = re.compile(r"^\[KULLANICI ONAYLI[^\]]*\]\s*$", re.M)
+    if yer_tutucu.search(kilavuz):      # onaylı iyi örnekler henüz yok: yer tutucu yazara gitmez
+        print("UYARI: KILAVUZ_URUN.md'de kullanıcı onaylı örnek yok; istem örneksiz yazıldı")
+        kilavuz = yer_tutucu.sub("", re.sub(r"^\*\*İyi örnekler\*\*.*$", "", kilavuz, flags=re.M))
+        kilavuz = re.sub(r"\n{3,}", "\n\n", kilavuz).strip()
+    return KILAVUZ_YOLU, kilavuz
+
+
+def _kontrol_komutu(Y, dosya_rel, taslak_kart):
+    return (f".venv/bin/python degerlendirme/veri_hakem.py kontrol {Y.goreli(Y.v(dosya_rel))}"
+            + (f" --ad {Y.ad}" if Y.ad != "urun_v1" else "")
+            + (f" --kok {os.path.dirname(os.path.dirname(Y.veri))}" if not Y.veri.startswith(ROOT + os.sep) else "")
+            + (" --taslak-kart" if taslak_kart else ""))
+
+
 def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
     bg = bg or _bg(zemberek=False)
     kart = _figur_bul(bg, figur)
@@ -2375,11 +2487,13 @@ def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
     atanan = collections.defaultdict(set)
     partiler = [0]
     for p in glob.glob(Y.v("istem", f"{fk}_*.json")):
-        ist = json_oku(p)
-        partiler.append(ist.get("parti", 0))
+        partiler.append(json_oku(p).get("parti", 0))
+    for ist in _atamalar(Y, fk):                 # onarım atamaları da (aynı deneme iki kez verilmez)
         for t in ist.get("tohumlar", []):
             atanan[t["id"]].add(t.get("deneme", 1))
-    secilen = [t for t in jsonl_oku(Y.v("kuyruk.jsonl")) if t["figur"] == ad and t["deneme"] not in atanan[t["id"]]]
+    # yeni yazım en çok YAZIM_TAVANI denemedir; üçüncü deneme yalnız onarımdır (onar-istemi)
+    secilen = [t for t in jsonl_oku(Y.v("kuyruk.jsonl")) if t["figur"] == ad and t["deneme"] <= YAZIM_TAVANI
+               and not any(d >= t["deneme"] for d in atanan[t["id"]])]
     secilen = secilen[:n]
     for t in jsonl_oku(Y.tohum(fk)):
         if len(secilen) >= n:
@@ -2391,17 +2505,8 @@ def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
     parti = max(partiler) + 1
     dosya_rel = f"aday/{fk}_{parti}.txt"
     istem_yolu = Y.v("istem", f"{fk}_{parti}.md")
-    kilavuz_yolu = os.path.join(HERE, "KILAVUZ_URUN.md")
-    with open(kilavuz_yolu, encoding="utf-8") as f:
-        kilavuz = f.read().strip()
-    yer_tutucu = re.compile(r"^\[KULLANICI ONAYLI[^\]]*\]\s*$", re.M)
-    if yer_tutucu.search(kilavuz):      # onaylı iyi örnekler henüz yok: yer tutucu yazara gitmez
-        print("UYARI: KILAVUZ_URUN.md'de kullanıcı onaylı örnek yok; istem örneksiz yazıldı")
-        kilavuz = yer_tutucu.sub("", re.sub(r"^\*\*İyi örnekler\*\*.*$", "", kilavuz, flags=re.M))
-        kilavuz = re.sub(r"\n{3,}", "\n\n", kilavuz).strip()
-    kontrol = (f".venv/bin/python degerlendirme/veri_hakem.py kontrol {Y.goreli(Y.v(dosya_rel))}"
-               + (f" --kok {os.path.dirname(os.path.dirname(Y.veri))}" if not Y.veri.startswith(ROOT + os.sep) else "")
-               + (" --taslak-kart" if taslak_kart else ""))
+    kilavuz_yolu, kilavuz = _kilavuz_metni()
+    kontrol = _kontrol_komutu(Y, dosya_rel, taslak_kart)
     metin = f"""# Yazar görevi: {ad}, parti {parti}
 
 Sen bir çocuk hikâyesi yazarısın. Aşağıdaki {len(secilen)} tohumun her birinden BİR hikâye yaz. Hikâyeler 3-6 yaş
@@ -2456,6 +2561,225 @@ def cmd_yaz_istemi(a):
     return 0
 
 
+# ---------------------------------------------------------------- onar-istemi (Onarım döngüsü)
+
+MADDE_SATIRI = re.compile(r"^- \*\*([A-Z]\d+)\*\* (.*)$")
+# M3'ün 'çekirdek önemsiz ya da saçma' dediği hikâye yerel olarak onarılmaz, aynı tohumdan yeniden yazılır
+CEKIRDEK_M3 = re.compile(r"önemsiz|saçma|anlamsız|zorlama|gerçek bir (sorun|dert)|sorun değil|dert (yok|kurulmuyor)"
+                         r"|zayıf", re.I)
+
+
+def madde_tanimlari():
+    """{madde kimliği: HAKEM_<L>.md'deki tanımı} (çok satırlı maddeler birleştirilir)."""
+    out = {}
+    for L in MERCEKLER:
+        with open(os.path.join(HERE, f"HAKEM_{L}.md"), encoding="utf-8") as f:
+            satirlar = f.read().splitlines()
+        cur = None
+        for satir in satirlar:
+            m = MADDE_SATIRI.match(satir)
+            if m:
+                cur = m.group(1)
+                out[cur] = m.group(2).strip()
+            elif cur and satir.startswith("  ") and satir.strip():
+                out[cur] += " " + satir.strip()
+            else:
+                cur = None
+    return out
+
+
+def onarim_adaylari(Y, figur_adi, fk):
+    """Onarılacak adaylar [(aday kaydı, ret gerekçeleri)]: figürün her tohumunun son yazılan denemesi kurulca
+    reddedilmiş, gerekçeleri onarılabilir (yalnız hakem merceği; K1 ve altin_kusurlu değil), tohumun kabulü yok,
+    sonraki deneme DENEME_TAVANI'nı aşmıyor ve o deneme henüz (yazıma ya da onarıma) atanmamış."""
+    aday, retg = aday_kayitlari(Y), ret_gerekceleri(Y)
+    kabul_tohum = {k["tohum"] for k in jsonl_oku(Y.v("kabul.jsonl"))}
+    atanan = collections.Counter()
+    for ist in _atamalar(Y, fk):
+        for t in ist.get("tohumlar", []):
+            atanan[t["id"]] = max(atanan[t["id"]], t.get("deneme", 1))
+    son = {}
+    for r in aday.values():
+        if r["figur"] == figur_adi and r.get("tohum") and (r["tohum"] not in son
+                                                           or r["deneme"] > son[r["tohum"]]["deneme"]):
+            son[r["tohum"]] = r
+    out = []
+    for tid, r in sorted(son.items()):
+        g = retg.get(r["sha1"], [])
+        if (tid in kabul_tohum or not g or r["deneme"] + 1 > DENEME_TAVANI or atanan[tid] > r["deneme"]
+                or not onarilabilir(g)):
+            continue
+        out.append((r, g))
+    return out
+
+
+def onarim_bulgulari(r, gerekceler, tanim=None):
+    """Hakem bulguları, tekrarsız: aynı (mercek, madde, alıntı) tek bulgu, açıklamaları birleşir. Her bulgu: mercek,
+    madde, tanim, alinti, cumle_no (ret kaydında yoksa alıntı metinde aranır), cumle (o cümlenin metni), uydurma,
+    aciklamalar. Cümle sırasına göre."""
+    tanim = tanim if tanim is not None else madde_tanimlari()
+    k = r["kayit"]
+    hikaye = {"govde": k["govde"], "plan": {"sorun": k["sorun"], "cozum": k["cozum"]}}
+    cs = _uk().cumleler(k["govde"])
+    gruplar = {}
+    for g in gerekceler:
+        no = g.get("cumle_no")
+        if g.get("alinti"):       # alıntı bu metinde aranır (kanarya tabanı gerekçesinde numara kanaryanındır)
+            bulunan = alinti_dogrula({"madde": g["madde"], "alinti": g["alinti"], "cumle_no": None}, g["mercek"],
+                                     hikaye)["bulunan_cumle"]
+            no = bulunan if bulunan is not None else no
+        anahtar = (g["mercek"], g["madde"], _alinti_norm(g.get("alinti") or "").strip(" \"'.,;:!?…-") or f"#{no}")
+        b = gruplar.get(anahtar)
+        if b is None:
+            cumle = (f"{k['sorun']} | {k['cozum']}" if no == 0 else
+                     cs[no - 1] if isinstance(no, int) and 1 <= no <= len(cs) else None)
+            b = gruplar[anahtar] = {"mercek": g["mercek"], "madde": g["madde"], "tanim": tanim.get(g["madde"], ""),
+                                    "alinti": g.get("alinti"), "cumle_no": no, "cumle": cumle,
+                                    "uydurma": bool(g.get("uydurma")), "aciklamalar": []}
+        if g.get("aciklama") and g["aciklama"] not in b["aciklamalar"]:
+            b["aciklamalar"].append(g["aciklama"])
+    return sorted(gruplar.values(), key=lambda b: (b["cumle_no"] if isinstance(b["cumle_no"], int) else 99,
+                                                  b["madde"]))
+
+
+def yeniden_yazilmali(bulgular):
+    """Hikâyenin çekirdeği M3 ile 'önemsiz ya da saçma' işaretlendiyse aynı tohumdan yeniden yazılır."""
+    return any(b["madde"] == "M3" and any(CEKIRDEK_M3.search(a) for a in b["aciklamalar"]) for b in bulgular)
+
+
+def _bulgu_metni(i, b):
+    s = f"{i}. **{b['madde']}** ({b['mercek']} merceği) — {b['tanim'] or '(madde tanımı yok)'}\n"
+    if b["alinti"]:
+        s += f"   - Alıntı: \"{b['alinti']}\"" + (" (alıntı metinde birebir bulunamadı; cümle numarasına bak)"
+                                               if b["uydurma"] else "") + "\n"
+    else:
+        s += "   - Alıntı: yok (eksiklik bulgusu)\n"
+    if isinstance(b["cumle_no"], int):
+        s += f"   - Cümle {b['cumle_no']}" + (" (plan satırı)" if b["cumle_no"] == 0 else "") + \
+            (f": «{b['cumle']}»" if b["cumle"] else "") + "\n"
+    s += "".join(f"   - Açıklama: {a}\n" for a in b["aciklamalar"])
+    return s
+
+
+def onar_istemi(Y, figur, n=12, taslak_kart=False, bg=None):
+    """Figürün onarılabilir adayları için editör istemleri: [(istem yolu, [tohum kaydı])]. Adaylar n'lik
+    dosyalara bölünür; her dosya onar/<fk>_<k>.md (+ .json), çıktı aday/<fk>_onar<k>.txt."""
+    bg = bg or _bg(zemberek=False)
+    kart = _figur_bul(bg, figur)
+    ad, fk = _olgu(kart["ad"]), kart["kimlik"]
+    if not kart.get("onayli") and not taslak_kart:
+        raise SystemExit(f"{ad} kartı onaylı değil; onaysız kartla hikâye yazılmaz (duman testi için --taslak-kart)")
+    tohumlar = tum_tohumlar(Y)
+    adaylar = [(r, g) for r, g in onarim_adaylari(Y, ad, fk) if r["tohum"] in tohumlar]
+    if not adaylar:
+        return []
+    tanim = madde_tanimlari()
+    kilavuz_yolu, kilavuz = _kilavuz_metni()
+    parti = max([json_oku(p).get("parti", 0) for p in glob.glob(Y.v("onar", f"{fk}_*.json"))] or [0])
+    uk = _uk()
+    sonuc = []
+    for bas in range(0, len(adaylar), n):
+        parti += 1
+        dilim = adaylar[bas:bas + n]
+        dosya_rel = f"aday/{fk}_onar{parti}.txt"
+        istem_yolu = Y.v("onar", f"{fk}_{parti}.md")
+        kontrol = _kontrol_komutu(Y, dosya_rel, taslak_kart)
+        parcalar, kayitlar = [], []
+        for i, (r, g) in enumerate(dilim, 1):
+            bulgular = onarim_bulgulari(r, g, tanim)
+            yeniden = yeniden_yazilmali(bulgular)
+            t = tohumlar[r["tohum"]]
+            blok = uk.blok_yaz(r["kayit"], r["tohum"], r.get("degisim")).strip()
+            gorev = ("YENİDEN YAZ: hakem bu hikâyenin çekirdeğini önemsiz ya da saçma buldu (M3). Aynı tohumdan, "
+                     "çocuğun önemseyeceği bir sorunla baştan yaz." if yeniden else
+                     "ONAR: yalnız aşağıdaki bulguların gösterdiği yerleri (ve tutarlılık için değişmesi gerekeni) "
+                     "düzelt; öteki cümlelere dokunma.")
+            parcalar.append(
+                f"### Hikâye {i}: tohum {r['tohum']} (deneme {r['deneme']} -> {r['deneme'] + 1})\n\n"
+                f"**Görev:** {gorev}\n\n**Tohum:**\n\n```\n{_tohum_metni(t, kart)}\n```\n\n"
+                f"**Özgün blok:**\n\n```\n{blok}\n```\n\n**Hakem bulguları ({len(bulgular)}):**\n\n"
+                + "".join(_bulgu_metni(j, b) for j, b in enumerate(bulgular, 1))
+                + f"\n**Yazacağın bloğun satırları:** başlık ve `@tohum: {r['tohum']}` birebir aynı"
+                + (f", `@degisim: {r['degisim'][0]} -> {r['degisim'][1]}` (tutuyorsan)" if r.get("degisim") else "")
+                + f", ardından `@onarim: {r['sha1']}`, sonra gövde.\n")
+            kayitlar.append({"id": r["tohum"], "deneme": r["deneme"] + 1, "onarim": r["sha1"],
+                             "ebeveyn_kimlik": r["kimlik"], "yeniden_yaz": yeniden, "bulgu": len(bulgular)})
+        metin = f"""# Editör görevi (onarım): {ad}, onarım partisi {parti}
+
+Sen bir çocuk hikâyesi editörüsün. Aşağıdaki {len(dilim)} hikâye hakem kurulundan somut, alıntılı bulgularla
+döndü. Her birinden BİR onarılmış hikâye yaz. Hikâyeler 3-6 yaş çocuklara okunacak ve küçük bir dil modelini
+eğitecek. Onarılmış hikâye YENİ bir adaydır: kod kapılarından ve bu bulguları hiç görmeyen yeni hakemlerden
+baştan geçer; bütün maddelere yeniden bakılır. Yeni kusur ekleme.
+
+## Kurallar
+
+- Çıktı dosyan: `{Y.goreli(Y.v(dosya_rel))}`. YALNIZ bu dosyaya yaz; başka dosya yaratma ya da değiştirme. Commit
+  yalnız bu dosyayı içerir. Hakem puanlarını, ret kayıtlarını, parti dosyalarını ve başka hikâyeleri açma.
+- Kelimeler için `data/sade_sozluk_sik.txt` dosyasını oku (sık kökler; fiiller 'koş-' biçiminde).
+- Her hikâye normal aday biçimindedir; tek fark `@onarim` satırıdır (hikâyeler arasında bir boş satır):
+
+```
+### {ad} | <yer> | <yan ya da ->
+@plan: <sorun> | <çözüm>
+@tohum: <aynı tohum kimliği>
+@degisim: <eski> -> <yeni>      (yalnız özgün blokta varsa ve tutuyorsan)
+@onarim: <özgün bloğun sha1'i; her hikâyede verilir>
+<gövde>
+```
+
+- **Yalnız bulguların gösterdiği yeri düzelt** ve tutarlılık için değişmesi gerekeni (ör. çözüm değiştiyse plan
+  satırı, silinen nesnenin sonraki anılışı). Öteki cümleler olduğu gibi kalır.
+- **Tohumu ve hikâyeyi koru:** figür, yer, yan, tema, açılış, kapanış türü, diyalog, özellik ve tohum kelimeleri
+  (isim, fiil, sıfat) aynı kalır; sorun ve çözüm aynı kalır. Tohum kelimelerinden en çok biri değişebilir ve
+  `@degisim` satırına yazılır (özgün bloktaki değişim sayılır).
+- Gövde 70-100 kelime, her cümle en çok 12 kelime, tek paragraf.
+- Bir bulgu sana yanlış görünse bile o cümleyi daha basit ve açık biçimde yeniden söyle: hakem orada takıldı,
+  okuyan çocuk da takılabilir. İşaretlenen kelimeyi ya da yapıyı tekrarlama.
+- Görevi **YENİDEN YAZ** olan hikâyede (M3: çekirdek önemsiz ya da saçma) hikâyeyi aynı tohumdan baştan yaz:
+  çocuğun önemseyeceği, sebebi ilk 3 cümlede söylenen bir sorun ve figürün 1-2 adımlık çözümü; başlık, tohum
+  kimliği ve `@onarim` satırı yine verilir.
+- Onarılmış metin özgünden farklı olmalıdır (aynı metin aynı kayıttır ve reddedilir).
+- Hepsini yazdıktan sonra koş: `{kontrol}`
+  İşaretlenen hikâyede EN ÇOK 1 yerel düzeltme yap ve kontrolü bir kez daha koş. Yine geçmeyen hikâyenin bütün
+  bloğunu (başlık dahil) dosyadan sil; zorlama. Geçen hikâyeye dokunma (her değişiklik bir yama sayılır).
+
+## Yazım kılavuzu
+
+{kilavuz}
+
+## Kart: {ad} (kaynaklı, kapalı dünya)
+
+{_kart_metni(kart)}
+
+## Onarılacak hikâyeler
+
+""" + "\n".join(parcalar)
+        _yaz(istem_yolu, metin)
+        json_yaz(Y.v("onar", f"{fk}_{parti}.json"), {
+            "figur": ad, "parti": parti, "tur": "onarim", "dosya": dosya_rel,
+            "istem": os.path.relpath(istem_yolu, Y.veri), "tohumlar": kayitlar,
+            "istem_sha256": hashlib.sha256(metin.encode()).hexdigest(), "kilavuz_sha256": sha256_dosya(kilavuz_yolu),
+            "kart_sha1": kart_sha1(kart), "taslak_kart": not kart.get("onayli")})
+        sonuc.append((istem_yolu, kayitlar))
+    return sonuc
+
+
+def cmd_onar_istemi(a):
+    Y = Yollar(a.ad, a.kok)
+    bg = _bg(zemberek=False)
+    figurler = [_olgu(k["ad"]) for k in etkin_kartlar(bg)] if a.hepsi else [a.figur]
+    toplam_dosya = toplam = yeniden = 0
+    for f in figurler:
+        sonuc = onar_istemi(Y, f, a.n, a.taslak_kart, bg)
+        n = sum(len(k) for _, k in sonuc)
+        y = sum(t["yeniden_yaz"] for _, k in sonuc for t in k)
+        toplam_dosya, toplam, yeniden = toplam_dosya + len(sonuc), toplam + n, yeniden + y
+        print(f"{f}: {len(sonuc)} istem, {n} hikâye ({y} yeniden yazım)"
+              + "".join(f"\n   -> {Y.goreli(p)}" for p, _ in sonuc))
+    print(f"toplam: {toplam_dosya} istem, {toplam} hikâye ({yeniden} yeniden yazım)")
+    return 0
+
+
 # ---------------------------------------------------------------- komut satırı
 
 def main(argv=None):
@@ -2502,9 +2826,15 @@ def main(argv=None):
     y.add_argument("--figur", required=True)
     y.add_argument("--n", type=int, default=12)
     y.add_argument("--taslak-kart", action="store_true")
+    on = urun(alt.add_parser("onar-istemi"))
+    g = on.add_mutually_exclusive_group(required=True)
+    g.add_argument("--figur")
+    g.add_argument("--hepsi", action="store_true")
+    on.add_argument("--n", type=int, default=12, help="istem dosyası başına en çok hikâye")
+    on.add_argument("--taslak-kart", action="store_true")
     kn = urun(alt.add_parser("kontrol"), ad=False)
     kn.add_argument("dosya")
-    kn.add_argument("--ad", default="urun_v1")
+    kn.add_argument("--ad", default=None, help="varsayılan: dosyanın data/<ad>/aday/ klasöründen, yoksa urun_v1")
     kn.add_argument("--tohum", default=None, help="ek tohum JSONL")
     kn.add_argument("--taslak-kart", action="store_true")
     kn.add_argument("--json", action="store_true")
@@ -2539,7 +2869,7 @@ def main(argv=None):
         a.parti_boyu = a.parti_boyu or 40
         return hazirla(a)
     return {"ozet": ozet, "duzelt": duzelt, "tekrar": tekrar, "kart-kontrol": cmd_kart_kontrol, "tohum": cmd_tohum,
-            "yaz-istemi": cmd_yaz_istemi, "kontrol": cmd_kontrol, "kapi": cmd_kapi, "oku": cmd_oku,
+            "yaz-istemi": cmd_yaz_istemi, "onar-istemi": cmd_onar_istemi, "kontrol": cmd_kontrol, "kapi": cmd_kapi, "oku": cmd_oku,
             "karar": cmd_karar, "altin": cmd_altin, "uyum": cmd_uyum}[a.komut](a)
 
 
