@@ -1,0 +1,644 @@
+{
+ "parti": 478,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_478.json",
+ "madde_sirasi": [
+  "C6",
+  "K8",
+  "C4",
+  "K1",
+  "K3",
+  "C2",
+  "K2",
+  "C3",
+  "K4",
+  "C1",
+  "K5",
+  "C5",
+  "K6",
+  "K7"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C6, K8, C4, K1, K3, C2, K2, C3, K4, C1, K5, C5, K6, K7 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_478.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "chase",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Chase",
+   "kaynak": [
+    "urun_karari",
+    "pawpatrol_chase"
+   ]
+  },
+  "okunus": {
+   "deger": "çeys",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Paw Patrol",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_paw_tr"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Chase, bir kurtarma ekibinin polis köpeği olan bir çoban köpeği yavrusudur.",
+   "kaynak": [
+    "pawpatrol_chase",
+    "vikipedi_paw_en"
+   ]
+  },
+  "tur": {
+   "deger": "köpek",
+   "kaynak": [
+    "pawpatrol_chase"
+   ],
+   "lemmalar": [
+    "köpek",
+    "yavru"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Burnuyla koku alarak çözüm bulur.",
+    "anahtar_kok": "koku",
+    "anahtar_ifade": "\\bkok(?:u|la)\\w*",
+    "ornek_bicimler": [
+     "koku",
+     "kokladı",
+     "kokusunu"
+    ],
+    "kaynak": [
+     "pawpatrol_chase"
+    ]
+   },
+   {
+    "deger": "Ekibin polis köpeğidir; kurallara uyar.",
+    "anahtar_kok": "kural",
+    "anahtar_ifade": "\\bkural\\w*",
+    "ornek_bicimler": [
+     "kural",
+     "kurallara"
+    ],
+    "kaynak": [
+     "pawpatrol_chase"
+    ]
+   },
+   {
+    "deger": "Mavi bir şapka takar.",
+    "anahtar_kok": "şapka",
+    "anahtar_ifade": "\\bşapka\\w*",
+    "ornek_bicimler": [
+     "şapka",
+     "şapkası"
+    ],
+    "kaynak": [
+     "pawpatrol_chase"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Chase kaybolanı bulur ve küçük sorunları çözer; kimseyi kovalamaz, yakalamaz ya da cezalandırmaz. Kimse yabancıyla bir yere gitmez. 'Tehlike' yerine 'bir sorun var' denir. Kediler ve tüyler yüzünden hapşırması hikayeye konmaz.",
+   "kaynak": [
+    "urun_kurali",
+    "pawpatrol_chase"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "dağ",
+    "tarif": "Kasabanın yakınındaki karlı dağ.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_paw_en",
+     "vikipedi_paw_bolumler_en"
+    ]
+   },
+   {
+    "etiket": "deniz",
+    "tarif": "Kasabanın kıyısı; kumsal ve iskele.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_paw_en",
+     "vikipedi_paw_bolumler_en"
+    ]
+   },
+   {
+    "etiket": "orman",
+    "tarif": "Kasabanın yakınında, ağaçların arasındaki kamp yeri.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_paw_bolumler_en"
+    ],
+    "not": "Yalnız bölüm adları: 'Pups Save the Camping Trip', 'Pups Save the Treetop Trekkers'."
+   },
+   {
+    "etiket": "park",
+    "tarif": "Kasabadaki çocuk oyun parkı.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_paw_en"
+    ]
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Ekibin yüksek kulesi ve köpeklerin kulübeleri.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_paw_en",
+     "pawpatrol_ryder"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:ryder",
+    "kisa_ad": "Ryder",
+    "tip": "adli",
+    "okunus": "raydır",
+    "yuzey_bicimleri": [
+     "Ryder"
+    ],
+    "iliski": {
+     "deger": "On yaşında bir çocuk; ekibin başıdır. Köpeklere bakar ve işe uygun köpeği o seçer.",
+     "kaynak": [
+      "pawpatrol_ryder"
+     ]
+    },
+    "tur": {
+     "deger": "oğlan",
+     "kaynak": [
+      "pawpatrol_ryder"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:marshall",
+    "kisa_ad": "Marshall",
+    "tip": "adli",
+    "okunus": "marşıl",
+    "yuzey_bicimleri": [
+     "Marshall"
+    ],
+    "iliski": {
+     "deger": "Ekibin itfaiyeci köpeği; altı yaşında, benekli bir köpek. Biraz sakardır ama cesur ve yardımseverdir.",
+     "kaynak": [
+      "pawpatrol_marshall"
+     ]
+    },
+    "tur": {
+     "deger": "köpek",
+     "kaynak": [
+      "pawpatrol_marshall"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:skye",
+    "kisa_ad": "Skye",
+    "tip": "adli",
+    "okunus": "skay",
+    "yuzey_bicimleri": [
+     "Skye"
+    ],
+    "iliski": {
+     "deger": "Helikopter kullanan pilot köpek; ekibin en küçüğü, küçük hayvanları çok sever.",
+     "kaynak": [
+      "pawpatrol_skye"
+     ]
+    },
+    "tur": {
+     "deger": "köpek",
+     "kaynak": [
+      "pawpatrol_skye"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:rubble",
+    "kisa_ad": "Rubble",
+    "tip": "adli",
+    "okunus": "rabıl",
+    "yuzey_bicimleri": [
+     "Rubble"
+    ],
+    "iliski": {
+     "deger": "İnşaat köpeği; güçlü, şakacıdır ve yemek yemeyi sever.",
+     "kaynak": [
+      "pawpatrol_rubble"
+     ]
+    },
+    "tur": {
+     "deger": "köpek",
+     "kaynak": [
+      "pawpatrol_rubble"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Chase slogan söylemez; kimse kendi adıyla konuşmaz.",
+    "yasak_duzenli_ifadeler": [
+     "[Gg]örevde\\s*!",
+     "\\bChase\\s+[Gg]örevde"
+    ],
+    "kaynak": [
+     "eski_veri_olcumu",
+     "pawpatrol_chase"
+    ]
+   },
+   {
+    "kural": "Ryder bir çocuktur, köpek değildir.",
+    "yasak_duzenli_ifadeler": [
+     "\\bRyder\\s+(?:adlı|adında)\\s+(?:bir\\s+)?köpe[kğ]",
+     "\\bRyder\\s+bir\\s+köpe[kğ]",
+     "\\bköpek\\s+Ryder\\b"
+    ],
+    "kaynak": [
+     "pawpatrol_ryder"
+    ]
+   },
+   {
+    "kural": "Görevler karışmaz: Chase polis, Marshall itfaiyeci, Skye pilot, Rubble inşaat köpeğidir.",
+    "yasak_duzenli_ifadeler": [
+     "(?:[İi]tfaiyeci|[Pp]ilot)\\s+Chase\\b",
+     "\\bChase\\s*,?\\s+(?:ekibin\\s+)?(?:itfaiyeci|pilot)",
+     "(?:[Pp]olis|[Pp]ilot)\\s+(?:köpeği\\s+)?Marshall\\b",
+     "(?:[Pp]olis|[İi]tfaiyeci)\\s+(?:köpeği\\s+)?Skye\\b"
+    ],
+    "kaynak": [
+     "pawpatrol_chase",
+     "pawpatrol_marshall",
+     "pawpatrol_skye",
+     "pawpatrol_rubble"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Rocky",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Zuma",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Everest",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Tracker",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Goodway",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Chickaletta",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Turbot",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Humdinger",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Robo-Dog",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Jake",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Liberty",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    },
+    {
+     "ad": "Rex",
+     "kaynak": [
+      "vikipedi_paw_en"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Araçların kovalamacası, sirenle hız ve kötü karakterler hikayeye girmez.",
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "polis",
+   "koku",
+   "şapka",
+   "itfaiye",
+   "helikopter",
+   "kule",
+   "kulübe",
+   "iskele"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Ryder",
+    "kart": [
+     "yan:ryder"
+    ]
+   },
+   {
+    "urun": "Marshall",
+    "kart": [
+     "yan:marshall"
+    ]
+   },
+   {
+    "urun": "Skye",
+    "kart": [
+     "yan:skye"
+    ]
+   },
+   {
+    "urun": "Rubble",
+    "kart": [
+     "yan:rubble"
+    ]
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: çağdaş kasaba."
+  },
+  "kararlar": [
+   "Okunuşlar (raydır, marşıl, skay, rabıl) kabul edildi (kullanıcı yetkisiyle karar)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/chase#05035f9aed",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "oyuncak ayakkabı karın içine battı ve kayboldu",
+    "cozum": "burnuyla kokusunu alıp karı kazdı"
+   },
+   "govde": "Karlı dağda yumuşak kar yağıyordu. Chase karda kırmızı bir oyuncak ayakkabıyı havaya atıp yakalıyordu. Ama ayakkabı bir kez uzağa düştü ve karın içine battı. Chase oraya koştu ama ayakkabıyı göremedi. Her yer bembeyazdı. Sonra burnunu yere yaklaştırdı ve oyuncağın kokusunu aldı. Koku küçük bir kar yığınının içinden geliyordu. Chase patileriyle orayı hızlı hızlı kazdı. Kırmızı ayakkabı sonunda göründü ama ters duruyordu. Chase onu patisiyle düzeltti ve ağzına aldı. Chase çok sevindi, çünkü kaybolan oyuncağını bulmuştu.",
+   "ozellik": {
+    "anahtar_kok": "koku",
+    "deger": "Burnuyla koku alarak çözüm bulur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#ad961f094b",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "deniz",
+    "yan": [
+     "Marshall"
+    ]
+   },
+   "plan": {
+    "sorun": "koşarken arkadaşının kalesini yıktı",
+    "cozum": "özür diledi ve şapkasıyla kaleye yeni bir tepe yaptı"
+   },
+   "govde": "Kumsalda Marshall kumdan bir kale yapmıştı. Chase de yıldız işaretli topunu arıyordu. Chase topu görünce hemen koştu ve Marshall'ın kalesine çarptı. Kalenin tepesi yıkıldı ve kuma dağıldı. Marshall üzgün üzgün kaleye baktı. \"Özür dilerim, Marshall,\" dedi Chase. Chase mavi şapkasını ıslak kumla doldurdu. Şapkayı kalenin üstüne ters çevirdi ve yavaşça kaldırdı. Kalenin üstünde yuvarlak yeni bir tepe vardı. \"Kale yine çok güzel oldu!\" dedi Marshall. Chase ile Marshall kaleden biraz uzakta mutlu mutlu top oynadı.",
+   "ozellik": {
+    "anahtar_kok": "şapka",
+    "deger": "Mavi bir şapka takar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#257a6d077b",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "süs olacak kozalak biraz yüksek bir dalda duruyordu",
+    "cozum": "ağaca tırmanmadı, gövdeye tutundu ve kozalağı aldı"
+   },
+   "govde": "Dağda soğuk bir rüzgar esiyordu. Chase yumuşak kardan küçük bir pasta yapmıştı ve tepesine süs arıyordu. Ağaçtaki tek kozalak ise biraz yüksek bir dalda duruyordu. Chase önce ağaca tırmanmak istedi. Ama Chase kurallara uydu ve karlı ağaca çıkmadı, çünkü dallar kaygandı. Chase ön patileriyle ağacın gövdesine tutundu ve arka ayaklarının üstünde durdu. Sonra kozalağı ağzıyla yavaşça kopardı. Onu dikkatlice pastanın tepesine koydu. Kardan pasta artık çok güzel görünüyordu. Chase pastanın etrafında mutlu mutlu dans etti.",
+   "ozellik": {
+    "anahtar_kok": "kural",
+    "deger": "Ekibin polis köpeğidir; kurallara uyar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#e9e88dc21a",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "ev",
+    "yan": [
+     "Ryder"
+    ]
+   },
+   "plan": {
+    "sorun": "sepet kaydı ve elmalar uzun otların arasında kayboldu",
+    "cozum": "tatlı kokuyu kokladı ve elmaları otlarda buldu"
+   },
+   "govde": "Bir sabah Chase kulübesinin önünde oturuyordu. Ryder bütün köpekler için bir sepet elma getirdi. Ama sepet elinden kaydı ve elmalar uzun otların arasına yuvarlandı. Ryder otlara baktı ama hiçbir elma göremedi. \"Çok tuhaf, elmalar nereye gitti?\" diye sordu Ryder. Chase burnunu otlara yaklaştırdı ve dikkatle kokladı. Chase tatlı elma kokusunu izledi ve elmaları otların arasında tek tek buldu. Sonra onları burnuyla Ryder'a doğru yuvarladı. Ryder elmaları sepete koydu ve güldü. \"Teşekkürler, Chase, şimdi herkese birer elma var!\" dedi Ryder.",
+   "ozellik": {
+    "anahtar_kok": "koku",
+    "deger": "Burnuyla koku alarak çözüm bulur."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): köpekler"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#20b12287d5",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "ev",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "yağmur geliyordu ve ince sapı olan çiçek kırılabilirdi",
+    "cozum": "şemsiyesini açıp çiçeğin yanına dikti"
+   },
+   "govde": "Bir sabah Chase kulübesinin önünde küçük bir çiçek yetiştiriyordu. Birden havayı kokladı ve yağmurun yaklaştığını anladı. Çiçeğin sapı çok inceydi ve sert damlalar onu kırabilirdi. Chase hemen içeri koştu ve sarı şemsiyesini getirdi. Şemsiyeyi açtı ve çiçeğin yanında toprağa dikti. Şemsiye çiçeği tamamen kapattı. Biraz sonra yağmur başladı. Damlalar şemsiyenin üstünde tık tık ses çıkardı. Chase kapının önünde sessiz sessiz bekledi. Yağmur dinince şemsiyeyi kaldırdı. Çiçek hiç kırılmamıştı ve dimdik duruyordu. Chase bundan sonra yağmurlu günlerde şemsiyesini hep çiçeğinin yanında tuttu.",
+   "ozellik": {
+    "anahtar_kok": "koku",
+    "deger": "Burnuyla koku alarak çözüm bulur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#40e4f89ac8",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "kabukları ağzıyla taşıyamadı",
+    "cozum": "şapkasını çıkarıp kabukları içine koydu"
+   },
+   "govde": "Kumsalda Chase iskeleye kadar yarışır gibi koştu. Orada kumda karışık renkli, küçük kabuklar gördü. Hepsini toplamak istedi ama ağzına yalnız bir kabuk sığıyordu. Chase kabuklara baktı ve biraz düşündü. Sonra mavi şapkasını çıkardı ve ters çevirip kuma koydu. Kabukları tek tek şapkasının içine yerleştirdi. Pembe, beyaz ve sarı kabuklar şapkayı doldurdu. Chase şapkanın ucunu ağzıyla tuttu ve onu dikkatle kaldırdı. Hiçbir kabuk kuma düşmedi. Chase çok sevindi, çünkü bütün kabukları toplamıştı.",
+   "ozellik": {
+    "anahtar_kok": "şapka",
+    "deger": "Mavi bir şapka takar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#2ae79dd822",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "dağ",
+    "yan": [
+     "Rubble"
+    ]
+   },
+   "plan": {
+    "sorun": "zıplarken kurabiyeleri düşürdü ve kırdı",
+    "cozum": "özür dileyip parçaları beraber yemeyi istedi"
+   },
+   "govde": "Bir sabah Chase karlı dağda sevinçle zıplıyordu. Rubble bir taşın üstüne vanilyalı kurabiyeler koymuştu. Chase zıplarken kuyruğu ince kurabiyeleri taştan düşürdü. Kurabiyeler kırıldı ve parçaları kara yayıldı. Rubble kırık kurabiyelere üzgün üzgün baktı. Ekibin bir kuralı vardı: Bir şeyi kıran özür diler. \"Özür dilerim, Rubble, parçaları beraber yiyelim mi?\" diye sordu Chase. Rubble bir parçayı ağzına attı ve güldü. İki arkadaş parçaları birlikte yedi. Chase çok sevindi, çünkü Rubble ona hiç kızmamıştı.",
+   "ozellik": {
+    "anahtar_kok": "kural",
+    "deger": "Ekibin polis köpeğidir; kurallara uyar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#457c7e6c82",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "park",
+    "yan": [
+     "Skye"
+    ]
+   },
+   "plan": {
+    "sorun": "rüzgar sürpriz kutusunu çalıların arasına düşürdü",
+    "cozum": "burnuyla çilek kokusunu alıp kutuyu buldu"
+   },
+   "govde": "Parkta hafif bir rüzgar esiyordu. Chase, Skye için çilekli bir muffini kutuya koyup saklamıştı. Chase aslında Skye'ın yavrusuydu. Ama rüzgar kutuyu düşürdü ve kutu çalıların arasında kayboldu. Chase çalılara baktı ama kutuyu göremedi. Sonra burnunu yere yaklaştırdı ve tatlı bir çilek kokusu aldı. Büyük bir çalının altına gitti ve kutuyu orada buldu. Birazdan Skye parka geldi. \"Skye, bu senin için!\" dedi Chase. Skye kutuyu açtı ve gülümsedi. \"Çilekli muffin, çok teşekkürler!\" dedi Skye. Chase çok sevindi, çünkü sürprizini tam zamanında bulmuştu.",
+   "ozellik": {
+    "anahtar_kok": "koku",
+    "deger": "Burnuyla koku alarak çözüm bulur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#bd2ddc558c",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "deniz",
+    "yan": [
+     "Rubble"
+    ]
+   },
+   "plan": {
+    "sorun": "arkadaşının kağıt torbası yırtıldı ve fıstıklar kuma döküldü",
+    "cozum": "şapkasını ters çevirip fıstıkları içine topladı"
+   },
+   "govde": "Chase, Rubble ile kumsalda iskeleye doğru yürüyordu. Rubble ince bir kağıt torbada fıstık taşıyordu. Birden torba yırtıldı ve bütün fıstıklar kuma döküldü. Rubble üzgün üzgün baktı, çünkü fıstıkları koyacak bir kabı yoktu. Chase biraz düşündü ve mavi şapkasını başından çıkardı. Şapkayı ters çevirip kumun üstüne koydu. İki arkadaş fıstıkları tek tek topladı ve şapkanın içine doldurdu. Sonunda kumda tek bir fıstık bile kalmadı. Bu yardım Rubble'ı çok rahatlattı. Rubble kuyruğunu salladı ve Chase'in yanağını yaladı. Chase de çok mutluydu, çünkü arkadaşına yardım etmişti.",
+   "ozellik": {
+    "anahtar_kok": "şapka",
+    "deger": "Mavi bir şapka takar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/chase#8b892fe00b",
+   "baslik": {
+    "figur": "Chase",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "bazı kabukların içinde minik canlılar vardı",
+    "cozum": "canlıları bırakıp yalnız boş kabukları topladı"
+   },
+   "govde": "Kumsalda dalgalar yavaş yavaş geliyordu. Chase kumaş örtüsünü yaydı ve hemen yanında renkli kabuklar gördü. Onları toplamak istedi ama bazı kabukların içinde minik canlılar vardı. Kurala göre kumsaldan canlı bir şey almak yasaktı. Chase her kabuğun içine dikkatle baktı. İçinde canlı olanları suyun kenarına yavaşça geri bıraktı. Boş kabukları ıslak, yapışkan kumdan tek tek çıkardı. Sonra kabuklarla örtünün üstünde büyük bir yıldız yaptı. Chase yıldızına bakıp mutlu mutlu kuyruğunu salladı.",
+   "ozellik": {
+    "anahtar_kok": "kural",
+    "deger": "Ekibin polis köpeğidir; kurallara uyar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
