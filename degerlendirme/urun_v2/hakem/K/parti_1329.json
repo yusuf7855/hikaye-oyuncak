@@ -1,0 +1,597 @@
+{
+ "parti": 1329,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1329.json",
+ "madde_sirasi": [
+  "C6",
+  "K7",
+  "C4",
+  "K6",
+  "K3",
+  "C3",
+  "K5",
+  "C2",
+  "C1",
+  "K1",
+  "K4",
+  "K2",
+  "C5",
+  "K8"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C6, K7, C4, K6, K3, C3, K5, C2, C1, K1, K4, K2, C5, K8 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1329.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "masa",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Maşa",
+   "kaynak": [
+    "urun_karari",
+    "mashabear_tr"
+   ]
+  },
+  "okunus": {
+   "deger": "maşa",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Maşa ile Koca Ayı",
+   "kaynak": [
+    "urun_karari",
+    "mashabear_tr"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Maşa, ormanın yakınındaki evinde yaşayan, çok enerjik ve oyun seven küçük bir kızdır.",
+   "kaynak": [
+    "mashabear_tr",
+    "vikipedi_en_masha"
+   ]
+  },
+  "tur": {
+   "deger": "kız",
+   "kaynak": [
+    "vikipedi_en_masha"
+   ],
+   "lemmalar": [
+    "kız",
+    "çocuk"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Çok enerjiktir; her şeyi dener.",
+    "anahtar_kok": "dene",
+    "anahtar_ifade": "\\bdene(?:di|dik|diler|mek|meye|meyi|yince|yip|yelim|rim|r|miş|mişti)\\b|\\bdeniyor\\w*",
+    "ornek_bicimler": [
+     "denedi",
+     "denemek",
+     "deniyordu"
+    ],
+    "kaynak": [
+     "mashabear_tr",
+     "vikipedi_en_masha"
+    ]
+   },
+   {
+    "deger": "Tatlıları ve reçeli çok sever.",
+    "anahtar_kok": "reçel",
+    "anahtar_ifade": "\\breçel\\w*",
+    "ornek_bicimler": [
+     "reçel",
+     "reçeli"
+    ],
+    "kaynak": [
+     "vikipedi_en_masha",
+     "vikipedi_tr_masa"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Maşa'nın denemeleri kimseyi incitmez; kimse düşmez, bir şey kırılıp kimseyi yaralamaz. Yüksek yere çıkmaz, ateşe ve derin suya yaklaşmaz.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "orman",
+    "tarif": "Maşa'nın evinin yakınındaki büyük orman; ağaçlar ve patikalar vardır.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_en_masha",
+     "mashabear_tr"
+    ]
+   },
+   {
+    "etiket": "dağ",
+    "tarif": "Ormanın yanındaki tepe.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_en_masha"
+    ],
+    "not": "Dizide tepe var; 'dağ' adıyla geçen yer bulunamadı."
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Maşa'nın evi ve önündeki bahçe.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_en_masha"
+    ],
+    "kosullu_tarifler": [
+     {
+      "yan": "yan:koca_ayi",
+      "tarif": "Koca Ayı'nın ormandaki ağaç evi ve sebze bahçesi.",
+      "kaynak": [
+       "vikipedi_en_masha",
+       "mashabear_tr"
+      ]
+     }
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:koca_ayi",
+    "kisa_ad": "Koca Ayı",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Koca Ayı",
+     "ayı"
+    ],
+    "iliski": {
+     "deger": "Maşa'nın eski dostu; iyi kalpli ve her işi bilen bir ayı.",
+     "kaynak": [
+      "mashabear_tr",
+      "vikipedi_en_masha"
+     ]
+    },
+    "tur": {
+     "deger": "ayı",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "vikipedi_en_masha"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:kirpi",
+    "kisa_ad": "kirpi",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "kirpi"
+    ],
+    "iliski": {
+     "deger": "Ormanda yaşayan, elmayı seven dost canlısı bir kirpi.",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "tur": {
+     "deger": "kirpi",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "vikipedi_en_masha"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:sincap",
+    "kisa_ad": "sincap",
+    "tip": "isimsiz",
+    "yuzey_bicimleri": [
+     "sincap"
+    ],
+    "iliski": {
+     "deger": "Ormanda küçük bir yuvada yaşayan hızlı sincap; fındık ve meşe palamudu sever.",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "tur": {
+     "deger": "sincap",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "vikipedi_en_masha"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:dasa",
+    "kisa_ad": "Daşa",
+    "tip": "adli",
+    "okunus": "daşa",
+    "yuzey_bicimleri": [
+     "Daşa",
+     "kuzen",
+     "kuzeni"
+    ],
+    "iliski": {
+     "deger": "Maşa'nın şehirde yaşayan kuzeni; düşünceli, ciddi ve akıllı bir kız.",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "tur": {
+     "deger": "kız",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_en_masha"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Koca Ayı, kirpi ve sincap konuşmaz; sesle, hareketle ve yüzüyle anlatır. Yalnız Maşa ve Daşa konuşur.",
+    "yasak_duzenli_ifadeler": [
+     "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Koca\\s+Ayı|[Kk]irpi|[Ss]incap)\\b\\b",
+     "(?:Koca\\s+Ayı|[Kk]irpi|[Ss]incap)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+    ],
+    "kaynak": [
+     "vikipedi_en_masha"
+    ]
+   },
+   {
+    "kural": "Daşa şehirde yaşar; Maşa'yı ziyarete gelir.",
+    "yasak_duzenli_ifadeler": [],
+    "kaynak": [
+     "mashabear_tr"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Rosie",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    {
+     "ad": "Panda",
+     "kaynak": [
+      "mashabear_tr"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Kaplan",
+     "kaynak": [
+      "mashabear_tr"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Ayı Hanım",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    {
+     "ad": "Siyah Ayı",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    {
+     "ad": "Kurnaz Kurt",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    {
+     "ad": "Aptal Kurt",
+     "kaynak": [
+      "mashabear_tr"
+     ]
+    },
+    {
+     "ad": "Penguen",
+     "kaynak": [
+      "mashabear_tr"
+     ],
+     "belirsiz": true
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Kurtlar, sirk gösterisi ve ambulans hikayeye girmez.",
+     "kaynak": [
+      "vikipedi_en_masha",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "reçel",
+   "ayı",
+   "sincap",
+   "kirpi",
+   "patika"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Koca Ayı (Mişka, konuşmaz)",
+    "kart": [
+     "yan:koca_ayi"
+    ],
+    "not": "'Mişka' Rusça özgün sürümdeki ad; Türkçe resmi sitede 'Koca Ayı'. Mişka yüzey biçimine alınmadı."
+   },
+   {
+    "urun": "Kirpi",
+    "kart": [
+     "yan:kirpi"
+    ],
+    "not": "İsimsiz yan (tür adı)."
+   },
+   {
+    "urun": "Sincap",
+    "kart": [
+     "yan:sincap"
+    ],
+    "not": "İsimsiz yan (tür adı)."
+   },
+   {
+    "urun": "Dasha (kuzeni)",
+    "kart": [
+     "yan:dasa"
+    ],
+    "not": "Resmi Türkçe yazım 'Daşa' (mashabear.com/tr-tr)."
+   }
+  ],
+  "k7_izinli": [
+   "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "cagdas",
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: orman evi."
+  },
+  "kararlar": [
+   "Dağ: kaynaktaki tepe olarak kalır (kullanıcı yetkisiyle karar)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/masa#b2d1dbdd7e",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "orman",
+    "yan": [
+     "Daşa"
+    ]
+   },
+   "plan": {
+    "sorun": "yapraklar bitince evin kırmızı çatısı eksik kaldı",
+    "cozum": "kendi yapraklarını paylaştı ve çatıya tek tek koydu"
+   },
+   "govde": "Hava güneşli ve sıcaktı. Maşa ile kuzeni Daşa ormanda yere yapraklardan birer ev yapıyordu. Ama Daşa evinin çatısını bitiremedi, çünkü kırmızı yaprağı kalmamıştı. \"Evimin çatısı eksik kaldı,\" dedi Daşa. Maşa kendi yaprak yığınına baktı. Orada daha bir sürü kırmızı yaprak vardı. \"Bu yaprakları seninle paylaşırım, Daşa,\" dedi Maşa. Maşa yaprakları çatının boş yerine tek tek koymayı denedi. Büyük yapraklar sığmadı ama küçük yapraklar tam oldu. Sonunda Daşa'nın evinin de kırmızı bir çatısı vardı. Daşa sevinçle ellerini çırptı. \"Teşekkürler, Maşa, sen çok yardımsever bir kızsın!\" dedi Daşa.",
+   "ozellik": {
+    "anahtar_kok": "dene",
+    "deger": "Çok enerjiktir; her şeyi dener."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: sürü (sürü)"
+   ]
+  },
+  {
+   "id": "urun/masa#9fec15afd3",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "dağ",
+    "yan": [
+     "Koca Ayı"
+    ]
+   },
+   "plan": {
+    "sorun": "kovadaki fındıklar hep azalıyordu",
+    "cozum": "kovayı seyretti ve küçük bir delik buldu"
+   },
+   "govde": "Tepede serin bir rüzgar esiyordu. Maşa ile Koca Ayı kovaya fındık topluyordu. Dağda hiç yokuş yoktu, her yer düzdü. Ama Maşa'nın kovasında fındıklar hep azalıyordu. Maşa şaşkın bir yüzle kovasına baktı. \"Fındıklarım nereye gidiyor, Koca Ayı?\" diye sordu Maşa. Koca Ayı omuzlarını kaldırdı. Maşa arkasına döndü ve patikada tek tek fındıklar gördü. Sonra biraz yürüdü ve kovasını dikkatle seyretti. Kovanın altındaki küçük bir delikten bir fındık düştü! \"Fındıklar bu delikten düşüyor!\" dedi Maşa. Maşa deliği bir yaprakla kapatmayı denedi. Bu kez hiç fındık düşmedi. Koca Ayı yerdeki fındıkları topladı ve kovaya koydu. Maşa çok sevindi, çünkü kaybolan fındıkları bulmuştu.",
+   "ozellik": {
+    "anahtar_kok": "dene",
+    "deger": "Çok enerjiktir; her şeyi dener."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#9b2c090874",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "orman",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "kamp oyununda karnı acıktı ve uyuyamadı",
+    "cozum": "sepetindeki reçelli ekmeği yiyip yeniden uzandı"
+   },
+   "govde": "Ormanda Maşa kamp oyunu oynuyordu ve biraz uyumak istiyordu. Yastığını ve sepetini büyük bir ağacın altına koydu. Sonra yastığa uzandı ama karnı guruldamaya başladı, çünkü çok acıkmıştı. Bu sesle gözlerini kapatamadı. Maşa oturdu ve sepetini açtı. İçinden reçelli bir ekmek çıkardı. Ekmeği ağacın altında yavaş yavaş yedi. Parmaklarındaki tatlı reçeli de tek tek yaladı. Son lokmada karnının sesi dindi. Maşa yastığını düzeltti ve yeniden uzandı. Şimdi iyi bir kamp uykusuna hazırdı. Gözlerini kapattı ve kuşları dinledi. Maşa çok mutluydu, çünkü kamp oyunu tam istediği gibi olmuştu.",
+   "ozellik": {
+    "anahtar_kok": "reçel",
+    "deger": "Tatlıları ve reçeli çok sever."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): kuşları"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#070620cddd",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "orman",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "rüzgar esti ve resim kağıdı uçtu",
+    "cozum": "kağıdın köşesine reçel kavanozunu koydu"
+   },
+   "govde": "Maşa ormanda resim oyunu oynuyordu ve bir zambak çizmek istiyordu. Kalemlerini ve sepetini beyaz bir zambağın yanına koydu, kağıdını da çimenlere serdi. Ama rüzgar esti ve kağıt havalanıp çalılara doğru uçtu. Maşa koştu ve kağıdı çalının dibinden aldı. Sonra sepetine baktı. Sepette en sevdiği yiyecek, bir kavanoz çilek reçeli vardı. Maşa reçel kavanozunu kağıdın bir köşesine koydu. Artık rüzgar esse de kağıt yerinden kıpırdamadı. Maşa zambağın uzun sapını ve açık yapraklarını dikkatle çizdi. Resim çok güzel oldu ve tıpkı çiçeğe benzedi. Maşa oyununa mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "reçel",
+    "deger": "Tatlıları ve reçeli çok sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#b2371de21c",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "dağ",
+    "yan": [
+     "sincap"
+    ]
+   },
+   "plan": {
+    "sorun": "sofra taşın arkasındaydı ve sincap onu bulamadı",
+    "cozum": "fındıkları yere koyup sincaba yol yaptı"
+   },
+   "govde": "Tepede rüzgar hafif hafif esiyordu. Maşa sincaba bir taşın arkasında sürpriz bir sofra hazırlamıştı. Ama sincap taşın arkasını göremedi ve sofrayı bulamadı. Sincabın karnı yüksek sesle guruldadı. Maşa hemen yeni bir şey denedi. Birkaç fındık aldı ve onları yere tek tek koydu. Fındıklar sincabın önünden taşın arkasına kadar uzandı. Sincap ilk fındığı buldu ve yedi. Sonra öbür fındıkları da yiyerek taşa doğru gitti. Taşın arkasında renkli yapraklarla süslü sofrayı gördü. \"Sürpriz, sincap, bu sofra senin için!\" dedi Maşa. Sincap sevinçle kuyruğunu salladı. Maşa ile sincap sofrada mutlu mutlu yemek yedi.",
+   "ozellik": {
+    "anahtar_kok": "dene",
+    "deger": "Çok enerjiktir; her şeyi dener."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#93bfa0f13c",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "dağ",
+    "yan": [
+     "Koca Ayı"
+    ]
+   },
+   "plan": {
+    "sorun": "kar çok kuruydu ve kar topları dağıldı",
+    "cozum": "tepenin güneşli yanındaki ıslak karı denedi"
+   },
+   "govde": "Bir sabah tepede kalın bir kar vardı. Maşa ile Koca Ayı kardan bir ayı yapmak istedi. Ama kar çok kuruydu ve kar topları hemen dağıldı. Maşa hemen başka bir yer denedi. Tepenin güneşli yanına koştu ve bir avuç kar aldı. Bu kar biraz ıslaktı ve kolayca top oldu. \"Koca Ayı, bu karla büyük toplar yapalım mı?\" diye sordu Maşa. Koca Ayı başını salladı. İkisi birlikte büyük kar topları yuvarladı ve üst üste koydu. Bu kez kardan ayı hiç dağılmadı. Sonra Koca Ayı yerden iki dal aldı ve kardan ayıya kol yaptı. Maşa çok sevindi, çünkü kardan ayıyı sonunda yapabilmişti.",
+   "ozellik": {
+    "anahtar_kok": "dene",
+    "deger": "Çok enerjiktir; her şeyi dener."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#e487471e4b",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "rüzgar esince yapraklar tepside durmuyordu",
+    "cozum": "yaprakları reçelle tepsiye yapıştırdı"
+   },
+   "govde": "Bir sabah Maşa tepede reçelli ekmek yiyordu. Sonra boş tepsiye sarı yapraklarla bir güneş resmi yapmak istedi. Ama rüzgar esince yapraklar tepsiden uçup gidiyordu. Maşa tepsiye baktı ve düşündü. Kavanozda biraz reçel kalmıştı. Maşa parmağıyla tepsiye küçük reçel noktaları koydu. Sonra yakındaki ağacın dibinden yeni yapraklar topladı. Her yaprağı bir noktanın üstüne yapıştırdı. Rüzgar yine esti ama yapraklar hiç kıpırdamadı. Tepside kocaman sarı bir güneş resmi oldu. Maşa parmağında kalan tatlıyı da yaladı ve güldü. Maşa çok mutluydu, çünkü yaprak güneşini sonunda bitirmişti.",
+   "ozellik": {
+    "anahtar_kok": "reçel",
+    "deger": "Tatlıları ve reçeli çok sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#bd3a3c0c06",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "ev",
+    "yan": [
+     "Koca Ayı"
+    ]
+   },
+   "plan": {
+    "sorun": "ağaç evin dışından tık tık diye bir ses geldi",
+    "cozum": "sesi dinleyip pencereden damlayan suyu gördü"
+   },
+   "govde": "Dışarıdan tık tık diye bir ses geliyordu. Maşa, Koca Ayı'nın ağaç evindeydi ve bu sesi çok merak etti. Uykulu Koca Ayı da başını kaldırıp dinledi. Maşa önce kapıyı açıp baktı, ama orada bir şey yoktu. Sonra sesi dinleyerek pencereye doğru yürüdü. Maşa pencereden dışarı baktı. Çatıdaki buzlar eriyordu ve su boş bir kovaya damlıyordu. Her damla kovada tık diye ses çıkarıyordu. Koca Ayı da pencereye geldi ve gülümsedi. \"Koca Ayı, sesi buldum, şimdi birlikte reçel yiyelim!\" dedi Maşa.",
+   "ozellik": {
+    "anahtar_kok": "reçel",
+    "deger": "Tatlıları ve reçeli çok sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#c745fe3269",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "dağ",
+    "yan": [
+     "kirpi"
+    ]
+   },
+   "plan": {
+    "sorun": "kavanozun kapağı kayanın altındaki dar deliğe girdi",
+    "cozum": "kirpiden kapağı getirmesi için yardım istedi"
+   },
+   "govde": "Maşa ile kirpi tepede benekli bir kayanın yanında oturuyordu. Maşa kaşıkla reçel yiyordu, kirpi de elmasını kemiriyordu. Birden kavanozun kapağı yuvarlandı ve kayanın altındaki deliğe girdi. Maşa elini uzattı ama eli dar deliğe sığmadı. Kapak olmazsa kavanoza toz girecekti. Maşa kirpiye döndü. \"Kirpi, sen çok küçüksün, bana yardım eder misin?\" diye sordu Maşa. Kirpi elmasından ayrıldı ve yavaşça deliğe girdi. Burnuyla kapağı itti ve dışarı çıkardı. Maşa kapağı aldı ve kavanozu sıkıca kapattı. \"Çok teşekkürler, kirpi,\" dedi Maşa. Kirpi de mutlu mutlu burnunu oynattı. Maşa bundan sonra eli bir yere sığmayınca hemen yardım istedi.",
+   "ozellik": {
+    "anahtar_kok": "reçel",
+    "deger": "Tatlıları ve reçeli çok sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/masa#a47d158e90",
+   "baslik": {
+    "figur": "Maşa",
+    "yer": "orman",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "zıplarken ayakkabısı yumuşak çamura takıldı",
+    "cozum": "ayağını sağa sola küçük küçük salladı"
+   },
+   "govde": "Bir sabah ormanda yağmur yeni dinmişti. Maşa patikadaki su birikintilerine zıplıyor, sular havaya fışkırıyordu. Ama bir anda Maşa'nın ayakkabısı yumuşak bir çamura takıldı. Maşa ayağını hızla çekti ama ayağı yerinden çıkmadı. Maşa durmadı ve başka bir yol denedi. Ayağını sağa ve sola küçük küçük salladı. Ayakkabı biraz oynayınca Maşa umutlu oldu ve daha çok salladı. Sonunda ayağı ayakkabısıyla birlikte çamurdan çıktı. Maşa çamurlu ayakkabısına baktı ve güldü. Sonra yine su birikintilerine zıpladı ama bu kez çamurdan uzak durdu. Maşa bundan sonra çamurda ayağını çekmedi, yavaşça salladı.",
+   "ozellik": {
+    "anahtar_kok": "dene",
+    "deger": "Çok enerjiktir; her şeyi dener."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
