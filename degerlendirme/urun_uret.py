@@ -126,6 +126,9 @@ def aday_uret(model, tok, ids, seed, temp, suzgec=None, n=230):
 
 
 YER_ANAHTAR = {"dağ": "dag", "şato": "sato"}
+# Ürün adlarının küçük harfli kelimeleri sözlükte yok: figürün kendi adı ("pepee", "niloya") ve kadrosu ("daşa")
+# 'uydurma kelime' sayılmasın (sayılınca seçici figürün adını çok anan hikâyeyi cezalandırıyordu).
+ISIM_KELIME = {w for k in FIGURLER for a in figur_adlari(k) for w in re.findall(r"[a-zçğıöşüâîû]+", sec.kucuk(a))}
 
 
 def yanlis_isimler(metin, kimlik):
@@ -162,7 +165,7 @@ def puanla(a, kimlik, yer):
             c.append((2, "çok kısa"))
         kelimeler = re.findall(r"[a-zçğıöşüâîû]+", sec.kucuk(metin))
         if sec.SOZLUK is not None:
-            bilinmeyen = [w for w in kelimeler if w not in sec.SOZLUK]
+            bilinmeyen = [w for w in kelimeler if w not in sec.SOZLUK and w not in ISIM_KELIME]
             if bilinmeyen:
                 c.append((1.5 * len(bilinmeyen), f"uydurma kelime {bilinmeyen[:4]}"))
         uclu = [tuple(kelimeler[i:i + 3]) for i in range(len(kelimeler) - 2)]

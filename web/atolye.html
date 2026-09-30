@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Hikâye Atölyesi</title>
 <meta name="description" content="Hikâye oyuncağının model sürümlerini tarayıcıda çalıştırıp dinlemek, karşılaştırmak ve puanlamak için.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -242,13 +243,19 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
       </div>
 
       <div class="kume">
-        <h2>Figürler <span style="text-transform:none;letter-spacing:0;font-weight:500">(en fazla 2)</span></h2>
+        <h2>Figürler <span id="figur-not" style="text-transform:none;letter-spacing:0;font-weight:500">(en fazla 2)</span></h2>
         <div class="figurler" id="figurler"></div>
       </div>
 
       <div class="kume">
         <h2>Yer kartı</h2>
         <div class="yerler" id="yerler"></div>
+      </div>
+
+      <div class="kume" id="yan-kutu" hidden>
+        <h2>Yan karakter</h2>
+        <div class="yerler" id="yanlar"></div>
+        <p class="ipucu">Yer ve yan karakter figürün kartından seçilir. Varsayılan “yansız”: istemde Yan alanı olmayınca hikâyeler ölçümde daha iyi çıktı (41 vaka, 4 aday: kural cezası −4.9’a karşı −6.9). “Rastgele” seed'e bağlıdır; aynı seed aynı seçimi verir.</p>
       </div>
 
       <div class="kume" id="tema-kutu" hidden>
@@ -351,6 +358,55 @@ nav.sekmeler .nokta.durdu { background: var(--soluk); }
 
   <footer>Rubrik (degerlendirme/RUBRIK.md): 10 = kusursuz; figür yanlış −4, karakter karışık −3, mantıksız olay −2, uydurma kelime −1. Puan verirken kısa bir not, bir sonraki eğitimde neyin düzeltileceğini gösterir.</footer>
 </div>
+
+<script id="suzgec-kodu" type="text/plain">
+// ---- isim süzgeci: runtime/isim_suzgec.h'nin birebir JS karşılığı (işçide ve sayfada aynı kod) ----
+// Seçilmeyen figürlerin adları tokenizer'da çok parçaya bölünür (" Olaf" = " O" + "laf"); karar metnin baytları
+// üzerinde verilir: son SUZGEC_KUYRUK bayt + aday token'ın baytlarında yasaklı bir ad kelime başında tamamlanıyorsa
+// aday reddedilir, örnekleyici logit'ini -1e30 yapıp yeniden seçer (ornekle.h orn_adim, en fazla SUZGEC_DENEME kez).
+// Sonu '$' olan ad yalnız ardından harf olmayan bir bayt gelince reddedilir ("Tim$": "Timsah" serbest).
+const SUZGEC_KUYRUK = 48, SUZGEC_DENEME = 64;
+// tokBayt: bütün token'ların baytları art arda; tokOff[i]..tokOff[i+1] token i'nin baytları. adlar: UTF-8 dizgiler.
+function suzgecKur(tokBayt, tokOff, adlar) {
+  const enc = new TextEncoder();
+  return { tokBayt, tokOff, V: tokOff.length - 1, ad: adlar.map(a => enc.encode(a)),
+           kuyruk: new Uint8Array(SUZGEC_KUYRUK), n: 0, bas: 1 };
+}
+// ASCII harf/rakam ya da UTF-8 çok baytlı harfin baytı; 0xE2 ile başlayan noktalama (’ “ ” –) harf değil
+function suzgecHarf(c) { return (c >= 97 && c <= 122) || (c >= 65 && c <= 90) || (c >= 48 && c <= 57) || (c >= 0x80 && c !== 0xE2); }
+// b[i]'den önceki karakter harf mi: devam baytlarından karakterin baş baytına geri gidilir
+function suzgecOnceHarf(b, i) { let j = i - 1; while (j > 0 && (b[j] & 0xC0) === 0x80) j--; return suzgecHarf(b[j]); }
+function suzgecEkle(s, tok) {
+  if (tok < 0 || tok >= s.V) return;
+  for (let i = s.tokOff[tok]; i < s.tokOff[tok + 1]; i++) {
+    if (s.n === SUZGEC_KUYRUK) { s.kuyruk.copyWithin(0, 1); s.n--; s.bas = 0; }
+    s.kuyruk[s.n++] = s.tokBayt[i];
+  }
+}
+function suzgecUygun(s, tok) {
+  if (tok < 0 || tok >= s.V || s.ad.length === 0) return true;
+  const b0 = s.tokOff[tok]; let u = s.tokOff[tok + 1] - b0;
+  if (u === 0) return true;
+  if (u > 64) u = 64;
+  const L = s.n + u, tam = new Uint8Array(L);
+  tam.set(s.kuyruk.subarray(0, s.n)); tam.set(s.tokBayt.subarray(b0, b0 + u), s.n);
+  for (const ad of s.ad) {
+    let al = ad.length; const son = al > 0 && ad[al - 1] === 36 ? 1 : 0;  // '$'
+    if (son) al--;
+    if (al === 0 || al + son > L) continue;
+    let p0 = s.n - al + 1; if (p0 < 0) p0 = 0;           // adın bitişi yeni baytların içinde olmalı
+    if (son) { p0 = s.n - al; if (p0 < 0) p0 = 0; }       // '$': bitişten sonraki bayt yeni baytlarda
+    for (let p = p0; p + al + son <= L; p++) {
+      let esit = true;
+      for (let i = 0; i < al; i++) if (tam[p + i] !== ad[i]) { esit = false; break; }
+      if (!esit) continue;
+      if (son && suzgecHarf(tam[p + al])) continue;
+      if (p === 0 ? s.bas : !suzgecOnceHarf(tam, p)) return false;
+    }
+  }
+  return true;
+}
+</script>
 
 <script id="motor-kodu" type="text/plain">
 // ---- Web Worker: runtime/llm.h'nin JS karşılığı + gen.c örneklemesi ----
@@ -532,9 +588,12 @@ function uret(is) {
   // "govde" ise boş, değilse istem), govde_yasak (satır sonları) yalnızca gövdede; gövdeye varılamazsa plan_bozuk.
   const planModu = !!is.plan_modu, nl = is.nl ?? 199, govdeYasak = is.govde_yasak || [];
   const V = M.c.Vout, S = M.c.S, rnd = rastgele(seed), recent = [];
+  // isim süzgeci (gen.c -Y): istem token'ları da kuyruğa girer; reddedilen aday yasaklanıp yeniden seçilir
+  const suz = is.suzgec ? suzgecKur(is.suzgec.bayt, is.suzgec.off, is.suzgec.adlar) : null;
+  let red = 0;
   let pos = 0;
   // pencere "govde": başlık (figür/tema kelimeleri) tekrar cezasına girmez; hikâye onları tekrar etmeli (gen.c -P)
-  for (const t of prompt) { if (pencere !== "govde") recent.push(t); ileri(t, pos++); }
+  for (const t of prompt) { if (pencere !== "govde") recent.push(t); if (suz) suzgecEkle(suz, t); ileri(t, pos++); }
   const ids = [], lps = [], plan = [], planLps = [];
   let bitti = false, govde = !planModu, oncekiNl = false, planBozuk = false;
   const t0 = performance.now();
@@ -546,7 +605,12 @@ function uret(is) {
     }
     for (const b of ban) if (b >= 0 && b < V) lg[b] = -1e30;
     if (govde) for (const b of govdeYasak) if (b >= 0 && b < V) lg[b] = -1e30;
-    const tok = sec(lg, V, temp, Math.max(1, topk), rnd);
+    let tok = sec(lg, V, temp, Math.max(1, topk), rnd);
+    if (suz) for (let deneme = 0; deneme < SUZGEC_DENEME && !suzgecUygun(suz, tok); deneme++) {
+      lg[tok] = -1e30; red++;
+      tok = sec(lg, V, temp, Math.max(1, topk), rnd);
+    }
+    if (suz) suzgecEkle(suz, tok);
     let mx = -Infinity; for (let v = 0; v < V; v++) if (lg[v] > mx) mx = lg[v];
     let z = 0; for (let v = 0; v < V; v++) z += Math.exp(lg[v] - mx);
     const lp = lg[tok] - mx - Math.log(z);
@@ -566,7 +630,7 @@ function uret(is) {
   const sn = (performance.now() - t0) / 1000;
   // plan modunda ids/lps yalnızca gövde; plan (nl nl dahil) ayrı gelir
   postMessage({ tip: "bitti", is: is.no, ids, lps, bitti, hiz: (ids.length + plan.length) / Math.max(sn, 1e-3),
-                plan, plan_lps: planLps, plan_bozuk: planBozuk });
+                plan, plan_lps: planLps, plan_bozuk: planBozuk, suzgec_red: red });
 }
 onmessage = (e) => {
   const d = e.data;
@@ -580,7 +644,8 @@ onmessage = (e) => {
 <!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
 <script id="surumler" type="application/json">
 [
- {"id": "c2ft_plan", "ad": "v4 · önce plan (E3)", "tarih": "24 Eylül 2026", "yeni": true, "baslik": "plan", "degisiklik": ["v3'ün aynısı; tek fark: model hikâyeden önce iki satırlık kendi planını yazıyor (Sorun: … / Çözüm: …), sonra hikâyeyi o plana göre anlatıyor.", "Plan hikâyenin üstünde gri satırda görünür; sesli okuma yalnızca hikâyeyi okur.", "Hakemler: şu ana kadarki en iyi model (4.89/10; sonda çözülen sorun %76). v3'e karşı 36 vakanın 21'inde tercih edildi — fark henüz kesin değil.", "v3 ile “Karşılaştır”dan aynı figür, yer ve seed'le yan yana dinleyebilirsiniz."], "olcum": {"hakem": "4.89/10", "sorun var / çözülüyor / olaylar bağlı": "%90 / %76 / %78", "plan uyumu": "%86"}},
+ {"id": "c3ft_urun740", "ad": "v5 · çizgi film figürleri", "tarih": "30 Eylül 2026", "yeni": true, "baslik": "urun", "urun": true, "degisiklik": ["Ürün modeli: hayvan oyuncaklar yerine 11 çizgi film figürü (Niloya, Maşa, Pepee, Keloğlan, Doru, Hayri, Şakir, Elsa, Chase, Örümcek Adam, Hello Kitty).", "Yalnızca hakemlerden geçmiş 740 hikâyeyle ince ayar; model önce planını (Sorun / Çözüm), sonra hikâyeyi yazıyor.", "Çocuk tek bir figür seçer; yer figürün kartındaki yerlerden seçilir (rastgele ya da elle). Yan karakter isteğe bağlı, varsayılan kapalı: istemde Yan alanı ölçümde puanı düşürdü.", "İsim süzgeci: başka figürlerin ve onların yan karakterlerinin adları, tokenizer'da birkaç parçaya bölünseler de yazılamıyor (kartla aynı süzgeç).", "4 aday üretilir; seçici (kural cezaları + model güveni) en iyisini gösterir."]},
+ {"id": "c2ft_plan", "ad": "v4 · önce plan (E3)", "tarih": "24 Eylül 2026", "baslik": "plan", "degisiklik": ["v3'ün aynısı; tek fark: model hikâyeden önce iki satırlık kendi planını yazıyor (Sorun: … / Çözüm: …), sonra hikâyeyi o plana göre anlatıyor.", "Plan hikâyenin üstünde gri satırda görünür; sesli okuma yalnızca hikâyeyi okur.", "Hakemler: şu ana kadarki en iyi model (4.89/10; sonda çözülen sorun %76). v3'e karşı 36 vakanın 21'inde tercih edildi — fark henüz kesin değil.", "v3 ile “Karşılaştır”dan aynı figür, yer ve seed'le yan yana dinleyebilirsiniz."], "olcum": {"hakem": "4.89/10", "sorun var / çözülüyor / olaylar bağlı": "%90 / %76 / %78", "plan uyumu": "%86"}},
  {"id": "c2ft", "ad": "v3 · tam model (R)", "tarih": "24 Eylül 2026", "baslik": "eski", "degisiklik": ["Ön-eğitimin tamamı (24 000 adım) üzerine oyuncak hikâyeleriyle 3000 adım ince ayar. Yeni temel sürüm.", "Doğrulama hikâyelerinin isim değiştirilmiş kopyaları (124 hikâye) eğitimden çıkarıldı; ölçüm daha dürüst.", "Temasız başlık, satır sonu yasağı, metin sonu öneki (E0 kararları).", "Hakemler: olay örgüsü belirgin daha iyi (sonda çözülen sorun %62 → %71, bağlı olaylar %71 → %82); toplam puan v1 ile benzer (4.58 / 4.74).", "Seçici artık çocuğa uygun olmayan içeriği (yaralanma, boğulma, derin su, tehlike) eliyor."], "olcum": {"hakem": "4.58/10", "sorun var / çözülüyor / olaylar bağlı": "%88 / %71 / %82"}},
  {"id": "c2ara", "ad": "v1 · önizleme", "tarih": "24 Eylül 2026", "baslik": "eski", "degisiklik": ["Figürleri tanıyan ilk sürüm: ön-eğitimin 6000. adımından (tamamın dörtte biri) oyuncak hikâyeleriyle 1500 adım ince ayar.", "Başlıkta tema yok. Hakem puanı 4.86/10 (36 vaka, 2 hakem); en sık kusur mantıksız olay.", "E0'da benimsenen ayarlarla çalışıyor: satır sonu yasak, istem metin sonu işaretiyle başlıyor."], "olcum": {"hakem (yeni ayarlarla)": "4.74/10", "sorun var / çözülüyor / olaylar bağlı": "%83 / %62 / %71"}}
 ]
@@ -694,10 +759,10 @@ function planCezasi(plan) {
   const m = /^Sorun:[ \t]*([^\n]*?)\s*\nÇözüm:[ \t]*([^\n]*?)\s*$/u.exec(plan);
   return m && m[1] && m[2] ? [] : [[2, "plan bozuk"]];
 }
-function olayCezalari(metin, isimler, plan) {
+function olayCezalari(metin, isimler, plan, tum = null) {
   const c = [], km = kucuk(metin);
   const cumleler = metin.split(/(?<=[.!?])\s+/u).filter(s => s.trim());
-  const TUM = new Set(KATALOG.karakterler.map(k => k.isim));
+  const TUM = tum || new Set(KATALOG.karakterler.map(k => k.isim));  // ürün: sec.TUM_ISIM yerine ürün adları
   for (const n of isimler) {
     const N = kac(n);
     if (say(new RegExp(`${B}${N} adında`, "gu"), metin) > 1) c.push([3, `${n} iki kez tanıtılıyor`]);
@@ -750,6 +815,40 @@ function puanla(metin, kim, yer, ortLogp, bitti, plan) {
   return { puan: -liste.reduce((a, [p]) => a + p, 0) + 2 * ortLogp, liste };
 }
 
+// ---- ürün seçicisi: degerlendirme/urun_uret.py puanla()'nın JS karşılığı ----
+// a: {metin, plan, bitti, ort, plan_bozuk}; fig: meta.urun.figurler öğesi; yer: kart etiketi ("dağ"); U: meta.urun
+function urunYanlisIsimler(metin, fig) {  // urun_uret.yanlis_isimler: kadro dışı ad, önünde harf yok, ardında küçük harf yok
+  return fig.yasak.map(a => a.replace(/\$$/, "")).filter(a =>
+    new RegExp(`(?<![\\p{L}\\p{N}_])${kac(a)}(?![a-zçğıöşüâîû])`, "u").test(metin)).sort();
+}
+function urunPuanla(a, fig, yer, U) {
+  if (a.plan_bozuk || !a.metin) return { puan: -99, liste: [[99, "gövde yok"]] };
+  const metin = a.metin, ad = fig.ad, A = `${B}${kac(ad)}${E}`, c = [];
+  if (say(new RegExp(A, "gu"), metin) < 2) c.push([3, `${ad} hikâyede yeterince yok`]);
+  if (!new RegExp(A, "u").test(metin.slice(Math.floor(metin.length * 0.6)))) c.push([3, `${ad} sonda yok`]);
+  if (new RegExp(`${A}\\s+(?:ve|ile)\\s+${A}`, "u").test(metin)) c.push([3, `'${ad} ve ${ad}'`]);
+  const yanlis = urunYanlisIsimler(metin, fig);
+  if (yanlis.length) c.push([2, `yanlış isim: ${yanlis.join(", ")}`]);
+  const cumleler = metin.split(/(?<=[.!?])\s+/u).map(x => x.trim()).filter(Boolean);
+  if (cumleler.length !== new Set(cumleler).size) c.push([1, "tekrarlanan cümle"]);
+  if (!/[.!"”]$/u.test(metin.trimEnd()) || !a.bitti) c.push([2, "yarım son"]);
+  if (metin.split(/\s+/).filter(Boolean).length < 50) c.push([2, "çok kısa"]);
+  const kelimeler = kucuk(metin).match(/[a-zçğıöşüâîû]+/gu) || [];
+  if (SOZLUK) {  // ürün adlarının kelimeleri (pepee, niloya, daşa) uydurma sayılmaz: urun_uret.ISIM_KELIME
+    const isimKelime = new Set(U.tum_isim.flatMap(n => kucuk(n).match(/[a-zçğıöşüâîû]+/gu) || []));
+    const bil = kelimeler.filter(w => !SOZLUK.has(w) && !isimKelime.has(w));
+    if (bil.length) c.push([1.5 * bil.length, `uydurma kelime: ${bil.slice(0, 4).join(", ")}`]);
+  }
+  const uclu = kelimeler.slice(0, -2).map((w, i) => w + " " + kelimeler[i + 1] + " " + kelimeler[i + 2]);
+  const tekrar = uclu.length - new Set(uclu).size;
+  if (tekrar > 2) c.push([0.5 * (tekrar - 2), `tekrar eden ifade ×${tekrar}`]);
+  c.push(...olayCezalari(metin, [ad], a.plan, new Set(U.tum_isim)));
+  const y = (U.yer_anahtar || {})[yer] || yer;
+  if (YER_KELIME[y] && yerCezasi(metin, y).length) c.push([1.5, "yer tutmuyor"]);
+  c.push(...guvenlikCezasi(metin));
+  return { puan: -c.reduce((t, [p]) => t + p, 0) + 2 * a.ort, liste: c };
+}
+
 // ---- token çözme (GPT-2 byte-level) ----
 const BAYT = (() => {
   const bs = []; for (let i = 33; i < 127; i++) bs.push(i); for (let i = 161; i < 173; i++) bs.push(i); for (let i = 174; i < 256; i++) bs.push(i);
@@ -757,6 +856,15 @@ const BAYT = (() => {
   for (let b = 0; b < 256; b++) if (!bs.includes(b)) { bs.push(b); cs.push(256 + n); n++; }
   const m = new Map(); cs.forEach((c, i) => m.set(String.fromCodePoint(c), bs[i])); return m;
 })();
+// isim süzgeci için token baytları (urun_uret.suzgec_dosyasi gibi: haritada olmayan karakter atlanır)
+function tokBaytlari(vocab) {
+  const parca = vocab.map(s => [...(s || "")].map(ch => BAYT.get(ch)).filter(b => b !== undefined));
+  const off = new Int32Array(vocab.length + 1);
+  parca.forEach((p, i) => { off[i + 1] = off[i] + p.length; });
+  const bayt = new Uint8Array(off[vocab.length]);
+  parca.forEach((p, i) => bayt.set(p, off[i]));
+  return { bayt, off };
+}
 function cozucu(vocab) {
   const bayt = vocab.map(s => Uint8Array.from([...(s || "")].map(ch => BAYT.get(ch) ?? 63)));
   const td = new TextDecoder("utf-8");
@@ -769,7 +877,9 @@ function cozucu(vocab) {
 }
 
 // ---- model yükleme ve işçiler ----
-const MOTOR = URL.createObjectURL(new Blob([document.getElementById("motor-kodu").textContent], { type: "text/javascript" }));
+const MOTOR = URL.createObjectURL(new Blob([document.getElementById("suzgec-kodu").textContent, document.getElementById("motor-kodu").textContent], { type: "text/javascript" }));
+// süzgeç işlevleri sayfada da (birim denetimi: tests/test_atolye_suzgec.py aynı kodu node'da koşar)
+new Function(document.getElementById("suzgec-kodu").textContent + "; Object.assign(self, { suzgecKur, suzgecUygun, suzgecEkle });")();
 const surumler = new Map(); // id -> {meta, coz, isci, hazir: Promise}
 // model.b64.txt = base64(gzip(model.bin)): yayın yeri ikili dosya sunmadığı için metin olarak taşınır
 async function modelAc(b64) {
@@ -777,15 +887,25 @@ async function modelAc(b64) {
   for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
   return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
 }
+const metalar = new Map(); // id -> Promise<meta>
+function metaYukle(id) {
+  if (!metalar.has(id)) {
+    const p = fetch(`m/${id}/meta.json`).then(r => { if (!r.ok) throw new Error(`meta.json bulunamadı (${r.status})`); return r.json(); });
+    p.catch(() => metalar.delete(id));
+    metalar.set(id, p);
+  }
+  return metalar.get(id);
+}
 function surumYukle(id) {
   if (surumler.has(id)) return surumler.get(id).hazir;
   const kayit = {};
   kayit.hazir = (async () => {
     const [meta, buf] = await Promise.all([
-      fetch(`m/${id}/meta.json`).then(r => { if (!r.ok) throw new Error(`meta.json bulunamadı (${r.status})`); return r.json(); }),
+      metaYukle(id),
       fetch(`m/${id}/model.b64.txt`).then(r => { if (!r.ok) throw new Error(`model bulunamadı (${r.status})`); return r.text(); }).then(modelAc),
     ]);
     kayit.meta = meta; kayit.coz = cozucu(meta.vocab);
+    if (meta.urun) kayit.tokBayt = tokBaytlari(meta.vocab);
     YABANCI = meta.yabanci || YABANCI;
     kayit.buf = buf;
     await isciKur(kayit);
@@ -823,16 +943,39 @@ function uretBir(kayit, is, onToken) {
 const durum = {
   secili: saklaOku("secili", ["tavsan"]),
   yer: saklaOku("yer", "orman"),
+  // ürün modu: tek figür (kimlik), yer (kart etiketi ya da "rastgele"), yan (kisa_ad, "rastgele" ya da "yok")
+  urunFigur: saklaOku("urun-figur", "niloya"),
+  urunYer: saklaOku("urun-yer", "rastgele"),
+  urunYan: saklaOku("urun-yan", "yok"),  // varsayılan yansız: ölçümde Yan'lı istem seçici puanını düşürdü
   calisiyor: false,
   iptal: false,
   sonuclar: [],
 };
 
 // ---- arayüz: sürümler ----
-function surumSecenekleri(sel, secilen) {
+const urunMu = (id) => !!SURUMLER.find(s => s.id === id)?.urun;
+const modu = () => urunMu($("#surum").value) ? "urun" : "eski";
+function surumSecenekleri(sel, secilen, suz = () => true) {
   sel.innerHTML = "";
-  for (const s of SURUMLER) sel.append(el("option", { value: s.id, text: `${s.ad}${s.yeni ? " · en yeni" : ""}` }));
-  if (secilen && SURUMLER.some(s => s.id === secilen)) sel.value = secilen;
+  for (const s of SURUMLER.filter(suz)) sel.append(el("option", { value: s.id, text: `${s.ad}${s.yeni ? " · en yeni" : ""}` }));
+  if (secilen && [...sel.options].some(o => o.value === secilen)) sel.value = secilen;
+}
+// Karşılaştırma yalnız aynı katalogdaki sürümler arasında (ürün figürleri eski modellerde yok)
+function surum2Kur() {
+  const u = urunMu($("#surum").value), bir = $("#surum").value;
+  surumSecenekleri($("#surum2"), saklaOku("surum2", null), s => !!s.urun === u && s.id !== bir);
+  const var_ = $("#surum2").options.length > 0;
+  $("#karsilastir").closest("label").hidden = !var_;
+  if (!var_) { $("#karsilastir").checked = false; $("#surum2-kutu").hidden = true; }
+}
+let sonMod = null;
+function modDegisti() {
+  const m = modu();
+  if (m !== sonMod) { sonMod = m; ayarlariYukle(); }
+  $("#figur-not").textContent = m === "urun" ? "(bir tane)" : "(en fazla 2)";
+  $("#yan-kutu").hidden = m !== "urun";
+  if (m === "urun") { $("#anlat").disabled = durum.calisiyor; urunCiz("fyn"); }
+  else { figurleriCiz(); yerleriCiz(); }
 }
 function surumNotu() {
   const s = SURUMLER.find(x => x.id === $("#surum").value), kutu = $("#surum-not");
@@ -844,10 +987,10 @@ function surumNotu() {
 }
 function surumleriKur() {
   surumSecenekleri($("#surum"), saklaOku("surum", SURUMLER[0]?.id));
-  surumSecenekleri($("#surum2"), saklaOku("surum2", SURUMLER[1]?.id || SURUMLER[0]?.id));
+  surum2Kur();
   surumNotu();
 }
-$("#surum").addEventListener("change", () => { saklaYaz("surum", $("#surum").value); surumNotu(); temaKutusu(); });
+$("#surum").addEventListener("change", () => { saklaYaz("surum", $("#surum").value); surumNotu(); surum2Kur(); temaKutusu(); modDegisti(); });
 $("#surum2").addEventListener("change", () => { saklaYaz("surum2", $("#surum2").value); temaKutusu(); });
 $("#karsilastir").addEventListener("change", () => { $("#surum2-kutu").hidden = !$("#karsilastir").checked; temaKutusu(); });
 
@@ -891,7 +1034,51 @@ function destedenCek(kim, yer) {
 }
 
 // ---- arayüz: figürler ve yer ----
+const URUN_EMOJI = { niloya: "👧", masa: "🐻", pepee: "👦", keloglan: "🧒", doru: "🐴", hayri: "🧢", sakir: "🐱",
+  elsa: "❄️", chase: "🐕", orumcek_adam: "🕷️", hello_kitty: "🎀" };
+const YER_EMOJI = { orman: "🌲", deniz: "🌊", ev: "🏡", park: "🌳", "şato": "🏰", "dağ": "⛰️" };
+const URUN_AD = {};  // kimlik -> ad (karne için)
+const urunCizim = {};  // parça ("f", "y", "n", "fyn"…) başına son çizim: geç gelen eski meta yenisini ezmesin
+// Ürün meta'sı (figür kartları) seçili sürümden; figür yoksa çizim meta gelince tekrarlanır
+function urunMeta() { return metaYukle($("#surum").value); }
+function urunFigurBul(U) { return U.figurler.find(f => f.kimlik === durum.urunFigur) || U.figurler[0]; }
+async function urunCiz(ne) {
+  const no = urunCizim[ne] = (urunCizim[ne] || 0) + 1;
+  let meta;
+  try { meta = await urunMeta(); } catch (e) { $("#figurler").textContent = `Figürler yüklenemedi: ${e.message}`; return; }
+  if (no !== urunCizim[ne] || modu() !== "urun") return;
+  const U = meta.urun;
+  if (!U) { $("#figurler").textContent = "Bu sürümün paketi ürün figürlerini taşımıyor (paketle.py --urun)."; return; }
+  U.figurler.forEach(f => { URUN_AD[f.kimlik] = f.ad; });
+  const fig = urunFigurBul(U);
+  if (ne.includes("f")) {
+    const kutu = $("#figurler"); kutu.innerHTML = "";
+    for (const f of U.figurler) kutu.append(el("button", {
+      class: "jeton", "aria-pressed": String(f === fig), "data-sira": "", "aria-label": `${f.ad}, ${f.tur}`,
+      onclick: () => { durum.urunFigur = f.kimlik; saklaYaz("urun-figur", f.kimlik); urunCiz("fyn"); },
+    }, el("span", { class: "em", text: URUN_EMOJI[f.kimlik] || "⭐" }), el("span", { class: "ad", text: f.ad }), el("span", { class: "tur", text: f.tur })));
+  }
+  if (ne.includes("y")) {
+    const kutu = $("#yerler"); kutu.innerHTML = "";
+    if (durum.urunYer !== "rastgele" && !fig.yerler.includes(durum.urunYer)) durum.urunYer = "rastgele";
+    for (const y of [...fig.yerler, "rastgele"]) kutu.append(el("button", {
+      class: "kart", "aria-pressed": String(durum.urunYer === y),
+      onclick: () => { durum.urunYer = y; saklaYaz("urun-yer", y); urunCiz("y"); },
+    }, `${y === "rastgele" ? "🎲" : YER_EMOJI[y] || "📍"} ${y}`));
+  }
+  if (ne.includes("n")) {
+    const kutu = $("#yanlar"); kutu.innerHTML = "";
+    if (!["rastgele", "yok"].includes(durum.urunYan) && !fig.yanlar.includes(durum.urunYan)) durum.urunYan = "yok";
+    for (const y of ["yok", "rastgele", ...fig.yanlar]) kutu.append(el("button", {
+      class: "kart", "aria-pressed": String(durum.urunYan === y),
+      onclick: () => { durum.urunYan = y; saklaYaz("urun-yan", y); urunCiz("n"); },
+    }, y === "rastgele" ? "🎲 rastgele" : y === "yok" ? "— yansız" : y));
+  }
+  $("#anlat").disabled = durum.calisiyor;
+}
+function yanlariCiz() { if (modu() === "urun") urunCiz("n"); }
 function figurleriCiz() {
+  if (modu() === "urun") { $("#anlat").disabled = durum.calisiyor; return urunCiz("f"); }
   const kutu = $("#figurler"); kutu.innerHTML = "";
   for (const k of KATALOG.karakterler) {
     const i = durum.secili.indexOf(k.kimlik);
@@ -909,6 +1096,7 @@ function figurleriCiz() {
   $("#anlat").disabled = durum.calisiyor || durum.secili.length === 0;
 }
 function yerleriCiz() {
+  if (modu() === "urun") return urunCiz("y");
   const kutu = $("#yerler"); kutu.innerHTML = "";
   for (const y of [...KATALOG.yerler, { kimlik: "rastgele", ad: "rastgele", emoji: "🎲" }]) {
     kutu.append(el("button", {
@@ -920,12 +1108,19 @@ function yerleriCiz() {
 
 // ---- ayarlar ----
 const AYAR = ["temp", "rep", "topk", "aday", "uzunluk"];
+// ürün modu (urun_uret.py): 4 aday, 230 token; eski sürümlerin ayarlarını bozmamak için ayrı anahtarlarla saklanır
+const URUN_VARSAYILAN = { aday: 4, uzunluk: 230 };
+const ESKI_VARSAYILAN = Object.fromEntries(AYAR.map(a => [a, $(`#${a}`).value]));
+const ayarAnahtari = (a) => `ayar-${a}` + (modu() === "urun" && a in URUN_VARSAYILAN ? "-urun" : "");
 function ayarGoster() { for (const a of AYAR) $(`#${a}-d`).textContent = $(`#${a}`).value; }
-for (const a of AYAR) {
-  const v = saklaOku(`ayar-${a}`, null); if (v != null) $(`#${a}`).value = v;
-  $(`#${a}`).addEventListener("input", () => { saklaYaz(`ayar-${a}`, $(`#${a}`).value); ayarGoster(); });
+function ayarlariYukle() {
+  for (const a of AYAR) {
+    const d = modu() === "urun" && a in URUN_VARSAYILAN ? URUN_VARSAYILAN[a] : ESKI_VARSAYILAN[a];
+    const v = saklaOku(ayarAnahtari(a), null); $(`#${a}`).value = v != null ? v : d;
+  }
+  ayarGoster();
 }
-ayarGoster();
+for (const a of AYAR) $(`#${a}`).addEventListener("input", () => { saklaYaz(ayarAnahtari(a), $(`#${a}`).value); ayarGoster(); });
 
 // ---- üretim ----
 function vakaAnahtari(kim, yer) { return [...kim].sort((a, b) => SIRA.indexOf(a) - SIRA.indexOf(b)).join(",") + "|" + yer; }
@@ -969,6 +1164,8 @@ async function calistir(surumId, k, vaka, ayar) {
   let kayit;
   try { kayit = await surumYukle(surumId); }
   catch (e) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = `Model yüklenemedi: ${e.message}`; return null; }
+  if (kayit.meta.urun) return calistirUrun(surumId, kayit, k, vaka, ayar);
+  if (!vaka.kim.every(x => KAR[x])) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = "Bu sürüm eski oyuncak kataloğuyla çalışıyor."; return null; }
   const meta = kayit.meta, anahtar = vakaAnahtari(vaka.kim, vaka.yer);
   let prompt = meta.prompts[anahtar];
   // plan: istem "…\nSorun:" ile biter (prompts_bas + [tema] + plan_ek); model önce planı, nl nl'den sonra hikâyeyi yazar
@@ -1031,6 +1228,59 @@ async function calistir(surumId, k, vaka, ayar) {
   puanKutusu(k, sonuc);
   return sonuc;
 }
+// Ürün modeli (degerlendirme/urun_uret.py ile aynı yol): istem = <|endoftext|> + "Karakter: F | Yer: Y[ | Yan: X]\nSorun:",
+// plan modu, gövdede satır sonu yasağı, istem tekrar penceresi dışında, isim süzgeci (figürün kadro dışı adları),
+// K aday (seed, seed+1, …), seçici urunPuanla.
+async function calistirUrun(surumId, kayit, k, vaka, ayar) {
+  const meta = kayit.meta, U = meta.urun, fig = U.figurler.find(f => f.kimlik === vaka.figur);
+  const prompt = fig && U.istemler[`${vaka.figur}|${vaka.yer}|${vaka.yan || ""}`];
+  if (!prompt) { k.durum.textContent = ""; k.metin.className = "metin hata"; k.metin.textContent = "Bu figür/yer/yan birleşimi paketlenmemiş."; return null; }
+  k.baslik.textContent = kayit.coz(prompt.slice(1)).replace(/\n/g, "⏎");
+  const is0 = { prompt, n: ayar.uzunluk, temp: ayar.temp, topk: ayar.topk, rep: ayar.rep, ban: [], pencere: meta.pencere,
+                plan_modu: true, nl: U.nl, govde_yasak: U.govde_yasak,
+                suzgec: { bayt: kayit.tokBayt.bayt, off: kayit.tokBayt.off, adlar: fig.yasak } };
+  const planMetni = (ids) => ("Sorun:" + kayit.coz(ids)).trim();
+  const bar = k.ilerleme.firstChild, adaylar = [];
+  let bozuk = 0, red = 0;
+  for (let j = 0; j < ayar.aday; j++) {
+    if (durum.iptal) break;
+    k.durum.textContent = ayar.aday > 1 ? `aday ${j + 1}/${ayar.aday}` : "yazıyor…";
+    const akis = [], planAkis = [];
+    let d;
+    try {
+      d = await uretBir(kayit, { ...is0, no: j, seed: ayar.seed + j }, (id, planTok) => {
+        (planTok ? planAkis : akis).push(id);
+        if (ayar.aday === 1 || j === 0 && !adaylar.length) { planGoster(k, planMetni(planAkis)); metniGoster(k, kayit.coz(akis), true); }
+      });
+    } catch (e) { if (durum.iptal) break; k.metin.className = "metin hata"; k.metin.textContent = `Üretim hatası: ${e.message}`; return null; }
+    bar.style.width = `${100 * (j + 1) / ayar.aday}%`;
+    red += d.suzgec_red || 0;
+    if (d.plan_bozuk) { bozuk++; continue; }
+    const a = { j, metin: kayit.coz(d.ids).trim(), ort: d.lps.reduce((x, y) => x + y, 0) / Math.max(1, d.lps.length),
+                bitti: d.bitti, n: d.ids.length, hiz: d.hiz, seed: ayar.seed + j, plan: planMetni(d.plan.slice(0, -2)), plan_bozuk: false };
+    Object.assign(a, urunPuanla(a, fig, vaka.yer, U));
+    a.yanlis_isim = urunYanlisIsimler(a.metin, fig);
+    adaylar.push(a);
+    const enIyi = adaylar.reduce((x, y) => y.puan > x.puan ? y : x);
+    planGoster(k, enIyi.plan); metniGoster(k, enIyi.metin, false); cezalariGoster(k, enIyi.liste);
+  }
+  if (!adaylar.length) {
+    if (bozuk && !durum.iptal) {
+      planGoster(k, null); k.durum.textContent = "";
+      k.metin.className = "metin hata"; k.metin.textContent = `Hiçbir aday planını bitiremedi (${bozuk} aday plan_bozuk).`;
+    } else k.durum.textContent = "durduruldu";
+    return null;
+  }
+  const sirali = adaylar.slice().sort((a, b) => b.puan - a.puan);
+  const hiz = adaylar.reduce((a, b) => a + b.hiz, 0) / adaylar.length;
+  k.durum.textContent = `${sirali[0].n} token · tarayıcıda ${hiz.toFixed(0)} tok/s · süzgeç ${red} token reddetti` + (bozuk ? ` · ${bozuk} aday plan_bozuk` : "");
+  k.kok.dataset.figur = vaka.figur; k.kok.dataset.yer = vaka.yer; k.kok.dataset.yan = vaka.yan || "";
+  k.kok.sonuc = { vaka, adaylar: sirali.map(({ metin, plan, ort, bitti, puan, liste, yanlis_isim, seed }) => ({ metin, plan, ort, bitti, puan, liste, yanlis_isim, seed })) };
+  adaylariGoster(k, sirali);
+  const sonuc = { surum: surumId, vaka, ayar, sirali, secilen: sirali[0] };
+  puanKutusu(k, sonuc);
+  return sonuc;
+}
 function adaylariGoster(k, sirali) {
   if (sirali.length < 2) { k.adaylar.hidden = true; return; }
   k.adaylar.hidden = false; k.adaylar.innerHTML = "";
@@ -1081,6 +1331,7 @@ function puanKutusu(k, sonuc) {
       try {
         await db.collection("degerlendirmeler").add({
           surum: sonuc.surum, figurler: sonuc.vaka.kim, yer: sonuc.vaka.yer, tema: sonuc.vaka.tema || null, puan: secilen,
+          ...(sonuc.vaka.figur ? { yan: sonuc.vaka.yan || null } : {}),
           mantik, not: not.value.trim(),
           metin: a.metin, seed: a.seed, secici_puani: Math.round(a.puan * 100) / 100,
           cezalar: a.liste.map(([p, ad]) => `${p} ${ad}`), ayar: sonuc.ayar, aday_sirasi: k.sonuc.sirali.indexOf(a) + 1,
@@ -1172,7 +1423,7 @@ function karneCiz(kayitlar) {
   for (const r of kayitlar.slice(0, 6)) {
     son.append(el("div", { class: "son" },
       el("div", { class: "ust" }, el("span", {}, el("b", { text: `${r.puan}/10` }), ` · ${SURUMLER.find(s => s.id === r.surum)?.ad || r.surum}`),
-        el("span", { text: `${(r.figurler || []).map(k => KAR[k]?.isim || k).join(" + ")} · ${r.yer}` })),
+        el("span", { text: `${(r.figurler || []).map(k => KAR[k]?.isim || URUN_AD[k] || k).join(" + ")} · ${r.yer}` + (r.yan ? ` · ${r.yan}` : "") })),
       r.not ? el("div", { text: `“${r.not}”` }) : null,
       r.plan ? el("div", { class: "plan-satir", text: r.plan.split("\n").map(x => x.trim()).filter(Boolean).join(" / ") }) : null,
       el("p", { text: r.metin })));
@@ -1187,8 +1438,44 @@ function karneCiz(kayitlar) {
 })();
 
 // ---- ana akış ----
+// mulberry32 (işçideki rastgele ile aynı): ürün modunda yer/yan seçimi seed'den, tekrarlanabilir
+function seedRastgele(seed) {
+  let a = (seed ^ 0x5bd1e995) >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+async function anlatUrun() {
+  const id = $("#surum").value;
+  let U;
+  try { U = (await metaYukle(id)).urun; } catch (e) { $("#durum-genel").textContent = `Model bilgisi yüklenemedi: ${e.message}`; return; }
+  if (!U) return;
+  const fig = urunFigurBul(U);
+  const seedGirdi = $("#seed").value.trim();
+  const ayar = {
+    temp: +$("#temp").value, rep: +$("#rep").value, topk: +$("#topk").value, aday: +$("#aday").value,
+    uzunluk: +$("#uzunluk").value, seed: seedGirdi === "" ? Math.floor(Math.random() * 1e6) : +seedGirdi,
+  };
+  const r = seedRastgele(ayar.seed);
+  const yer = durum.urunYer === "rastgele" || !fig.yerler.includes(durum.urunYer) ? fig.yerler[Math.floor(r() * fig.yerler.length)] : durum.urunYer;
+  const yanR = r();
+  const yan = durum.urunYan === "yok" ? null : fig.yanlar.includes(durum.urunYan) ? durum.urunYan : fig.yanlar[Math.floor(yanR * fig.yanlar.length)] || null;
+  const vaka = { kim: [fig.kimlik], figur: fig.kimlik, yer, yan };
+  const ids = [id];
+  if ($("#karsilastir").checked && $("#surum2").value && $("#surum2").value !== id) ids.push($("#surum2").value);
+  const sahne = $("#sahne"); sahne.innerHTML = ""; sahne.classList.toggle("cift", ids.length > 1);
+  const kagitlar = ids.map((x, i) => kagitKur(x, ids.length > 1 ? (i ? "B · " : "A · ") : ""));
+  kagitlar.forEach(k => sahne.append(k.kok));
+  $("#durum-genel").textContent = `seed ${ayar.seed} · ${fig.ad} · ${yer}` + (yan ? ` · yan: ${yan}` : " · yansız");
+  await Promise.all(ids.map((x, i) => calistir(x, kagitlar[i], vaka, ayar)));
+}
 $("#anlat").addEventListener("click", async () => {
-  if (durum.calisiyor || !durum.secili.length || !SURUMLER.length) return;
+  if (durum.calisiyor || !SURUMLER.length) return;
+  if (modu() === "urun") {
+    durum.calisiyor = true; durum.iptal = false;
+    $("#anlat").disabled = true; $("#durdur").disabled = false;
+    try { await anlatUrun(); } finally { durum.calisiyor = false; $("#durdur").disabled = true; $("#anlat").disabled = false; }
+    return;
+  }
+  if (!durum.secili.length) return;
   durum.calisiyor = true; durum.iptal = false;
   $("#anlat").disabled = true; $("#durdur").disabled = false;
   const yer = durum.yer === "rastgele" ? KATALOG.yerler[Math.floor(Math.random() * 6)].kimlik : durum.yer;
@@ -1216,12 +1503,12 @@ $("#durdur").addEventListener("click", () => {
 // sözlük (uydurma kelime kontrolü) arka planda
 fetch("sozluk.txt").then(r => r.ok ? r.text() : null).then(t => { if (t) SOZLUK = new Set(t.split("\n")); }).catch(() => {});
 
-surumleriKur(); figurleriCiz(); yerleriCiz(); temaKutusu();
+surumleriKur(); modDegisti(); temaKutusu();
 if (!SURUMLER.length) { $("#anlat").disabled = true; $("#durum-genel").textContent = "İlk model eğitiliyor; hazır olunca burada görünecek."; }
 $("#sahne").append((() => {
   const k = kagitKur(SURUMLER[0]?.id || "—", "");
   k.durum.textContent = "örnek";
-  k.baslik.textContent = "Karakter: tavşan | Yer: orman⏎⏎";
+  k.baslik.textContent = modu() === "urun" ? "Karakter: Niloya | Yer: orman | Yan: Murat⏎Sorun:" : "Karakter: tavşan | Yer: orman⏎⏎";
   k.metin.classList.add("bos");
   k.metin.textContent = "Bir figür seçip “Hikâye anlat”a basın. Yeni hikâye burada yazılır; aday sayısı 1'den büyükse oyuncağın seçicisi en iyisini gösterir, diğer adaylar ve kural cezaları altta listelenir.";
   return k.kok;

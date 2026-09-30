@@ -8,6 +8,10 @@ Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--
   --pencere govde: başlık token'ları tekrar cezası penceresine girmez (gen.c -P)
   --satir-yasak: hikâye gövdesinde satır sonu token'ları yasak (gen.c -N)
   --eot-on: istem, eğitimdeki gibi <|endoftext|> ile başlar (prompt_idler eot=True)
+  --urun: ürün modeli (c3ft_urun*): eski oyuncak kataloğu yerine data/urun_kartlari.json'daki çizgi film figürleri
+          (degerlendirme/urun_uret.py ile birebir): istemler urun_uret.istem, figür başına yasaklı adlar
+          urun_uret.kadro_disi ('$' = urun_uret.KELIME_BASI), plan modu, gövdede urun_uret.SATIR_YASAK, istem tekrar
+          penceresi dışında (gen -P). --plan/--eot-on/--satir-yasak/--pencere govde bu modda kendiliğinden geçerli.
 Çıktı: web/m/<sürüm>/model.b64.txt (gzip + base64 model.bin; yayın yeri ikili dosya sunmuyor) ve meta.json
   meta.json: token tablosu (çözmek için), her figür/yer birleşimi için başlık token'ları
   (baslangic.prompt_idler ile, eğitimdeki gibi), yasaklanacak isim token'ları, katalog.
@@ -39,6 +43,39 @@ def isim_idleri(tok, isim):
     return sorted(idler)
 
 
+def urun_bolumu(tok):
+    """meta.urun: figürler (kart yerleri ve yanları, yasaklı adlar), her figür × yer × (yan | yansız) için istem
+    token'ları ve seçicinin 'uydurma karakter adı' kuralının bildiği adlar. Ad mantığı urun_uret'ten gelir."""
+    sys.path.insert(0, os.path.join(ROOT, "degerlendirme"))
+    import urun_uret as u
+    figurler, istemler, tum = [], {}, set()
+    for kimlik in u.FIGURLER:
+        k = u.KARTLAR[kimlik]
+        ad = k["ad"]["deger"]
+        yerler = [y["etiket"] for y in k["yerler"]]
+        yanlar = [y["kisa_ad"] for y in k["yanlar"]]
+        figurler.append({
+            "kimlik": kimlik, "ad": ad, "tur": k.get("tur", {}).get("deger", ""), "yerler": yerler, "yanlar": yanlar,
+            # isim_suzgec.h biçimi: kelime başı olabilen adlar '$' ile (gen -Y dosyasının ad satırları)
+            "yasak": [a + ("$" if u.kelime_basi_mi(a) else "") for a in u.kadro_disi(kimlik)],
+        })
+        tum |= u.figur_adlari(kimlik)
+        for yer in yerler:
+            for yan in yanlar + [None]:
+                ids = u.istem(tok, ad, yer, yan)
+                assert tok.decode(ids[1:]) == f"Karakter: {ad} | Yer: {yer}" + (f" | Yan: {yan}" if yan else "") + "\nSorun:"
+                istemler[f"{kimlik}|{yer}|{yan or ''}"] = ids
+    return {
+        "figurler": figurler,
+        "istemler": istemler,
+        "tum_isim": sorted(tum),     # sec.TUM_ISIM'in ürün hâli (urun_uret.puanla)
+        "nl": u.NL,
+        "govde_yasak": u.SATIR_YASAK,
+        "yer_anahtar": u.YER_ANAHTAR,
+        "ayar": {"sicaklik": 0.5, "top_k": 40, "tekrar": 1.1, "n": 230, "aday": 4},
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("surum")
@@ -48,6 +85,7 @@ def main():
     ap.add_argument("--pencere", choices=["tum", "govde"], default="tum")
     ap.add_argument("--satir-yasak", action="store_true")
     ap.add_argument("--eot-on", action="store_true", help="istem <|endoftext|> ile başlar (E0'da benimsendi)")
+    ap.add_argument("--urun", action="store_true", help="ürün modeli: çizgi film figürleri (urun_uret.py)")
     arg = ap.parse_args()
     surum, model_dir = arg.surum, arg.model_dir
     tok = Tokenizer.from_file(os.path.join(model_dir, "tokenizer.json"))
@@ -60,6 +98,26 @@ def main():
     vocab = [None] * tok.get_vocab_size()
     for s, i in tok.get_vocab().items():
         vocab[i] = s
+    if arg.urun:
+        urun = urun_bolumu(tok)
+        meta = {
+            "surum": surum,
+            "eot": tok.token_to_id("<|endoftext|>"),
+            "vocab": vocab,
+            "baslik_bicimi": "urun",
+            "pencere": "govde",           # gen -P
+            "satir_yasak": urun["govde_yasak"],
+            "nl_id": urun["nl"],
+            "eot_on": True,               # urun.istemler <|endoftext|> ile başlar
+            "yabanci": YABANCI,
+            "urun": urun,
+        }
+        json.dump(meta, open(os.path.join(out, "meta.json"), "w", encoding="utf-8"), ensure_ascii=False,
+                  separators=(",", ":"))
+        print(f"{out}: model {len(ham) / 1e6:.1f} MB, meta.json "
+              f"{os.path.getsize(os.path.join(out, 'meta.json')) / 1e6:.2f} MB, {len(urun['figurler'])} figür, "
+              f"{len(urun['istemler'])} istem (ürün)")
+        return
     yerler = [y["kimlik"] for y in KATALOG["yerler"]]
     prompts = {}
     for i, a in enumerate(SIRA):

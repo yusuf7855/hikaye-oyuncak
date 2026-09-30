@@ -29,4 +29,4 @@ export.OUT='hf_$TAG'
 export.main()"
 ./gen_verify hf_$TAG/model.bin hf_$TAG/golden.txt > logs/verify-$TAG.log || { cat logs/verify-$TAG.log; exit 1; }
 tail -1 logs/verify-$TAG.log
-$PY web/paketle.py $TAG hf_$TAG ${PAKET:---plan --satir-yasak --eot-on}
+$PY web/paketle.py $TAG hf_$TAG ${PAKET:---urun --plan --satir-yasak --eot-on}
