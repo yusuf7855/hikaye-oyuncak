@@ -746,3 +746,11 @@ Uygulama (kullanıcı yetkisiyle karar; kullanıcı "en iyisi nasıl olacaksa" d
 - **Aşama 1 (urun_v2) tamamlandı, 20 tur.** 11 figürün hepsi ≥50 kabul (toplam 622; 517'si hakem alıntılarıyla
   onarılıp yeniden hakemden geçti). Hakemler hiç gevşetilmedi. Eğitim `zincir_urun.sh` ile (c3ft_urun): izin listesi
   581 eğitim / 41 doğrulama, tekrar 4, genel dilim 3M token (8M'de oyuncak payı %4 kalıyordu), 2000 adım, taban c3.
+
+- **Aşama 1 kıyası (c3ft_urun vs c3ft_tek, `degerlendirme/urun_kiyas.py`, 8 aday + sec.py, her model kendi başlığıyla).**
+  Kör ikili (IKILI.md, 3 hakem, 6 ortak figür × 3 yer = 18 vaka): c3ft_urun 6,8/18 (%38), kazandı 6 / eşit 1 /
+  kaybetti 11 → bant "Kaybetti" (p(urun>tek)=0,95; hakem uyumu %94). Rubrik (RUBRIK.md, 2 hakem): ikisi de
+  2,67/10; olay örgüsü S1 %58 vs %69, S2 %25 vs %42; urun'da 'tekrar' kusuru daha sık (7 vs 2). Yeni 5 figür
+  (mutlak, 15 vaka): 2,90/10. Yorum: 581 kusursuz hikâye c3ft_tek'in 2995 hikâyesine hacimde yetişmiyor; dokümanın
+  "kusursuz ama az veri v6'dan kötü olabilir" riski gerçekleşti. İki modelin de mutlak düzeyi düşük (≤3/10):
+  model boyutunun (c3, ~20M) sınırı. Sonraki adım: Aşama 2 (figür başına 100) ile hacim artırmak.
