@@ -72,24 +72,31 @@ def _bayt_haritasi():
     return {chr(c): b for b, c in zip(bs, cs)}
 
 
+# Başka bir Türkçe kelimenin büyük harfli başı da olan adlar: süzgeç bunları yalnız kelime bitince reddeder
+# (isim_suzgec.h '$'), yoksa "Balık", "Canı", "Sarayın", "Timsah" cümle başında yazılamaz. Liste ölçümle seçildi:
+# genel veri (tr2_tinystories val, 3 M token) + urun_v2 hikâyelerinde adın büyük harfli, sözlükte olan daha uzun
+# bir kelimenin başı olarak geçtiği adlar. Öteki adlar tamamlandıkları anda reddedilir: '$' kuralı ad yazıldıktan
+# sonra ancak ardından gelen token'ı reddedebildiği için sızabilir ("Doru o evin" gibi), tam yasak sızmaz.
+KELIME_BASI = {"Bal", "Can", "Sara", "Tim", "Tom", "Sam", "Dino", "Alev", "Boncuk", "Pamuk", "Yumak"}
+
+
 def kelime_basi_mi(ad):
-    """Ad, sözlükteki daha uzun bir kelimenin başı mı ("Tim" -> "timsah", "Sara" -> "saray")? Öyleyse süzgeç onu
-    yalnızca kelime bittiğinde reddeder (isim_suzgec.h '$')."""
-    k = sec.kucuk(ad)
-    return sec.SOZLUK is not None and any(w != k and w.startswith(k) for w in sec.SOZLUK)
+    return ad in KELIME_BASI
 
 
 def suzgec_dosyasi(tok, adlar, yol):
     """gen -Y dosyası: V, her token'ın baytları (hex), yasaklı adlar (kelime başı olabilenler '$' ile)."""
     harita = _bayt_haritasi()
     V = tok.get_vocab_size()
-    with open(yol, "w", encoding="utf-8") as f:
+    gecici = f"{yol}.{os.getpid()}"  # paralel koşular aynı dosyayı yarım okumasın: yaz, sonra yerine taşı
+    with open(gecici, "w", encoding="utf-8") as f:
         f.write(f"{V}\n")
         for i in range(V):
             s = tok.id_to_token(i) or ""
             f.write(bytes(harita[c] for c in s if c in harita).hex() + "\n")
         for a in adlar:
             f.write(a + ("$" if kelime_basi_mi(a) else "") + "\n")
+    os.replace(gecici, yol)
     return yol
 
 
