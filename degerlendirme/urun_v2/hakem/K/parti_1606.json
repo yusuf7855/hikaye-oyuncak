@@ -1,0 +1,617 @@
+{
+ "parti": 1606,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1606.json",
+ "madde_sirasi": [
+  "C3",
+  "K3",
+  "C4",
+  "K8",
+  "K7",
+  "C5",
+  "K6",
+  "C6",
+  "K2",
+  "K5",
+  "K1",
+  "K4",
+  "C2",
+  "C1"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C3, K3, C4, K8, K7, C5, K6, C6, K2, K5, K1, K4, C2, C1 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1606.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "orumcek_adam",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Örümcek Adam",
+   "kaynak": [
+    "urun_karari"
+   ]
+  },
+  "okunus": {
+   "deger": "örümcek adam",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Spidey ve İnanılmaz Arkadaşları",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_spidey_en"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Örümcek Adam, arkadaşlarıyla birlikte şehre yardım eden, ağ atabilen genç bir süper kahramandır.",
+   "kaynak": [
+    "vikipedi_spidey_en"
+   ]
+  },
+  "tur": {
+   "deger": "kahraman",
+   "kaynak": [
+    "vikipedi_spidey_en"
+   ],
+   "lemmalar": [
+    "kahraman",
+    "çocuk"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Bileğinden ağ atar.",
+    "anahtar_kok": "ağ",
+    "anahtar_ifade": "\\bağ(?:ı|ını|ına|ından|la|lar\\w*|dan|a|ıyla)?\\b",
+    "ornek_bicimler": [
+     "ağ",
+     "ağını",
+     "ağla"
+    ],
+    "kaynak": [
+     "vikipedi_spidey_en",
+     "vikipedi_spiderman_en"
+    ]
+   },
+   {
+    "deger": "Duvarlara tırmanabilir.",
+    "anahtar_kok": "tırman",
+    "anahtar_ifade": "\\btırman\\w*",
+    "ornek_bicimler": [
+     "tırmandı",
+     "tırmanarak"
+    ],
+    "kaynak": [
+     "vikipedi_spiderman_en"
+    ]
+   },
+   {
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir.",
+    "anahtar_kok": "örümcek hissi",
+    "anahtar_ifade": "\\börümcek\\s+hiss\\w*",
+    "ornek_bicimler": [
+     "örümcek hissi"
+    ],
+    "kaynak": [
+     "vikipedi_spidey_bolumler_en",
+     "vikipedi_spiderman_en"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Ağ ve tırmanma yalnız süper güç olarak kullanılır; çocuğun taklit edebileceği ev içi tırmanma (dolap, masa, pencere, perde) yoktur; 'tehlike' yerine 'bir sorun olduğunu haber verir' yazılır. Kavga ve vurma yoktur.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "deniz",
+    "tarif": "Şehrin kumsalı ve limanı.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_spidey_bolumler_en"
+    ]
+   },
+   {
+    "etiket": "park",
+    "tarif": "Şehrin büyük parkı; oyun alanı, ağaçlar ve çiçek bahçesi vardır.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_spidey_bolumler_en"
+    ]
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Takımın gizli evi.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_spidey_en"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:ghost_spider",
+    "kisa_ad": "Ghost-Spider",
+    "tip": "adli",
+    "okunus": "goust spaydır",
+    "yuzey_bicimleri": [
+     "Ghost-Spider"
+    ],
+    "iliski": {
+     "deger": "Örümcek Adam'ın ve Spin'in arkadaşı; iyi davul çalar, kostümüyle havada süzülebilir.",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    "tur": {
+     "deger": "kahraman",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:spin",
+    "kisa_ad": "Spin",
+    "tip": "adli",
+    "okunus": "spin",
+    "yuzey_bicimleri": [
+     "Spin"
+    ],
+    "iliski": {
+     "deger": "Örümcek Adam'ın en iyi arkadaşı; görünmez olabilir, çok güzel resim yapar.",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    "tur": {
+     "deger": "kahraman",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:hulk",
+    "kisa_ad": "Hulk",
+    "tip": "adli",
+    "okunus": "halk",
+    "yuzey_bicimleri": [
+     "Hulk"
+    ],
+    "iliski": {
+     "deger": "Takıma bazen yardım eden kocaman, yeşil ve çok güçlü bir süper kahraman.",
+     "kaynak": [
+      "vikipedi_spidey_en",
+      "vikipedi_hulk_en",
+      "vikipedi_spidey_bolumler_en"
+     ]
+    },
+    "tur": {
+     "deger": "kahraman",
+     "kaynak": [
+      "vikipedi_hulk_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "'Tehlike' kelimesi kullanılmaz; örümcek hissi bir sorun olduğunu haber verir.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[Tt]ehlike\\w*"
+    ],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "Ev içinde eşyalara tırmanılmaz.",
+    "yasak_duzenli_ifadeler": [
+     "\\b(?:[Dd]olab|[Dd]olap|[Mm]asa|[Kk]itaplı|[Pp]encere|[Pp]erde|[Kk]oltu[kğ]|[Ss]andalye|[Rr]af)\\w*\\s+(?:[\\w']+\\s+){0,2}tırman\\w*"
+    ],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "'Üs' kelimesi kullanılmaz (çocuk 'üst' ile karıştırır); takımın yeri 'gizli ev' diye anlatılır.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[Üü]s(?:s[üu]\\w*|se|ten|ler\\w*)?\\b",
+     "\\b[Gg]izli\\s+üs\\w*"
+    ],
+    "kaynak": [
+     "kullanici_karari"
+    ]
+   },
+   {
+    "kural": "Kavga, yumruk ve dövüş yoktur; sorun yardımla ve ağla çözülür.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[Yy]umru[kğ]\\w*",
+     "\\b[Dd]övüş\\w*"
+    ],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Spidey",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Peter",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Miles",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Gwen",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Ghosty",
+     "kaynak": [
+      "vikipedi_spidey_bolumler_en"
+     ]
+    },
+    {
+     "ad": "May",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Rhino",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Doc Ock",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Goblin",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Electro",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Black Cat",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Sandman",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Black Panther",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Iron Man",
+     "kaynak": [
+      "vikipedi_spidey_en"
+     ]
+    },
+    {
+     "ad": "Lizard",
+     "kaynak": [
+      "vikipedi_spidey_bolumler_en"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Kötü karakterler, robotlar ve dev bilgisayar hikayeye girmez.",
+     "kaynak": [
+      "vikipedi_spidey_en",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "ağ",
+   "kahraman",
+   "tırman",
+   "örümcek"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Ghost-Spider",
+    "kart": [
+     "yan:ghost_spider"
+    ],
+    "not": "Dizide gerçek adı Gwen; kısa ad önerisi kullanıcıya sorulacak."
+   },
+   {
+    "urun": "Spin",
+    "kart": [
+     "yan:spin"
+    ]
+   },
+   {
+    "urun": "Hulk",
+    "kart": [
+     "yan:hulk"
+    ]
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: dev bilgisayar ve robot yok."
+  },
+  "kararlar": [
+   "Kısa ad resmi 'Ghost-Spider', okunuş 'goust spaydır'; 'Gwen' yasak adlarda kalır."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/orumcek_adam#ad8b599cc0",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "deniz",
+    "yan": [
+     "Hulk"
+    ]
+   },
+   "plan": {
+    "sorun": "top potaya girmedi çünkü çember eğilmişti",
+    "cozum": "sorunu bulup çemberi düzeltti"
+   },
+   "govde": "Örümcek Adam ile Hulk kumsalda yumuşak bir topla oynuyordu. Kumun üstünde küçük bir pota vardı. Hulk topu potaya attı ama top içeri girmedi. \"Top neden içeri girmedi?\" diye sordu Hulk. Birden örümcek hissi Örümcek Adam'a bir sorun olduğunu haber verdi. Potaya gitti ve çembere dikkatle baktı. \"Çember aşağı eğilmiş, Hulk!\" dedi Örümcek Adam. Hulk direği sıkıca tuttu. Örümcek Adam çemberi iki eliyle yukarı itti ve düzeltti. Hulk topu yine attı. Top bu kez içeri girdi. Sonra ikisi mutlu mutlu top oynamaya devam etti.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#8c6d202fe8",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "park",
+    "yan": [
+     "Hulk"
+    ]
+   },
+   "plan": {
+    "sorun": "çember çamura battı ve çıkmadı",
+    "cozum": "duvara tırmanıp güçlü arkadaşından yardım istedi"
+   },
+   "govde": "Bir sabah Örümcek Adam parkta kırmızı çemberiyle oynuyordu. Çember çiçek bahçesine yuvarlandı ve çamura battı. Bahçenin toprağı suyla çok yumuşamıştı. Örümcek Adam çemberi iki eliyle çekti ama çamur çok yapışkandı. Hulk da parktaydı ama ağaçların arasında görünmüyordu. Örümcek Adam süper gücüyle bahçenin duvarına tırmandı. Oradan Hulk'ı oyun alanında gördü. \"Hulk, bana yardım eder misin?\" diye seslendi Örümcek Adam. Hulk hemen koşup geldi. Kocaman eliyle çemberi tuttu ve kolayca çıkardı. Sonra çemberi Örümcek Adam'a verdi. Örümcek Adam çok sevindi, çünkü Hulk'tan yardım isteyerek çemberini geri almıştı.",
+   "ozellik": {
+    "anahtar_kok": "tırman",
+    "deger": "Duvarlara tırmanabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#b0638590b1",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "park",
+    "yan": [
+     "Ghost-Spider"
+    ]
+   },
+   "plan": {
+    "sorun": "arkadaşı yiyeceğini unutmuştu ve acıkmıştı",
+    "cozum": "gevreği ikiye böldü ve onunla paylaştı"
+   },
+   "govde": "Örümcek Adam parkta bir bankta oturup gevrek yiyordu. Birden Örümcek Adam'ın örümcek hissi çalıştı. Hemen etrafına baktı. Ağacın altında Ghost-Spider aç ve üzgündü, çünkü yiyeceğini gizli evde unutmuştu. Örümcek Adam elindeki gevreği ikiye böldü. Sonra arkadaşının yanına gitti. \"Bunun yarısı senin,\" dedi Örümcek Adam. Arkadaşı gevreği aldı ve \"Çok teşekkür ederim!\" dedi. İkisi onu ağacın altında birlikte yedi. Gevrek sıcak ve çıtır çıtırdı. Arkadaşı artık aç değildi ve çok mutluydu. Örümcek Adam bundan sonra yiyeceğini arkadaşlarıyla hep paylaştı.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): arkadaşlarıyla"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#0fb082ee60",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "park",
+    "yan": [
+     "Spin"
+    ]
+   },
+   "plan": {
+    "sorun": "tek salıncak boştu ve ikisi de binmek istedi",
+    "cozum": "sırayla bindiler ve arkadaşını ağla salladı"
+   },
+   "govde": "Parkta serin bir rüzgar esiyordu. Örümcek Adam ile Spin oyun alanına koştu. Ama orada yalnız bir salıncak boştu ve ikisi de binmek istedi. Spin yüzünü buruşturdu. \"Önce sen bin, Spin, sonra sıra bende,\" dedi Örümcek Adam. Spin sevinçle salıncağa oturdu. Örümcek Adam bileğinden salıncağa ağ attı. Ağı yavaşça çekip bıraktı ve salıncak ileri geri sallandı. Spin çok güldü. Sonra salıncaktan indi. \"Şimdi sıra sende, Örümcek Adam!\" dedi Spin. Örümcek Adam salıncağa bindi ve Spin onu arkadan itti. Sırayla binince iki arkadaş da çok eğlendi.",
+   "ozellik": {
+    "anahtar_kok": "ağ",
+    "deger": "Bileğinden ağ atar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#203676a59e",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "tabure ıslak kuma batıp yana eğiliyordu",
+    "cozum": "tabureyi kaldırıp kuru kuma taşıdı"
+   },
+   "govde": "Örümcek Adam kumsalda gemi oyununa hazırlanıyordu. Suyun kenarına bir tabure koydu ve üstüne turuncu bir havlu serdi. Ama tabure yumuşak, ıslak kuma batıyordu ve yana eğiliyordu. Örümcek Adam oturmadan önce örümcek hissi ile bunu anladı. Tabureyi kaldırdı ve kuru, sert kuma taşıdı. Tabure artık dimdik duruyordu. Örümcek Adam tabureye oturdu. Turuncu havluyu yelken gibi iki eliyle tuttu. Rüzgar esti ve havlu şişti. Sonra denizdeki gemilere el salladı. Örümcek Adam çok sevindi, çünkü gemi oyununu kuru kumda rahatça oynuyordu.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#deb735857a",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "park",
+    "yan": [
+     "Spin"
+    ]
+   },
+   "plan": {
+    "sorun": "bisiklet ipe takıldı ve balonlar ağaca uçtu",
+    "cozum": "özür diledi ve ağla balonları indirdi"
+   },
+   "govde": "Örümcek Adam parkta bisikletini çok hızlı sürüyordu. Spin'in renkli balonları bir banka bağlıydı. Örümcek Adam önüne bakmadı ve bisikleti balonların ipine takıldı. İp çözüldü ve balonlar yüksek bir ağacın dallarına uçtu. Spin ağaca baktı ve çok üzüldü. Örümcek Adam bisikletten indi ve Spin'den özür diledi. Sonra ağaca doğru bir ağ attı. Ağ balonların ipine yapıştı. Örümcek Adam balonları yavaşça aşağı çekti ve Spin'e verdi. Hiçbir balon patlak değildi. Spin gülümsedi ve ona teşekkür etti. Örümcek Adam bisikletini bu kez yavaş yavaş sürdü. İkisi balonlarla parkta mutlu mutlu dolaştı.",
+   "ozellik": {
+    "anahtar_kok": "ağ",
+    "deger": "Bileğinden ağ atar."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#311db3f9cf",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "park",
+    "yan": [
+     "Ghost-Spider"
+    ]
+   },
+   "plan": {
+    "sorun": "saklambaçta arkadaşını büyük parkta bulamadı",
+    "cozum": "duvara tırmanıp yukarıdan baktı ve parlak bir küpe gördü"
+   },
+   "govde": "Örümcek Adam parkta Ghost-Spider ile ilk kez saklambaç oynuyordu. Arkadaşı saklandı ve Örümcek Adam onu aramaya başladı. Ama park çok büyüktü ve onu hiçbir yerde bulamadı. \"Hadi, beni bul!\" diye seslendi arkadaşı. Ses ağaçlardan geliyordu ama orada kimse görünmüyordu. Örümcek Adam çiçek bahçesinin taş duvarına tırmandı. Yukarıdan parka baktı ve bir ağaçta parlak bir küpe gördü. Arkadaşı o ağacın yaprakları arasında havada süzülüyordu. Örümcek Adam duvardan indi ve ağaca koştu. \"Buldum seni!\" dedi Örümcek Adam. \"Bu yeni oyunu çok iyi oynadın,\" dedi arkadaşı ve güldü. Sonra saklanma sırası Örümcek Adam'a geçti. İkisi oyuna mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "tırman",
+    "deger": "Duvarlara tırmanabilir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#4842109846",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "ev",
+    "yan": [
+     "Spin"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi aynı anda küp koyunca kule sallandı",
+    "cozum": "kuleyi tuttu ve sırayla oynamayı önerdi"
+   },
+   "govde": "Örümcek Adam ile Spin gizli evde tahta küplerle kule yapıyordu. İkisi de aynı anda bir küp eklemek istedi. Elleri çarpıştı ve kule sallanmaya başladı. Birden Örümcek Adam'ın örümcek hissi çalıştı, çünkü kule düşmek üzereydi. Elini hemen çekti ve kuleyi iki yandan tuttu. Kule yıkılmadı. \"Sırayla koyalım, Spin,\" dedi Örümcek Adam. \"Olur, önce sen koy,\" dedi Spin. Örümcek Adam kırmızı bir küpü yavaşça kulenin üstüne koydu. Sonra Spin mavi bir küp ekledi. Kule yavaş yavaş yükseldi ve ikisi de artık çok rahattı. Örümcek Adam çok sevindi, çünkü sırayla oynayınca kuleleri yıkılmamıştı.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#ab5fe727d6",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "deniz",
+    "yan": [
+     "Hulk"
+    ]
+   },
+   "plan": {
+    "sorun": "arkadaşının kırmızı kovası kayboldu",
+    "cozum": "sesin geldiği yere gidip kovayı buldu"
+   },
+   "govde": "Rüzgarlı bir sabah Örümcek Adam ile Hulk kumsalda şakalaşıyordu. Birden Hulk kırmızı kovasını bulamadı. Tam o sırada taşların arasından garip bir tık tık sesi geldi. Örümcek Adam'ın örümcek hissi çalıştı. Sesin geldiği yere hemen yürüdü. Hulk da peşinden gitti. Taşların arasında kırmızı kova vardı. Rüzgar kovayı taşlara çarpıyordu ve tık tık sesi buradan geliyordu. Örümcek Adam kovayı aldı ve Hulk'a verdi. Hulk kovasını tuttu ve kocaman gülümsedi. \"Teşekkürler, Örümcek Adam, sen çok iyi bir arkadaşsın!\" dedi Hulk.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/orumcek_adam#c2562ec8e0",
+   "baslik": {
+    "figur": "Örümcek Adam",
+    "yer": "deniz",
+    "yan": [
+     "Hulk"
+    ]
+   },
+   "plan": {
+    "sorun": "harita suyun kenarında kaldı ve dalga geliyordu",
+    "cozum": "haritayı hemen aldı ve özür diledi"
+   },
+   "govde": "Kumsalda Örümcek Adam ile Hulk hazine oyunu oynuyordu. Örümcek Adam, Hulk'ın çizdiği haritayı suyun kenarına bıraktı. Birden örümcek hissi ona bir sorun olduğunu haber verdi. Uzaktan büyük bir dalga geliyordu. Örümcek Adam haritayı hemen aldı ve sudan uzağa koştu. Dalga, haritanın durduğu yeri ıslattı. \"Özür dilerim, Hulk, haritanı suya çok yakın bıraktım,\" dedi Örümcek Adam. \"Teşekkürler, harita kuru kaldı,\" dedi Hulk. İkisi haritadaki yolu izleyip büyük bir kayanın yanına yürüdü. Kayanın arkasında Hulk'ın sakladığı sağlıklı meyveler vardı. Örümcek Adam ile Hulk kumda oturdu ve meyveleri mutlu mutlu yedi.",
+   "ozellik": {
+    "anahtar_kok": "örümcek hissi",
+    "deger": "Örümcek hissi bir sorun olduğunu ona haber verir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
