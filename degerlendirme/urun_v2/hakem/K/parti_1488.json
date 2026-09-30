@@ -1,0 +1,702 @@
+{
+ "parti": 1488,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1488.json",
+ "madde_sirasi": [
+  "C6",
+  "K3",
+  "K5",
+  "K2",
+  "C1",
+  "K1",
+  "C5",
+  "C3",
+  "K4",
+  "K7",
+  "C4",
+  "K6",
+  "C2",
+  "K8"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C6, K3, K5, K2, C1, K1, C5, C3, K4, K7, C4, K6, C2, K8 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1488.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "hello_kitty",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Hello Kitty",
+   "kaynak": [
+    "urun_karari",
+    "sanrio_hk"
+   ]
+  },
+  "okunus": {
+   "deger": "helo kiti",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Hello Kitty",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_hk_diziler_en"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Hello Kitty, ailesiyle birlikte bir evde yaşayan, kırmızı kurdeleli, beyaz ve iyi kalpli bir kedidir.",
+   "kaynak": [
+    "vikipedi_hk_en",
+    "sanrio_hk"
+   ]
+  },
+  "tur": {
+   "deger": "kedi",
+   "kaynak": [
+    "vikipedi_hk_en",
+    "vikipedi_hk_tr"
+   ],
+   "lemmalar": [
+    "kedi",
+    "kız"
+   ],
+   "not": "Sanrio onu kedi biçiminde küçük bir kız olarak anlatır (vikipedi_hk_tr); görünüşü beyaz bir kedidir (vikipedi_hk_en)."
+  },
+  "ozellikler": [
+   {
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır.",
+    "anahtar_kok": "arkadaş",
+    "anahtar_ifade": "\\barkadaş\\w*",
+    "ornek_bicimler": [
+     "arkadaş",
+     "arkadaşlar",
+     "arkadaşıyla"
+    ],
+    "kaynak": [
+     "sanrio_hk",
+     "vikipedi_hk_en"
+    ]
+   },
+   {
+    "deger": "Kurabiye yapmayı çok sever.",
+    "anahtar_kok": "kurabiye",
+    "anahtar_ifade": "\\bkurabiye\\w*",
+    "ornek_bicimler": [
+     "kurabiye",
+     "kurabiyeler",
+     "kurabiyeleri"
+    ],
+    "kaynak": [
+     "sanrio_hk",
+     "vikipedi_hk_en"
+    ]
+   },
+   {
+    "deger": "En çok elmalı turtayı sever.",
+    "anahtar_kok": "turta",
+    "anahtar_ifade": "\\bturta\\w*",
+    "ornek_bicimler": [
+     "turta",
+     "turtayı",
+     "turtası"
+    ],
+    "kaynak": [
+     "sanrio_hk_ay",
+     "vikipedi_hk_en"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Kurabiye ve turta bir büyükle birlikte yapılır; fırını ve sıcak tepsiyi annesi ya da babası tutar. Kimse yabancıyla bir yere gitmez; kimse tek başına uzağa gitmez.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "park",
+    "tarif": "Evin yakınındaki büyük park; çimenler, çiçekler ve piknik yapılan ağaçların gölgesi vardır.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_hk_diziler_en"
+    ],
+    "not": "Yalnız bölüm adları: 'A Trip to Rainbow Park' (Hello Kitty's Paradise), 'Hello Kitty's Picnic' (Supercute Adventures)."
+   },
+   {
+    "etiket": "orman",
+    "tarif": "Kasabanın yakınındaki küçük orman; ağaçların arasında bir kamp yeri vardır.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_hk_diziler_en"
+    ],
+    "not": "Yalnız bölüm adları: 'Happy Campers', 'Hello Kitty's Summer Camp Adventures' (Supercute Adventures)."
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Ailenin birlikte yaşadığı ev; kurabiye yapılan bir mutfağı vardır.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "sanrio_hk",
+     "vikipedi_hk_en",
+     "vikipedi_hk_diziler_en"
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:mimi",
+    "kisa_ad": "Mimi",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Mimi",
+     "kardeş",
+     "kardeşi",
+     "ikiz",
+     "ikizi"
+    ],
+    "iliski": {
+     "deger": "Hello Kitty'nin ikiz kız kardeşi ve en iyi arkadaşı; utangaçtır ve sarı kurdele takar.",
+     "kaynak": [
+      "sanrio_hk",
+      "vikipedi_hk_en",
+      "vikipedi_hk_tr"
+     ]
+    },
+    "tur": {
+     "deger": "kedi",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_hk_diziler_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:anne",
+    "kisa_ad": "annesi",
+    "tip": "rol",
+    "yuzey_bicimleri": [
+     "anne",
+     "annesi",
+     "anneciğim",
+     "Anne"
+    ],
+    "iliski": {
+     "deger": "Hello Kitty'nin annesi; çok iyi yemek yapar, elmalı turtası çok güzeldir.",
+     "kaynak": [
+      "vikipedi_hk_en",
+      "sanrio_hk_ay"
+     ]
+    },
+    "tur": {
+     "deger": "anne",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_hk_diziler_en"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:baba",
+    "kisa_ad": "babası",
+    "tip": "rol",
+    "yuzey_bicimleri": [
+     "baba",
+     "babası",
+     "babacığım",
+     "Baba"
+    ],
+    "iliski": {
+     "deger": "Hello Kitty'nin babası; güvenilir ve komiktir, bazen bir şeyi unutur.",
+     "kaynak": [
+      "vikipedi_hk_en",
+      "sanrio_hk_ay"
+     ]
+    },
+    "tur": {
+     "deger": "baba",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_hk_diziler_en"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Hello Kitty, Mimi, annesi ve babası konuşur. Hikayede Hello Kitty'nin ağzından söz edilmez.",
+    "yasak_duzenli_ifadeler": [
+     "\\bKitty'nin\\s+ağz\\w*",
+     "\\bağz[ıi]\\s+(?:yok|olmayan)\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_hk_en",
+     "vikipedi_hk_diziler_en",
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "Mimi, Hello Kitty'nin ikiz kız kardeşidir; ablası ya da kuzeni değildir. Mimi sarı kurdele takar.",
+    "yasak_duzenli_ifadeler": [
+     "[Aa]bla(?:sı|m)?\\s*,?\\s+Mimi\\b",
+     "[Kk]uzen(?:i|im)?\\s*,?\\s+Mimi\\b",
+     "\\bMimi\\s*,?\\s+(?:Hello\\s+Kitty'nin\\s+)?(?:abla|kuzen)\\w*",
+     "\\bMimi(?:'nin)?\\s+kırmızı\\s+kurdele\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_hk_en",
+     "sanrio_hk"
+    ]
+   },
+   {
+    "kural": "Hikaye evde, parkta ya da ormanda tek sahnede geçer; Londra'ya ya da başka bir şehre yolculuk yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "\\bLondra\\w*",
+     "\\b[İi]ngiltere\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_hk_en",
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "Hello Kitty bir marka ya da satılan bir eşya olarak anılmaz; mağaza ve alışveriş yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[Mm]arka(?:sı|lar|nın|yı|dır)?\\b",
+     "\\bSanrio\\w*",
+     "\\b[Mm]ağaza\\w*"
+    ],
+    "kaynak": [
+     "urun_kurali"
+    ]
+   }
+  ],
+  "kural_ornekleri": [
+   [
+    "Hello Kitty'nin ağzı gülümsedi.",
+    "Onun ağzı yoktu.",
+    "Ablası Mimi geldi.",
+    "Kuzeni Mimi güldü.",
+    "Mimi, Hello Kitty'nin ablasıydı.",
+    "Mimi kırmızı kurdelesini taktı.",
+    "Hello Kitty Londra'ya gitti.",
+    "İngiltere çok uzaktı.",
+    "Bu bir Sanrio oyuncağıydı.",
+    "Mağazaya gittiler.",
+    "Hello Kitty bir markadır."
+   ],
+   [
+    "Hello Kitty gülümsedi.",
+    "Kardeşi Mimi geldi.",
+    "Mimi sarı kurdelesini taktı.",
+    "İkizi Mimi güldü.",
+    "Hello Kitty parka gitti.",
+    "Annesi turtayı fırından çıkardı.",
+    "Mimi kurabiyeyi ağzına attı."
+   ]
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Dear Daniel",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Daniel",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Charmmy Kitty",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Charmmy",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Sugar",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Ichigoman",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Mimmy",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Kitty White",
+     "kaynak": [
+      "vikipedi_hk_tr"
+     ]
+    },
+    {
+     "ad": "George",
+     "kaynak": [
+      "vikipedi_hk_en",
+      "vikipedi_hk_tr"
+     ]
+    },
+    {
+     "ad": "Mary",
+     "kaynak": [
+      "vikipedi_hk_en",
+      "vikipedi_hk_tr"
+     ]
+    },
+    {
+     "ad": "Anthony",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Margaret",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Joey",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Judy",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Tippy",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Thomas",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Tracy",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "Rorry",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    },
+    {
+     "ad": "My Melody",
+     "kaynak": [
+      "vikipedi_hk_en"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Marka, mağaza, alışveriş, uçak ya da trenle şehir yolculuğu ve zamanda yolculuk hikayeye girmez.",
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "kurdele",
+   "kurabiye",
+   "turta",
+   "piknik",
+   "kamp"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Mimi (ikiz kız kardeşi)",
+    "kart": [
+     "yan:mimi"
+    ],
+    "not": "Kaynaklarda 'Mimmy'; Türkçe okunuşa uygun kısa ad 'Mimi'. 'Mimmy' yasak adlarda (tek yazım)."
+   },
+   {
+    "urun": "Annesi",
+    "kart": [
+     "yan:anne"
+    ],
+    "not": "Kaynaktaki adı Mary; yalnız rolüyle anılır."
+   },
+   {
+    "urun": "Babası",
+    "kart": [
+     "yan:baba"
+    ],
+    "not": "Kaynaktaki adı George; yalnız rolüyle anılır."
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: kasabada ev, park ve orman; araçla yolculuk ve büyü yok."
+  },
+  "kararlar": [
+   "Konuşma: çizimde ağzı görünmez ama dizilerde seslendirilir ve konuşur; hikayede konuşur, ağzından söz edilmez (kullanıcı yetkisiyle karar).",
+   "Tür: görünüşü beyaz bir kedi (kırmızı kurdeleli); kart türü 'kedi', 'kız' da lemma (kullanıcı yetkisiyle karar).",
+   "Yerler: park ve orman yalnız bölüm adlarına dayanır (kismen), genel tarifle kalır; Londra ve şehir yolculuğu yok (kullanıcı yetkisiyle karar).",
+   "Yanlar: Mimi (kaynakta Mimmy), annesi ve babası; Dear Daniel, evcil hayvanları, dedesi, ninesi, hayvan arkadaşları ve öteki Sanrio karakterleri kartta yok (kullanıcı yetkisiyle karar)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/hello_kitty#f23afb0c6b",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "ev",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "yuvarlak çilekler turtanın üstünden kayıp düştü",
+    "cozum": "çilekleri reçel noktalarının üstüne yan yatırdı"
+   },
+   "govde": "Bir sabah Hello Kitty mutfakta süsleme oyunu oynuyordu. Tabaktaki elmalı turtayı çileklerle süslemek istedi. Ama yuvarlak çilekler turtanın üstünden kaydı ve tabağa düştü. Hello Kitty çileklere ve turtaya dikkatle baktı. Masada bir kavanoz çilek reçeli vardı. Hello Kitty kaşıkla turtanın üstüne küçük reçel noktaları koydu. Sonra her çileği reçelli bir noktanın üstüne yan yatırdı. Çilekler bu kez yapıştı ve hiç kaymadı. Turtanın üstünde kırmızı bir çiçek oldu. Hello Kitty çok sevindi, çünkü en sevdiği turta şimdi çok güzel görünüyordu.",
+   "ozellik": {
+    "anahtar_kok": "turta",
+    "deger": "En çok elmalı turtayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#abd961a42c",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "parkta bir ses duydu ve nereden geldiğini merak etti",
+    "cozum": "ağaçların arasında gezindi ve sesi yapan salıncağı buldu"
+   },
+   "govde": "Parkta rüzgarlı bir sabah Hello Kitty arkadaşlarını bekliyordu. Birden bir yerden tuhaf bir ses geldi. Hello Kitty sesin nereden geldiğini çok merak etti. Ağaçların arasında yavaş yavaş gezindi. Ağaçlar çok fazlaydı ve sesi bulmak zordu. Hello Kitty her ağacın yanında durdu ve dinledi. Ses en büyük ağaçtan geliyordu. Bu ağacın dalına kalın bir halat bağlıydı. Ucunda tahtadan bir salıncak vardı. Rüzgar salıncağı sallıyordu ve dal gıcırdıyordu. Hello Kitty sesi bulduğu için güldü. Salıncağa oturdu ve arkadaşları gelene kadar mutlu mutlu sallandı.",
+   "ozellik": {
+    "anahtar_kok": "arkadaş",
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): arkadaşlarını",
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): arkadaşları"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#9fc6350010",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": [
+     "Mimi"
+    ]
+   },
+   "plan": {
+    "sorun": "koşarken kardeşinin fincanına çarptı ve limonata döküldü",
+    "cozum": "özür diledi ve kendi fincanını kardeşiyle paylaştı"
+   },
+   "govde": "Parkta, ağacın gölgesinde iki fincan limonata duruyordu. Hello Kitty çimenlerde koşarken Mimi'nin fincanına çarptı. Fincan devrildi ve limonata çimenlere döküldü. Mimi boş fincanına baktı ve üzüldü. Hello Kitty hemen durdu ve kardeşinin yanına oturdu. Ona sarıldı ve özür diledi. Sonra kendi fincanını eline aldı. Yarısını kardeşine ayırdı ve onun fincanına koydu. Mimi fincanını iki eliyle tuttu ve gülümsedi. İkizler limonatalarını yudum yudum birlikte içti. Hello Kitty rahatladı, çünkü kardeşi ve en iyi arkadaşı artık üzgün değildi.",
+   "ozellik": {
+    "anahtar_kok": "arkadaş",
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): ikizler"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#0e780681e7",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "orman",
+    "yan": [
+     "annesi"
+    ]
+   },
+   "plan": {
+    "sorun": "kurabiye kutusunun kurdelesi sıkı bir düğüm olmuştu",
+    "cozum": "kurdelenin ucunu bulup yavaşça çekti ve düğümü çözdü"
+   },
+   "govde": "Ağaçların arasında hafif bir rüzgar esiyordu. Hello Kitty'nin annesi kamp yerinde kurabiye kutusunu açmak istedi. Ama kutu sepette sallanmış ve fiyonk sıkı bir düğüm olmuştu. Annesi düğümü çözmeye çalıştı ama çözemedi. Hello Kitty kutuya yaklaştı ve düğüme dikkatle baktı. Annesiyle kurabiye yapınca kutuları hep Hello Kitty bağlardı. Bu ince kurdeleyi çok iyi tanıyordu. Hello Kitty kurdelenin küçük ucunu buldu ve yavaşça çekti. Düğüm hemen açıldı. Annesi kutunun kapağını kaldırdı ve kızına bir kurabiye verdi. \"Teşekkürler, tatlım, bana çok yardım ettin,\" dedi annesi. Hello Kitty çok mutlu oldu, çünkü annesine yardım etmişti.",
+   "ozellik": {
+    "anahtar_kok": "kurabiye",
+    "deger": "Kurabiye yapmayı çok sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#ba2e1b4045",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "kardan kedinin yüzündeki dal aşağı kıvrılmıştı",
+    "cozum": "dalı ters çevirip gülen bir yüz yaptı"
+   },
+   "govde": "Kar yavaş yavaş yağıyordu. Hello Kitty evin yanındaki parkta ağır kar toplarıyla kardan bir kedi yapıyordu. Ama kedinin ağzına koyduğu dalın ucu aşağı kıvrılmıştı. Kardan kedi bu yüzden çok üzgün görünüyordu. Hello Kitty kardan kediyi de arkadaşları gibi sevdi. Onun da mutlu görünmesini istedi. Dalı çekip çıkardı ve ters çevirdi. Sonra onu yeniden yerine bastırdı. Artık dalın ucu yukarı bakıyordu. Kedi şimdi gülüyor gibi görünüyordu. Hello Kitty kardan kedinin yanında karda mutlu mutlu oynadı.",
+   "ozellik": {
+    "anahtar_kok": "arkadaş",
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): arkadaşları"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#3e2ff64de6",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": [
+     "Mimi"
+    ]
+   },
+   "plan": {
+    "sorun": "kardeşi yağmurluğunu çıkarıp bir yerde bırakmıştı",
+    "cozum": "yorgun kardeşinin yanında kalıp yağmurluğu çiçeklerde gördü"
+   },
+   "govde": "Parkta yağmur yeni dinmişti ve çimenler ıslaktı. Hello Kitty ile Mimi çiçeklerin arasında koşup oynamıştı. Mimi koşarken sarı yağmurluğunu çıkarmıştı ve şimdi onu bulamıyordu. Mimi çok yorgundu ve üzgündü. \"Otur, Mimi, ben seninle kalırım,\" dedi Hello Kitty. En iyi arkadaşını yalnız bırakmadı. İki kardeş büyük ağacın gölgesine oturdu. Hello Kitty etrafa baktı. Tam o sırada rüzgar esti ve çiçeklerde sarı bir kol havalandı. \"Bak, yağmurluğun orada!\" diye seslendi Hello Kitty. Hemen çiçeklere koştu ve yağmurluğu aldı. Mimi yağmurluğunu giydi ve kardeşine sarıldı. Hello Kitty çok mutlu oldu, çünkü kardeşine yardım etmişti.",
+   "ozellik": {
+    "anahtar_kok": "arkadaş",
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#593c26e790",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "ev",
+    "yan": [
+     "Mimi"
+    ]
+   },
+   "plan": {
+    "sorun": "koşarken kardeşinin çamaşırlarını yere düşürdü",
+    "cozum": "özür diledi ve çamaşırları kardeşiyle yeniden katladı"
+   },
+   "govde": "Dışarıda yağmur yağıyordu. Hello Kitty ile ikizi Mimi evde oyun oynuyordu. Hello Kitty koşarken Mimi'nin katladığı çamaşırlara çarptı ve hepsi yere düştü. Mimi yerdeki çamaşırlara baktı ve çok üzüldü. Hello Kitty hemen durdu ve kardeşinin yanına gitti. Mimi en iyi arkadaşıydı, bu yüzden Hello Kitty ondan özür diledi. Sonra Mimi'ye sıkıca sarıldı. Hello Kitty yumuşak havluları yerden tek tek topladı. Mimi de ona yardım etti. İkisi birlikte bütün çamaşırları yeniden katladı ve sepete koydu. Mimi gülümsedi ve Hello Kitty'nin elini tuttu. Hello Kitty bundan sonra evde koşarken etrafına dikkat etti.",
+   "ozellik": {
+    "anahtar_kok": "arkadaş",
+    "deger": "Yeni arkadaşlar edinmeyi çok sever; herkese iyi davranır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#4ab09147b0",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": [
+     "Mimi"
+    ]
+   },
+   "plan": {
+    "sorun": "küçük bir kedi çok acıkmıştı çünkü yerde yiyecek yoktu",
+    "cozum": "sepetten turta çıkarıp küçük parçalarını çimenlere attı"
+   },
+   "govde": "Bir sabah Hello Kitty ile Mimi parkta piknik yapıyordu. Birden ağacın altında küçük bir kedi gördüler. Kedi tüylerini şişirmişti ve yerde yiyecek arıyordu, ama hiç bulamıyordu. \"Bu kedi çok aç galiba,\" dedi Mimi yavaşça. Hello Kitty sepete baktı. Sepetin kapağı kırmızı bir kurdeleyle bağlıydı. Hello Kitty kurdeleyi çözdü ve en sevdiği elmalı turtayı çıkardı. Turtanın kenarından küçük parçalar kopardı. Oturduğu yerden parçaları çimenlerin üstüne attı. Kedi yavaşça geldi ve parçaları yedi. \"Bak, Mimi, artık karnı tok!\" dedi Hello Kitty. Kedi neşeyle miyavladı. Sonra Hello Kitty ile Mimi pikniğe mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "turta",
+    "deger": "En çok elmalı turtayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#842ef942b0",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": [
+     "Mimi"
+    ]
+   },
+   "plan": {
+    "sorun": "kardeşi yemeğini evde unutmuştu ve acıkmıştı",
+    "cozum": "turtayı ikiye böldü ve büyük parçayı kardeşine verdi"
+   },
+   "govde": "Rüzgar hafifçe esiyordu. Hello Kitty ile Mimi parkta, ağacın gölgesine geldi. Mimi kendi yemeğini evde unutmuştu ve karnı acıkmıştı. Ama utandı ve bir şey istemedi. Sessizce yün örtüyü çimenlere serdi. Hello Kitty kardeşinin sepete baktığını gördü. Hello Kitty sepetinden en sevdiği elmalı turtayı çıkardı. Turtayı ikiye böldü ve büyük parçayı Mimi'ye uzattı. \"Sen çok çalışkansın, Mimi, biraz dinlen ve ye,\" dedi Hello Kitty. Mimi örtüye oturdu ve turtayı aldı. \"Teşekkürler, Hello Kitty, bu turta çok güzel!\" dedi Mimi.",
+   "ozellik": {
+    "anahtar_kok": "turta",
+    "deger": "En çok elmalı turtayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hello_kitty#8be51561ec",
+   "baslik": {
+    "figur": "Hello Kitty",
+    "yer": "park",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "düşen elmalar çimenlerde çalılara doğru yuvarlandı",
+    "cozum": "boş sepetini yere koyup elmaları durdurdu"
+   },
+   "govde": "Parkta ferah bir sabah hafif bir rüzgar esiyordu. Hello Kitty bir elma ağacının gölgesinde böreğini yiyordu. Birden rüzgar dalları salladı ve yere kırmızı elmalar düştü. Elmalar çimenlerde yuvarlandı ve çalılara doğru gitti. Hello Kitty en sevdiği elmalı turtayı düşündü. Bu elmalar bir elmalı turta için çok güzeldi. Böreğini yanına koydu ve boş sepetini aldı. Elmaları durdurmak için sepeti çalıların önüne yatırdı. Elmalar birer birer sepetin içine girdi. Hello Kitty sepeti kaldırdı ve içine baktı. Sepette beş tane kırmızı elma vardı. Hello Kitty sepetin yanında böreğini mutlu mutlu yemeye devam etti.",
+   "ozellik": {
+    "anahtar_kok": "turta",
+    "deger": "En çok elmalı turtayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}

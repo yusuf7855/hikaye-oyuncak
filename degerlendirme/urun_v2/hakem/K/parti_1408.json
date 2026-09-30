@@ -1,0 +1,707 @@
+{
+ "parti": 1408,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1408.json",
+ "madde_sirasi": [
+  "K6",
+  "K4",
+  "C2",
+  "C3",
+  "C4",
+  "K2",
+  "K1",
+  "C1",
+  "K8",
+  "C6",
+  "C5",
+  "K7",
+  "K3",
+  "K5"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: K6, K4, C2, C3, C4, K2, K1, C1, K8, C6, C5, K7, K3, K5 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1408.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "keloglan",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Keloğlan",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_keloglan"
+   ]
+  },
+  "okunus": {
+   "deger": "keloğlan",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Keloğlan Masalları",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_keloglan",
+    "trt_ebeveyn_keloglan"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Keloğlan, bir köyde annesiyle yaşayan azimli ve dürüst bir çocuktur.",
+   "kaynak": [
+    "vikipedi_keloglan",
+    "trt_ebeveyn_keloglan"
+   ]
+  },
+  "tur": {
+   "deger": "oğlan",
+   "kaynak": [
+    "vikipedi_keloglan"
+   ],
+   "lemmalar": [
+    "oğlan",
+    "çocuk"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Dürüsttür ve azimlidir; işini bırakmaz.",
+    "anahtar_kok": "dürüst",
+    "anahtar_ifade": "\\bdürüst\\w*",
+    "ornek_bicimler": [
+     "dürüst",
+     "dürüstçe"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan",
+     "trt_ebeveyn_keloglan"
+    ]
+   },
+   {
+    "deger": "Yeni şeyler öğrenmeyi sever.",
+    "anahtar_kok": "öğren",
+    "anahtar_ifade": "\\böğren\\w*",
+    "ornek_bicimler": [
+     "öğrendi",
+     "öğrenmek"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan"
+    ]
+   },
+   {
+    "deger": "Biraz sakardır ama iyi kalplidir.",
+    "anahtar_kok": "sakar",
+    "anahtar_ifade": "\\bsakar\\w*",
+    "ornek_bicimler": [
+     "sakar",
+     "sakarlık"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Sakarlığı yalnız bir şeyi düşürmek ya da karıştırmak olarak gösterilir; kimse düşüp incinmez. Azmi tehlikeli bir işe girişmek olarak gösterilmez.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "orman",
+    "tarif": "Köyün yakınındaki orman; büyük ağaçlar vardır.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "blog_keloglan_kel_basim",
+     "blog_keloglan_ay_tasi"
+    ]
+   },
+   {
+    "etiket": "dağ",
+    "tarif": "Köyün yakınındaki tepe.",
+    "dizide_karsiligi": "dogrulanmadi",
+    "kaynak": [
+     "urun_karari"
+    ],
+    "not": "Dizide dağda geçen bölüm bulunamadı; karar kullanıcının."
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Keloğlan'ın annesiyle yaşadığı köy evi.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_keloglan"
+    ]
+   },
+   {
+    "etiket": "şato",
+    "tarif": "Köyün uzağındaki büyük taş saray; bahçesi ve yüksek kapıları vardır.",
+    "dizide_karsiligi": "kismen",
+    "kaynak": [
+     "vikipedi_keloglan",
+     "vikipedi_keloglan_bolumler"
+    ],
+    "not": "Dizide saray Kara Vezir'e (yasak) aittir; 'Padişah'ın Korkulu Rüyası' bölümünde padişah var ama kartta yok. Kullanıcı kararı: 'şato' yerine 'saray' tarifi, ya da yerin çıkarılması."
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:ana",
+    "kisa_ad": "anası",
+    "tip": "rol",
+    "yuzey_bicimleri": [
+     "ana",
+     "anası",
+     "anne",
+     "annesi",
+     "anneciğim"
+    ],
+    "iliski": {
+     "deger": "Keloğlan'ın annesi; onu her zaman korur.",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    "tur": {
+     "deger": "anne",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_keloglan",
+      "blog_keloglan_testi"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:bilgecan_dede",
+    "kisa_ad": "Bilgecan Dede",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Bilgecan Dede",
+     "Bilgecan",
+     "dede"
+    ],
+    "iliski": {
+     "deger": "Köyün en bilge kişisi; çok kitap okur, icatlar yapar, çocuklara bilmediklerini öğretir.",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    "tur": {
+     "deger": "dede",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "blog_keloglan_bilgecan"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:balkiz",
+    "kisa_ad": "Balkız",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Balkız"
+    ],
+    "iliski": {
+     "deger": "Keloğlan'ın akıllı arkadaşı; sarı saçlıdır.",
+     "kaynak": [
+      "vikipedi_keloglan",
+      "sabah_keloglan"
+     ]
+    },
+    "tur": {
+     "deger": "kız",
+     "kaynak": [
+      "sabah_keloglan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "blog_keloglan_testi"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:karakacan",
+    "kisa_ad": "eşeği",
+    "tip": "rol",
+    "resmi_ad": "Karakaçan",
+    "yuzey_bicimleri": [
+     "Karakaçan",
+     "eşek",
+     "eşeği"
+    ],
+    "iliski": {
+     "deger": "Keloğlan'ın akıllı eşeği; yük taşır, Keloğlan ıslık çalınca gelir.",
+     "kaynak": [
+      "vikipedi_keloglan",
+      "blog_keloglan_ay_tasi"
+     ]
+    },
+    "tur": {
+     "deger": "eşek",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 4: Karakaçan konuşmaz (kaynaklar konuştuğunu söylemiyor)."
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Bilgecan Dede iksir ve ilaç vermez; bilgisiyle ve icatlarıyla yardım eder.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[İi]ksir\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan",
+     "urun_kurali"
+    ]
+   },
+   {
+    "kural": "Karakaçan konuşmaz; yük taşır, başını sallar, anırır.",
+    "yasak_duzenli_ifadeler": [
+     "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Karakaçan|[Ee]şek|[Ee]şeği)\\b\\b",
+     "(?:Karakaçan|[Ee]şek|[Ee]şeği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan",
+     "sabah_keloglan"
+    ]
+   },
+   {
+    "kural": "Keloğlan'ın babası hikayede yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "Keloğlan'ın\\s+baba"
+    ],
+    "kaynak": [
+     "vikipedi_keloglan"
+    ]
+   },
+   {
+    "kural": "Balkız Keloğlan'ın arkadaşıdır; aşk, nişan ya da evlilik konusu yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "\\b[Aa]şık\\w*",
+     "\\b[Ee]vlen\\w*",
+     "\\b[Nn]işanl\\w*"
+    ],
+    "kaynak": [
+     "sabah_keloglan",
+     "urun_kurali"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Kara Vezir",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "ad": "Çirkin Cadı",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "ad": "Kara",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Sivri",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Örgülü",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Huysuz",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Uzun",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Sinek",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "İnatçı",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Tomurcuk",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Prenses",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Kuyu Canavarı",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "ad": "Kötülükler Kraliçesi",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "ad": "Çizmeli Tilki",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ]
+    },
+    {
+     "ad": "Mucit",
+     "kaynak": [
+      "vikipedi_keloglan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Tilkican",
+     "kaynak": [
+      "vikipedi_keloglan_bolumler"
+     ]
+    },
+    {
+     "ad": "Nasreddin Hoca",
+     "kaynak": [
+      "vikipedi_keloglan_bolumler"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Cadı, vezir, asker, canavar ve büyü hikayeye girmez.",
+     "kaynak": [
+      "vikipedi_keloglan",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "köy",
+   "eşek",
+   "ıslık",
+   "icat"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Anası",
+    "kart": [
+     "yan:ana"
+    ]
+   },
+   {
+    "urun": "Bilgecan Dede",
+    "kart": [
+     "yan:bilgecan_dede"
+    ]
+   },
+   {
+    "urun": "Balkız",
+    "kart": [
+     "yan:balkiz"
+    ]
+   },
+   {
+    "urun": "Karakaçan (eşeği)",
+    "kart": [
+     "yan:karakacan"
+    ],
+    "not": "Tasarım önerisiyle kısa ad 'eşeği' (Karakaçan 4 token); kullanıcı yetkisiyle karar verildi."
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "arac",
+    "cagdas"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: masal köyü."
+  },
+  "kararlar": [
+   "Şato: sahibi yazılmayan köyden uzak taş saray tarifi; Kara Vezir ve padişah girmez.",
+   "Dağ: köyün yakınındaki tepe olarak kalır; dizi bilgisi eklenmez.",
+   "Karakaçan konuşmaz (kullanıcı kararı 4).",
+   "Karakaçan kısa adı 'eşeği'; 'Karakaçan' yüzey biçimi (kullanıcı yetkisiyle karar)."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/keloglan#cf1a5cf24a",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "dağ",
+    "yan": [
+     "Balkız"
+    ]
+   },
+   "plan": {
+    "sorun": "tepede çok taş vardı ve doğru taşı bulamadı",
+    "cozum": "düşen fıstıkları görüp doğru taşı buldu"
+   },
+   "govde": "Rüzgar tepede hafif hafif esiyordu. Sakar Keloğlan, Balkız için taşın altına fıstık saklarken birkaçını düşürmüştü. Ama tepede çok taş vardı ve Keloğlan doğru taşı bulamadı. \"Keloğlan, neden buraya geldik?\" diye sordu Balkız. \"Sana bir şey göstereceğim, biraz bekle,\" dedi Keloğlan. Keloğlan yere dikkatle baktı. Birden yerde dağınık duran üç fıstık gördü. Üçü de düz bir taşın yanındaydı. Keloğlan taşı kaldırdı ve fıstık paketini buldu. \"İşte, en sevdiğin fıstıklar!\" dedi Keloğlan. Balkız paketi aldı ve sevinçle güldü. Keloğlan da çok sevindi, çünkü sürprizi Balkız'ı mutlu etmişti.",
+   "ozellik": {
+    "anahtar_kok": "sakar",
+    "deger": "Biraz sakardır ama iyi kalplidir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#5e2f9f9bfd",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "ev",
+    "yan": [
+     "anası"
+    ]
+   },
+   "plan": {
+    "sorun": "sürpriz için yıkanacak kabak çok ağırdı",
+    "cozum": "kabağı yerde iterek kovaya götürdü"
+   },
+   "govde": "Bir sabah Keloğlan anasına bir sürpriz hazırlamak istedi. Anası dışarıdaydı ve biraz sonra kabak tatlısı yapacaktı. Keloğlan büyük kabağı yıkamak istedi, ama kabak çok ağırdı. Onu yalnız başına kucağına alıp su dolu kovanın yanına taşıyamadı. Keloğlan kabağı yan yatırdı ve eliyle hafifçe itti. Kabak top gibi kolayca yuvarlandı. Keloğlan böylece ağır bir şeyi kaldırmadan götürmeyi öğrendi. Kabağı böyle kovanın yanına kadar getirdi ve bezle yıkadı. Temiz kabağın üstünde su damlaları ışıldadı. Az sonra anası içeri girdi ve kabağı gördü. Anası çok sevindi, çünkü Keloğlan kabağı onun için hazırlamıştı.",
+   "ozellik": {
+    "anahtar_kok": "öğren",
+    "deger": "Yeni şeyler öğrenmeyi sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#af4798cf1c",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "dağ",
+    "yan": [
+     "anası"
+    ]
+   },
+   "plan": {
+    "sorun": "anası tabağı süslemek istedi ama yakında çiçek yoktu",
+    "cozum": "tepeye dikkatle bakıp taşın arkasında çiçek buldu"
+   },
+   "govde": "Tepenin üstü geniş ve düzdü. Keloğlan ile anası orada piknik yapıyordu. Anası kekin tabağını çiçeklerle süslemek istiyordu ama yakında hiç çiçek yoktu. \"Ben sana çiçek bulurum, anneciğim,\" dedi Keloğlan. Keloğlan tepenin kenarına yürüdü ve her yere dikkatle baktı. Büyük bir taşın arkasında bir sürü sarı çiçek vardı! Keloğlan birkaç çiçek topladı. Biraz sakardı ve dönerken iki çiçeği düşürdü. Hemen eğildi, onları da aldı ve anasına götürdü. \"Çiçekler taşın arkasındaymış, anneciğim!\" dedi Keloğlan. Anası çiçekleri tabağın kenarına dizdi ve kekin tabağı güzelce süslendi. Keloğlan ile anası kekten birer dilim alıp mutlu mutlu yedi.",
+   "ozellik": {
+    "anahtar_kok": "sakar",
+    "deger": "Biraz sakardır ama iyi kalplidir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: sürü (sürü)"
+   ]
+  },
+  {
+   "id": "urun/keloglan#e3d68bea1e",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "orman",
+    "yan": [
+     "Bilgecan Dede"
+    ]
+   },
+   "plan": {
+    "sorun": "yeşil boya kabı devrildi ve yeşil boya kalmadı",
+    "cozum": "sarı ve mavi boyayı karıştırıp yeşil yaptı"
+   },
+   "govde": "Ormanda kuşlar ötüyordu. Keloğlan, Bilgecan Dede için bir düdük boyuyordu. Ama biraz sakardı ve yeşil boya kabını devirdi. Yeşil boyanın hepsi toprağa aktı. Elinde yalnız sarı ve mavi boya kaldı. Dede biraz ileride odun topluyordu. Keloğlan, sarı ile mavinin yeşil yaptığını biliyordu. Sarıyı ve maviyi boş kaba döktü ve karıştırdı. Boya yemyeşil oldu! Keloğlan yeni boyayla düdüğü çizgi çizgi boyadı. Tam o sırada Dede elindeki odunları yere indirdi ve yanına geldi. \"Sürpriz, dede! Bu çizgili düdük senin,\" dedi Keloğlan. Dede düdüğü alıp güldü. \"Ne güzel bir düdük, çok teşekkür ederim, Keloğlan!\" dedi Bilgecan Dede.",
+   "ozellik": {
+    "anahtar_kok": "sakar",
+    "deger": "Biraz sakardır ama iyi kalplidir."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): kuşlar"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#6c85bac85a",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "orman",
+    "yan": [
+     "Balkız"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi aynı anda sepete el soktu ve oyun karıştı",
+    "cozum": "önce arkadaşını izledi ve sırayla oynadılar"
+   },
+   "govde": "Büyük ağaçlarda kuşlar ötüyordu. Keloğlan ile Balkız ormanda sepetle bir tahmin oyunu oynuyordu. Ama ikisi de gözlerini kapadı ve ellerini aynı anda sepete soktu. Elleri çarpıştı ve kimse bir şey çıkaramadı. \"Balkız, önce sen oyna, ben de oyunu öğreneyim,\" dedi Keloğlan. Balkız gözlerini kapadı ve sepetten bir şey çıkardı. \"Bu sert bir kozalak!\" dedi Balkız. Keloğlan onu dikkatle izledi. Sonra sıra ona geldi. Keloğlan gözlerini kapadı ve yapışkan bir şey tuttu. \"Bu reçelli ekmek!\" diye güldü Keloğlan. Balkız da sırası gelince küçük bir filiz buldu. İki arkadaş çok eğlendi, çünkü sırayla oyun çok güzel olmuştu.",
+   "ozellik": {
+    "anahtar_kok": "öğren",
+    "deger": "Yeni şeyler öğrenmeyi sever."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): kuşlar"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#962a4ebe68",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "dağ",
+    "yan": [
+     "anası"
+    ]
+   },
+   "plan": {
+    "sorun": "ilk sırayı kimin alacağını bilemediler",
+    "cozum": "düşen kozalak ilk sırayı anneye verdi"
+   },
+   "govde": "Tepede serin bir rüzgar esiyordu. Keloğlan ile anası çimenlere oturmuş, börek yiyordu. Börekler bitince boş sepeti önlerine koydular. İkisi yerdeki kozalakları sırayla sepete atmak istedi. Ama ilk sırayı kimin alacağını bilemediler. \"Önce sen at, anne,\" dedi Keloğlan. \"Hayır, önce sen,\" dedi anası. Keloğlan biraz sakardı, gülerken kozalağı elinden düşürdü. Kozalak garip bir şekilde yuvarlandı ve anasının önünde durdu. \"Kozalak seni seçti, ilk sıra senin, anne,\" dedi Keloğlan. Anası güldü ve kozalağı sepete attı. Sonra sıra Keloğlan'a geçti. \"Sırayla oynamak çok güzel, anneciğim!\" dedi Keloğlan.",
+   "ozellik": {
+    "anahtar_kok": "sakar",
+    "deger": "Biraz sakardır ama iyi kalplidir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#3699ecb626",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "dağa sis indi ve koşma oyununda kaya görünmez oldu",
+    "cozum": "adımlarını sayarak yürüdü ve kayayı sisin içinde buldu"
+   },
+   "govde": "Dağda Keloğlan büyük bir ağaçtan gri bir kayaya koşma oyunu oynuyordu. Oyundan önce yürüyüp adımlarını saymış ve kayanın on adım uzakta olduğunu öğrenmişti. Ama birden tepeye beyaz bir sis indi ve kaya görünmez oldu. O sırada Keloğlan ağacın yanındaydı. Ağaçla kaya arasında yalnız düz, yumuşak çimenler vardı. Keloğlan koşmadı, çimenlerin üstünde dikkatle yürüdü. Bir, iki, üç diye adımlarını tek tek saydı. On adım sonra eli soğuk kayaya değdi. Keloğlan sevinçle zıpladı ve kayaya sarıldı. Biraz sonra rüzgar esti ve sis dağıldı. Hava yine tertemiz oldu ve oyun devam etti. Keloğlan çok mutluydu, çünkü kayayı sisin içinde bile bulmuştu.",
+   "ozellik": {
+    "anahtar_kok": "öğren",
+    "deger": "Yeni şeyler öğrenmeyi sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#392ff097c3",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "orman",
+    "yan": [
+     "Bilgecan Dede"
+    ]
+   },
+   "plan": {
+    "sorun": "dedenin kolyesini otların arasına düşürdü",
+    "cozum": "özür diledi, otlara baktı ve kolyeyi buldu"
+   },
+   "govde": "Rüzgar ormanda hafif hafif esiyordu. Bilgecan Dede, Keloğlan'a yeni yaptığı düdüklü bir kolyeyi gösterdi. Keloğlan sakar bir çocuktu ve kolyeyi kokulu otların arasına düşürdü. Otlar çok sıktı ve kolye hiç görünmüyordu. \"Özür dilerim, Dede, kolyeni düşürdüm,\" dedi Keloğlan. \"Üzülme, Keloğlan, onu bulabiliriz,\" dedi Dede. Keloğlan eğildi ve otları yavaşça aradı. Sonunda otların arasında küçük düdüğü gördü. Onu dikkatle aldı ve iki eliyle Dede'ye verdi. Dede düdüğü çaldı ve ormanda ince bir ses çıktı. \"Teşekkürler, Keloğlan, kolyemi sen buldun!\" dedi Bilgecan Dede.",
+   "ozellik": {
+    "anahtar_kok": "sakar",
+    "deger": "Biraz sakardır ama iyi kalplidir."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#b4d95ba5c4",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "orman",
+    "yan": [
+     "Bilgecan Dede"
+    ]
+   },
+   "plan": {
+    "sorun": "kurabiye kutusunun kapağı çok sıkıydı ve açılmadı",
+    "cozum": "doğruyu söyledi ve dedenin dediği gibi kapağı açtı"
+   },
+   "govde": "Ormanda büyük bir ağacın altında Keloğlan, Bilgecan Dede için bir kutlama hazırlıyordu. Bugün Dede'nin doğum günüydü ve Keloğlan kurabiye getirmişti. Ama kurabiye kutusunun kapağı çok sıkıydı ve açılmadı. Keloğlan kapağı çekti, ama kapak kıpırdamadı. Keloğlan dürüst davrandı ve Dede'ye söyledi: \"Sana kurabiye getirdim, ama kutuyu açamıyorum.\" Dede güldü ve \"Kapağın kenarına üç kez vur, sonra çek,\" dedi. Keloğlan kenara üç kez vurdu ve çekti. Kapak \"tık\" diye açıldı. Keloğlan kurabiyeleri büyük bir yaprağa dizdi. \"İyi ki doğdun, Dede!\" dedi Keloğlan. \"Ne iyi bir kutlama bu!\" dedi Dede. Keloğlan bundan sonra bir işi yapamayınca hemen yardım istedi.",
+   "ozellik": {
+    "anahtar_kok": "dürüst",
+    "deger": "Dürüsttür ve azimlidir; işini bırakmaz."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/keloglan#629e2e0057",
+   "baslik": {
+    "figur": "Keloğlan",
+    "yer": "şato",
+    "yan": [
+     "eşeği"
+    ]
+   },
+   "plan": {
+    "sorun": "eşek peşinden geliyordu ve sürprizi görecekti",
+    "cozum": "doğruyu söyledi ve eşekten beklemesini istedi"
+   },
+   "govde": "Bir sabah yağmur dindi ve şatonun bahçesinde güneş çıktı. Keloğlan, Karakaçan için gizli bir sürpriz hazırlıyordu. Ama Karakaçan hep peşinden geliyordu ve sürprizi görecekti. Karanlık köşede korkunç bir gölge dolaştı. Keloğlan ona yalan söylemedi, dürüst davrandı. \"Karakaçan, sana bir sürpriz yapıyorum, kapının yanında bekle,\" dedi Keloğlan. Karakaçan başını salladı ve kapının yanında bekledi. Keloğlan bir sepet havucu taş heykelin arkasına koydu. Sonra ıslık çaldı ve Karakaçan koşarak geldi. \"Sürpriz, Karakaçan, bunlar senin!\" dedi Keloğlan. Karakaçan havuçları görünce sevinçle başını salladı. Karakaçan havuçları mutlu mutlu yedi. Keloğlan da ona bakıp güldü.",
+   "ozellik": {
+    "anahtar_kok": "dürüst",
+    "deger": "Dürüsttür ve azimlidir; işini bırakmaz."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
