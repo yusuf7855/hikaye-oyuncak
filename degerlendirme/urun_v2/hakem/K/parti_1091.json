@@ -1,0 +1,618 @@
+{
+ "parti": 1091,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1091.json",
+ "madde_sirasi": [
+  "K2",
+  "K8",
+  "K1",
+  "C4",
+  "C2",
+  "K4",
+  "C1",
+  "C6",
+  "K5",
+  "K7",
+  "K6",
+  "K3",
+  "C5",
+  "C3"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: K2, K8, K1, C4, C2, K4, C1, C6, K5, K7, K6, K3, C5, C3 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1091.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "doru",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Doru",
+   "kaynak": [
+    "urun_karari",
+    "anibera_doru"
+   ]
+  },
+  "okunus": {
+   "deger": "doru",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Yılkı Atı Doru",
+   "kaynak": [
+    "urun_karari",
+    "dizi1001_doru"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Doru, annesiyle birlikte özgür bir at sürüsünde yaşayan genç bir attır.",
+   "kaynak": [
+    "anibera_doru",
+    "dizi1001_doru"
+   ]
+  },
+  "tur": {
+   "deger": "at",
+   "kaynak": [
+    "anibera_doru"
+   ],
+   "lemmalar": [
+    "at"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Genç ama güçlü ve hızlıdır.",
+    "anahtar_kok": "hız",
+    "anahtar_ifade": "\\bhız(?:la|lı\\w*|lıca)?\\b",
+    "ornek_bicimler": [
+     "hızla",
+     "hızlı",
+     "hızlıca"
+    ],
+    "kaynak": [
+     "anibera_doru"
+    ]
+   },
+   {
+    "deger": "Cesurdur.",
+    "anahtar_kok": "cesur",
+    "anahtar_ifade": "\\bcesur\\w*|\\bcesaret\\w*",
+    "ornek_bicimler": [
+     "cesur",
+     "cesaretle"
+    ],
+    "kaynak": [
+     "anibera_doru"
+    ]
+   },
+   {
+    "deger": "Karşılaştığı her canlıya yardım eder.",
+    "anahtar_kok": "yardım",
+    "anahtar_ifade": "\\byardım\\w*",
+    "ornek_bicimler": [
+     "yardım",
+     "yardımına"
+    ],
+    "kaynak": [
+     "anibera_doru"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Doru'nun hızı açık ve düz yerde koşarken gösterilir; uçurumdan atlama, derin sudan geçme yoktur. Sürüyü yakalamak isteyen insanlar ve kovalamaca hikayeye girmez.",
+   "kaynak": [
+    "urun_kurali",
+    "anibera_doru"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "dağ",
+    "tarif": "Sürünün dolaştığı yüksek dağlar ve vadi.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "trt_doru"
+    ]
+   },
+   {
+    "etiket": "orman",
+    "tarif": "Vadinin yakınında, ağaçlarla dolu bir orman.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "trt_doru"
+    ]
+   },
+   {
+    "etiket": "park",
+    "tarif": "Sürünün çimen yediği geniş bir çayır.",
+    "dizide_karsiligi": "yok",
+    "kaynak": [
+     "urun_karari"
+    ],
+    "not": "Dizide park yok. Tasarım önerisi: 'çayır' ya da 'yayla' tarifi, ya da yerin çıkarılması (karar kullanıcının; yer etiketi firmware ile aynı kalmalı)."
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:dorukisrak",
+    "kisa_ad": "annesi",
+    "tip": "rol",
+    "resmi_ad": "Dorukısrak",
+    "yuzey_bicimleri": [
+     "annesi",
+     "anne",
+     "anneciğim",
+     "Dorukısrak"
+    ],
+    "iliski": {
+     "deger": "Doru'nun sevecen annesi.",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "tur": {
+     "deger": "at",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "dizi1001_doru"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:karatay",
+    "kisa_ad": "Karatay",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Karatay"
+    ],
+    "iliski": {
+     "deger": "Doru'nun en yakın arkadaşı; simsiyah, neşeli ve heyecanlıdır, bazen yanlış karar verir.",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "tur": {
+     "deger": "at",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "dizi1001_doru"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:alaca",
+    "kisa_ad": "Alaca",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Alaca"
+    ],
+    "iliski": {
+     "deger": "Sürünün en küçük üyesi; Doru ve Karatay'dan yeni şeyler öğrenir, onlar ona hep yardım eder.",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "tur": {
+     "deger": "at",
+     "kaynak": [
+      "anibera_doru"
+     ],
+     "not": "Kaynak 'sürünün en küçük üyesi' der; sürünün atlardan oluştuğu Gelincik tanımından çıkar. Alaca'nın annesi Alkız kartta yoktur."
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "dizi1001_doru"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:kirat",
+    "kisa_ad": "Kırat",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Kırat"
+    ],
+    "iliski": {
+     "deger": "Sürünün en yaşlı üyesi; en çok o bilir, sürüdekiler ona danışır.",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "tur": {
+     "deger": "at",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "dizi1001_doru"
+     ]
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Sürüdeki atlar konuşur; insanlar (çiftlik sahipleri) hikayeye girmez.",
+    "yasak_duzenli_ifadeler": [],
+    "kaynak": [
+     "anibera_doru",
+     "dizi1001_doru"
+    ]
+   },
+   {
+    "kural": "Kırat sürünün en yaşlısıdır; Doru'nun babası ya da dedesi değildir.",
+    "yasak_duzenli_ifadeler": [
+     "\\b(?:[Bb]abası|[Dd]edesi)\\s+Kırat\\b",
+     "\\bKırat\\s*,?\\s+(?:Doru'nun\\s+)?(?:babası|dedesi)"
+    ],
+    "kaynak": [
+     "anibera_doru"
+    ]
+   },
+   {
+    "kural": "Doru'nun annesi Dorukısrak'tır; Doru'nun babası kartta yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "Doru'nun\\s+baba"
+    ],
+    "kaynak": [
+     "anibera_doru"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Alkız",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    {
+     "ad": "Demirkır",
+     "kaynak": [
+      "anibera_doru"
+     ]
+    },
+    {
+     "ad": "Gelincik",
+     "kaynak": [
+      "anibera_doru"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Alfa Kurt",
+     "kaynak": [
+      "dizi1001_doru"
+     ]
+    },
+    {
+     "ad": "Moya",
+     "kaynak": [
+      "dizi1001_doru",
+      "trt_doru"
+     ]
+    },
+    {
+     "ad": "Muhtar",
+     "kaynak": [
+      "dizi1001_doru"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Yaman",
+     "kaynak": [
+      "dizi1001_doru"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Kaju",
+     "kaynak": [
+      "trt_doru"
+     ]
+    },
+    {
+     "ad": "Hulusi",
+     "kaynak": [
+      "trt_doru"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Kurt, tuzak ve çiftlik sahipleri hikayeye girmez.",
+     "kaynak": [
+      "dizi1001_doru",
+      "trt_doru",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "sürü",
+   "vadi",
+   "at",
+   "çimen"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Dorukısrak (annesi)",
+    "kart": [
+     "yan:dorukisrak"
+    ],
+    "not": "Tasarım önerisiyle kısa ad 'annesi' (Dorukısrak 5 token); kullanıcı yetkisiyle karar verildi."
+   },
+   {
+    "urun": "Karatay",
+    "kart": [
+     "yan:karatay"
+    ]
+   },
+   {
+    "urun": "Alaca",
+    "kart": [
+     "yan:alaca"
+    ],
+    "not": "Kaynak bulundu: anibera.com (yapımcı) 'Sürünün en küçük üyesidir'."
+   },
+   {
+    "urun": "Kırat (bilge at)",
+    "kart": [
+     "yan:kirat"
+    ]
+   }
+  ],
+  "k7_izinli": [
+   "derin\\s+su(?:ya|dan)\\s+(?:girm|geçm)[ae](?:z|d[ıi]|m[ıi]ş|y[ae])\\w*"
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "teknoloji",
+    "cagdas_arac",
+    "arac",
+    "cagdas",
+    "ev_esyasi",
+    "mutfak",
+    "giysi",
+    "okul",
+    "hazir_yiyecek",
+    "calgi",
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: doğa dünyası (özgür at sürüsü)."
+  },
+  "kararlar": [
+   "Park: sürünün otladığı çayır tarifi; etiket firmware için 'park' kalır.",
+   "Dorukısrak kısa adı 'annesi' (kullanıcı yetkisiyle karar).",
+   "Gelincik yasak adlarda kalır; yan listesine eklenmez."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/doru#21f6407d3e",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": [
+     "annesi"
+    ]
+   },
+   "plan": {
+    "sorun": "ikisi de acıkmıştı ve tek bir elma kalmıştı",
+    "cozum": "hızla koşup elmayı tuttu ve annesiyle paylaştı"
+   },
+   "govde": "Bir sabah Doru ile annesi dağda uzun bir yol yürüdü. İkisi de çok acıkmıştı ama orada hiç çimen yoktu. Doru vadinin öbür ucunda bir elma ağacı gördü. Ağaçta tek bir kırmızı elma kalmıştı. Rüzgar esti ve elma dalda sallandı. \"Anne, elma düşerse aşağı yuvarlanır!\" dedi Doru. Doru düz vadide hızla koştu ve ağaca yetişti. Elma tam o sırada düştü ve Doru onu ağzıyla tuttu. Sonra elmayı annesine getirdi. \"Bu elma ikimize de yeter,\" dedi Doru. Önce annesi küçük bir lokma aldı, sonra Doru. \"Sen çok akıllısın, Doru,\" dedi annesi. Doru çok mutluydu, çünkü elmayı annesiyle paylaşmıştı.",
+   "ozellik": {
+    "anahtar_kok": "hız",
+    "deger": "Genç ama güçlü ve hızlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#08fd71dad9",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "park",
+    "yan": [
+     "annesi"
+    ]
+   },
+   "plan": {
+    "sorun": "annesi çilek kokusunu aldı ama yeri bulamadı",
+    "cozum": "uzun otlara girip çilekleri buldu ve annesine seslendi"
+   },
+   "govde": "Doru annesiyle geniş çayırda çimen yiyordu. Annesi burnunu kaldırdı ve çilek kokusunu aldı. Ama koku uzun ve sık otların arasından geliyordu ve annesi yeri bulamadı. \"Otların içi çok karanlık, Doru,\" dedi annesi. Doru cesaretle otların arasına girdi. Biraz yürüdü ve çilekli küçük bir yer buldu. \"Anne, buradayım, çilekler burada!\" diye seslendi Doru. Bu sözleri birkaç kez tekrarladı. Annesi sesin geldiği yere doğru yürüdü. Sonunda Doru'nun yanına vardı. Kırmızı çilekleri görünce çok sevindi. İkisi birlikte çilek yedi. \"Teşekkürler, Doru, bu çilekler çok tatlı!\" dedi annesi.",
+   "ozellik": {
+    "anahtar_kok": "cesur",
+    "deger": "Cesurdur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#c494142603",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "bir kayanın arkasından garip bir ses geliyordu",
+    "cozum": "sesi bulup fidanın üstündeki kuru dalı çekti"
+   },
+   "govde": "Bir sabah güneş dağın arkasından doğdu. Doru çimen yerken garip bir tak tak sesi duydu. Ses büyük bir kayanın arkasından geliyordu ve Doru onu çok merak etti. Kayanın arkasına yavaşça yürüdü ve baktı. Orada küçük bir fidan vardı. Doru kanatlarını açıp biraz uçtu. Fidanın üstüne kuru ve uzun bir dal düşmüştü. Rüzgar esince dal kayaya çarpıyor ve ses çıkarıyordu. Fidan dalın altında eğilmişti ve Doru bunu görünce mutsuz oldu. Doru fidana yardım etmek istedi. Kuru dalı dişleriyle tuttu ve kenara çekti. Fidan yeniden dik durdu ve garip ses de bitti. Doru vadide çimen yemeye mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "yardım",
+    "deger": "Karşılaştığı her canlıya yardım eder."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#93e7af30dc",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "çiçeğin toprağı kuruydu çünkü dere suyu gelmiyordu",
+    "cozum": "toprağı şekillendirip taşla suyu çiçeğe çevirdi"
+   },
+   "govde": "Bir sabah Doru dağda küçük bir derenin yanında yürüyordu. Orada sarı bir çiçek gördü. Çiçeğin yaprakları aşağı eğilmişti, çünkü toprağı çok kuruydu. Dere yakından akıyordu ama suyu çiçeğe gitmiyordu. Doru çiçeğe yardım etmek istedi. Önce ayağıyla toprağı kazdı ve küçük bir su yolu şekillendirdi. Sonra yerde ilginç bir taş buldu. Taş ince ve düzdü. Doru taşı burnuyla itti ve derenin kenarına koydu. Düz taş suyu yeni yola çevirdi. Su aktı ve çiçeğin dibine geldi. Kuru toprak ıslandı. Çiçeğin yaprakları yavaş yavaş yukarı kalktı. Doru çiçeğe baktı ve çok sevindi. Doru bundan sonra kuru bir çiçek görünce ona su yolu açtı.",
+   "ozellik": {
+    "anahtar_kok": "yardım",
+    "deger": "Karşılaştığı her canlıya yardım eder."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#5fea391c08",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "çalının arkasından garip bir ses geldi",
+    "cozum": "başını dalların arasına soktu ve sıcak suyu buldu"
+   },
+   "govde": "Doru soğuk bir sabah dağda yem arıyordu. Birden büyük bir çalının arkasından garip bir ses geldi. Doru bu sesin ne olduğunu çok merak etti. Çalının arkası karanlık görünüyordu. Doru cesaretle başını sık dalların arasına soktu. Orada küçük ve sığ bir su vardı. Su yerin altından çıkıyordu ve ses buradan geliyordu. Doru burnunu suya değdirdi. Su sıcacıktı ve üstünden ince bir buhar çıkıyordu. Doru suyun yanında durdu ve güzelce ısındı. Sonra suyun kenarındaki taze otları yedi. Doru bundan sonra garip bir ses duyunca önce dikkatle dinledi.",
+   "ozellik": {
+    "anahtar_kok": "cesur",
+    "deger": "Cesurdur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#44f8e97689",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "orman",
+    "yan": [
+     "Alaca"
+    ]
+   },
+   "plan": {
+    "sorun": "küçük at saklanırken yolunu kaybetti",
+    "cozum": "sesini duyup koştu ve onu geri getirdi"
+   },
+   "govde": "Ormanda Doru ile Alaca saklambaç oynuyordu. Alaca saklanmak için ağaçların arasında ileri gitti. Sonra geri dönmek istedi ama yolu bulamadı. \"Doru, neredesin?\" diye seslendi Alaca. Doru bu sesi uzaktan duydu. Hemen ağaçların arasındaki düz yolda hızla koştu. Az sonra Alaca'yı büyük bir ağacın altında buldu. \"Seni buldum, Alaca!\" dedi Doru. \"İyi ki geldin, Doru,\" dedi Alaca. \"Benim arkamdan gel,\" dedi Doru. Alaca onun arkasından yürüdü ve oyun yerine döndüler. Sonra Doru ile Alaca, yakın ağaçların arasında oyunlarına devam etti.",
+   "ozellik": {
+    "anahtar_kok": "hız",
+    "deger": "Genç ama güçlü ve hızlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#423c381293",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": [
+     "Karatay"
+    ]
+   },
+   "plan": {
+    "sorun": "arkadaşının sevdiği bitki vadinin öbür yanında büyüyordu",
+    "cozum": "düz vadide koşup bitkileri getirdi"
+   },
+   "govde": "Rüzgar vadide serin serin esiyordu. Doru, Karatay'a küçük bir sürpriz hazırlamak istedi. Ama Karatay'ın sevdiği tatlı bitki vadinin öbür yanında büyüyordu. Karatay dereden su içiyordu ve hiç sabırlı değildi. Az sonra geri gelecekti. Doru düz vadide hızla koştu. Orada yeşil bitkileri ağzına doldurdu. Sonra aynı yoldan geri döndü. Ağzındaki bitkileri düz bir taşın üstüne boşalttı. Tam o sırada Karatay geldi ve taşa baktı. Karatay sevinçle zıpladı ve hepsini yedi. Doru bundan sonra arkadaşlarını küçük sürprizlerle sevindirdi.",
+   "ozellik": {
+    "anahtar_kok": "hız",
+    "deger": "Genç ama güçlü ve hızlıdır."
+   },
+   "cogul_canli_notlari": [
+    "çoğul canlı (arka plan olmalı; konuşmaz, olaya katılmaz): arkadaşlarını"
+   ],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#e355c6152f",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": [
+     "Karatay"
+    ]
+   },
+   "plan": {
+    "sorun": "kartopu sisli vadide bir taşın arkasında kayboldu",
+    "cozum": "hızla her taşın arkasına bakıp kartopu buldu"
+   },
+   "govde": "Bir sabah Doru ile Karatay sisli vadide oyun oynuyordu. Karatay büyük bir kartopu yaptı ve bir taşın arkasına sakladı. Ama sis yüzünden hangi taş olduğunu unuttu. Vadide çok taş vardı. \"Doru, kartopu kayboldu!\" dedi Karatay. \"Sen burada bekle, ben bakarım,\" dedi Doru. Doru düz vadide taştan taşa hızla koştu. Her taşın arkasına baktı. Beşinci taşın arkasında beyaz bir kartopu duruyordu. \"Buldum, Karatay, buraya gel!\" dedi Doru. Karatay sevinçle yanına geldi. Sonra iki arkadaş kartopu ile mutlu mutlu oynadı.",
+   "ozellik": {
+    "anahtar_kok": "hız",
+    "deger": "Genç ama güçlü ve hızlıdır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#53a62f1dd6",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "dağ",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "rüzgar son dalı dereye düşürdü ve oyun bozuldu",
+    "cozum": "cesurca dereye girip dalı ağzıyla geri getirdi"
+   },
+   "govde": "Vadide Doru yeni bir atlama oyunu tasarladı. Kuru dalları derenin yanına dalgalı bir çizgi gibi dizdi. Ama birden rüzgar esti ve son dal dereye düştü. Dal suyun ortasında bir taşa takıldı. Doru suya girmeye önce biraz çekindi. Dere derin değildi ama suyu çok soğuktu. Doru cesur davrandı ve yavaşça suya girdi. Dalı ağzıyla tuttu ve kıyıya getirdi. Sonra dalı çizginin sonuna geri koydu. Doru dalların üstünden tek tek atladı. Hiçbir dala çarpmadı ve oyunu bitirdi. Doru çok sevindi, çünkü kendi oyununu sonuna kadar oynamıştı.",
+   "ozellik": {
+    "anahtar_kok": "cesur",
+    "deger": "Cesurdur."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/doru#7517f535a5",
+   "baslik": {
+    "figur": "Doru",
+    "yer": "orman",
+    "yan": [
+     "Karatay"
+    ]
+   },
+   "plan": {
+    "sorun": "saklambaçta arkadaşının kuyruğu çalıya takıldı",
+    "cozum": "dalları dişleriyle çekip kuyruğu kurtardı"
+   },
+   "govde": "Doru ile Karatay yağmurdan sonra ormanda saklambaç oynuyordu. Karatay saklanmak için sık bir çalıyı seçti. Ama çalıya girince kuyruğu dallara takıldı. \"Doru, çıkamıyorum, yardım et!\" diye seslendi Karatay. Doru sesi duydu ve hemen çalıya koştu. Karatay'ın uzun kuyruğu dallara dolanmıştı. Doru dalları dişleriyle tek tek tuttu ve yavaşça çekti. Kuyruk dallardan kurtuldu ve Karatay çalıdan çıktı. \"Bu çalı çok sık, başka bir yer bul,\" dedi Doru gülerek. Karatay bu kez büyük bir kayanın arkasına saklandı. Doru onu uzun uzun aradı. Sonunda Karatay gururlu bir sesle \"Buradayım!\" diye bağırdı. İki arkadaş oyunlarına mutlu mutlu devam etti.",
+   "ozellik": {
+    "anahtar_kok": "yardım",
+    "deger": "Karşılaştığı her canlıya yardım eder."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}

@@ -1,0 +1,662 @@
+{
+ "parti": 1101,
+ "mercek": "K",
+ "istem": "degerlendirme/HAKEM_K.md",
+ "cikti": "degerlendirme/urun_v2/hakem/K/puan_1101.json",
+ "madde_sirasi": [
+  "C3",
+  "C6",
+  "K1",
+  "K5",
+  "K4",
+  "C4",
+  "C1",
+  "K8",
+  "K6",
+  "C5",
+  "C2",
+  "K2",
+  "K7",
+  "K3"
+ ],
+ "talimat": "Yalnız K merceğinin istemini ve bu dosyayı oku. Maddelere bu sırayla bak: C3, C6, K1, K5, K4, C4, C1, K8, K6, C5, C2, K2, K7, K3 (kimlikler değişmez). Çıktıyı degerlendirme/urun_v2/hakem/K/puan_1101.json dosyasına partideki sırayla yaz.",
+ "hedef_yas": "3-6",
+ "kart": {
+  "kimlik": "hayri",
+  "grup": "populer",
+  "onayli": true,
+  "ad": {
+   "deger": "Hayri",
+   "kaynak": [
+    "urun_karari",
+    "rafadan_resmi",
+    "vikipedi_rafadan"
+   ]
+  },
+  "okunus": {
+   "deger": "hayri",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "seri": {
+   "deger": "Rafadan Tayfa",
+   "kaynak": [
+    "urun_karari",
+    "vikipedi_rafadan"
+   ]
+  },
+  "kimlik_cumlesi": {
+   "deger": "Hayri, mahallede arkadaşlarıyla maceralar yaşayan, yemek yemeyi çok seven bir çocuktur.",
+   "kaynak": [
+    "vikipedi_rafadan",
+    "rafadan_resmi"
+   ]
+  },
+  "tur": {
+   "deger": "oğlan",
+   "kaynak": [
+    "vikipedi_rafadan"
+   ],
+   "lemmalar": [
+    "oğlan",
+    "çocuk"
+   ]
+  },
+  "ozellikler": [
+   {
+    "deger": "Yemek yemeyi çok sever; sık sık acıkır.",
+    "anahtar_kok": "acık",
+    "anahtar_ifade": "\\bacık\\w*",
+    "ornek_bicimler": [
+     "acıktı",
+     "acıkmıştı"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   },
+   {
+    "deger": "Mahalledeki baklava dükkanında çalışır.",
+    "anahtar_kok": "baklava",
+    "anahtar_ifade": "\\bbaklava\\w*",
+    "ornek_bicimler": [
+     "baklava",
+     "baklavayı"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   },
+   {
+    "deger": "Olayları abartmayı sever.",
+    "anahtar_kok": "abart",
+    "anahtar_ifade": "\\babart\\w*",
+    "ornek_bicimler": [
+     "abarttı",
+     "abartarak"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   }
+  ],
+  "guvenli_ozellik_kullanimi": {
+   "deger": "Hayri'nin yemek sevgisi paylaşmak, beklemek ya da yemek hazırlamak olarak gösterilir; çok yiyip midesi ağrımaz, kimse onun yemesiyle ya da kilosuyla alay etmez, tanımadığı birinden yiyecek almaz.",
+   "kaynak": [
+    "urun_kurali"
+   ]
+  },
+  "yerler": [
+   {
+    "etiket": "deniz",
+    "tarif": "Mahallenin yakınındaki deniz kıyısı.",
+    "dizide_karsiligi": "dogrulanmadi",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_rafadan_bolumler"
+    ],
+    "not": "Dizi bir mahallede geçer; yalnız '100. Denizler Fatihi' bölüm adı bulundu, içeriği doğrulanmadı. 'Balık Ekmek' bölümü mahallede geçer. Karar kullanıcının."
+   },
+   {
+    "etiket": "orman",
+    "tarif": "Şehrin dışında, ağaçların arasındaki kamp yeri.",
+    "dizide_karsiligi": "dogrulanmadi",
+    "kaynak": [
+     "urun_karari",
+     "cizgifilm_rafadan_74"
+    ],
+    "not": "'Rafadan Kamp' bölümünde kamp alıştırması mahallenin ortasında yapılır (cizgifilm_rafadan_74); ormanda geçen bölüm bulunamadı. Karar kullanıcının."
+   },
+   {
+    "etiket": "park",
+    "tarif": "Mahallenin çocuk parkı.",
+    "dizide_karsiligi": "dogrulanmadi",
+    "kaynak": [
+     "urun_karari"
+    ],
+    "not": "Parkta geçen bölüm bulunamadı. Karar kullanıcının."
+   },
+   {
+    "etiket": "ev",
+    "tarif": "Mahalledeki evler, sokak ve bahçeler.",
+    "dizide_karsiligi": "dogrulandi",
+    "kaynak": [
+     "vikipedi_rafadan",
+     "vikipedi_rafadan_bolumler",
+     "rafadan_resmi"
+    ],
+    "kosullu_tarifler": [
+     {
+      "yan": "yan:basri_amca",
+      "tarif": "Basri Amca'nın bahçesi; izinsiz girilmez.",
+      "kaynak": [
+       "vikipedi_rafadan",
+       "vikipedi_rafadan_bolumler"
+      ]
+     }
+    ]
+   }
+  ],
+  "yanlar": [
+   {
+    "yan_kimlik": "yan:akin",
+    "kisa_ad": "Akın",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Akın"
+    ],
+    "iliski": {
+     "deger": "Mert'in küçük kardeşi ve arkadaş grubunun en küçüğü; çok zekidir, hayvanları çok sever.",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "tur": {
+     "deger": "oğlan",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:mert",
+    "kisa_ad": "Mert",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Mert"
+    ],
+    "iliski": {
+     "deger": "Akın'ın ağabeyi; sakin ve düzenlidir, tartışmaları o bitirir.",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "tur": {
+     "deger": "oğlan",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:kamil",
+    "kisa_ad": "Kamil",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Kamil"
+    ],
+    "iliski": {
+     "deger": "Hayri'nin yakın arkadaşı; uyumayı ve kitap okumayı çok sever, mahalle bakkalına bakar. Sık sık tartışsalar da birbirlerini çok severler.",
+     "kaynak": [
+      "vikipedi_rafadan",
+      "rafadan_resmi"
+     ]
+    },
+    "tur": {
+     "deger": "oğlan",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:basri_amca",
+    "kisa_ad": "Basri Amca",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Basri Amca",
+     "Basri",
+     "amca"
+    ],
+    "iliski": {
+     "deger": "Mahallede yaşar; çabuk kızar ama iyi kalplidir. Bahçesine izin almadan kimsenin girmesini istemez.",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "tur": {
+     "deger": "amca",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "konusur": {
+     "deger": true,
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    }
+   },
+   {
+    "yan_kimlik": "yan:yumak",
+    "kisa_ad": "Yumak",
+    "tip": "adli",
+    "yuzey_bicimleri": [
+     "Yumak",
+     "köpek",
+     "köpeği"
+    ],
+    "iliski": {
+     "deger": "Basri Amca'nın köpeği; onu Akın bulmuş ve Basri Amca'ya vermiştir.",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "tur": {
+     "deger": "köpek",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    "konusur": {
+     "deger": false,
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari"
+     ],
+     "not": "Kullanıcı kararı 4: Yumak konuşmaz (kaynaklar konuştuğunu söylemiyor)."
+    }
+   }
+  ],
+  "dunya_kurallari": [
+   {
+    "kural": "Mert ile Akın kardeştir, ağabey Mert'tir; hiçbiri Hayri'nin kardeşi değildir.",
+    "yasak_duzenli_ifadeler": [
+     "Hayri'nin\\s+(?:küçük\\s+|büyük\\s+)?(?:ağabey|abi|kardeş)\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   },
+   {
+    "kural": "Yumak Basri Amca'nın köpeğidir; Hayri'nin köpeği yoktur.",
+    "yasak_duzenli_ifadeler": [
+     "Hayri'nin\\s+(?:[\\w']+\\s+)?köpe[kğ]\\w*"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   },
+   {
+    "kural": "Yumak konuşmaz; havlar, koklar, kuyruğunu sallar.",
+    "yasak_duzenli_ifadeler": [
+     "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:Yumak|[Kk]öpek|[Kk]öpeği)\\b\\b",
+     "(?:Yumak|[Kk]öpek|[Kk]öpeği)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+    ],
+    "kaynak": [
+     "vikipedi_rafadan"
+    ]
+   }
+  ],
+  "yasaklar": {
+   "adlar": [
+    {
+     "ad": "Hale",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Sevim",
+     "kaynak": [
+      "vikipedi_rafadan",
+      "rafadan_resmi"
+     ]
+    },
+    {
+     "ad": "Rüstem",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Fatma Nine",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Sadettin",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Saadettin",
+     "kaynak": [
+      "rafadan_resmi"
+     ]
+    },
+    {
+     "ad": "Kuşçu Baba",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Ozan",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ],
+     "belirsiz": true
+    },
+    {
+     "ad": "Nuri",
+     "kaynak": [
+      "vikipedi_rafadan"
+     ]
+    },
+    {
+     "ad": "Tamtam",
+     "kaynak": [
+      "vikipedi_rafadan_bolumler"
+     ]
+    }
+   ],
+   "ogeler": [
+    {
+     "deger": "Hayri'nin kız kardeşi kartta yoktur; ailesi hikayeye girmez.",
+     "kaynak": [
+      "vikipedi_rafadan",
+      "urun_kurali"
+     ]
+    }
+   ]
+  },
+  "izinli_dunya_kokleri": [
+   "mahalle",
+   "baklava",
+   "bakkal",
+   "abart"
+  ],
+  "urun_yan_eslesmesi": [
+   {
+    "urun": "Akın",
+    "kart": [
+     "yan:akin"
+    ]
+   },
+   {
+    "urun": "Mert",
+    "kart": [
+     "yan:mert"
+    ]
+   },
+   {
+    "urun": "Kâmil",
+    "kart": [
+     "yan:kamil"
+    ],
+    "not": "Resmi yazım şapkasız 'Kamil' (rafadantayfa.com, Vikipedi)."
+   },
+   {
+    "urun": "Basri Amca ve köpeği Yumak",
+    "kart": [
+     "yan:basri_amca",
+     "yan:yumak"
+    ],
+    "not": "İki ayrı yan kimliğe bölündü (K4 yan sayımı için)."
+   }
+  ],
+  "tohum_yasak_kategoriler": {
+   "deger": [
+    "buyu"
+   ],
+   "kaynak": [
+    "urun_kurali",
+    "kullanici_karari"
+   ],
+   "not": "Tohum kelimesi dünyaya uyar: çağdaş mahalle."
+  },
+  "kararlar": [
+   "Deniz, orman ve park: ürün yer listesinde oldukları için kalır; tarif genel.",
+   "Yumak konuşmaz (kullanıcı kararı 4).",
+   "Hale yasak adlarda kalır; yan listesine eklenmez."
+  ]
+ },
+ "hikayeler": [
+  {
+   "id": "urun/hayri#9fc9b1c71b",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": [
+     "Akın"
+    ]
+   },
+   "plan": {
+    "sorun": "dalga kovayı götürdü ve kale yarım kaldı",
+    "cozum": "boş baklava kutusunu kova yaptı ve sırayla doldurdular"
+   },
+   "govde": "Deniz kıyısında Hayri ile Akın sırayla kumdan kale yapıyordu. Hayri kovayı dolduruyor, Akın ters çeviriyordu. Birden bir dalga geldi ve kovayı alıp uzağa götürdü. Akın üzüldü, çünkü kale daha yarımdı. Hayri çantasına baktı ve dükkandan getirdiği boş baklava kutusunu buldu. Az önce kutudaki baklavaları birlikte yemişlerdi. Hayri kutunun kapağını kopardı ve kutuyu kova gibi kullandı. \"Şimdi sıra sende, Akın,\" dedi Hayri. Akın kutuyu kumla doldurdu ve ters çevirdi. Kumdan kare bir kule çıktı. Akın çok memnun oldu ve ellerini çırptı. Hayri ile Akın sırayla kuleler yaptı ve kaleyi mutlu mutlu bitirdi.",
+   "ozellik": {
+    "anahtar_kok": "baklava",
+    "deger": "Mahalledeki baklava dükkanında çalışır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#b03d6e2e26",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": [
+     "Mert"
+    ]
+   },
+   "plan": {
+    "sorun": "kaleyi kutlamak istedi ama ne yapacağını bilmedi",
+    "cozum": "acıkınca kumdan bir pasta yaptı"
+   },
+   "govde": "Güneş parlıyordu ve kıyıya küçük dalgalar geliyordu. Hayri, Mert'in kumda bitirdiği kocaman kaleye bakıyordu. Onu bir sürprizle kutlamak istedi ama ne yapacağını bilmiyordu. O sırada çok acıktı ve aklına hemen bir pasta geldi. Hayri, Mert'ten arkasını dönmesini istedi. Kıyıdan elleriyle su getirip kumu suladı. Islak kumdan yuvarlak bir pasta yaptı. Sabah topladıkları kabukları torbadan çıkarıp üstüne dizdi. \"Dönebilirsin, Mert, bu senin için!\" dedi Hayri. Mert sürprizi görünce çok güldü. \"Bu gördüğüm en yaratıcı pasta, Hayri, teşekkür ederim!\" dedi Mert.",
+   "ozellik": {
+    "anahtar_kok": "acık",
+    "deger": "Yemek yemeyi çok sever; sık sık acıkır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#1bb914aa31",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "orman",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "kozalaklar bozuk çantadan hep yere düştü",
+    "cozum": "dükkandan getirdiği boş tepsiyle kozalakları taşıdı"
+   },
+   "govde": "Bir sabah Hayri kamp yerinde çam ağaçlarının altında yürüyordu. Yerde bir sürü büyük kozalak fark etti. Onlarla çadırının kapısını süslemek istedi. Ama çantasının fermuarı bozuktu ve topladığı her şey yere düşüyordu. Hayri biraz düşündü. Kampa, çalıştığı baklava dükkanından bir tepsi getirmişti. Tepsi kahvaltıdan sonra boş kalmıştı. Hayri onu kullanmaya karar verdi. Kozalakları tek tek üstüne dizdi. Dükkanda her gün tepsi taşıdığı için onu hiç sallamadan götürdü. Yolda hiçbiri kaymadı. Sonra hepsini kapının iki yanına sıra sıra koydu. Böylece çadırı çok güzel oldu ve Hayri mutlu mutlu gülümsedi.",
+   "ozellik": {
+    "anahtar_kok": "baklava",
+    "deger": "Mahalledeki baklava dükkanında çalışır."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": [
+    "belirsiz kelime cansız/oyuncak anlamında olmalı; canlı, konuşan ya da rol ise K6 ihlalidir: sürü (sürü)"
+   ]
+  },
+  {
+   "id": "urun/hayri#375bc3ffcf",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": [
+     "Akın"
+    ]
+   },
+   "plan": {
+    "sorun": "rüzgar kutuyu devirdi ve boncuklar kuma dağıldı",
+    "cozum": "komik bir sesle yardım istedi ve boncukları topladılar"
+   },
+   "govde": "Deniz kıyısında Hayri renkli boncuklarla bir kolye yapıyordu. Birden rüzgar esti ve boncuk kutusu kuma devrildi. Boncuklar kumun üstünde dağınık bir halde kaldı. Akın biraz uzakta kumda oynuyordu. \"Akın, yardım et, burada yüz tane boncuk var!\" diye abartarak seslendi Hayri. Akın güldü ve hemen koşup geldi. \"Yüz tane değil, yirmi tane var,\" dedi Akın. \"Dikkat et, boncukları çiğneme,\" dedi Hayri. İkisi kuma oturdu ve boncukları tek tek topladı. Kısa sürede kutu yine doldu. \"Teşekkürler, Akın, bütün boncuklar yine kutuda!\" dedi Hayri.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#0292cf3444",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "orman",
+    "yan": [
+     "Basri Amca"
+    ]
+   },
+   "plan": {
+    "sorun": "sürpriz bitmeden amca erken geldi",
+    "cozum": "amcayı güldürdü ve sürprizi hızla bitirdi"
+   },
+   "govde": "Bir sabah Hayri ormanda Basri Amca'ya doğum günü sürprizi hazırlıyordu. Ağaçların arasındaki açık bir yere pelerinini serdi ve üstüne çiçek koymaya başladı. Ama sürpriz bitmeden Basri Amca erken geldi. Hayri koşarak amcanın önüne geçti. \"Amca, şimdi bakarsan ben yüz kere üzülürüm!\" dedi Hayri abartarak. Basri Amca güldü ve gözlerini kapattı. Hayri hızla dönüp son çiçekleri de koydu. Basri Amca gözleri kapalı Hayri'nin koluna tutundu ve yürüdü. \"Şimdi bak, iyi ki doğdun!\" dedi Hayri. Basri Amca çiçekleri görünce gülümsedi. \"Çok güzel bir sürpriz, teşekkürler, Hayri,\" dedi Basri Amca. Hayri çok sevindi, çünkü sürprizini tam zamanında bitirmişti.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#0c543e3a3b",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "çember belinde dönmüyordu ve hemen yere düşüyordu",
+    "cozum": "belini güçlü ve hızlı salladı"
+   },
+   "govde": "Deniz kıyısında güneş parlıyordu. Hayri kumda ilk kez çember çevirmeyi deniyordu. Ama çember her seferinde düştü, çünkü Hayri belini çok yavaş sallıyordu. Hayri çemberi yerden aldı ve biraz düşündü. Çemberi iki eliyle beline yaklaştırdı. Sonra abartarak belini kocaman, güçlü ve hızlı salladı. Çember belinde bir kez, iki kez, üç kez döndü! Hayri durmadı ve saymaya devam etti. Çember tam on kez dönüp kuma indi. Hayri güldü ve ellerini çırptı. Hayri çok sevindi, çünkü yeni oyunu sonunda öğrenmişti.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#dfed404772",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "park",
+    "yan": [
+     "Basri Amca"
+    ]
+   },
+   "plan": {
+    "sorun": "oyuncak piyano parkta kayboldu",
+    "cozum": "sesin peşinden gitti ve piyanoyu buldu"
+   },
+   "govde": "Parkta ince bir müzik sesi geliyordu. Hayri salıncaktan indi ve Basri Amca'yı üzgün gördü. Basri Amca, Hayri için aldığı oyuncak piyanoyu parkta kaybetmişti. Hayri yüksek bir kayanın ucuna kadar çıktı. Hayri piyanoyu bulmak istedi ve sesi dikkatle dinledi. Ses büyük ağacın arkasından geliyordu. Hayri oraya koştu ve çimenlerin arasında sarı bir piyano buldu. Piyanonun şarkı düğmesi açık kalmıştı. Hayri, Basri Amca duysun diye abartarak bütün tuşlara bastı. Piyano çok yüksek çaldı ve Basri Amca koşarak geldi. Basri Amca güldü ve piyanoyu Hayri'ye verdi. Sonra Hayri piyanoyu çaldı ve şarkıya kendi sesini ekledi. Hayri çok sevindi, çünkü piyanoyu sesinden bulmuştu.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#8ae467fd3b",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": [
+     "Yumak"
+    ]
+   },
+   "plan": {
+    "sorun": "rüzgar köpeğin topunu suya doğru yuvarladı",
+    "cozum": "hemen koşup topu kumda yakaladı"
+   },
+   "govde": "Deniz kıyısında Hayri, Yumak'la top oynuyordu. Top çok hafifti. Birden rüzgar esti ve Yumak'ın topunu suya doğru yuvarladı. Yumak topa yetişemedi ve telaşla havladı. Hayri abartarak \"Top denizi geçip uzak ülkelere gidecek!\" diye bağırdı. Bu yüzden hiç beklemeden çok hızlı koştu. Topu suya girmeden hemen önce ıslak kumda yakaladı. Yumak kabarık kuyruğunu sallayarak geldi ve Hayri'yi karşıladı. \"Al bakalım, Yumak, topun kurtuldu,\" dedi Hayri. Yumak sevinçle havladı ve topu ağzına aldı. Hayri bundan sonra rüzgarlı havalarda Yumak'la hep sudan uzakta oynadı.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#fcded11d84",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "deniz",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "adımları küçük olduğu için resim kumda belli olmadı",
+    "cozum": "adımlarını büyüttü ve kuma sertçe bastı"
+   },
+   "govde": "Deniz kıyısında Hayri kuma basarak bir resim yapıyordu. Şapkalı bir güneş yapmak istiyordu. Ama adımları küçüktü ve güneş kumda hiç belli olmadı. Hayri biraz düşündü ve adımlarını abarttı. Uzun adımlar attı ve kuma sertçe bastı. Güneşin ışıklarını iki ayağıyla zıplayarak yaptı. Sonra güneşin üstüne büyük adımlarla bir şapka yaptı. Geri çekildi ve resmine baktı. Resim artık çok büyük ve belliydi. Hayri çok güldü ve sevindi, çünkü şapkalı güneş uzaktan bile görünüyordu.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  },
+  {
+   "id": "urun/hayri#02258e2482",
+   "baslik": {
+    "figur": "Hayri",
+    "yer": "orman",
+    "yan": []
+   },
+   "plan": {
+    "sorun": "hızlı yürüdü ve havuç yere düştü",
+    "cozum": "çok yavaş ve komik adımlarla yürüdü"
+   },
+   "govde": "Hayri kamp yerinde yeni bir oyun deniyordu. Kaşıkta küçük bir havucu ağaçtan masaya kadar taşıyacaktı. Ama Hayri hızlı yürüdü ve havuç kaşıktan yere düştü. Hayri havucu yerden aldı ve tekrar denedi. Havuç yine düştü. Bu kez Hayri adımlarını çok abarttı. Çok yavaş ve komik adımlarla yürüdü. Her adımda bir ayağını havaya kaldırdı ve biraz bekledi. Kaşığı da iki eliyle sıkıca tuttu. Havuç kaşıkta hiç kıpırdamadı. Sonunda Hayri masaya vardı ve havucu tabağa bıraktı. Sonra sevinçle zıpladı ve bu keyifli oyunu bir kez daha oynadı.",
+   "ozellik": {
+    "anahtar_kok": "abart",
+    "deger": "Olayları abartmayı sever."
+   },
+   "cogul_canli_notlari": [],
+   "belirsiz_kelime_notlari": []
+  }
+ ]
+}
