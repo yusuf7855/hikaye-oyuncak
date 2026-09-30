@@ -28,6 +28,9 @@
 //                 a candidate from it; on the ESP32 this is D additions per token and one D-dot at the end.
 //   -G k          with -H: prompt tokens from position k on count as story body too (teacher forcing: give
 //                 header + an existing story as the prompt and n = 0 to get that story's hidden-state mean).
+//   -Y file       name filter (../isim_suzgec.h): file = "V" line, V lines of hex token bytes, then one banned
+//                 name per line (UTF-8). A sampled token that would complete a banned name at a word start is
+//                 rejected and resampled from the rest (names split into many tokens, so -b cannot ban them).
 // rep_penalty > 1 lowers the odds of any token used in the last ORNEKLE_PENCERE (64) tokens (1 = off);
 // cheap enough for the ESP32: one pass over a 64-entry ring buffer per token.
 #include <stdio.h>
@@ -37,6 +40,7 @@
 #include <string.h>
 #include "../llm.h"
 #include "../ornekle.h"
+#include "../isim_suzgec.h"
 
 static uint8_t *read_file(const char *p, size_t *n) {
   FILE *f = fopen(p, "rb"); if (!f) { perror(p); exit(1); }
@@ -50,10 +54,34 @@ static int read_ids(char *s, int *out, int n, int max) {
   return n;
 }
 
+static int hex_deger(int c) { return c <= '9' ? c - '0' : (c | 32) - 'a' + 10; }
+
+// -Y: reads the token bytes and banned names into s (the strings live for the whole run).
+static void isim_oku(const char *yol, IsimSuzgec *s) {
+  FILE *f = fopen(yol, "r"); if (!f) { perror(yol); exit(1); }
+  static char satir[4096]; int V = 0;
+  if (!fgets(satir, sizeof satir, f) || (V = atoi(satir)) <= 0) { fprintf(stderr, "%s: bad V\n", yol); exit(1); }
+  char **tb = malloc(V * sizeof(char *)); int *tu = malloc(V * sizeof(int));
+  for (int i = 0; i < V; i++) {
+    if (!fgets(satir, sizeof satir, f)) { fprintf(stderr, "%s: short vocab\n", yol); exit(1); }
+    int n = 0; while (satir[n] && satir[n] != '\n') n++;
+    tu[i] = n / 2; tb[i] = malloc(n / 2 + 1);
+    for (int j = 0; j < n / 2; j++) tb[i][j] = (char)(hex_deger(satir[2 * j]) * 16 + hex_deger(satir[2 * j + 1]));
+  }
+  char **ad = malloc(256 * sizeof(char *)); int *au = malloc(256 * sizeof(int)), na = 0;
+  while (na < 256 && fgets(satir, sizeof satir, f)) {
+    int n = 0; while (satir[n] && satir[n] != '\n' && satir[n] != '\r') n++;
+    if (!n) continue;
+    ad[na] = malloc(n + 1); memcpy(ad[na], satir, n); ad[na][n] = 0; au[na++] = n;
+  }
+  fclose(f);
+  isim_suzgec_kur(s, (const char *const *)tb, tu, V, (const char *const *)ad, au, na);
+}
+
 int main(int argc, char **argv) {
   if (argc < 8) {
     fprintf(stderr, "usage: gen model.bin n temp topk seed rep [-b ids] [-N ids] [-P] [-l] [-e id] [-S nl] "
-                    "[-W k] prompt_ids...\n");
+                    "[-W k] [-Y file] prompt_ids...\n");
     return 2;
   }
   size_t nb; uint8_t *buf = read_file(argv[1], &nb);
@@ -63,7 +91,8 @@ int main(int argc, char **argv) {
   srand(atoi(argv[5]));
   float rep = atof(argv[6]);
   int ban[512], n_ban = 0, body_ban[512], n_body_ban = 0, first_id = 7, with_logp = 0, with_hid = 0, hid_from = -1, prompt_in_window = 1,
-      stop_id = -1, plan_nl = -1, prompt_window = 1 << 30;
+      stop_id = -1, plan_nl = -1, prompt_window = 1 << 30, isim_acik = 0;
+  IsimSuzgec isim;
   for (;;) {  // options, see the usage comment at the top
     if (argc > first_id + 1 && strcmp(argv[first_id], "-b") == 0) {
       n_ban = read_ids(argv[first_id + 1], ban, n_ban, 512); first_id += 2;
@@ -83,6 +112,8 @@ int main(int argc, char **argv) {
       hid_from = atoi(argv[first_id + 1]); first_id += 2;
     } else if (argc > first_id && strcmp(argv[first_id], "-H") == 0) {
       with_hid = 1; first_id += 1;
+    } else if (argc > first_id + 1 && strcmp(argv[first_id], "-Y") == 0) {
+      isim_oku(argv[first_id + 1], &isim); isim_acik = 1; first_id += 2;
     } else break;
   }
   int D = m.c.dim, L = m.c.n_layers, P = m.c.ple_dim, F = m.c.ffn, V = m.out_vocab, S = m.c.seq_len;
@@ -95,6 +126,7 @@ int main(int argc, char **argv) {
   s.logits = malloc(V * 4); s.scores = malloc(S * 4);
   s.kcache = malloc((size_t)L * S * D * 4); s.vcache = malloc((size_t)L * S * D * 4);
   OrnAyar cfg = {temp, K, rep, ban, n_ban, body_ban, n_body_ban, malloc(K * sizeof(int)), malloc(K * sizeof(double))};
+  if (isim_acik) { cfg.suzgec = isim_suzgec_uygun; cfg.suzgec_baglam = &isim; }
   OrnDurum st; orn_sifirla(&st);
   // The KV cache holds S positions and the embedding V rows: refuse a prompt that would write past either.
   if (argc - first_id < 1 || argc - first_id >= S) {
@@ -106,6 +138,7 @@ int main(int argc, char **argv) {
     tok = atoi(argv[i]);
     if (tok < 0 || tok >= m.c.vocab) { fprintf(stderr, "token id %d out of range\n", tok); return 2; }
     if (prompt_in_window && i - first_id < prompt_window) orn_ekle(&st, tok);
+    if (isim_acik) isim_suzgec_ekle(&isim, tok);
     llm_forward(&m, tok, pos++, &s);
     if (with_hid && hid_from >= 0 && i - first_id >= hid_from) { for (int j = 0; j < D; j++) hid[j] += s.x[j]; n_hid++; }
   }
@@ -115,6 +148,7 @@ int main(int argc, char **argv) {
   for (int step = 0; step < N && pos < S; step++) {
     int govdede = st.govde;  // body already started: the token sampled now is a body token
     tok = orn_adim(&cfg, &st, s.logits, V);
+    if (isim_acik) isim_suzgec_ekle(&isim, tok);
     // model confidence in its own choice: used to rank pre-generated candidates
     if (with_logp) printf("%d %.4f\n", tok, orn_logp(s.logits, V, tok));
     else printf("%d\n", tok);

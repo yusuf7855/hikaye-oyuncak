@@ -31,6 +31,9 @@
 #ifndef ORNEKLE_PLAN_SINIR
 #define ORNEKLE_PLAN_SINIR 48         /* plan modu: gövdeye varmadan en fazla bu kadar token (nl nl dahil) */
 #endif
+#ifndef ORNEKLE_SUZGEC_DENEME
+#define ORNEKLE_SUZGEC_DENEME 64      /* süzgeç açıkken bir adımda en fazla bu kadar token reddedilir */
+#endif
 #define ORNEKLE_YASAK_LOGIT (-1e30f)
 
 typedef struct {
@@ -40,6 +43,10 @@ typedef struct {
   const int *yasak; int n_yasak;   /* her zaman yasak (gen.c -b) */
   const int *govde_yasak; int n_govde_yasak;  /* yalnızca hikâye gövdesinde yasak (gen.c -N) */
   int *idx; double *p;             /* çağıranın karalama alanı: top_k'şar eleman */
+  /* İsteğe bağlı süzgeç (NULL: kapalı, çıktı eskisiyle aynı). Seçilen token'ı reddederse (0 döner) o token'ın
+   * logit'i yasaklanır ve yeniden seçilir: kalan token'lar arasından örneklemeyle aynı dağılım. Tek token'la
+   * yasaklanamayan çok parçalı isimler için (gen.c -Y, isim_suzgec.h). */
+  int (*suzgec)(void *baglam, int tok); void *suzgec_baglam;
 } OrnAyar;
 
 typedef struct {
@@ -133,6 +140,11 @@ static inline int orn_adim(const OrnAyar *a, OrnDurum *d, float *lg, int V) {
   orn_yasakla(lg, V, a->yasak, a->n_yasak);
   if (d->govde) orn_yasakla(lg, V, a->govde_yasak, a->n_govde_yasak);
   int tok = orn_sec(lg, V, a->sicaklik, a->top_k, a->idx, a->p);
+  if (a->suzgec)  /* reddedilen token yasaklanır, yeniden seçilir; hepsi reddedilirse sonuncusu kalır */
+    for (int deneme = 0; deneme < ORNEKLE_SUZGEC_DENEME && !a->suzgec(a->suzgec_baglam, tok); deneme++) {
+      lg[tok] = ORNEKLE_YASAK_LOGIT;
+      tok = orn_sec(lg, V, a->sicaklik, a->top_k, a->idx, a->p);
+    }
   if (d->plan_nl >= 0 && !d->govde) orn_plan_izle(d, tok);
   else orn_ekle(d, tok);
   return tok;
