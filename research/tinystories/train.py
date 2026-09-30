@@ -172,6 +172,10 @@ def main():
     ap.add_argument("--vocab", type=int, default=32768)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--en-iyi", action="store_true",
+                    help="keep the weights of the lowest-val evaluation (runs/<name>.best.pt) and write THOSE "
+                         "as the final runs/<name>.pt; long fine-tunes on small data can overfit after the "
+                         "best step, and without this only the last weights survive")
     ap.add_argument("--ckpt-every", type=int, default=250,
                     help="write a resumable checkpoint every N steps; a rerun with the same "
                          "arguments continues from it")
@@ -257,6 +261,8 @@ def main():
     history, best = [], float("inf")
     t0 = time.time()
     ckpt_path = os.path.join(RUNS, f"{name}.ckpt.pt")
+    best_path = os.path.join(RUNS, f"{name}.best.pt")
+    best_step = None
     progress_path = os.path.join(RUNS, f"{name}.progress.json")
     start_step, elapsed_before = 0, 0.0
 
@@ -277,6 +283,7 @@ def main():
         model.load_state_dict(ck["state"])
         opt.load_state_dict(ck["opt"])
         start_step, history, best = ck["step"] + 1, ck["history"], ck["best"]
+        best_step = ck.get("best_step")
         elapsed_before = ck.get("elapsed", 0.0)
         train_b.rng = np.random.default_rng(args.seed * 1_000_003 + start_step)
         print(f"resumed {name} at step {start_step}")
@@ -284,7 +291,7 @@ def main():
     def save_ckpt(step):
         tmp = ckpt_path + ".tmp"
         torch.save({"state": model.state_dict(), "opt": opt.state_dict(), "step": step,
-                    "steps": args.steps, "history": history, "best": best,
+                    "steps": args.steps, "history": history, "best": best, "best_step": best_step,
                     "elapsed": elapsed_before + time.time() - t0,
                     "tokenizer_sha256": tok_sha, "cfg": cfg.__dict__}, tmp)
         os.replace(tmp, ckpt_path)
@@ -316,7 +323,12 @@ def main():
 
         if step % args.eval_every == 0 or step == args.steps - 1:
             vl = evaluate(model, val_b, args.eval_iters)
-            best = min(best, vl)
+            if vl < best:
+                best, best_step = vl, step
+                if args.en_iyi:
+                    tmp = best_path + ".tmp"
+                    torch.save({"state": model.state_dict(), "step": step, "val": vl}, tmp)
+                    os.replace(tmp, best_path)
             tok = (step + 1) * args.batch_size * args.seq_len
             history.append({"step": step, "tokens": tok, "train": loss.item(), "val": vl})
             print(
@@ -359,6 +371,8 @@ def main():
         "params": budget,
         "final_val": history[-1]["val"],
         "best_val": best,
+        "best_step": best_step,
+        "final_weights": "best" if args.en_iyi else "last",
         "final_ppl": math.exp(history[-1]["val"]),
         "tokens_seen": args.steps * args.batch_size * args.seq_len,
         "steps": args.steps,
@@ -370,6 +384,9 @@ def main():
     # Identity and schedule live only in the filename and the sidecar JSON
     # otherwise, so a checkpoint copied over another name, or trained on a
     # different schedule, would pass every content check.
+    if args.en_iyi and os.path.exists(best_path):  # --en-iyi: the final file carries the best evaluation's weights
+        model.load_state_dict(torch.load(best_path, map_location=device, weights_only=False)["state"])
+        print(f"{name}: final weights = best val {best:.4f} at step {best_step}")
     torch.save({"cfg": cfg.__dict__, "state": model.state_dict(),
                 "tokenizer_sha256": tok_sha,
                 "seed": args.seed, "tag": args.tag, "name": name,
