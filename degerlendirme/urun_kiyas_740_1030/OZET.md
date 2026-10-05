@@ -22,3 +22,15 @@ kör ikili. Anahtar `secici_tur*/anahtar.json`.
 | 2 | son (yanlış alarm %2,3) | 12 / 4 / 0 (p≈0,08) | 7 / 7 / 2 |
 
 Kurallar hedefledikleri karakter hatalarını (genel kalite) iyileştiriyor, olay örgüsüne etkisi yok.
+
+## Büyük kıyas: 164 vaka (41 figür×yer × 4 tohum), yeni seçici
+
+740 (2000 adım) – 1030 (2000 adım, val 2,553); ikisi de 8 aday + isim süzgeci + kadro/takıntı kuralları. 4 parti × 2 hakem.
+
+| Hakem | 740 | 1030 | eşit | p |
+|---|---|---|---|---|
+| Genel kalite | 85 | 79 | 0 | 0,70 |
+| Olay örgüsü | 69 | 82 | 13 | 0,33 |
+
+Sonuç: iki model ayırt edilemiyor. Veriyi %40 artırmak (740 → 1030) doğrulama kaybını düşürdü ama hakemlerin gördüğü kaliteyi
+değiştirmedi. Kayıtlar `buyuk_164/`.
