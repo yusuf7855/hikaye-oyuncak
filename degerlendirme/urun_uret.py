@@ -136,6 +136,77 @@ def yanlis_isimler(metin, kimlik):
     return sorted(a for a in yasak if re.search(rf"(?<![\wçğıöşüÇĞİÖŞÜ]){re.escape(a)}(?![a-zçğıöşüâîû])", metin))
 
 
+KONUSMA = re.compile(r'["“]([^"“”]+)["”]\s*(?:diye\s+)?(?:dedi|sordu|seslendi|bağırdı|fısıldadı|cevap verdi|'
+                     r'karşılık verdi|söyledi)\s+([A-ZÇĞİÖŞÜ][\w\-]+(?:\s[A-ZÇĞİÖŞÜ][\w\-]+)?)')
+BUYUK_AD = re.compile(r"(?<![\wçğıöşü])([A-ZÇĞİÖŞÜ][a-zçğıöşüâîû]+(?:-[A-Z][a-z]+)?)")
+# Hakemlerin 740/1030 kıyasında en sık gerekçesi (degerlendirme/urun_kiyas_740_1030): karakter kendine davranıyor,
+# kartta olmayan adlar ve bir kelimenin takıntılı tekrarı ("havlu" döngüsü). Yanlış alarm oranları kabul edilmiş
+# urun_v2 hikâyelerinde ölçüldü (tests/test_urun_secici.py).
+
+
+def sozlukte_kok(w):
+    """w ya da en az 4 harfli bir ön eki sözlükte: cümle başındaki çekimli sıradan kelime ("Kekiklerin" -> kekik)."""
+    return w in sec.SOZLUK or any(w[:i] in sec.SOZLUK for i in range(len(w) - 1, 3, -1))
+
+
+def kadro_cezalari(metin, kimlik):
+    """Ürün kadrosuna göre karakter kuralları: kendine hitap/teşekkür, 'X X' / 'X ile X', kartta olmayan ad."""
+    k = KARTLAR[kimlik]
+    kadro = figur_adlari(kimlik)
+    rol = {s for y in k["yanlar"] for s in y["yuzey_bicimleri"] if s[:1].isupper()}  # Anne, Dede, Babaanne ...
+    izinli = kadro | rol | {w for a in kadro | rol for w in a.split()}
+    c = []
+    geçen = [n for n in sorted(kadro, key=len, reverse=True) if re.search(rf"\b{re.escape(n)}\b", metin)]
+    for m in KONUSMA.finditer(metin):  # '"Teşekkürler, Şila!" dedi Şila': konuşan kendi adını sesleniyor
+        soz, konusan = m.group(1), m.group(2)
+        if konusan in kadro and re.search(rf"\b{re.escape(konusan)}\b", soz):
+            c.append((3, f"{konusan} kendine sesleniyor"))
+            break
+    for n in geçen:
+        e = re.escape(n)
+        if re.search(rf"\b{e}\s+{e}\b|\b{e}\b,?\s+(?:ve|ile)\s+{e}\b", metin):
+            c.append((3, f"'{n} {n}'"))
+            break
+    if len(geçen) > 1:  # figürün kendi adı sec.olay_cezalari'nda; burada adlı yanlar
+        c += [x for x in sec.olay_cezalari(metin, [n for n in geçen if n != k["ad"]["deger"]]) if "kendi kendine" in x[1]]
+    tum_urun = set().union(*(figur_adlari(f) for f in FIGURLER)) | set(YABANCI) | {x["isim"] for x in KAR.values()}
+    bilinmeyen = []
+    for m in BUYUK_AD.finditer(metin):
+        w = m.group(1)
+        if w in izinli or w in tum_urun or any(len(i) > 2 and w.startswith(i) for i in izinli):
+            continue  # kadro dışı ürün adları 'yanlış isim' kuralında; 'Babaanneciğim' gibi ekli rol adları izinli
+        once = metin[:m.start()].rstrip()
+        cumle_basi = not once or once[-1] in '.!?"“”:'
+        ekli = metin[m.end():m.end() + 1] in ("'", "’")
+        # Cümle ortasında büyük harf Türkçede özel addır. Cümle başında ancak ek almışsa ("Susie'nin") ya da sözlükte
+        # yoksa ad sayılır; sözlük genel veriden geldiği için İngilizce adları da içerir, cümle ortasında ona bakılmaz.
+        if cumle_basi and not ekli and sec.SOZLUK is not None and sozlukte_kok(sec.kucuk(w)):
+            continue
+        bilinmeyen.append(w)
+    if bilinmeyen:
+        u = sorted(set(bilinmeyen))
+        c.append((min(6, 2 * len(u)), f"kartta olmayan ad {u[:3]}"))
+    return c
+
+
+def takinti_cezasi(metin, kimlik):
+    """Bir içerik kelimesinin (ilk 5 harfi) hikâyede 9+ kez geçmesi: modelin 'havlu' döngüsü. Eşik ölçümle: kabul
+    edilmiş urun_v2 hikâyelerinin %2,2'si, 740/1030 model adaylarının %13,8'i 9+ (6+ eşiğinde %36 / %40, ayırmıyor)."""
+    adlar = {sec.kucuk(w)[:5] for a in figur_adlari(kimlik) for w in a.split()}
+    kokler = [w[:5] for w in re.findall(r"[a-zçğıöşüâîû]{4,}", sec.kucuk(metin))]
+    say = {}
+    for w in kokler:
+        if w not in adlar and w not in TAKINTI_HARIC:
+            say[w] = say.get(w, 0) + 1
+    fazla = {w: n for w, n in say.items() if n >= 9}
+    return [(0.5 * sum(n - 8 for n in fazla.values()), f"takıntılı tekrar {sorted(fazla)[:3]}")] if fazla else []
+
+
+# İşlev kelimeleri ve bağlaçlar (sık geçmesi normal)
+TAKINTI_HARIC = {"sonra", "çünkü", "birli", "dedi", "hemen", "bunu", "onun", "onlar", "şimdi", "kadar", "değil", "ikisi",
+                 "çok", "için", "gibi", "daha", "artık", "yavaş", "birde", "çokça"}
+
+
 def puanla(a, kimlik, yer):
     """sec.py kuralları, ürün figürünün adıyla. İsim kuralları ürün adlarına göre: kadro dışı ad = 'yanlış isim'."""
     if a["plan_bozuk"] or not a["metin"]:
@@ -173,6 +244,7 @@ def puanla(a, kimlik, yer):
         if tekrar > 2:
             c.append((0.5 * (tekrar - 2), f"tekrar eden ifade x{tekrar}"))
         c += sec.olay_cezalari(metin, [ad], a["plan"])
+        c += kadro_cezalari(metin, kimlik) + takinti_cezasi(metin, kimlik)
         y = YER_ANAHTAR.get(yer, yer)
         if y in sec.YER_KELIME and sec.yer_cezasi(metin, y):
             c.append((1.5, "yer tutmuyor"))
