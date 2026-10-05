@@ -10,3 +10,15 @@
 
 Doğrulama kaybı 1030'da belirgin düşük, ama hakemler iki turda da 740'ı biraz öne koydu; hiçbir fark anlamlı değil (işaret testi, eşitler hariç).
 Seçici puanı ikisinde aynı (−2,33 / −2,34). Hakemlerin en sık gerekçeleri iki tarafta da: karakterin kendine davranması, tanıtılmamış adlar, kekeme tekrar.
+
+## Seçici kuralları (kendine hitap, kartta olmayan ad, takıntılı tekrar)
+
+Aynı 8 adaydan yeni seçici (`urun_uret.kadro_cezalari`, `takinti_cezasi`) ile eskisinin farklı seçtiği vakalar (82 vakanın 16'sı),
+kör ikili. Anahtar `secici_tur*/anahtar.json`.
+
+| Tur | Kural sürümü | Genel kalite (yeni / eski / eşit) | Olay örgüsü (yeni / eski / eşit) |
+|---|---|---|---|
+| 1 | ilk taslak | 11 / 5 / 0 | 7 / 9 / 0 |
+| 2 | son (yanlış alarm %2,3) | 12 / 4 / 0 (p≈0,08) | 7 / 7 / 2 |
+
+Kurallar hedefledikleri karakter hatalarını (genel kalite) iyileştiriyor, olay örgüsüne etkisi yok.
