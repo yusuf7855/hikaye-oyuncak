@@ -1,0 +1,47 @@
+import json
+D=[
+(6,1,["karakter_karisik","mantiksiz","bozuk_dil","ozellik_celiski"],False,False,False,2,"Konuşan çiçek ve kimliği belirsiz 'arkadaşı', anlamsız cümleler; at elleriyle yaprak kaldırıyor."),
+(14,1,["karakter_karisik","mantiksiz","bozuk_dil","tekrar"],True,True,False,2,"Çizilen top duvarda takılıyor, 'Dee' ve 'ikisi' belirsiz, 'dala takıldı' çelişkili tekrar."),
+(22,2,["mantiksiz","bozuk_dil","ozellik_celiski"],True,True,False,3,"Yol kazılıyor, yol yürüyor, otlar akıyor; at havlıyor."),
+(30,2,["mantiksiz","bozuk_dil","tekrar"],False,False,False,3,"Kar topu, topaç ve bilye birbirine karışıyor; 'başına taktı ve başına taktı'."),
+(38,1,["karakter_karisik","mantiksiz","bozuk_dil"],False,False,False,3,"Basri Amca kendi kendine konuşuyor; şişe/meyve/fırça olayları anlamsız."),
+(46,3,["mantiksiz","bozuk_dil"],True,True,False,2,"'Doru ile' eşi yok, 'Doru'nun yaprakları' ve damlayla çiçek düzeltme anlamsız."),
+(54,4,["mantiksiz","bozuk_dil"],True,False,False,2,"Kale kağıt uçağa dönüşüyor; uçak gidip dönüp yine gidiyor, sorun çözülmüyor."),
+(62,1,["karakter_karisik","mantiksiz","bozuk_dil"],False,False,False,3,"Canları, Şatay, Peppik gibi uydurma kişiler; Keloğlan kardeşine 'anneciğim' diyor."),
+(70,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Ses kokuyor, şişe içinden şişe çıkıyor, sonda birden Mete beliriyor."),
+(78,3,["mantiksiz","bozuk_dil"],False,False,False,2,"Kağıt kuş omza konuyor, 'F uzağa gidemezssem' bozuk; şapka sarmak anlamsız."),
+(86,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Helloca kaşığı kendine uzatıyor, kim neyi istiyor belirsiz, kavga sebebi anlamsız."),
+(94,3,["mantiksiz","bozuk_dil"],False,False,False,3,"Kekik, kızak, toz ve kutu olayları hiçbir mantığa oturmuyor."),
+(102,4,["mantiksiz","bozuk_dil","tekrar"],True,True,True,2,"Hayri torbayı alıp kaçıyor, 'Dee' anlamsız, 'buldu ve buldu' tekrarı."),
+(110,4,["mantiksiz","bozuk_dil"],False,False,False,2,"Anne tabağı yatağına götürüyor; sondaki ders olaylarla ilgisiz."),
+(118,1,["figur_yanlis","karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Buzz, Mert, Dert, Kayrici karışıyor; sonda Mert ana karakter oluyor."),
+(126,2,["mantiksiz","bozuk_dil","tekrar"],True,False,False,3,"Kale 'bitmişti' ama yapılıyor, kum yırtılıyor; 'ıslak ve biraz da ıslaktı'."),
+(134,3,["mantiksiz","bozuk_dil","yarim_son"],True,False,False,2,"Evde kar topu; top uzaklaşıyor ama 'sonunda duruyordu', kopuk ve çözümsüz."),
+(142,3,["mantiksiz","bozuk_dil","tekrar"],False,False,False,3,"Kar kendi kendine serpiyor, top diziyor; olay örgüsü yok."),
+(150,2,["mantiksiz","bozuk_dil"],True,False,False,3,"Hello Kitty ağ atıyor, şişe parça seçiyor; son cümle çelişkili."),
+(158,1,["figur_yanlis","karakter_karisik","mantiksiz","bozuk_dil","tekrar","yarim_son"],False,False,False,4,"Chase hiç yok; 'Şimşekler' tekrarıyla dolu, anlamsız ve yarım kalmış metin."),
+(166,3,["mantiksiz","bozuk_dil","tekrar"],True,False,False,2,"Kız çocuğu kayboluyor, 'kum kuma düştü'; şapkayla kum doldurma tekrarlanıyor."),
+(174,5,["mantiksiz","bozuk_dil"],True,True,True,1,"Kum 'kötü kokuyordu' gibi anlamsız ayrıntılar ve bozuk cümleler."),
+(182,1,["karakter_karisik","mantiksiz","bozuk_dil"],False,False,False,3,"Kekik/kek/limon/turşu karmaşası; Sürücü ve Kadriye nereden geldiği belirsiz."),
+(190,3,["mantiksiz","bozuk_dil"],True,False,False,2,"Kapalı kapıyı yanında taşıyor; 'Sirke' kutusundan reçel, sonuç kokuya bağlanıyor."),
+(198,4,["mantiksiz","bozuk_dil"],True,True,False,2,"Çocuk rüzgar çıkarıp uçak yapıyor; 'diranın' uydurma kelime."),
+(206,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Kız, kız kardeş, 'iki kız' karışıyor; tepe getirmek, kızak itmek anlamsız."),
+(214,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Kim sorduğu belirsiz, Hello Sally beliriyor; reçeli kendisi yemesiyle bitiyor."),
+(222,3,["mantiksiz","bozuk_dil","tekrar"],True,True,False,2,"Şapka hem başında ıslanıyor hem kayıp hem ağaç dibinde; tekrarlar."),
+(230,2,["mantiksiz","bozuk_dil","tekrar"],True,False,False,2,"'Kağıt kağıt kağıt' tekrarı; ne olduğu anlaşılmıyor."),
+(238,2,["mantiksiz","bozuk_dil","yarim_son"],False,False,False,2,"Lale, açlık, damla ve yaprak arasında bağ yok; kopuk son."),
+(246,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,2,"'deniz | Yan: Remmuza!' bozuk; Remmuza ve 'Chasim' belirsiz."),
+(254,2,["mantiksiz","bozuk_dil","tekrar"],False,False,False,3,"'Kuru damla', 'kuru su ıslanmadan' gibi anlamsız cümleler, olay yok."),
+(262,2,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,1,"Basri Amca kendi kendine 'Bak, Basri Amca' diyor; kayıp uçak unutuluyor."),
+(270,1,["karakter_karisik","mantiksiz","bozuk_dil"],True,False,False,3,"Ağlayan kız unutuluyor, Niloya 'kızım' diyor; taş kağıda dönüşüyor."),
+(278,2,["mantiksiz","bozuk_dil","tekrar"],True,True,True,2,"'Kağıttaki kağıttaki kağıttaki'; çiçek açıp kağıt kaybetme anlamsız."),
+(286,3,["mantiksiz","bozuk_dil","tekrar"],True,False,True,2,"Kum hem ıslatılıyor hem kuru; taş ıslak çünkü kum dökülüyor."),
+(294,4,["mantiksiz","bozuk_dil"],True,False,True,2,"Kırılan kağıt uçak birden uçurtma olup uçuyor; 'Elsa ile' eşi yok."),
+(302,4,["mantiksiz","bozuk_dil"],True,False,False,2,"Anne (at) ağaca tırmanıyor; son yaprakla ilgili, kağıt sorunu unutuluyor."),
+(310,4,["mantiksiz","bozuk_dil"],True,False,False,2,"Kırılan uçak yeniden uçuyor, uçurtma beliriyor; son 'yeni arkadaş' ilgisiz."),
+]
+src=json.load(open('/tmp/claude-0/-home-user-hikaye-oyuncak/51a50a87-4e4c-59c8-8b0c-5316b89b1551/scratchpad/deney4/rubrik/parti_7.json'))
+assert [s['id'] for s in src]==[d[0] for d in D]
+out=[{"id":i,"puan":p,"kategoriler":k,"s1":a,"s2":b,"s3":c,"mantiksiz":m,"not":n} for i,p,k,a,b,c,m,n in D]
+json.dump(out,open('/tmp/claude-0/-home-user-hikaye-oyuncak/51a50a87-4e4c-59c8-8b0c-5316b89b1551/scratchpad/deney4/rubrik/puan_7.json','w'),ensure_ascii=False,indent=1)
+print(len(out), sum(d[1] for d in D)/len(D))
