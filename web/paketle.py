@@ -43,35 +43,60 @@ def isim_idleri(tok, isim):
     return sorted(idler)
 
 
-def urun_bolumu(tok):
-    """meta.urun: figürler (kart yerleri ve yanları, yasaklı adlar), her figür × yer × (yan | yansız) için istem
-    token'ları ve seçicinin 'uydurma karakter adı' kuralının bildiği adlar. Ad mantığı urun_uret'ten gelir."""
+def _urun_uret():
     sys.path.insert(0, os.path.join(ROOT, "degerlendirme"))
-    import urun_uret as u
-    figurler, istemler, tum = [], {}, set()
+    import urun_uret
+    return urun_uret
+
+
+def urun_secici():
+    """meta.urun'un seçici (atolye.html urunPuanla) ve süzgeç için gereken kısmı: figürler (kart yerleri ve yanları,
+    yasaklı adlar, kadro_cezalari'nın kadro/izinli kümeleri) ve ad kümeleri. Ad mantığı urun_uret'ten gelir.
+    Tokenizer istemez (tests/test_atolye_secici.py bunu doğrudan kullanır)."""
+    u = _urun_uret()
+    figurler, tum = [], set()
     for kimlik in u.FIGURLER:
         k = u.KARTLAR[kimlik]
-        ad = k["ad"]["deger"]
-        yerler = [y["etiket"] for y in k["yerler"]]
-        yanlar = [y["kisa_ad"] for y in k["yanlar"]]
+        # urun_uret.kadro_cezalari: kadro = figur_adlari; izinli = kadro ∪ kartın büyük harfli rol yüzeyleri
+        # ('Anne', 'Dede') ∪ bunların kelimeleri (kadro_cezalari'ndaki ifadenin aynısı)
+        kadro = u.figur_adlari(kimlik)
+        rol = {s for y in k["yanlar"] for s in y["yuzey_bicimleri"] if s[:1].isupper()}
+        izinli = kadro | rol | {w for a in kadro | rol for w in a.split()}
         figurler.append({
-            "kimlik": kimlik, "ad": ad, "tur": k.get("tur", {}).get("deger", ""), "yerler": yerler, "yanlar": yanlar,
+            "kimlik": kimlik, "ad": k["ad"]["deger"], "tur": k.get("tur", {}).get("deger", ""),
+            "yerler": [y["etiket"] for y in k["yerler"]], "yanlar": [y["kisa_ad"] for y in k["yanlar"]],
             # isim_suzgec.h biçimi: kelime başı olabilen adlar '$' ile (gen -Y dosyasının ad satırları)
             "yasak": [a + ("$" if u.kelime_basi_mi(a) else "") for a in u.kadro_disi(kimlik)],
+            "kadro": sorted(kadro), "izinli": sorted(izinli),
         })
-        tum |= u.figur_adlari(kimlik)
-        for yer in yerler:
-            for yan in yanlar + [None]:
-                ids = u.istem(tok, ad, yer, yan)
-                assert tok.decode(ids[1:]) == f"Karakter: {ad} | Yer: {yer}" + (f" | Yan: {yan}" if yan else "") + "\nSorun:"
-                istemler[f"{kimlik}|{yer}|{yan or ''}"] = ids
+        tum |= kadro
     return {
         "figurler": figurler,
-        "istemler": istemler,
         "tum_isim": sorted(tum),     # sec.TUM_ISIM'in ürün hâli (urun_uret.puanla)
+        # kadro_cezalari'nın tum_urun'u: bütün ürün adları + yabancı adlar + eski oyuncak adları ('kartta olmayan ad'
+        # bunları saymaz; kadro dışı olanlar 'yanlış isim' kuralında)
+        "tum_ad": sorted(tum | set(YABANCI) | {x["isim"] for x in KAR.values()}),
+        "takinti_haric": sorted(u.TAKINTI_HARIC),  # takinti_cezasi
+        "yer_anahtar": u.YER_ANAHTAR,
+    }
+
+
+def urun_bolumu(tok):
+    """meta.urun: urun_secici() + her figür × yer × (yan | yansız) için istem token'ları ve üretim ayarları."""
+    u = _urun_uret()
+    sec = urun_secici()
+    istemler = {}
+    for f in sec["figurler"]:
+        for yer in f["yerler"]:
+            for yan in f["yanlar"] + [None]:
+                ids = u.istem(tok, f["ad"], yer, yan)
+                assert tok.decode(ids[1:]) == f"Karakter: {f['ad']} | Yer: {yer}" + (f" | Yan: {yan}" if yan else "") + "\nSorun:"
+                istemler[f"{f['kimlik']}|{yer}|{yan or ''}"] = ids
+    return {
+        **sec,
+        "istemler": istemler,
         "nl": u.NL,
         "govde_yasak": u.SATIR_YASAK,
-        "yer_anahtar": u.YER_ANAHTAR,
         "ayar": {"sicaklik": 0.5, "top_k": 40, "tekrar": 1.1, "n": 230, "aday": 4},
     }
 

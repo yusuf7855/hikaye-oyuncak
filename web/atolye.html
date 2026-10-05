@@ -821,6 +821,58 @@ function urunYanlisIsimler(metin, fig) {  // urun_uret.yanlis_isimler: kadro dı
   return fig.yasak.map(a => a.replace(/\$$/, "")).filter(a =>
     new RegExp(`(?<![\\p{L}\\p{N}_])${kac(a)}(?![a-zçğıöşüâîû])`, "u").test(metin)).sort();
 }
+// urun_uret.kadro_cezalari / takinti_cezasi. fig.kadro = figur_adlari, fig.izinli = kadro ∪ rol yüzeyleri ∪ kelimeleri,
+// U.tum_ad = tum_urun, U.takinti_haric = TAKINTI_HARIC (web/paketle.py urun_bolumu). Python \w/\b = [\p{L}\p{N}_].
+const URUN_KONUSMA = /["“]([^"“”]+)["”]\s*(?:diye\s+)?(?:dedi|sordu|seslendi|bağırdı|fısıldadı|cevap verdi|karşılık verdi|söyledi)\s+([A-ZÇĞİÖŞÜ][\p{L}\p{N}_\-]+(?:\s[A-ZÇĞİÖŞÜ][\p{L}\p{N}_\-]+)?)/gu;
+const URUN_BUYUK_AD = /(?<![\p{L}\p{N}_çğıöşü])([A-ZÇĞİÖŞÜ][a-zçğıöşüâîû]+(?:-[A-Z][a-z]+)?)/gu;
+const kelimeVar = (n, s) => new RegExp(`${B}${kac(n)}${E}`, "u").test(s);
+function sozlukteKok(w) {  // urun_uret.sozlukte_kok: w ya da en az 4 harfli bir ön eki sözlükte
+  const h = [...w];
+  if (SOZLUK.has(w)) return true;
+  for (let i = h.length - 1; i > 3; i--) if (SOZLUK.has(h.slice(0, i).join(""))) return true;
+  return false;
+}
+function urunKadroCezalari(metin, fig, U) {
+  const kadro = new Set(fig.kadro), izinli = new Set(fig.izinli), tum = new Set(U.tum_ad), c = [];
+  const gecen = fig.kadro.slice().sort((x, y) => y.length - x.length).filter(n => kelimeVar(n, metin));
+  for (const m of metin.matchAll(URUN_KONUSMA)) {  // '"Teşekkürler, Şila!" dedi Şila': konuşan kendi adını sesleniyor
+    if (kadro.has(m[2]) && kelimeVar(m[2], m[1])) { c.push([3, `${m[2]} kendine sesleniyor`]); break; }
+  }
+  for (const n of gecen) {
+    const e = kac(n);
+    if (new RegExp(`${B}${e}\\s+${e}${E}|${B}${e}${E},?\\s+(?:ve|ile)\\s+${e}${E}`, "u").test(metin)) { c.push([3, `'${n} ${n}'`]); break; }
+  }
+  if (gecen.length > 1)  // figürün kendi adı olayCezalari'nda; burada adlı yanlar
+    c.push(...olayCezalari(metin, gecen.filter(n => n !== fig.ad), null).filter(x => x[1].includes("kendi kendine")));
+  const bilinmeyen = [];
+  for (const m of metin.matchAll(URUN_BUYUK_AD)) {
+    const w = m[1];
+    if (izinli.has(w) || tum.has(w) || fig.izinli.some(i => [...i].length > 2 && w.startsWith(i))) continue;
+    const once = metin.slice(0, m.index).trimEnd();
+    const cumleBasi = !once || '.!?"“”:'.includes(once[once.length - 1]);
+    const ekli = ["'", "’"].includes(metin.slice(m.index + w.length, m.index + w.length + 1));
+    // cümle ortasında büyük harf özel addır; cümle başında ancak ek almışsa ya da sözlükte yoksa ad sayılır
+    if (cumleBasi && !ekli && SOZLUK && sozlukteKok(kucuk(w))) continue;
+    bilinmeyen.push(w);
+  }
+  if (bilinmeyen.length) {
+    const u = [...new Set(bilinmeyen)].sort();
+    c.push([Math.min(6, 2 * u.length), `kartta olmayan ad: ${u.slice(0, 3).join(", ")}`]);
+  }
+  return c;
+}
+function urunTakintiCezasi(metin, fig, U) {  // bir içerik kelimesinin ilk 5 harfi 9+ kez: 'havlu' döngüsü
+  const ilk5 = (w) => [...w].slice(0, 5).join("");
+  const adlar = new Set(fig.kadro.flatMap(a => a.split(/\s+/).filter(Boolean).map(w => ilk5(kucuk(w)))));
+  const haric = new Set(U.takinti_haric), say = new Map();
+  for (const w of kucuk(metin).match(/[a-zçğıöşüâîû]{4,}/gu) || []) {
+    const k = ilk5(w);
+    if (!adlar.has(k) && !haric.has(k)) say.set(k, (say.get(k) || 0) + 1);
+  }
+  const fazla = [...say].filter(([, n]) => n >= 9);
+  if (!fazla.length) return [];
+  return [[0.5 * fazla.reduce((t, [, n]) => t + n - 8, 0), `takıntılı tekrar: ${fazla.map(([w]) => w).sort().slice(0, 3).join(", ")}`]];
+}
 function urunPuanla(a, fig, yer, U) {
   if (a.plan_bozuk || !a.metin) return { puan: -99, liste: [[99, "gövde yok"]] };
   const metin = a.metin, ad = fig.ad, A = `${B}${kac(ad)}${E}`, c = [];
@@ -843,6 +895,7 @@ function urunPuanla(a, fig, yer, U) {
   const tekrar = uclu.length - new Set(uclu).size;
   if (tekrar > 2) c.push([0.5 * (tekrar - 2), `tekrar eden ifade ×${tekrar}`]);
   c.push(...olayCezalari(metin, [ad], a.plan, new Set(U.tum_isim)));
+  if (fig.kadro) c.push(...urunKadroCezalari(metin, fig, U), ...urunTakintiCezasi(metin, fig, U));  // eski meta'da yok
   const y = (U.yer_anahtar || {})[yer] || yer;
   if (YER_KELIME[y] && yerCezasi(metin, y).length) c.push([1.5, "yer tutmuyor"]);
   c.push(...guvenlikCezasi(metin));

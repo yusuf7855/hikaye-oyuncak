@@ -156,7 +156,7 @@ def kadro_cezalari(metin, kimlik):
     rol = {s for y in k["yanlar"] for s in y["yuzey_bicimleri"] if s[:1].isupper()}  # Anne, Dede, Babaanne ...
     izinli = kadro | rol | {w for a in kadro | rol for w in a.split()}
     c = []
-    geçen = [n for n in sorted(kadro, key=len, reverse=True) if re.search(rf"\b{re.escape(n)}\b", metin)]
+    geçen = [n for n in sorted(kadro, key=lambda x: (-len(x), x)) if re.search(rf"\b{re.escape(n)}\b", metin)]
     for m in KONUSMA.finditer(metin):  # '"Teşekkürler, Şila!" dedi Şila': konuşan kendi adını sesleniyor
         soz, konusan = m.group(1), m.group(2)
         if konusan in kadro and re.search(rf"\b{re.escape(konusan)}\b", soz):
