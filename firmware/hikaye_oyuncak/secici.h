@@ -1,9 +1,13 @@
-// Tam seçici: degerlendirme/sec.py puanla()'nın C kopyası (kural cezaları + olay kuralları + plan + yer
-// [+ güvenlik] + 2 × ortalama log-olasılık). Hakemlerin karşılaştırdığı E5b/olay2 seçicisi bu.
+// Seçici: aday hikâyeleri puanlar, kart en yüksek puanlıyı okur.
+//  - secici_urun_puanla (kartın kullandığı): degerlendirme/urun_uret.py puanla()'nın birebir C kopyası (ürün
+//    figürleri, data/urun_kartlari.json): sec.py kuralları + ISIM_KELIME muafiyeti + kadro_cezalari + takinti_cezasi
+//    + yer + güvenlik + 2 × ortalama log-olasılık. Tablolar generated/istemler.h'de (tools/basliklar.py).
+//  - secici_puanla (SECICI_ESKI 1 ile): degerlendirme/sec.py puanla(), eski hayvan kataloğu (baslangic.KAR; 0 Pamuk ..
+//    11 Can); yalnız eski aday havuzlarının eşitlik testi için.
 //
-// Girdi: gövdenin çözülmüş UTF-8 metni (sec.py'ye giden metin gibi baştan/sondan kırpılmış), plan metni
-// ("Sorun: ...\nÇözüm: ..."; NULL ise plan kuralı yok), figür indeksleri (baslangic.KAR sırası: 0 Pamuk ..
-// 11 Can), yer (0 orman, 1 deniz, 2 ev, 3 park, 4 şato, 5 dağ; < 0: yer kuralı yok), bitti, ortalama lp.
+// Girdi: gövdenin çözülmüş UTF-8 metni (Python'a giden metin gibi baştan/sondan kırpılmış), plan metni
+// ("Sorun: ...\nÇözüm: ..."; NULL ise plan kuralı yok), figür, yer (0 orman, 1 deniz, 2 ev, 3 park, 4 şato, 5 dağ;
+// < 0: yer kuralı yok), bitti, ortalama lp.
 // Bellek ayırmaz: bütün çalışma alanı sabit statik diziler (~24 KB, SECICI_MAKS = 2048 harf; daha uzun metin
 // kırpılır). Yeniden girişli değil (tek görevden çağrılır).
 //
@@ -11,9 +15,10 @@
 // binmeyen tarama kuralıyla yazıldı; \b ve \w Python'daki gibi Unicode (Latin/Yunan/Kiril'de birebir, öteki
 // yazılarda yaklaşık). kucuk() = sec.kucuk (I -> ı, İ -> i, sonra küçük harf). Dilimler (metin[a:b]) ayrı
 // dizgeymiş gibi: sınır denetimi dilim kenarında dizge başı/sonu sayılır. Doğrulama: tools/secici_test.c +
-// tools/secici_karsilastir.py (iki aday havuzunun bütün adayları, fark < 1e-3).
+// tools/secici_karsilastir.py (--urun: ürün aday havuzlarının bütün adayları; eski: c2ft_plan havuzları).
 //
-// Derleme anahtarları: SECICI_SOZLUK (1: uydurma-kelime kuralı, generated/sozluk.h ~290 KB flash; 0: kural yok).
+// Derleme anahtarları: SECICI_SOZLUK (1: uydurma-kelime kuralı, generated/sozluk.h ~290 KB flash; 0: kural yok),
+// SECICI_URUN (1: ürün seçicisi, generated/istemler.h gerekir), SECICI_ESKI (1: eski sec.py seçicisi).
 #pragma once
 #include <stdint.h>
 #include <string.h>
@@ -23,6 +28,9 @@
 #endif
 #if SECICI_SOZLUK
 #include "generated/sozluk.h"
+#endif
+#ifndef SECICI_ESKI
+#define SECICI_ESKI 0
 #endif
 #ifndef SECICI_MAKS
 #define SECICI_MAKS 2048        // gövde (harf); 240 token ≈ en çok ~1000 harf
@@ -36,16 +44,20 @@ enum {
   SK_AZ_ISIM, SK_KENDINE, SK_SONDA_YOK, SK_ISIM_VE_ISIM, SK_YENI_HAYVAN, SK_KONUSMACI, SK_YANLIS_ISIM,
   SK_TEKRAR_CUMLE, SK_YARIM, SK_KISA, SK_UYDURMA_KELIME, SK_TEKRAR_IFADE,
   SK_IKI_TANITIM, SK_KENDI_KENDINE, SK_BASKASI, SK_UYDURMA_AD, SK_OZELLIK, SK_KEKEME, SK_DERS, SK_PLAN,
-  SK_YER, SK_GUVENLIK, SK_N
+  SK_YER, SK_GUVENLIK,
+  SK_KENDINE_SESLENME, SK_KADRO_TEKRAR, SK_YAN_KENDI_KENDINE, SK_KARTTA_OLMAYAN, SK_TAKINTI, SK_GOVDE_YOK,  // ürün
+  SK_N
 };
 static const char *const SECICI_KURAL_AD[SK_N] = {
   "az_isim", "kendine", "sonda_yok", "isim_ve_isim", "yeni_hayvan", "konusmaci", "yanlis_isim",
   "tekrar_cumle", "yarim", "kisa", "uydurma_kelime", "tekrar_ifade",
   "iki_tanitim", "kendi_kendine", "baskasi", "uydurma_ad", "ozellik", "kekeme", "ders", "plan",
-  "yer", "guvenlik"};
+  "yer", "guvenlik",
+  "kendine_seslenme", "kadro_tekrar", "yan_kendi_kendine", "kartta_olmayan_ad", "takinti", "govde_yok"};
 static double secici_kural[SK_N];
 
 // ---- veri (baslangic.py / sec.py ile aynı) ----
+#if SECICI_ESKI
 static const char *const SC_ISIM[12] = {"Pamuk", "Tekir", "Karabaş", "Bal", "Kızıl", "Cikcik", "Tosbi", "Paytak",
                                         "Dino", "Alev", "Elif", "Can"};
 static const char *const SC_TUR[12] = {"tavşan", "kedi", "köpek", "ayı", "tilki", "kuş", "kaplumbağa", "penguen",
@@ -54,6 +66,7 @@ static const char *const SC_YABANCI[] = {"Lily", "Tim", "Tom", "Sara", "Sue", "M
                                          "Sam", "Timmy", "Bob", "Jane", "Spot", "Fluffy", "Amy", "Zeynep", "Ali",
                                          "Ayşe", "Mehmet", "Ahmet", "Boncuk", "Mert", "Defne", "Kerem", "Emir",
                                          "Zıpzıp"};
+#endif
 static const char *const SC_HAYVAN[] = {"kuş", "sincap", "yengeç", "fare", "tavşan", "kedi", "köpek", "ayı", "tilki",
                                         "kurbağa", "balık", "kelebek", "karınca", "baykuş", "kaplumbağa", "penguen",
                                         "dinozor", "ejderha", "aslan", "inek", "koyun", "tavuk", "ördek", "yunus",
@@ -219,12 +232,6 @@ static int sc_fiil(const uint16_t *m, int j, int n) {
 static int sc_aralik_esit(const uint16_t *s, int a, int b, int c, int d) {
   return b - a == d - c && !memcmp(s + a, s + c, (size_t)(b - a) * sizeof(uint16_t));
 }
-static int sc_tum_isim(const uint16_t *m, int a, int b) {
-  for (int f = 0; f < 12; f++)
-    if (sc_esit(m, a, b, SC_ISIM[f])) return 1;
-  return 0;
-}
-
 // ---- sözlük (generated/sozluk.h) ----
 #if SECICI_SOZLUK
 static uint16_t sc_alfabe[35];
@@ -471,7 +478,185 @@ static int sc_guvenlik(const uint16_t *k, int n) {
   return 0;
 }
 
-// sec.puanla(metin, kimlikler, ort_logp=lp, yer=yer, bitti=bitti, guvenlik=guvenlik, plan=plan).
+// ---- sec.olay_cezalari parçaları (eski ve ürün seçicisi ortak; m metin, k kucuk(m), cümleler sc_cb/sc_cs [0, ncd)) ----
+static int sc_bol_dolu(const uint16_t *m, int n) {  // boş olmayan parçalar (kırpılmamış), sc_cb/sc_cs başına
+  int nc = sc_bol(m, n), ncd = 0;
+  for (int i = 0; i < nc; i++)
+    if (sc_dolu(m, sc_cb[i], sc_cs[i])) { sc_cb[ncd] = sc_cb[i]; sc_cs[ncd] = sc_cs[i]; ncd++; }
+  return ncd;
+}
+static int sc_iki_tanitim(const uint16_t *m, int n, const char *N) {  // len(re.findall(rf"\b{N} adında")) > 1
+  int say = 0;
+  for (int i = 0; i < n; i++) {
+    if (!sc_sinir(m, 0, n, i)) continue;
+    int L = sc_esle(m, i, n, N);
+    if (L > 0 && sc_esle(m, i + L, n, " adında") > 0) { say++; i += L; }
+  }
+  return say > 1;
+}
+static int sc_kendi_kendine_var(const uint16_t *m, const uint16_t *k, int ncd, const char *N) {
+  for (int s = 0; s < ncd; s++) {
+    int g0, g1;
+    if (!sc_kendi_kendine(m, sc_cb[s], sc_cs[s], N, &g0, &g1)) continue;
+    int engel = 0;
+    for (int i = g0; i < g1 && !engel; i++)
+      engel = m[i] == '"' || m[i] == 0x201C || m[i] == 0x201D || m[i] == ':' ||
+              (sc_buyuk(m[i]) && sc_sinir(m, g0, g1, i));
+    for (int h = 0; h < SC_SAY(SC_HAYVAN) && !engel; h++) engel = sc_var(k, g0, g1, SC_HAYVAN[h]);
+    if (!engel) return 1;
+  }
+  return 0;
+}
+// \b(?:[Bb]en de|[Bb]enim adım|[Aa]dım) N\b[^"”]*["”]\s*(?:diye \w+|dedi|sordu)\s+(?!N\b)[a-zçğıöşü]
+static int sc_baskasi(const uint16_t *m, int n, const char *N) {
+  static const char *const giris[6] = {"Ben de", "ben de", "Benim adım", "benim adım", "Adım", "adım"};
+  for (int i = 0; i < n; i++) {
+    if (!sc_sinir(m, 0, n, i)) continue;
+    for (int t = 0; t < 6; t++) {
+      int L = sc_esle(m, i, n, giris[t]);
+      if (L < 0) continue;
+      int j = i + L;
+      if (!(j < n && m[j] == ' ')) continue;
+      int L2 = sc_esle(m, ++j, n, N);
+      if (L2 < 0 || !sc_sinir(m, 0, n, j + L2)) continue;
+      j += L2;
+      while (j < n && m[j] != '"' && m[j] != 0x201D) j++;
+      if (j >= n) continue;
+      j++;
+      while (j < n && sc_bosluk(m[j])) j++;
+      j = sc_fiil(m, j, n);
+      if (j < 0 || j >= n) continue;
+      int L3 = sc_esle(m, j, n, N);
+      if (L3 > 0 && sc_sinir(m, 0, n, j + L3)) continue;
+      if (sc_kh(m[j])) return 1;
+    }
+  }
+  return 0;
+}
+static int sc_listede(const uint16_t *m, int a, int b, const char *const *l, int n) {  // m[a..b) listede mi
+  for (int t = 0; t < n; t++)
+    if (sc_esit(m, a, b, l[t])) return 1;
+  return 0;
+}
+// uydurma karakter adı: kesme işaretli büyük harfli kelime TUM_ISIM'de değilse (tum: sec.TUM_ISIM)
+static int sc_uydurma_ad(const uint16_t *m, int n, const char *const *tum, int n_tum) {
+  for (int i = 1; i < n; i++) {  // (?<![.!?"“] )(?<!^)\b([Büyük][küçük]+)['’]
+    if (i >= 2 && m[i - 1] == ' ' &&
+        (m[i - 2] == '.' || m[i - 2] == '!' || m[i - 2] == '?' || m[i - 2] == '"' || m[i - 2] == 0x201C)) continue;
+    if (sc_kelime(m[i - 1]) || !sc_buyuk(m[i]) || !(i + 1 < n && sc_kh(m[i + 1]))) continue;
+    int e = sc_kos(m, i + 1, n);
+    if (e < n && sc_kesme(m[e]) && !sc_listede(m, i, e, tum, n_tum)) return 1;
+  }
+  for (int i = 0; i < n; i++) {  // (?:^|[.!?]\s+)([Büyük][küçük]+)['’]
+    int p = -1;
+    if (i == 0 && sc_buyuk(m[0])) p = 0;
+    else if ((m[i] == '.' || m[i] == '!' || m[i] == '?') && i + 1 < n && sc_bosluk(m[i + 1])) {
+      p = i + 1;
+      while (p < n && sc_bosluk(m[p])) p++;
+    }
+    if (p < 0 || p + 1 >= n || !sc_buyuk(m[p]) || !sc_kh(m[p + 1])) continue;
+    int e = sc_kos(m, p + 1, n);
+    if (e < n && sc_kesme(m[e]) && !sc_listede(m, p, e, tum, n_tum)) return 1;
+  }
+  return 0;
+}
+static double sc_ozellik(const uint16_t *k, int n) {  // özellik karışması (sec.OZELLIK)
+  double c = 0;
+  if (sc_var(k, 0, n, "gaga") && !sc_hangi(k, 0, n, SC_KUS, SC_SAY(SC_KUS)) && !sc_say(k, 0, n, "kaz", 1, 1)) c += 2;
+  if (sc_icerir(k, 0, n, "kuyruğunu salla") && !sc_hangi(k, 0, n, SC_KUYRUK, SC_SAY(SC_KUYRUK))) c += 2;
+  if (sc_icerir(k, 0, n, "baloncuk") && !sc_hangi(k, 0, n, SC_BALON, SC_SAY(SC_BALON))) c += 2;
+  if (sc_icerir(k, 0, n, "burnunu sok") && !sc_hangi(k, 0, n, SC_BURUN, SC_SAY(SC_BURUN))) c += 2;
+  if ((sc_icerir(k, 0, n, "kabuğunu çıkar") || sc_icerir(k, 0, n, "kabuğunu bırak") ||
+       sc_icerir(k, 0, n, "kabuğunu at")) && n > 0)  // izin deseni "$^" yalnız boş metinde eşleşir
+    c += 2;
+  return c;
+}
+static int sc_ders(const uint16_t *k, int ncd) {  // ders olaydan kopuk: son 3 cümlede ders, gövdede o değerin olayı yok
+  int bas = ncd - 3 > 3 ? ncd - 3 : 3;
+  for (int i = bas; i < ncd; i++) {
+    int a = sc_cb[i], b = sc_cs[i], ders = 0;
+    for (int t = 0; t < SC_SAY(SC_DERS) && !ders; t++) ders = sc_icerir(k, a, b, SC_DERS[t]);
+    if (!ders) continue;
+    int gn = 0;
+    for (int s = 0; s < i; s++) {
+      if (s) sc_g[gn++] = ' ';
+      for (int t = sc_cb[s]; t < sc_cs[s] && gn < SECICI_MAKS; t++) sc_g[gn++] = k[t];
+    }
+    int yok = 0;
+    for (const char *const *v = SC_KANIT; *v && !yok; v++) {  // değer, kanıtlar..., 0
+      int ic = sc_icerir(k, a, b, *v++), kanit = 0;
+      for (; *v; v++)
+        if (ic && !kanit) kanit = sc_icerir(sc_g, 0, gn, *v);
+      yok = ic && !kanit;
+    }
+    if (yok) return 1;
+  }
+  return 0;
+}
+// [a-zçğıöşüâîû]+ kelimeleri (k = kucuk metin) sc_wb/sc_wl'ye; döner: kelime sayısı
+static int sc_kelimeler(const uint16_t *k, int n) {
+  int nw = 0;
+  for (int i = 0; i < n;) {
+    if (sc_sh(k[i])) {
+      int e = i;
+      while (e < n && sc_sh(k[e])) e++;
+      sc_wb[nw] = (int16_t)i; sc_wl[nw] = (int16_t)(e - i); nw++;
+      i = e;
+    } else i++;
+  }
+  return nw;
+}
+static int sc_tekrar_cumle(const uint16_t *m, int nc) {  // kırpılmış parçalar arasında aynısı var mı
+  for (int i = 0; i < nc; i++) {
+    int a = sc_cb[i], b = sc_cs[i];
+    while (a < b && sc_bosluk(m[a])) a++;
+    while (b > a && sc_bosluk(m[b - 1])) b--;
+    if (a == b) continue;
+    for (int j = 0; j < i; j++) {
+      int a2 = sc_cb[j], b2 = sc_cs[j];
+      while (a2 < b2 && sc_bosluk(m[a2])) a2++;
+      while (b2 > a2 && sc_bosluk(m[b2 - 1])) b2--;
+      if (a2 < b2 && sc_aralik_esit(m, a, b, a2, b2)) return 1;
+    }
+  }
+  return 0;
+}
+static int sc_tekrar_uclu(const uint16_t *k, int nw) {  // len(uclu) - len(set(uclu))
+  for (int w = 0; w < nw; w++) {
+    int id = w;
+    for (int v = 0; v < w; v++)
+      if (sc_wid[v] == v && sc_aralik_esit(k, sc_wb[v], sc_wb[v] + sc_wl[v], sc_wb[w], sc_wb[w] + sc_wl[w])) { id = v; break; }
+    sc_wid[w] = (int16_t)id;
+  }
+  int tekrar = 0;
+  for (int i = 0; i + 2 < nw; i++)
+    for (int j = 0; j < i; j++)
+      if (sc_wid[j] == sc_wid[i] && sc_wid[j + 1] == sc_wid[i + 1] && sc_wid[j + 2] == sc_wid[i + 2]) { tekrar++; break; }
+  return tekrar;
+}
+static void sc_son_kurallar(const uint16_t *m, int n, int bitti, double *c) {  // yarım son, çok kısa
+  int e = n;
+  while (e > 0 && sc_bosluk(m[e - 1])) e--;
+  int iyi = e > 0 && (m[e - 1] == '.' || m[e - 1] == '!' || m[e - 1] == '"' || m[e - 1] == 0x201D);
+  if (!iyi || !bitti) c[SK_YARIM] = 2;
+  int kelime = 0;
+  for (int i = 0; i < n; i++) kelime += !sc_bosluk(m[i]) && (i == 0 || sc_bosluk(m[i - 1]));
+  if (kelime < 50) c[SK_KISA] = 2;
+}
+static int sc_yer_kaymasi(const uint16_t *k, int n, int yer) {  // sec.yer_cezasi
+  int kendi = sc_yer_say(k, 0, n, yer), baska = 0;
+  for (int y = 0; y < 6; y++) {
+    if (y == yer) continue;
+    int s = sc_yer_say(k, n / 2, n, y);
+    if (s > baska) baska = s;
+  }
+  return kendi == 0 || baska > kendi;
+}
+
+#if SECICI_ESKI
+// sec.puanla(metin, kimlikler, ort_logp=lp, yer=yer, bitti=bitti, guvenlik=guvenlik, plan=plan): eski hayvan
+// kataloğu (baslangic.KAR). Kart artık ürün seçicisini (secici_urun_puanla) kullanır; bu yol yalnız eski havuzların
+// eşitlik testi için (tools/secici_karsilastir.py, -DSECICI_ESKI=1).
 static double secici_puanla(const char *metin, int metin_n, const char *plan, int plan_n, const int *fig, int n_fig,
                             int yer, int bitti, double lp, int guvenlik) {
   uint16_t *m = sc_m, *k = sc_k;
@@ -555,40 +740,9 @@ static double secici_puanla(const char *metin, int metin_n, const char *plan, in
     if (yanlis) c[SK_YANLIS_ISIM] = 2;
   }
   int nc = sc_bol(m, n);
-  {  // tekrarlanan cümle (kırpılmış parçalar)
-    int tekrar = 0;
-    for (int i = 0; i < nc && !tekrar; i++) {
-      int a = sc_cb[i], b = sc_cs[i];
-      while (a < b && sc_bosluk(m[a])) a++;
-      while (b > a && sc_bosluk(m[b - 1])) b--;
-      if (a == b) continue;
-      for (int j = 0; j < i && !tekrar; j++) {
-        int a2 = sc_cb[j], b2 = sc_cs[j];
-        while (a2 < b2 && sc_bosluk(m[a2])) a2++;
-        while (b2 > a2 && sc_bosluk(m[b2 - 1])) b2--;
-        if (a2 < b2 && sc_aralik_esit(m, a, b, a2, b2)) tekrar = 1;
-      }
-    }
-    if (tekrar) c[SK_TEKRAR_CUMLE] = 1;
-  }
-  {
-    int e = n;
-    while (e > 0 && sc_bosluk(m[e - 1])) e--;
-    int iyi = e > 0 && (m[e - 1] == '.' || m[e - 1] == '!' || m[e - 1] == '"' || m[e - 1] == 0x201D);
-    if (!iyi || !bitti) c[SK_YARIM] = 2;
-    int kelime = 0;
-    for (int i = 0; i < n; i++) kelime += !sc_bosluk(m[i]) && (i == 0 || sc_bosluk(m[i - 1]));
-    if (kelime < 50) c[SK_KISA] = 2;
-  }
-  int nw = 0;  // [a-zçğıöşüâîû]+ kelimeleri (kucuk)
-  for (int i = 0; i < n;) {
-    if (sc_sh(k[i])) {
-      int e = i;
-      while (e < n && sc_sh(k[e])) e++;
-      sc_wb[nw] = (int16_t)i; sc_wl[nw] = (int16_t)(e - i); nw++;
-      i = e;
-    } else i++;
-  }
+  if (sc_tekrar_cumle(m, nc)) c[SK_TEKRAR_CUMLE] = 1;
+  sc_son_kurallar(m, n, bitti, c);
+  int nw = sc_kelimeler(k, n);
 #if SECICI_SOZLUK
   {
     int bilinmeyen = 0;
@@ -596,138 +750,291 @@ static double secici_puanla(const char *metin, int metin_n, const char *plan, in
     c[SK_UYDURMA_KELIME] = 1.5 * bilinmeyen;
   }
 #endif
-  {  // tekrar eden üçlü
-    for (int w = 0; w < nw; w++) {
-      int id = w;
-      for (int v = 0; v < w; v++)
-        if (sc_wid[v] == v && sc_aralik_esit(k, sc_wb[v], sc_wb[v] + sc_wl[v], sc_wb[w], sc_wb[w] + sc_wl[w])) { id = v; break; }
-      sc_wid[w] = (int16_t)id;
-    }
-    int tekrar = 0;
-    for (int i = 0; i + 2 < nw; i++)
-      for (int j = 0; j < i; j++)
-        if (sc_wid[j] == sc_wid[i] && sc_wid[j + 1] == sc_wid[i + 1] && sc_wid[j + 2] == sc_wid[i + 2]) { tekrar++; break; }
-    if (tekrar > 2) c[SK_TEKRAR_IFADE] = 0.5 * (tekrar - 2);
-  }
+  int tekrar = sc_tekrar_uclu(k, nw);
+  if (tekrar > 2) c[SK_TEKRAR_IFADE] = 0.5 * (tekrar - 2);
 
   // --- olay_cezalari ---
-  int ncd = 0;  // boş olmayan parçalar (kırpılmamış), sc_cb/sc_cs başına sıkıştırılır
-  for (int i = 0; i < nc; i++)
-    if (sc_dolu(m, sc_cb[i], sc_cs[i])) { sc_cb[ncd] = sc_cb[i]; sc_cs[ncd] = sc_cs[i]; ncd++; }
+  int ncd = sc_bol_dolu(m, n);
   for (int f = 0; f < n_fig; f++) {
     const char *N = SC_ISIM[fig[f]];
-    int say = 0;  // \bN adında
-    for (int i = 0; i < n; i++) {
-      if (!sc_sinir(m, 0, n, i)) continue;
-      int L = sc_esle(m, i, n, N);
-      if (L > 0 && sc_esle(m, i + L, n, " adında") > 0) { say++; i += L; }
-    }
-    if (say > 1) c[SK_IKI_TANITIM] += 3;
-    for (int s = 0; s < ncd; s++) {
-      int g0, g1;
-      if (!sc_kendi_kendine(m, sc_cb[s], sc_cs[s], N, &g0, &g1)) continue;
-      int engel = 0;
-      for (int i = g0; i < g1 && !engel; i++)
-        engel = m[i] == '"' || m[i] == 0x201C || m[i] == 0x201D || m[i] == ':' ||
-                (sc_buyuk(m[i]) && sc_sinir(m, g0, g1, i));
-      for (int h = 0; h < SC_SAY(SC_HAYVAN) && !engel; h++) engel = sc_var(k, g0, g1, SC_HAYVAN[h]);
-      if (!engel) { c[SK_KENDI_KENDINE] += 2; break; }
-    }
-    // \b(?:[Bb]en de|[Bb]enim adım|[Aa]dım) N\b[^"”]*["”]\s*(?:diye \w+|dedi|sordu)\s+(?!N\b)[a-zçğıöşü]
-    static const char *const giris[6] = {"Ben de", "ben de", "Benim adım", "benim adım", "Adım", "adım"};
-    int baska = 0;
-    for (int i = 0; i < n && !baska; i++) {
-      if (!sc_sinir(m, 0, n, i)) continue;
-      for (int t = 0; t < 6 && !baska; t++) {
-        int L = sc_esle(m, i, n, giris[t]);
-        if (L < 0) continue;
-        int j = i + L;
-        if (!(j < n && m[j] == ' ')) continue;
-        int L2 = sc_esle(m, ++j, n, N);
-        if (L2 < 0 || !sc_sinir(m, 0, n, j + L2)) continue;
-        j += L2;
-        while (j < n && m[j] != '"' && m[j] != 0x201D) j++;
-        if (j >= n) continue;
-        j++;
-        while (j < n && sc_bosluk(m[j])) j++;
-        j = sc_fiil(m, j, n);
-        if (j < 0 || j >= n) continue;
-        int L3 = sc_esle(m, j, n, N);
-        if (L3 > 0 && sc_sinir(m, 0, n, j + L3)) continue;
-        if (sc_kh(m[j])) baska = 1;
-      }
-    }
-    if (baska) c[SK_BASKASI] += 2;
+    if (sc_iki_tanitim(m, n, N)) c[SK_IKI_TANITIM] += 3;
+    if (sc_kendi_kendine_var(m, k, ncd, N)) c[SK_KENDI_KENDINE] += 2;
+    if (sc_baskasi(m, n, N)) c[SK_BASKASI] += 2;
   }
-  {  // uydurma karakter adı
-    int uyd = 0;
-    for (int i = 1; i < n && !uyd; i++) {  // (?<![.!?"“] )(?<!^)\b([Büyük][küçük]+)['’]
-      if (i >= 2 && m[i - 1] == ' ' &&
-          (m[i - 2] == '.' || m[i - 2] == '!' || m[i - 2] == '?' || m[i - 2] == '"' || m[i - 2] == 0x201C)) continue;
-      if (sc_kelime(m[i - 1]) || !sc_buyuk(m[i]) || !(i + 1 < n && sc_kh(m[i + 1]))) continue;
-      int e = sc_kos(m, i + 1, n);
-      if (e < n && sc_kesme(m[e]) && !sc_tum_isim(m, i, e)) uyd = 1;
-    }
-    for (int i = 0; i < n && !uyd; i++) {  // (?:^|[.!?]\s+)([Büyük][küçük]+)['’]
-      int p = -1;
-      if (i == 0 && sc_buyuk(m[0])) p = 0;
-      else if ((m[i] == '.' || m[i] == '!' || m[i] == '?') && i + 1 < n && sc_bosluk(m[i + 1])) {
-        p = i + 1;
-        while (p < n && sc_bosluk(m[p])) p++;
-      }
-      if (p < 0 || p + 1 >= n || !sc_buyuk(m[p]) || !sc_kh(m[p + 1])) continue;
-      int e = sc_kos(m, p + 1, n);
-      if (e < n && sc_kesme(m[e]) && !sc_tum_isim(m, p, e)) uyd = 1;
-    }
-    if (uyd) c[SK_UYDURMA_AD] = 2;
-  }
-  {  // özellik karışması
-    if (sc_var(k, 0, n, "gaga") && !sc_hangi(k, 0, n, SC_KUS, SC_SAY(SC_KUS)) && !sc_say(k, 0, n, "kaz", 1, 1))
-      c[SK_OZELLIK] += 2;
-    if (sc_icerir(k, 0, n, "kuyruğunu salla") && !sc_hangi(k, 0, n, SC_KUYRUK, SC_SAY(SC_KUYRUK))) c[SK_OZELLIK] += 2;
-    if (sc_icerir(k, 0, n, "baloncuk") && !sc_hangi(k, 0, n, SC_BALON, SC_SAY(SC_BALON))) c[SK_OZELLIK] += 2;
-    if (sc_icerir(k, 0, n, "burnunu sok") && !sc_hangi(k, 0, n, SC_BURUN, SC_SAY(SC_BURUN))) c[SK_OZELLIK] += 2;
-    if ((sc_icerir(k, 0, n, "kabuğunu çıkar") || sc_icerir(k, 0, n, "kabuğunu bırak") ||
-         sc_icerir(k, 0, n, "kabuğunu at")) && n > 0)  // izin deseni "$^" yalnız boş metinde eşleşir
-      c[SK_OZELLIK] += 2;
-  }
+  if (sc_uydurma_ad(m, n, SC_ISIM, 12)) c[SK_UYDURMA_AD] = 2;
+  c[SK_OZELLIK] = sc_ozellik(k, n);
   c[SK_KEKEME] = sc_kekeme(k, n);
-  {  // ders olaydan kopuk: son 3 cümlede ders cümlesi, gövdede o değerin olayı yok
-    int bas = ncd - 3 > 3 ? ncd - 3 : 3;
-    for (int i = bas; i < ncd; i++) {
-      int a = sc_cb[i], b = sc_cs[i], ders = 0;
-      for (int t = 0; t < SC_SAY(SC_DERS) && !ders; t++) ders = sc_icerir(k, a, b, SC_DERS[t]);
-      if (!ders) continue;
-      int gn = 0;
-      for (int s = 0; s < i; s++) {
-        if (s) sc_g[gn++] = ' ';
-        for (int t = sc_cb[s]; t < sc_cs[s] && gn < SECICI_MAKS; t++) sc_g[gn++] = k[t];
-      }
-      int yok = 0;
-      for (const char *const *v = SC_KANIT; *v && !yok; v++) {  // değer, kanıtlar..., 0
-        int ic = sc_icerir(k, a, b, *v++), kanit = 0;
-        for (; *v; v++)
-          if (ic && !kanit) kanit = sc_icerir(sc_g, 0, gn, *v);
-        yok = ic && !kanit;
-      }
-      if (yok) { c[SK_DERS] = 1.5; break; }
-    }
-  }
+  if (sc_ders(k, ncd)) c[SK_DERS] = 1.5;
   if (plan) {
     int pn = sc_coz(plan, plan_n, sc_p, SECICI_PLAN_MAKS);
     if (sc_plan_bozuk(sc_p, pn)) c[SK_PLAN] = 2;
   }
-  if (yer >= 0 && yer < 6) {
-    int kendi = sc_yer_say(k, 0, n, yer), baska = 0;
-    for (int y = 0; y < 6; y++) {
-      if (y == yer) continue;
-      int s = sc_yer_say(k, yari, n, y);
-      if (s > baska) baska = s;
-    }
-    if (kendi == 0 || baska > kendi) c[SK_YER] = 1.5;
-  }
+  if (yer >= 0 && yer < 6 && sc_yer_kaymasi(k, n, yer)) c[SK_YER] = 1.5;
   if (guvenlik && sc_guvenlik(k, n)) c[SK_GUVENLIK] = 4;
   double ceza = 0;
   for (int i = 0; i < SK_N; i++) ceza += c[i];
   return -ceza + 2 * lp;
 }
+#endif  // SECICI_ESKI
+
+// ======================= ürün seçicisi: degerlendirme/urun_uret.py puanla() =======================
+// Figür f = generated/istemler.h sırası (urun_uret.FIGURLER), yer = genel yer (0 orman, 1 deniz, 2 ev, 3 park,
+// 4 şato, 5 dağ; urun_uret.YER_ANAHTAR ile sec.YER_KELIME anahtarı). sec.py kurallarından farkı (urun_uret.puanla):
+// figür adları ürün kartlarından, 'kendine gönderme', 'sonradan beliren karakter' ve 'aynı konuşmacı' kuralları yok,
+// "X ve|ile X", yanlış isim = kadro dışı ad (önünde harf, ardında küçük harf yok), uydurma kelimede ürün adlarının
+// kelimeleri (ISIM_KELIME) muaf, uydurma karakter adında TUM_ISIM ürün adları; ek olarak kadro_cezalari
+// (kendine seslenme, 'X X', yanların kendi kendine, kartta olmayan ad) ve takinti_cezasi. Güvenlik her zaman açık.
+#ifndef SECICI_URUN
+#define SECICI_URUN 1
+#endif
+#if SECICI_URUN
+#include "generated/istemler.h"
+
+// ad '$' ile biterse (isim süzgeci biçimi) '$' sayılmaz: s[i..] ile eşleşen harf sayısı ya da -1
+static int sc_esle_ad(const uint16_t *s, int i, int son, const char *lit) {
+  int b = i;
+  while (*lit && *lit != '$') {
+    uint32_t c = sc_harf(&lit);
+    if (i >= son || s[i] != c) return -1;
+    i++;
+  }
+  return i - b;
+}
+static int sc_aralik_var(const uint16_t *s, int bas, int son, int a, int b) {  // \b s[a..b) \b, s[bas..son) içinde
+  int L = b - a;
+  for (int i = bas; i + L <= son; i++)
+    if (sc_sinir(s, bas, son, i) && !memcmp(s + i, s + a, (size_t)L * 2) && sc_sinir(s, bas, son, i + L)) return 1;
+  return 0;
+}
+// \bN\b\s+(?:ve|ile)\s+N\b (bir_bosluk 0) ya da kadro_cezalari'nın \bN\s+N\b|\bN\b,?\s+(?:ve|ile)\s+N\b (1)
+static int sc_ad_ad(const uint16_t *m, int n, const char *N, int kadro) {
+  for (int i = 0; i < n; i++) {
+    if (!sc_sinir(m, 0, n, i)) continue;
+    int L = sc_esle(m, i, n, N);
+    if (L < 0) continue;
+    int j = i + L;
+    if (kadro && j < n && sc_bosluk(m[j])) {  // \bN\s+N\b
+      int t = j;
+      while (t < n && sc_bosluk(m[t])) t++;
+      int L2 = sc_esle(m, t, n, N);
+      if (L2 > 0 && sc_sinir(m, 0, n, t + L2)) return 1;
+    }
+    if (!sc_sinir(m, 0, n, j)) continue;
+    if (kadro && j < n && m[j] == ',') j++;
+    if (!(j < n && sc_bosluk(m[j]))) continue;
+    while (j < n && sc_bosluk(m[j])) j++;
+    int V = sc_esle(m, j, n, "ve");
+    if (!(V > 0 && j + V < n && sc_bosluk(m[j + V]))) V = sc_esle(m, j, n, "ile");
+    if (!(V > 0 && j + V < n && sc_bosluk(m[j + V]))) continue;
+    j += V;
+    while (j < n && sc_bosluk(m[j])) j++;
+    int L2 = sc_esle(m, j, n, N);
+    if (L2 > 0 && sc_sinir(m, 0, n, j + L2)) return 1;
+  }
+  return 0;
+}
+static inline int sc_kelime_tire(uint32_t c) { return sc_kelime(c) || c == '-'; }  // [\w\-]
+// urun_uret.KONUSMA: ["“]([^"“”]+)["”]\s*(?:diye\s+)?(?:dedi|...|söyledi)\s+([Büyük][\w\-]+(?:\s[Büyük][\w\-]+)?)
+// finditer: konuşan kadrodaysa ve sözde kendi adı geçiyorsa 1.
+static int sc_kendine_seslenme(const uint16_t *m, int n, int f) {
+  static const char *const fiil[8] = {"dedi", "sordu", "seslendi", "bağırdı", "fısıldadı", "cevap verdi",
+                                      "karşılık verdi", "söyledi"};
+  for (int i = 0; i < n;) {
+    int son = -1, p = 0, q = 0, j = i + 1;
+    if (m[i] == '"' || m[i] == 0x201C) {
+      while (j < n && m[j] != '"' && m[j] != 0x201C && m[j] != 0x201D) j++;
+      if (j > i + 1 && j < n && m[j] != 0x201C) {
+        int t = j + 1;
+        while (t < n && sc_bosluk(m[t])) t++;
+        int D = sc_esle(m, t, n, "diye");
+        if (D > 0 && t + D < n && sc_bosluk(m[t + D])) {
+          t += D;
+          while (t < n && sc_bosluk(m[t])) t++;
+        }
+        int F = -1;
+        for (int v = 0; v < 8 && F < 0; v++) {
+          F = sc_esle(m, t, n, fiil[v]);
+          if (F > 0 && !(t + F < n && sc_bosluk(m[t + F]))) F = -1;
+        }
+        if (F > 0) {
+          p = t + F;
+          while (p < n && sc_bosluk(m[p])) p++;
+          if (p + 1 < n && sc_buyuk(m[p]) && sc_kelime_tire(m[p + 1])) {
+            q = p + 1;
+            while (q < n && sc_kelime_tire(m[q])) q++;
+            if (q + 2 < n && sc_bosluk(m[q]) && sc_buyuk(m[q + 1]) && sc_kelime_tire(m[q + 2])) {
+              q += 2;
+              while (q < n && sc_kelime_tire(m[q])) q++;
+            }
+            son = q;
+          }
+        }
+      }
+    }
+    if (son < 0) { i++; continue; }
+    for (int t = URUN_KADRO_OFF[f]; t < URUN_KADRO_OFF[f + 1]; t++)
+      if (sc_esit(m, p, q, URUN_KADRO[t])) {
+        if (sc_aralik_var(m, i + 1, j, p, q)) return 1;
+        break;
+      }
+    i = son;
+  }
+  return 0;
+}
+// urun_uret.sozlukte_kok: w ya da en az 4 harfli bir ön eki sözlükte (w = kucuk)
+static int sc_sozlukte_kok(const uint16_t *w, int L) {
+#if SECICI_SOZLUK
+  if (secici_sozlukte(w, L)) return 1;
+  for (int i = L - 1; i > 3; i--)
+    if (secici_sozlukte(w, i)) return 1;
+#else
+  (void)w; (void)L;
+#endif
+  return 0;
+}
+// kadro_cezalari'nın "kartta olmayan ad" kuralı: farklı bilinmeyen ad sayısı (en çok 3'e kadar sayılır)
+static int sc_kartta_olmayan(const uint16_t *m, const uint16_t *k, int n, int f) {
+  int ub[3], ul[3], u = 0;
+  for (int i = 0; i < n && u < 3;) {  // (?<![\w])([Büyük][a-zçğıöşüâîû]+(?:-[A-Z][a-z]+)?)
+    if (!((i == 0 || !sc_kelime(m[i - 1])) && sc_buyuk(m[i]) && i + 1 < n && sc_sh(m[i + 1]))) { i++; continue; }
+    int e = i + 1;
+    while (e < n && sc_sh(m[e])) e++;
+    if (e + 2 < n && m[e] == '-' && m[e + 1] >= 'A' && m[e + 1] <= 'Z' && m[e + 2] >= 'a' && m[e + 2] <= 'z') {
+      e += 3;
+      while (e < n && m[e] >= 'a' && m[e] <= 'z') e++;
+    }
+    int b = i;
+    i = e;
+    int izinli = 0;
+    for (int t = URUN_IZINLI_OFF[f]; t < URUN_IZINLI_OFF[f + 1] && !izinli; t++) {
+      if (sc_esit(m, b, e, URUN_IZINLI[t])) izinli = 1;
+      else if (sc_esle(m, b, e, URUN_IZINLI[t]) > 2) izinli = 1;  // w.startswith(i), len(i) > 2
+    }
+    if (izinli || sc_listede(m, b, e, URUN_TUM_AD, URUN_TUM_AD_N)) continue;
+    int o = b - 1;
+    while (o >= 0 && sc_bosluk(m[o])) o--;
+    int cumle_basi = o < 0 || m[o] == '.' || m[o] == '!' || m[o] == '?' || m[o] == '"' || m[o] == 0x201C ||
+                     m[o] == 0x201D || m[o] == ':';
+    int ekli = e < n && sc_kesme(m[e]);
+    if (cumle_basi && !ekli && SECICI_SOZLUK && sc_sozlukte_kok(k + b, e - b)) continue;
+    int yeni = 1;
+    for (int t = 0; t < u && yeni; t++) yeni = !sc_aralik_esit(m, ub[t], ub[t] + ul[t], b, e);
+    if (yeni) { ub[u] = b; ul[u] = e - b; u++; }
+  }
+  return u;
+}
+// urun_uret.takinti_cezasi: 4+ harfli kelimelerin ilk 5 harfi 9+ kez (ad kelimeleri ve TAKINTI_HARIC hariç);
+// döner: sum(n - 8). Kelimeler sc_wb/sc_wl'de (k üzerinde).
+static int sc_takinti(const uint16_t *k, int nw, int f) {
+  int top = 0;
+  for (int w = 0; w < nw; w++) {
+    sc_wid[w] = -1;
+    if (sc_wl[w] < 4) continue;
+    int a = sc_wb[w], L = sc_wl[w] < 5 ? sc_wl[w] : 5;
+    if (sc_listede(k, a, a + L, URUN_TAKINTI_AD + URUN_TAKINTI_AD_OFF[f],
+                   URUN_TAKINTI_AD_OFF[f + 1] - URUN_TAKINTI_AD_OFF[f]) ||
+        sc_listede(k, a, a + L, URUN_TAKINTI_HARIC, URUN_TAKINTI_HARIC_N)) continue;
+    int id = w;
+    for (int v = 0; v < w; v++) {
+      if (sc_wid[v] != v) continue;
+      int Lv = sc_wl[v] < 5 ? sc_wl[v] : 5;
+      if (sc_aralik_esit(k, sc_wb[v], sc_wb[v] + Lv, a, a + L)) { id = v; break; }
+    }
+    sc_wid[w] = (int16_t)id;
+  }
+  for (int w = 0; w < nw; w++) {
+    if (sc_wid[w] != w) continue;
+    int say = 0;
+    for (int v = w; v < nw; v++) say += sc_wid[v] == w;
+    if (say >= 9) top += say - 8;
+  }
+  return top;
+}
+
+// urun_uret.puanla(a, kimlik, yer): metin = a["metin"] (çözülmüş ve kırpılmış gövde), plan = a["plan"]
+// ("Sorun: ...\nÇözüm: ..."; NULL: plan kuralı yok), f figür, yer genel yer (< 0: yer kuralı yok), lp a["lp"].
+// Gövde boşsa -99 (plan bozuk adayı çağıran eler: puan -99).
+static double secici_urun_puanla(const char *metin, int metin_n, const char *plan, int plan_n, int f, int yer,
+                                 int bitti, double lp) {
+  uint16_t *m = sc_m, *k = sc_k;
+  double *c = secici_kural;
+  for (int i = 0; i < SK_N; i++) c[i] = 0;
+  if (metin_n <= 0) { c[SK_GOVDE_YOK] = 99; return -99.0; }
+  int n = sc_coz(metin, metin_n, m, SECICI_MAKS);
+  for (int i = 0; i < n; i++) k[i] = sc_kucuk(m[i]);
+  const char *ad = FIGUR_AD[f];
+
+  if (sc_say(m, 0, n, ad, 1, 2) < 2) c[SK_AZ_ISIM] = 3;
+  if (!sc_say(m, (int)(n * 0.6), n, ad, 1, 1)) c[SK_SONDA_YOK] = 3;
+  if (sc_ad_ad(m, n, ad, 0)) c[SK_ISIM_VE_ISIM] = 3;
+  {  // yanlis_isimler: kadro dışı ad, (?<![\w])ad(?![a-zçğıöşüâîû])
+    int yanlis = 0;
+    for (int t = SUZGEC_AD_OFF[f]; t < SUZGEC_AD_OFF[f + 1] && !yanlis; t++)
+      for (int i = 0; i < n && !yanlis; i++) {
+        if (i > 0 && sc_kelime(m[i - 1])) continue;
+        int L = sc_esle_ad(m, i, n, SUZGEC_AD[t]);
+        if (L > 0 && !(i + L < n && sc_sh(m[i + L]))) yanlis = 1;
+      }
+    if (yanlis) c[SK_YANLIS_ISIM] = 2;
+  }
+  int nc = sc_bol(m, n);
+  if (sc_tekrar_cumle(m, nc)) c[SK_TEKRAR_CUMLE] = 1;
+  sc_son_kurallar(m, n, bitti, c);
+  int nw = sc_kelimeler(k, n);
+#if SECICI_SOZLUK
+  {
+    int bilinmeyen = 0;
+    for (int w = 0; w < nw; w++)
+      bilinmeyen += !secici_sozlukte(k + sc_wb[w], sc_wl[w]) &&
+                    !sc_listede(k, sc_wb[w], sc_wb[w] + sc_wl[w], URUN_ISIM_KELIME, URUN_ISIM_KELIME_N);
+    c[SK_UYDURMA_KELIME] = 1.5 * bilinmeyen;
+  }
+#endif
+  int tekrar = sc_tekrar_uclu(k, nw);
+  if (tekrar > 2) c[SK_TEKRAR_IFADE] = 0.5 * (tekrar - 2);
+
+  // olay_cezalari(metin, [ad], plan), sec.TUM_ISIM = ürün adları
+  int ncd = sc_bol_dolu(m, n);
+  if (sc_iki_tanitim(m, n, ad)) c[SK_IKI_TANITIM] = 3;
+  if (sc_kendi_kendine_var(m, k, ncd, ad)) c[SK_KENDI_KENDINE] = 2;
+  if (sc_baskasi(m, n, ad)) c[SK_BASKASI] = 2;
+  if (sc_uydurma_ad(m, n, URUN_TUM_ISIM, URUN_TUM_ISIM_N)) c[SK_UYDURMA_AD] = 2;
+  c[SK_OZELLIK] = sc_ozellik(k, n);
+  c[SK_KEKEME] = sc_kekeme(k, n);
+  if (sc_ders(k, ncd)) c[SK_DERS] = 1.5;
+  if (plan) {
+    int pn = sc_coz(plan, plan_n, sc_p, SECICI_PLAN_MAKS);
+    if (sc_plan_bozuk(sc_p, pn)) c[SK_PLAN] = 2;
+  }
+
+  // kadro_cezalari
+  if (sc_kendine_seslenme(m, n, f)) c[SK_KENDINE_SESLENME] = 3;
+  {
+    int gecen = 0, tekrar_ad = 0;
+    for (int t = URUN_KADRO_OFF[f]; t < URUN_KADRO_OFF[f + 1]; t++) {
+      if (!sc_say(m, 0, n, URUN_KADRO[t], 1, 1)) continue;
+      gecen++;
+      if (!tekrar_ad && sc_ad_ad(m, n, URUN_KADRO[t], 1)) tekrar_ad = 1;
+    }
+    if (tekrar_ad) c[SK_KADRO_TEKRAR] = 3;
+    if (gecen > 1)  // figürün kendi adı olay kurallarında; burada adlı yanlar
+      for (int t = URUN_KADRO_OFF[f]; t < URUN_KADRO_OFF[f + 1]; t++)
+        if (strcmp(URUN_KADRO[t], ad) && sc_say(m, 0, n, URUN_KADRO[t], 1, 1) &&
+            sc_kendi_kendine_var(m, k, ncd, URUN_KADRO[t]))
+          c[SK_YAN_KENDI_KENDINE] += 2;
+  }
+  {
+    int u = sc_kartta_olmayan(m, k, n, f);
+    if (u) c[SK_KARTTA_OLMAYAN] = 2 * u < 6 ? 2 * u : 6;
+  }
+  {
+    int t = sc_takinti(k, nw, f);
+    if (t) c[SK_TAKINTI] = 0.5 * t;
+  }
+  if (yer >= 0 && yer < 6 && sc_yer_kaymasi(k, n, yer)) c[SK_YER] = 1.5;
+  if (sc_guvenlik(k, n)) c[SK_GUVENLIK] = 4;
+  double ceza = 0;
+  for (int i = 0; i < SK_N; i++) ceza += c[i];
+  return -ceza + 2 * lp;
+}
+#endif  // SECICI_URUN

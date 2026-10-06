@@ -1,6 +1,6 @@
 // hiz.h'nin q4f çekirdeği, llm.h'nin matvec_q8_range'i ile bit bit aynı logit'i veriyor mu?
 // Derle:  cc -O2 -I.. -o /tmp/hiz_test hiz_test.c -lm
-// Çalıştır: /tmp/hiz_test ../../../modeller/c2ft_plan/model.bin
+// Çalıştır: /tmp/hiz_test ../../../hf_c3ft_karma/model.bin  (C3: farklı logit 0 / 327 680)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
