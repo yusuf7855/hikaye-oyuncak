@@ -55,3 +55,23 @@ Deneme: `.venv/bin/python ses/sentezle.py --metin "Bir varmış bir yokmuş." --
 - `disa_aktar.py`: eğitilmiş modelleri karta aktarır (`ses.bin`, ~4,34 MB; akustik 4 bit, vocoder 8 bit) ve C
   çıkarımını (`firmware/hikaye_oyuncak/ses.h`) sınamak için altın örnekler yazar. Kart adımları:
   `firmware/hikaye_oyuncak/README.md` (5. Ses).
+
+## Kendi bilgisayarınızda (NVIDIA ekran kartı, ör. RTX 4090) — önerilen
+
+Colab'dan hızlı ve ücretsiz. Windows'ta (Linux'ta da aynı; `.venv\Scripts\activate` yerine `source .venv/bin/activate`):
+
+1. Kurun: [Python 3.11](https://www.python.org/downloads/release/python-3119/) ("Add python.exe to PATH" işaretli),
+   [Git](https://git-scm.com/download/win), güncel NVIDIA sürücüsü.
+2. Komut İstemi (cmd) açıp:
+   ```bat
+   git clone -b claude/wonderful-pasteur-x7seiq https://github.com/yusuf7855/hikaye-oyuncak.git
+   cd hikaye-oyuncak
+   py -3.11 -m venv .venv
+   .venv\Scripts\activate
+   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124
+   pip install voxcpm soundfile scipy numpy
+   python ses/pc_hepsi.py
+   ```
+   (`git clone` GitHub girişi ister: tarayıcıda açılan pencereden giriş yapın.)
+3. Bilgisayar açık kaldıkça çalışır; uyku modunu kapatın. Kapanırsa aynı klasörde `.venv\Scripts\activate` ve
+   `python ses/pc_hepsi.py`: kaldığı yerden sürer. Bitince `deneme.wav` (dinleyin) ve `ses.bin` (karta) depo klasöründe.
