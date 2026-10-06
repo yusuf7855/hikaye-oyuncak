@@ -19,3 +19,15 @@ Seçici puanı: karma −2,05 (164 vaka, 133 cezasız) – 1030s2 ≈ −2,34.
 Sonuç: 10 kat alan içi veri, seçimle düzelmeyen olay örgüsü tutarlılığını belirgin biçimde iyileştirdi (740→1030'daki
 %40 artışın aksine). Hakemsiz hafif hat yeterli; tüm hikâyeleri hakemlerden geçirmeye gerek görülmedi.
 Ürün modeli önerisi: c3ft_karma (+ isim süzgeci + K aday seçici).
+
+## Rubrik puanı (RUBRIK.md, 10 üzerinden)
+
+41 vaka (her figür×yer için ilk tohum), iki modelin seçilmiş hikâyeleri karışık sırada, 2 hakem (`rubrik/`).
+
+| Model | Ortalama | Dağılım | karakter karışık | tekrar |
+|---|---|---|---|---|
+| 1030s2 | 3,17 | 1–6 | 13/41 | 10 |
+| **karma** | **4,51** | 2–7 | 2/41 | 16 |
+
+İki hakem de aynı yönde (hakem 1: 2,77 → 4,26; hakem 2: 3,63 → 4,73). Karakter karışıklığı neredeyse bitti; mantık ve
+dil kusurları hâlâ hemen her hikâyede var (yazar ajanlarının hikâyeleri ~9,7).
