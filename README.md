@@ -46,7 +46,20 @@ ESP32-S3'te çalıştıran *Per-Layer Embeddings* mimarisi) üzerine kuruldu. Or
 
 ## Güncel durum ve sonuçlar
 
-> Son güncelleme: 2026-09-24
+> Son güncelleme: 2026-10-07. Claude Code ile çalışırken önce [`CLAUDE.md`](CLAUDE.md) okunur.
+
+### Ekim 2026: ürün modeli
+
+| Parça | Durum |
+|---|---|
+| Figürler | 11 çizgi film figürü (Niloya, Pepee, Kral Şakir, Keloğlan, Hayri, Doru, Maşa, Elsa, Örümcek Adam, Hello Kitty, Chase); kartları `data/urun_kartlari.json`. Satış için lisans gerekir ([`docs/PAZAR_ARASTIRMASI.md`](docs/PAZAR_ARASTIRMASI.md)). |
+| Hikâye modeli | **c3ft_karma** (C3, 10,3 MB, ESP32-S3 N16R8'e sığar): 1030 hakemli + 9567 hafif hat hikâye. Kör kıyasta önceki modeli genel kalitede 127–37, olay örgüsünde 112–41 yendi; rubrik 3,17 → 4,51 ([OZET](degerlendirme/urun_kiyas_karma/OZET.md)). |
+| Üretim | Plan modu (Sorun/Çözüm → hikâye), isim süzgeci (başka figür adları yazılamaz), K aday + seçici ([`degerlendirme/urun_uret.py`](degerlendirme/urun_uret.py)). |
+| Kart yazılımı | [`firmware/hikaye_oyuncak`](firmware/hikaye_oyuncak): yeni model + 11 figür; PC'de `urun_uret` ile birebir aynı (328/328). Gerçek kartta denenecek. |
+| Ses | Öğretmen ses VoxCPM2 (ürün sahibinin seçtiği kadın sesi, Apache-2.0); eğitim RTX 4090'da (`ses/pc_hepsi.py`, [`docs/WINDOWS_CLAUDE_CODE.md`](docs/WINDOWS_CLAUDE_CODE.md)). |
+| Sıradaki | Veriyi 20–30 bine çıkarmak ([`docs/YAPILACAKLAR.md`](docs/YAPILACAKLAR.md)). |
+
+### Eylül 2026 (hayvan figürleri dönemi)
 
 ### Modeller
 
