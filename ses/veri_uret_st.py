@@ -47,7 +47,12 @@ _tts = _stil = None
 
 def _kur(model_dizini, ses):
     global _tts, _stil
-    from supertonic import TTS
+    import onnxruntime as ort
+    from supertonic import TTS, config
+    # Paket varsayılanı yalnız CPU; ekran kartı varsa (Colab GPU + onnxruntime-gpu) önce onu dene (listeyi yerinde değiştir:
+    # yükleyici aynı listeyi kullanır).
+    if "CUDAExecutionProvider" in ort.get_available_providers() and "CUDAExecutionProvider" not in config.DEFAULT_ONNX_PROVIDERS:
+        config.DEFAULT_ONNX_PROVIDERS.insert(0, "CUDAExecutionProvider")
     kw = dict(auto_download=True, intra_op_num_threads=1, inter_op_num_threads=1)
     if model_dizini:
         kw["model_dir"] = model_dizini
