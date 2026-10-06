@@ -1,8 +1,9 @@
 # Ses: kartta çalışacak Türkçe kadın sesi
 
-Hedef: Supertonic 3 F2 kadın sesine olabildiğince yakın, tamamen kartta (ESP32-S3) çalışan bir ses modeli.
-Ürün hikâyelerinden 25 bin cümlenin Supertonic okuması öğretmen olarak kullanılır (`veri_uret_st.py`); küçük model onu
-taklit etmeyi öğrenir. Önceki öğretmen Emel (edge-tts, `veri_uret.py`) Microsoft koşulları yüzünden satılan üründe
+Hedef: ürün sahibinin seçtiği VoxCPM2 kadın sesine (`referans_ses.mp3`) olabildiğince yakın, tamamen kartta (ESP32-S3)
+çalışan bir ses modeli. Ürün hikâyelerinden 25 bin cümle bu sesle (VoxCPM2 ses klonlama, Apache-2.0, GPU) okunur ve
+öğretmen olarak kullanılır (`veri_uret_vox.py`); küçük model onu taklit etmeyi öğrenir. Yedek: Supertonic 3
+(`veri_uret_st.py`, işlemciyle çalışır). Önceki öğretmen Emel (edge-tts, `veri_uret.py`) Microsoft koşulları yüzünden satılan üründe
 kullanılamaz; yalnız eski deneme için duruyor. Supertonic lisansı (Open RAIL-M) ticari kullanıma açık; koşullar
 `docs/SES_ARASTIRMASI.md` ve `veri_uret_st.py` başında.
 
