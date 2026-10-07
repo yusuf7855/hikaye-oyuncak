@@ -46,7 +46,7 @@ python ses/pc_hepsi.py
 ### 3.2 Hikâye modelini GPU'da eğitmek (bulutta CPU ile ~2,5 saat; 4090'da dakikalar)
 Eğitim zinciri bash betiği: Windows'ta **Git Bash** ya da **WSL** ile çalıştır.
 ```bash
-TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=12000 bash zincir_urun.sh
+TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 bash zincir_urun.sh
 ```
 `data/urun_karma/` depoda değil (gitignore): `python degerlendirme/urun_hafif_topla.py topla` ve `birlestir` ile
 `data/urun_v2` + `data/urun_v3`'ten yeniden kurulur. Genel Türkçe veri `data/tr2_tinystories` ve taban model

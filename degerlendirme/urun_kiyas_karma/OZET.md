@@ -31,3 +31,9 @@ Sonuç: 10 kat alan içi veri, seçimle düzelmeyen olay örgüsü tutarlılığ
 
 İki hakem de aynı yönde (hakem 1: 2,77 → 4,26; hakem 2: 3,63 → 4,73). Karakter karışıklığı neredeyse bitti; mantık ve
 dil kusurları hâlâ hemen her hikâyede var (yazar ajanlarının hikâyeleri ~9,7).
+
+## 12 bin adım denemesi (c3ft_karma12k)
+
+Aynı veri, `STEPS=12000` (öğrenme hızı daha geç düşüyor). En iyi doğrulama kaybı 2,054 (adım 7750), 6000 adımlık
+c3ft_karma'nın 2,015'inden kötü. Kör kıyas yapılmadı; ürün modeli c3ft_karma kalır. Bu veri boyutunda ~6000 adım
+yeterli; veri 20–30 bine çıkınca adım sayısı veriyle orantılı artırılabilir.

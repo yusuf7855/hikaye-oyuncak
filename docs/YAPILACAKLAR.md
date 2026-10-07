@@ -12,8 +12,9 @@ Adımlar:
 2. Hafif hat yazım (yazar + kod kontrolü, hakemsiz): `v3_yaz.js` workflow, 4 kol × 12'li grup. 10 bin ≈ 14 saat;
    konteyner yeniden başlarsa bitmemiş istemleri (kontrol/*.json olmayanlar) yeniden başlat.
 3. `urun_hafif_topla.py topla` + `birlestir` (yeni klasör için V3 yolunu genişlet ya da urun_v4 ekle).
-4. Eğitim: `IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=~12000 TAG=c3ft_karma2 zincir_urun.sh`
-   (6000 adımda val hâlâ düşüyordu; arka plan görevi 2 saatte kesilir, train kaldığı yerden sürer).
+4. Eğitim: `IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=<6000 × veri/10 bin> TAG=c3ft_karma2 zincir_urun.sh`
+   (aynı 10 bin veride 12 bin adım 6000'den kötü çıktı: val 2,054 / 2,015; adımı veriyle orantılı artır.
+   Arka plan görevi 2 saatte kesilir, train kaldığı yerden sürer).
    Disk dolabilir: önce eski `data/tr_c*`, `runs/ple-c2*` vb. temizle.
 5. Kör kıyas c3ft_karma2 – c3ft_karma: `urun_uret.py --aday 8 --tekrar-vaka 4` + 8 hakem (IKILI_GENEL/IKILI),
    anahtar hakemlik süresince klasör dışında; ardından rubrik puanı (RUBRIK.md).
