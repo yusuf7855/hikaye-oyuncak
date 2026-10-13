@@ -13,11 +13,18 @@ Yalnız Türkçe. İnternetsiz. Düğme YOK.
   | BIR_DAHA | "Bir daha", "Yine", "Tekrar" (son hikâyeyi baştan) |
   | SESI_AC | "Sesini aç", "Yüksek", "Duyamıyorum" |
   | SESI_KIS | "Sesini kıs", "Çok yüksek", "Yavaş konuş" |
-  | UYKU | "Uykum geldi", "İyi geceler" (uyku zamanlayıcısı + vedalaşma) |
+- Uyku sesli komutla DEĞİL, gece figürüyle açılır (aşağıda "Uyku modu").
 - Hiçbir komut karakter SEÇEMEZ. Hikâye yalnız standa konan oyuncağın hikâyesidir. Standda oyuncak yoksa hikâye okunmaz. Standa hiç konmamış oyuncağın hikâyesi hiç yazılmaz ve okunmaz (kart yalnız "tanınmış" oyuncaklar için arka planda hikâye hazırlar).
 - Selamlama: "Merhaba Emre, şimdi sana Pamuk'un hikâyesini okuyacağım." (ad yoksa "Merhaba, şimdi sana ..."). Ek uyumu doğru olmalı (Niloya'nın, Maşa'nın, Keloğlan'ın, Örümcek Adam'ın, Hello Kitty'nin, Chase'in ...).
 - Ayarlar: "Ayar kartı" (NFC, nfc_no 200) standa konunca kart kendi Wi-Fi erişim noktasını açar; telefonda ayar sayfası kendiliğinden açılır (captive portal). Ayarlar: çocuğun adı, en yüksek ses, uyku zamanlayıcısı (10/20/30 dk), halka parlaklığı, oyuncak çekilince ne olsun, oyuncak tanıt (NFC etiketine figür yazma), hikâyeleri sil. Wi-Fi yalnız ayar modunda açık; internet hiç kullanılmaz.
 - Figür listesi ve halka renkleri: `data/figur_donanim.json` (nfc_no + renk). NFC etiketine figür numarası yazılır (NTAG213 kullanıcı belleği, sayfa 4+: sihir + sürüm + nfc_no + CRC).
+
+## Uyku modu: gece figürü ("Ay Dede", nfc_no 12)
+- Standa gece figürü konunca oyuncak **ninni moduna** geçer: ninni ve uyku masalı okur. Bu figür bir hikâye karakteri değil, bir mod figürüdür (bir geceyi temsil eder: ay, yıldızlar).
+- **Metin tarzı değişir:** ninni gibi ritimli, tekrarlı, yumuşak dizeler ("Uyusun da büyüsün, ninni...") ve çok sakin kısa uyku masalları (ay, yıldızlar, uyuyan hayvanlar; sorun yok ya da çok küçük; son: herkes uyur). Hikâye modeli bu tarz için ayrı veriyle eğitilir (istemde "Karakter: Ay Dede" + tür alanı).
+- **Ses tonu değişir:** kartın ses modeli daha yavaş (≈%75 hız), daha alçak perde (≈−2 yarım ton), daha kısık ve cümle aralarında daha uzun duraklarla okur; isteğe bağlı çok kısık bir müzik kutusu melodisi (kartta sentezlenir, dosya gerekmez). Gerçek şarkı (melodili ninni) bu ses modeliyle mümkün değil: "ninni okur", söylemez.
+- **Halka:** gece mavisi, yıldız gibi rastgele yavaş parıldayan birkaç LED; okuma bitince 60 sn'de söner; ardından oyuncak uyku zamanlayıcısıyla kapanır.
+- Selamlama: "İyi geceler Emre, şimdi sana bir ninni söyleyeceğim." (ad yoksa "İyi geceler, ...").
 
 ## Halka (NeoPixel, WS2812B uyumlu) — standın üstünde, figürün çevresinde
 - Ölçü: dış Ø104 mm, iç Ø90 mm, kalınlık 3,5 mm. LED sayısı ürün sahibince doğrulanacak; yazılımda tek sabit `HALKA_LED_SAYISI` (varsayılan 35), tasarımda LED sayısından bağımsız.
@@ -34,7 +41,7 @@ Yalnız Türkçe. İnternetsiz. Düğme YOK.
   | Komut anlaşıldı | Kısa yeşil yanıp sönme; anlaşılmadı: kısa turuncu |
   | Ses aç/kıs | Halka ses düzeyini gösterir (0..maks dolu LED, beyaz), 2 sn sonra eski haline döner |
   | Arka planda hikâye hazırlanıyor | Çok sönük, yavaş dönen figür rengi noktası (ayardan kapatılabilir) |
-  | Uyku modu | Sıcak turuncu, okumanın sonunda 60 sn'de yavaşça söner |
+  | Uyku modu (gece figürü) | Gece mavisi, yavaş parıldayan yıldızlar, okuma bitince 60 sn'de söner |
   | Ayar modu | Turkuaz nefes |
   | Hata (model yok vb.) | Kırmızı yanıp sönme |
 
