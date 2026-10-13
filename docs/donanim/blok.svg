@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="500" viewBox="0 0 1100 500" font-family="DejaVu Sans, Arial, sans-serif">
+<defs><marker id="ok" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#333"/></marker></defs>
+<rect width="1100" height="500" fill="#ffffff"/>
+<text x="20" y="30" font-size="18" fill="#111" text-anchor="start" font-weight="bold">Masal standı — blok şeması</text>
+<rect x="20" y="230" width="150" height="70" rx="6" fill="#fff4e0" stroke="#333" stroke-width="1.5"/>
+<text x="95.0" y="261.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">USB-C 5 V / 2 A</text>
+<text x="95.0" y="279.0" font-size="10" fill="#111" text-anchor="middle">arka giriş, 5,1 kΩ CC</text>
+<rect x="220" y="230" width="120" height="70" rx="6" fill="#fff4e0" stroke="#333" stroke-width="1.5"/>
+<text x="280.0" y="261.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">PTC + TVS</text>
+<text x="280.0" y="279.0" font-size="10" fill="#111" text-anchor="middle">2,5 A · SMAJ5.0A</text>
+<rect x="400" y="200" width="220" height="130" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="510.0" y="261.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">ESP32-S3-DevKitC-1</text>
+<text x="510.0" y="279.0" font-size="10" fill="#111" text-anchor="middle">N16R8 · LLM + ses + KWS</text>
+<text x="510" y="300" font-size="10" fill="#111" text-anchor="middle">LDO 3V3 (SGM2212)</text>
+<rect x="720" y="60" width="170" height="60" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="805.0" y="86.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">MAX98357A</text>
+<text x="805.0" y="104.0" font-size="10" fill="#111" text-anchor="middle">I2S0 · 5 V</text>
+<rect x="940" y="60" width="140" height="60" rx="6" fill="#f2f2f2" stroke="#333" stroke-width="1.5"/>
+<text x="1010.0" y="86.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">Hoparlör</text>
+<text x="1010.0" y="104.0" font-size="10" fill="#111" text-anchor="middle">Ø40 4 Ω 3 W</text>
+<rect x="720" y="150" width="170" height="60" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="805.0" y="176.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">INMP441</text>
+<text x="805.0" y="194.0" font-size="10" fill="#111" text-anchor="middle">I2S1 · 3,3 V</text>
+<rect x="720" y="240" width="170" height="60" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="805.0" y="266.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">RC522</text>
+<text x="805.0" y="284.0" font-size="10" fill="#111" text-anchor="middle">SPI · 3,3 V</text>
+<rect x="940" y="240" width="140" height="60" rx="6" fill="#f2f2f2" stroke="#333" stroke-width="1.5"/>
+<text x="1010.0" y="266.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">NTAG213 Ø25</text>
+<text x="1010.0" y="284.0" font-size="10" fill="#111" text-anchor="middle">figür tabanında</text>
+<rect x="720" y="340" width="170" height="60" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="805.0" y="366.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">74AHCT1G125</text>
+<text x="805.0" y="384.0" font-size="10" fill="#111" text-anchor="middle">3,3 → 5 V · 330 Ω</text>
+<rect x="940" y="340" width="140" height="60" rx="6" fill="#fff4f4" stroke="#333" stroke-width="1.5"/>
+<text x="1010.0" y="366.0" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">NeoPixel halka</text>
+<text x="1010.0" y="384.0" font-size="10" fill="#111" text-anchor="middle">Ø104 · 1000 µF</text>
+<line x1="170" y1="265" x2="218" y2="265" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<line x1="340" y1="265" x2="398" y2="265" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<line x1="620" y1="230" x2="718" y2="90" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<text x="640" y="140" font-size="10" fill="#111" text-anchor="start">GPIO4/5/6/7</text>
+<line x1="718" y1="180" x2="622" y2="250" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<text x="640" y="205" font-size="10" fill="#111" text-anchor="start">GPIO15/16/17</text>
+<line x1="620" y1="275" x2="718" y2="270" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<line x1="718" y1="280" x2="622" y2="285" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<text x="632" y="265" font-size="10" fill="#111" text-anchor="start">SPI 9–13</text>
+<line x1="620" y1="310" x2="718" y2="370" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<text x="640" y="350" font-size="10" fill="#111" text-anchor="start">GPIO18</text>
+<line x1="890" y1="90" x2="938" y2="90" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<line x1="890" y1="370" x2="938" y2="370" stroke="#333" stroke-width="2" marker-end="url(#ok)"/>
+<line x1="890" y1="270" x2="938" y2="270" stroke="#333" stroke-width="2" stroke-dasharray="5,4"/>
+<text x="900" y="262" font-size="9" fill="#111" text-anchor="start">13,56 MHz</text>
+<text x="20" y="430" font-size="12" fill="#111" text-anchor="start">5 V rayı: DevKit (5V pini), MAX98357A VIN, 74AHCT1G125 VCC, halka.  3V3 rayı (DevKit LDO): RC522, INMP441.</text>
+<text x="20" y="452" font-size="12" fill="#111" text-anchor="start">Akım bütçesi (en kötü an): halka 0,6 A (yazılım sınırı) + hoparlör 0,7 A + ESP32 0,35 A + RC522 0,1 A ≈ 1,75 A &lt; 2 A.</text>
+<text x="20" y="474" font-size="12" fill="#111" text-anchor="start">Mikrofon arkada üstte, hoparlör önde altta (≈125 mm); ses ve halka kabloları mikrofon kablosundan ayrı yoldan.</text>
+</svg>

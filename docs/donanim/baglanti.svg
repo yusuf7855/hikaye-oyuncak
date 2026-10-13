@@ -1,0 +1,274 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1010" viewBox="0 0 1440 1010" font-family="DejaVu Sans, Arial, sans-serif">
+<defs><marker id="ok" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#333"/></marker></defs>
+<rect width="1440" height="1010" fill="#ffffff"/>
+<text x="20" y="30" font-size="18" fill="#111" text-anchor="start" font-weight="bold">Masal standı — bağlantı şeması (ESP32-S3-DevKitC-1 N16R8, pin haritası: docs/URUN_TANIMI.md)</text>
+<polyline points="150.0,62.0 1400.0,62.0" fill="none" stroke="#d62728" stroke-width="4" stroke-linejoin="round"/>
+<text x="144" y="67" font-size="13" fill="#d62728" text-anchor="end" font-weight="bold">5V</text>
+<polyline points="300.0,88.0 940.0,88.0" fill="none" stroke="#ff8c00" stroke-width="3.5" stroke-linejoin="round"/>
+<text x="946" y="92" font-size="12" fill="#ff8c00" text-anchor="start" font-weight="bold">3V3 (DevKit LDO, ≤ 0,8 A)</text>
+<polyline points="150.0,960.0 1400.0,960.0" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round"/>
+<text x="144" y="965" font-size="13" fill="#111" text-anchor="end" font-weight="bold">GND</text>
+<text x="160" y="54" font-size="11" fill="#d62728" text-anchor="start">5V rayı 22 AWG</text>
+<text x="160" y="978" font-size="11" fill="#111" text-anchor="start">GND 22 AWG — yıldız toprak: bütün GND'ler taşıyıcı karttaki tek noktada buluşur</text>
+<rect x="20" y="150" width="130" height="170" rx="6" fill="#f4f6fa" stroke="#333" stroke-width="1.5"/>
+<text x="85" y="172" font-size="12" fill="#111" text-anchor="middle" font-weight="bold">USB-C dişi kart</text>
+<text x="85" y="189" font-size="10" fill="#111" text-anchor="middle">5,1 kΩ CC1/CC2→GND</text>
+<text x="140" y="219" font-size="11" fill="#111" text-anchor="end">VBUS</text>
+<circle cx="150" cy="215" r="3" fill="#d62728"/>
+<text x="140" y="243" font-size="11" fill="#111" text-anchor="end">GND</text>
+<circle cx="150" cy="239" r="3" fill="#222222"/>
+<text x="140" y="267" font-size="11" fill="#111" text-anchor="end">CC1</text>
+<circle cx="150" cy="263" r="3" fill="#6f6f6f"/>
+<text x="140" y="291" font-size="11" fill="#111" text-anchor="end">CC2</text>
+<circle cx="150" cy="287" r="3" fill="#6f6f6f"/>
+<text x="85" y="312" font-size="10" fill="#111" text-anchor="middle">5 V / 2 A adaptör</text>
+<polyline points="150.0,215.0 172.0,215.0" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<rect x="172" y="205" width="52" height="20" rx="3" fill="#ffe9d6" stroke="#333" stroke-width="1.5"/>
+<text x="198" y="219" font-size="10" fill="#111" text-anchor="middle">PTC 2,5A</text>
+<polyline points="224.0,215.0 245.0,215.0 245.0,62.0" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="245" cy="62" r="3.5" fill="#d62728"/>
+<polyline points="150.0,239.0 170.0,239.0 170.0,960.0" fill="none" stroke="#222222" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="170" cy="960" r="3.5" fill="#111"/>
+<polyline points="245.0,130.0 275.0,130.0 275.0,140.0" fill="none" stroke="#d62728" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="245" cy="130" r="3" fill="#d62728"/>
+<rect x="266" y="140" width="18" height="36" rx="2" fill="#fff" stroke="#333" stroke-width="1.5"/>
+<text x="286" y="194" font-size="8" fill="#111" text-anchor="start">TVS</text>
+<text x="286" y="205" font-size="8" fill="#111" text-anchor="start">SMAJ5.0A</text>
+<polyline points="275.0,176.0 275.0,255.0 170.0,255.0" fill="none" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="170" cy="255" r="3" fill="#222222"/>
+<rect x="330" y="140" width="150" height="580" rx="6" fill="#eef3ff" stroke="#333" stroke-width="1.5"/>
+<text x="338" y="400" font-size="13" fill="#111" text-anchor="start" font-weight="bold">ESP32-S3-</text>
+<text x="338" y="418" font-size="13" fill="#111" text-anchor="start" font-weight="bold">DevKitC-1</text>
+<text x="338" y="436" font-size="13" fill="#111" text-anchor="start" font-weight="bold">N16R8</text>
+<text x="338" y="464" font-size="10" fill="#111" text-anchor="start">J1 başlığı →</text>
+<text x="474" y="174" font-size="11" fill="#111" text-anchor="end">1 3V3</text>
+<circle cx="480" cy="170" r="2.5" fill="#555"/>
+<text x="474" y="199" font-size="11" fill="#111" text-anchor="end">2 3V3</text>
+<circle cx="480" cy="195" r="2.5" fill="#555"/>
+<text x="474" y="224" font-size="11" fill="#111" text-anchor="end">3 RST</text>
+<circle cx="480" cy="220" r="2.5" fill="#555"/>
+<text x="474" y="249" font-size="11" fill="#111" text-anchor="end">4 GPIO4</text>
+<circle cx="480" cy="245" r="2.5" fill="#555"/>
+<text x="474" y="274" font-size="11" fill="#111" text-anchor="end">5 GPIO5</text>
+<circle cx="480" cy="270" r="2.5" fill="#555"/>
+<text x="474" y="299" font-size="11" fill="#111" text-anchor="end">6 GPIO6</text>
+<circle cx="480" cy="295" r="2.5" fill="#555"/>
+<text x="474" y="324" font-size="11" fill="#111" text-anchor="end">7 GPIO7</text>
+<circle cx="480" cy="320" r="2.5" fill="#555"/>
+<text x="474" y="349" font-size="11" fill="#111" text-anchor="end">8 GPIO15</text>
+<circle cx="480" cy="345" r="2.5" fill="#555"/>
+<text x="474" y="374" font-size="11" fill="#111" text-anchor="end">9 GPIO16</text>
+<circle cx="480" cy="370" r="2.5" fill="#555"/>
+<text x="474" y="399" font-size="11" fill="#111" text-anchor="end">10 GPIO17</text>
+<circle cx="480" cy="395" r="2.5" fill="#555"/>
+<text x="474" y="424" font-size="11" fill="#111" text-anchor="end">11 GPIO18</text>
+<circle cx="480" cy="420" r="2.5" fill="#555"/>
+<text x="474" y="449" font-size="11" fill="#111" text-anchor="end">12 GPIO8</text>
+<circle cx="480" cy="445" r="2.5" fill="#555"/>
+<text x="474" y="474" font-size="11" fill="#111" text-anchor="end">13 GPIO3</text>
+<circle cx="480" cy="470" r="2.5" fill="#555"/>
+<text x="474" y="499" font-size="11" fill="#111" text-anchor="end">14 GPIO46</text>
+<circle cx="480" cy="495" r="2.5" fill="#555"/>
+<text x="474" y="524" font-size="11" fill="#111" text-anchor="end">15 GPIO9</text>
+<circle cx="480" cy="520" r="2.5" fill="#555"/>
+<text x="474" y="549" font-size="11" fill="#111" text-anchor="end">16 GPIO10</text>
+<circle cx="480" cy="545" r="2.5" fill="#555"/>
+<text x="474" y="574" font-size="11" fill="#111" text-anchor="end">17 GPIO11</text>
+<circle cx="480" cy="570" r="2.5" fill="#555"/>
+<text x="474" y="599" font-size="11" fill="#111" text-anchor="end">18 GPIO12</text>
+<circle cx="480" cy="595" r="2.5" fill="#555"/>
+<text x="474" y="624" font-size="11" fill="#111" text-anchor="end">19 GPIO13</text>
+<circle cx="480" cy="620" r="2.5" fill="#555"/>
+<text x="474" y="649" font-size="11" fill="#111" text-anchor="end">20 GPIO14</text>
+<circle cx="480" cy="645" r="2.5" fill="#555"/>
+<text x="474" y="674" font-size="11" fill="#111" text-anchor="end">21 5V</text>
+<circle cx="480" cy="670" r="2.5" fill="#555"/>
+<text x="474" y="699" font-size="11" fill="#111" text-anchor="end">22 GND</text>
+<circle cx="480" cy="695" r="2.5" fill="#555"/>
+<text x="330" y="740" font-size="11" fill="#111" text-anchor="start">Kullanılmaz: 0, 3, 45, 46 (açılış), 19/20 (USB), 26–37 (flash/PSRAM), 43/44 (UART), 48/38 (RGB LED)</text>
+<rect x="930" y="120" width="150" height="202" rx="6" fill="#f4f6fa" stroke="#333" stroke-width="1.5"/>
+<text x="1005" y="138" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">MAX98357A</text>
+<text x="1005" y="336" font-size="10" fill="#111" text-anchor="middle">I2S yükselteç (Adafruit 3006)</text>
+<text x="938" y="158" font-size="11" fill="#111" text-anchor="start">LRC</text>
+<circle cx="930" cy="154" r="2.5" fill="#555"/>
+<text x="938" y="182" font-size="11" fill="#111" text-anchor="start">BCLK</text>
+<circle cx="930" cy="178" r="2.5" fill="#555"/>
+<text x="938" y="206" font-size="11" fill="#111" text-anchor="start">DIN</text>
+<circle cx="930" cy="202" r="2.5" fill="#555"/>
+<text x="938" y="230" font-size="11" fill="#111" text-anchor="start">GAIN</text>
+<circle cx="930" cy="226" r="2.5" fill="#555"/>
+<text x="938" y="254" font-size="11" fill="#111" text-anchor="start">SD</text>
+<circle cx="930" cy="250" r="2.5" fill="#555"/>
+<text x="938" y="278" font-size="11" fill="#111" text-anchor="start">GND</text>
+<circle cx="930" cy="274" r="2.5" fill="#555"/>
+<text x="938" y="302" font-size="11" fill="#111" text-anchor="start">VIN</text>
+<circle cx="930" cy="298" r="2.5" fill="#555"/>
+<rect x="930" y="330" width="150" height="178" rx="6" fill="#f4f6fa" stroke="#333" stroke-width="1.5"/>
+<text x="1005" y="348" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">INMP441</text>
+<text x="1005" y="522" font-size="10" fill="#111" text-anchor="middle">I2S MEMS mikrofon, 3,3 V!</text>
+<text x="938" y="368" font-size="11" fill="#111" text-anchor="start">SCK</text>
+<circle cx="930" cy="364" r="2.5" fill="#555"/>
+<text x="938" y="392" font-size="11" fill="#111" text-anchor="start">WS</text>
+<circle cx="930" cy="388" r="2.5" fill="#555"/>
+<text x="938" y="416" font-size="11" fill="#111" text-anchor="start">L/R</text>
+<circle cx="930" cy="412" r="2.5" fill="#555"/>
+<text x="938" y="440" font-size="11" fill="#111" text-anchor="start">SD</text>
+<circle cx="930" cy="436" r="2.5" fill="#555"/>
+<text x="938" y="464" font-size="11" fill="#111" text-anchor="start">VDD</text>
+<circle cx="930" cy="460" r="2.5" fill="#555"/>
+<text x="938" y="488" font-size="11" fill="#111" text-anchor="start">GND</text>
+<circle cx="930" cy="484" r="2.5" fill="#555"/>
+<rect x="930" y="510" width="150" height="226" rx="6" fill="#f4f6fa" stroke="#333" stroke-width="1.5"/>
+<text x="1005" y="528" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">RC522</text>
+<text x="1005" y="750" font-size="10" fill="#111" text-anchor="middle">NFC okuyucu 13,56 MHz, 3,3 V</text>
+<text x="938" y="548" font-size="11" fill="#111" text-anchor="start">SDA</text>
+<circle cx="930" cy="544" r="2.5" fill="#555"/>
+<text x="938" y="572" font-size="11" fill="#111" text-anchor="start">SCK</text>
+<circle cx="930" cy="568" r="2.5" fill="#555"/>
+<text x="938" y="596" font-size="11" fill="#111" text-anchor="start">MOSI</text>
+<circle cx="930" cy="592" r="2.5" fill="#555"/>
+<text x="938" y="620" font-size="11" fill="#111" text-anchor="start">MISO</text>
+<circle cx="930" cy="616" r="2.5" fill="#555"/>
+<text x="938" y="644" font-size="11" fill="#111" text-anchor="start">IRQ</text>
+<circle cx="930" cy="640" r="2.5" fill="#555"/>
+<text x="938" y="668" font-size="11" fill="#111" text-anchor="start">GND</text>
+<circle cx="930" cy="664" r="2.5" fill="#555"/>
+<text x="938" y="692" font-size="11" fill="#111" text-anchor="start">RST</text>
+<circle cx="930" cy="688" r="2.5" fill="#555"/>
+<text x="938" y="716" font-size="11" fill="#111" text-anchor="start">3.3V</text>
+<circle cx="930" cy="712" r="2.5" fill="#555"/>
+<rect x="930" y="760" width="150" height="130" rx="6" fill="#f4f6fa" stroke="#333" stroke-width="1.5"/>
+<text x="1005" y="778" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">74AHCT1G125</text>
+<text x="1005" y="904" font-size="10" fill="#111" text-anchor="middle">seviye çevirici 3,3→5 V (SOT-23-5)</text>
+<text x="938" y="798" font-size="11" fill="#111" text-anchor="start">1 OE</text>
+<circle cx="930" cy="794" r="2.5" fill="#555"/>
+<text x="938" y="822" font-size="11" fill="#111" text-anchor="start">2 A</text>
+<circle cx="930" cy="818" r="2.5" fill="#555"/>
+<text x="938" y="846" font-size="11" fill="#111" text-anchor="start">3 GND</text>
+<circle cx="930" cy="842" r="2.5" fill="#555"/>
+<text x="938" y="870" font-size="11" fill="#111" text-anchor="start">5 VCC</text>
+<circle cx="930" cy="866" r="2.5" fill="#555"/>
+<polyline points="480.0,245.0 524.0,245.0 524.0,178.0 930.0,178.0" fill="none" stroke="#d4a800" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="174" font-size="9" fill="#d4a800" text-anchor="start">GPIO4</text>
+<polyline points="480.0,270.0 548.0,270.0 548.0,154.0 930.0,154.0" fill="none" stroke="#2ca02c" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="150" font-size="9" fill="#2ca02c" text-anchor="start">GPIO5</text>
+<polyline points="480.0,295.0 572.0,295.0 572.0,202.0 930.0,202.0" fill="none" stroke="#1f77b4" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="198" font-size="9" fill="#1f77b4" text-anchor="start">GPIO6</text>
+<polyline points="480.0,320.0 596.0,320.0 596.0,250.0 930.0,250.0" fill="none" stroke="#9a9a9a" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="246" font-size="9" fill="#666" text-anchor="start">GPIO7</text>
+<polyline points="480.0,345.0 620.0,345.0 620.0,364.0 930.0,364.0" fill="none" stroke="#d4a800" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="360" font-size="9" fill="#d4a800" text-anchor="start">GPIO15</text>
+<polyline points="480.0,370.0 644.0,370.0 644.0,388.0 930.0,388.0" fill="none" stroke="#2ca02c" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="384" font-size="9" fill="#2ca02c" text-anchor="start">GPIO16</text>
+<polyline points="480.0,395.0 668.0,395.0 668.0,436.0 930.0,436.0" fill="none" stroke="#1f77b4" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="432" font-size="9" fill="#1f77b4" text-anchor="start">GPIO17</text>
+<polyline points="480.0,420.0 692.0,420.0 692.0,818.0 930.0,818.0" fill="none" stroke="#9467bd" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="814" font-size="9" fill="#9467bd" text-anchor="start">GPIO18</text>
+<polyline points="480.0,520.0 716.0,520.0 716.0,688.0 930.0,688.0" fill="none" stroke="#6f6f6f" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="684" font-size="9" fill="#6f6f6f" text-anchor="start">GPIO9</text>
+<polyline points="480.0,545.0 740.0,545.0 740.0,544.0 930.0,544.0" fill="none" stroke="#8c564b" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="540" font-size="9" fill="#8c564b" text-anchor="start">GPIO10</text>
+<polyline points="480.0,570.0 764.0,570.0 764.0,592.0 930.0,592.0" fill="none" stroke="#1f77b4" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="588" font-size="9" fill="#1f77b4" text-anchor="start">GPIO11</text>
+<polyline points="480.0,595.0 788.0,595.0 788.0,568.0 930.0,568.0" fill="none" stroke="#d4a800" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="564" font-size="9" fill="#d4a800" text-anchor="start">GPIO12</text>
+<polyline points="480.0,620.0 812.0,620.0 812.0,616.0 930.0,616.0" fill="none" stroke="#2ca02c" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="842" y="612" font-size="9" fill="#2ca02c" text-anchor="start">GPIO13</text>
+<polyline points="480.0,170.0 492.0,170.0 492.0,88.0" fill="none" stroke="#ff8c00" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="492" cy="88" r="3.5" fill="#ff8c00"/>
+<polyline points="480.0,670.0 502.0,670.0 502.0,62.0" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="502" cy="62" r="3.5" fill="#d62728"/>
+<polyline points="480.0,695.0 512.0,695.0 512.0,960.0" fill="none" stroke="#222222" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="512" cy="960" r="3.5" fill="#111"/>
+<polyline points="930.0,298.0 906.0,298.0 906.0,62.0" fill="none" stroke="#d62728" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="906" cy="62" r="3" fill="#d62728"/>
+<polyline points="930.0,274.0 914.0,274.0 914.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="914" cy="960" r="3" fill="#222222"/>
+<polyline points="930.0,460.0 906.0,460.0 906.0,88.0" fill="none" stroke="#ff8c00" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="906" cy="88" r="3" fill="#ff8c00"/>
+<polyline points="930.0,484.0 914.0,484.0 914.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="914" cy="960" r="3" fill="#222222"/>
+<polyline points="930.0,412.0 922.0,412.0 922.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="922" cy="960" r="3" fill="#222222"/>
+<polyline points="930.0,712.0 906.0,712.0 906.0,88.0" fill="none" stroke="#ff8c00" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="906" cy="88" r="3" fill="#ff8c00"/>
+<polyline points="930.0,664.0 914.0,664.0 914.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="914" cy="960" r="3" fill="#222222"/>
+<polyline points="930.0,866.0 906.0,866.0 906.0,62.0" fill="none" stroke="#d62728" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="906" cy="62" r="3" fill="#d62728"/>
+<polyline points="930.0,842.0 914.0,842.0 914.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="914" cy="960" r="3" fill="#222222"/>
+<polyline points="930.0,794.0 922.0,794.0 922.0,960.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="922" cy="960" r="3" fill="#222222"/>
+<text x="1090" y="230" font-size="10" fill="#666" text-anchor="start">GAIN boş = 9 dB</text>
+<text x="1090" y="254" font-size="10" fill="#666" text-anchor="start">SD: LOW uyku, HIGH (3,3 V) = sol kanal</text>
+<text x="1090" y="644" font-size="10" fill="#666" text-anchor="start">IRQ boş</text>
+<text x="1090" y="548" font-size="10" fill="#666" text-anchor="start">bileşen yüzü aşağı, kabloyla lehimli</text>
+<text x="1090" y="416" font-size="10" fill="#666" text-anchor="start">L/R → GND (sol kanal)</text>
+<text x="1090" y="464" font-size="10" fill="#d62728" text-anchor="start">VDD yalnız 3V3 (5 V bozar)</text>
+<polyline points="1080.0,180.0 1200.0,180.0" fill="none" stroke="#d62728" stroke-width="2.4" stroke-linejoin="round"/>
+<polyline points="1080.0,204.0 1200.0,204.0" fill="none" stroke="#222222" stroke-width="2.4" stroke-linejoin="round"/>
+<text x="1086" y="174" font-size="9" fill="#111" text-anchor="start">+  (24 AWG, burgulu, ≤ 10 cm)</text>
+<text x="1086" y="220" font-size="10" fill="#111" text-anchor="start">−</text>
+<rect x="1200" y="172" width="16" height="40" fill="#ddd" stroke="#333"/>
+<polygon points="1216,172 1250,150 1250,234 1216,212" fill="#eee" stroke="#333"/>
+<text x="1270" y="186" font-size="12" fill="#111" text-anchor="start" font-weight="bold">Hoparlör</text>
+<text x="1270" y="202" font-size="11" fill="#111" text-anchor="start">4 Ω 3 W, Ø40</text>
+<text x="1090" y="302" font-size="10" fill="#111" text-anchor="start">+ 470 µF VIN–GND (amp ucunda)</text>
+<text x="1072" y="822" font-size="11" fill="#111" text-anchor="end">4 Y</text>
+<circle cx="1080" cy="818" r="2.5" fill="#555"/>
+<polyline points="1080.0,818.0 1110.0,818.0" fill="none" stroke="#9467bd" stroke-width="2.4" stroke-linejoin="round"/>
+<rect x="1110" y="811" width="40" height="14" fill="#fff6c8" stroke="#333"/>
+<text x="1130" y="806" font-size="11" fill="#111" text-anchor="middle">330 Ω</text>
+<text x="1130" y="844" font-size="9" fill="#111" text-anchor="middle">halka ucunda</text>
+<polyline points="1150.0,818.0 1220.0,818.0" fill="none" stroke="#9467bd" stroke-width="2.4" stroke-linejoin="round"/>
+<rect x="1220" y="778" width="150" height="130" rx="6" fill="#fff4f4" stroke="#333" stroke-width="1.5"/>
+<text x="1295" y="796" font-size="13" fill="#111" text-anchor="middle" font-weight="bold">NeoPixel halka</text>
+<text x="1295" y="810" font-size="9" fill="#111" text-anchor="middle">Ø104/Ø90, 35 LED (WS2812B)</text>
+<text x="1228" y="822" font-size="11" fill="#111" text-anchor="start">DIN</text>
+<circle cx="1220" cy="818" r="2.5" fill="#555"/>
+<text x="1362" y="850" font-size="11" fill="#111" text-anchor="end">5V</text>
+<circle cx="1370" cy="846" r="2.5" fill="#555"/>
+<text x="1362" y="878" font-size="11" fill="#111" text-anchor="end">GND</text>
+<circle cx="1370" cy="874" r="2.5" fill="#555"/>
+<polyline points="1370.0,846.0 1392.0,846.0 1392.0,62.0" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="1392" cy="62" r="3.5" fill="#d62728"/>
+<polyline points="1370.0,874.0 1380.0,874.0 1380.0,960.0" fill="none" stroke="#222222" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="1380" cy="960" r="3.5" fill="#111"/>
+<polyline points="1392.0,846.0 1410.0,846.0 1410.0,884.0" fill="none" stroke="#d62728" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="1392" cy="846" r="2.5" fill="#d62728"/>
+<rect x="1400" y="884" width="20" height="3" fill="#333"/>
+<rect x="1400" y="890" width="20" height="3" fill="#999"/>
+<polyline points="1410.0,893.0 1410.0,902.0 1380.0,902.0" fill="none" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="1380" cy="902" r="2.5" fill="#222222"/>
+<text x="1220" y="938" font-size="11" fill="#111" text-anchor="start" font-weight="bold">1000 µF 10–16 V</text>
+<text x="1220" y="952" font-size="10" fill="#111" text-anchor="start">halkanın 5V–GND ucunda</text>
+<text x="20" y="360" font-size="12" fill="#111" text-anchor="start" font-weight="bold">Renkler (öneri):</text>
+<polyline points="24.0,380.0 60.0,380.0" fill="none" stroke="#d62728" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="384" font-size="11" fill="#111" text-anchor="start">kırmızı: 5 V (22 AWG)</text>
+<polyline points="24.0,400.0 60.0,400.0" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="404" font-size="11" fill="#111" text-anchor="start">siyah: GND (22 AWG)</text>
+<polyline points="24.0,420.0 60.0,420.0" fill="none" stroke="#ff8c00" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="424" font-size="11" fill="#111" text-anchor="start">turuncu: 3V3</text>
+<polyline points="24.0,440.0 60.0,440.0" fill="none" stroke="#d4a800" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="444" font-size="11" fill="#111" text-anchor="start">sarı: saat: BCLK/SCK</text>
+<polyline points="24.0,460.0 60.0,460.0" fill="none" stroke="#2ca02c" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="464" font-size="11" fill="#111" text-anchor="start">yeşil: LRC/WS, MISO</text>
+<polyline points="24.0,480.0 60.0,480.0" fill="none" stroke="#1f77b4" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="484" font-size="11" fill="#111" text-anchor="start">mavi: veri: DIN/SD/MOSI</text>
+<polyline points="24.0,500.0 60.0,500.0" fill="none" stroke="#9467bd" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="504" font-size="11" fill="#111" text-anchor="start">mor: halka verisi</text>
+<polyline points="24.0,520.0 60.0,520.0" fill="none" stroke="#8c564b" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="524" font-size="11" fill="#111" text-anchor="start">kahverengi: SPI SS</text>
+<polyline points="24.0,540.0 60.0,540.0" fill="none" stroke="#6f6f6f" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="544" font-size="11" fill="#111" text-anchor="start">gri: RST</text>
+<polyline points="24.0,560.0 60.0,560.0" fill="none" stroke="#9a9a9a" stroke-width="4" stroke-linejoin="round"/>
+<text x="66" y="564" font-size="11" fill="#111" text-anchor="start">beyaz: amp SD (kapatma)</text>
+<text x="20" y="600" font-size="11" fill="#111" text-anchor="start">Sinyal: 26 AWG silikon kablo.</text>
+<text x="20" y="615" font-size="11" fill="#111" text-anchor="start">I2S ve SPI ≤ 15 cm.</text>
+<text x="20" y="630" font-size="11" fill="#111" text-anchor="start">Mikrofon kablosu hoparlör/</text>
+<text x="20" y="645" font-size="11" fill="#111" text-anchor="start">amp kablolarından ayrı yoldan.</text>
+<text x="20" y="660" font-size="11" fill="#111" text-anchor="start">Halka ve RC522 kabloları</text>
+<text x="20" y="675" font-size="11" fill="#111" text-anchor="start">kapağa gider: 10 cm</text>
+<text x="20" y="690" font-size="11" fill="#111" text-anchor="start">servis payı bırakın.</text>
+</svg>
