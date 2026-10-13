@@ -1,7 +1,7 @@
 // Hikâye Oyuncağı (ESP32-S3 N16R8): ürün yazılımı + seri monitör test komutları.
 //
 // Model: c3ft_karma (C3: d192 L12 F512 P56, V16384; model.bin 10 331 252 B), flash'taki "model" bölümünde
-// (0x110000). Figürler data/urun_kartlari.json'daki 11 ürün figürü ve kart yerleri; üretim bilgisayardaki
+// (0x1D0000). Figürler data/urun_kartlari.json'daki 11 ürün figürü ve kart yerleri; üretim bilgisayardaki
 // degerlendirme/urun_uret.py ile aynı (runtime/ornekle.h + runtime/isim_suzgec.h, generated/ altına kopya):
 // istem <|endoftext|> + "Karakter: F | Yer: Y\nSorun:" (Yan alanı yok), plan modu, sıcaklık 0.5, top-k 40, tekrar
 // cezası 1.1, istem tekrar penceresine girmez (gen -P), gövdede satır sonu yasağı (gen -N), isim süzgeci (gen -Y:
@@ -23,17 +23,25 @@
 // "s <metin>" = metni oku | "o" = üretilen hikâyeyi otomatik okuma aç/kapa (ses modeli varsa açık başlar).
 // Bölüm ya da ses.bin yoksa her şey eskisi gibi çalışır, konuşma kapalıdır (düğmelere bip ile yanıt verilir).
 //
-// Ürün (README "6. Oyuncak olarak"): pinler ve sabitler donanim.h'de.
-// - Hikâye kuyruğu (kuyruk.h, flash'ta "kuyruk" bölümü): oyuncak boştayken her figür x yer için K=16 aday üretip
-//   seçiciyle en iyisini saklar (figür başına KUYRUK_FIGUR_BASI). Çocuk hikâye isteyince hazır olan hemen okunur,
-//   tüketilir, yerine boşta yenisi üretilir. Hazır yoksa canlı (K=1). Açılıştan açılışa kalır.
-// - Düğmeler (dugmeler.h): FİGÜR / YER / OYNAT, uzun basışlar, OYNAT + FİGÜR/YER ses aç/kıs; RGB LED durumu.
-//   NFC figür okuyucu arayüzü nfc.h (NFC_OKUYUCU; varsayılan taslak, "n <uid>" ile denenir).
-// - Güç: boşta ve üretecek iş yokken hafif uyku (düğme uyandırır); yazılımla ses seviyesi. Görev bekçisi
-//   (task watchdog) uzun üretimde her token'da beslenir.
-// Seri komutlar (yenileri): "8" = Elsa, sürpriz yer | "8 4" = hazır varsa hemen, yoksa canlı | "8 4 K" = her zaman
-// K adayla üret (test) | "k" kuyruk durumu, "k+"/"k-" arka plan üretimi aç/kapa, "k sil" | "v+"/"v-"/"v N" ses |
-// "t f|F|y|Y|o|O|+|-|a" düğme taklidi | "n 04A1B2C3" NFC etiketi taklidi | "u" 10 s hafif uyku denemesi.
+// Ürün (docs/URUN_TANIMI.md; README "6. Oyuncak olarak"): düğme yok. Pinler ve sabitler donanim.h'de.
+// - Stand (NFC, nfc.h; RC522): hikâye yalnız standdaki oyuncağın hikâyesidir. Oyuncak etiketi kayıtlıdır (etiket.h:
+//   sihir + sürüm + nfc_no + CRC, NTAG sayfa 4-5); kayıt yoksa UID tablosu. İlk kez konan oyuncak "tanınır" (NVS).
+//   Kondu -> halka figür renginde dolar -> selamlama ("Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım.",
+//   selam.h) -> en eski hazır hikâye (yoksa canlı K=1; yerler kendiliğinden döner). Çekilince cümle sonunda durur
+//   (ayar). nfc_no 200 = ayar kartı: Wi-Fi erişim noktası + ayar sayfası (ayar_sayfa.h, ayarlar.h).
+// - Gece figürü (Ay Dede, mod "uyku"): ninni modu: yavaş, alçak, kısık okuma (ses.h hiz/perde_kaydir/kazanc), uzun
+//   cümle araları, isteğe bağlı müzik kutusu (muzik_kutusu.h), gece mavisi yıldızlı halka; uyku zamanlayıcısı dolunca
+//   halka 60 sn'de söner, mikrofon/yükselteç/halka kapanır. Model gece figürünü bilmiyorsa yerleşik ninniler
+//   (yerlesik.h); biliyorsa (generated/figur_donanim.h DONANIM_MODEL) kuyruk yolu.
+// - Sesli komut (INMP441 I2S1 -> kws.h): "Merhaba Eko" + dur / devam / başka / bir daha / sesini aç / sesini kıs.
+//   Hiçbir komut figür seçmez.
+// - Halka (halka.h; NeoPixel GPIO18, RMT): bütün durumlar; ayrı düşük öncelikli görev.
+// - Hikâye kuyruğu (kuyruk.h, flash'ta "kuyruk" bölümü): boştayken yalnız tanınmış figürler için K=16 aday + seçici,
+//   yuvalar tanınmış figürlere bölünür. Açılıştan açılışa kalır.
+// - Güç: uyku modunda hafif uyku; yazılımla ses seviyesi; görev bekçisi her token'da beslenir.
+// Seri komutlar (geliştirme): "8" = Elsa (standı atlar) | "8 4" | "8 4 K" = her zaman K adayla üret (test) | "k" kuyruk,
+// "k+"/"k-", "k sil" | "v+"/"v-"/"v N" ses | "w dur" sesli komut taklidi | "n" stand, "n koy 3" / "n kaldir" taslak
+// okuyucuda etiket | "a" ayar modu | "sahip" tanınmış oyuncaklar | "h" halka | "u" hafif uyku denemesi.
 
 #include "esp_partition.h"
 #include "esp_heap_caps.h"
@@ -46,11 +54,26 @@
 #if !ARDUINO_USB_CDC_ON_BOOT
 #include "driver/uart.h"
 #endif
+#include "esp_mac.h"
 #include <Preferences.h>
+#include <WiFi.h>
+#include <WebServer.h>
+#include <DNSServer.h>
 #include "donanim.h"
-#include "kuyruk.h"
+#include "olaylar.h"
+#if DUGME_ACIK
 #include "dugmeler.h"
+#endif
+#include "kuyruk.h"
 #include "nfc.h"
+#include "halka.h"
+#include "selam.h"
+#include "ayarlar.h"
+#include "kws.h"
+#include "muzik_kutusu.h"
+#include "generated/figur_donanim.h"
+#include "yerlesik.h"
+#include "ayar_sayfa.h"
 
 #define LLM_INT8_ACT 1
 #define LLM_PROFILE 1
@@ -89,7 +112,8 @@ static const size_t SES_PAY = 640 * 1024;  // ses.h'nin PSRAM'i (~450 KB) + çal
 #define HAZIR_CALINDI(f, j, tok, n)
 #endif
 
-// Arduino fonksiyon prototiplerini dosyanın başına ekler; Aday onlardan önce tanımlı olmalı.
+// Arduino fonksiyon prototiplerini dosyanın başına ekler; Aday onlardan önce tanımlı olmalı (imzalarda yalnız
+// başlıklardaki ve burada tanımlı türler).
 struct Aday { int n, n_plan; double lp; bool bitti, plan_bozuk, iptal; };
 
 Model model;
@@ -300,15 +324,15 @@ static void liste() {
     for (int j = 0; j < FIGUR_YER_N[f]; j++) Serial.printf("  %d %s", j + 1, YER_AD[FIGUR_YER[f * YER_MAKS + j]]);
     Serial.println();
   }
-  Serial.println("Örnek: \"8 4\" (Elsa, şato) | \"8\" (Elsa, sürpriz yer) | \"r\" (rastgele figür)");
-  Serial.println("Hazır (kuyrukta) hikâye varsa hemen okunur, yoksa canlı yazılır.");
+  Serial.println("Ürün: oyuncağı standa koyun (taslak okuyucuda \"n koy 8\" = Elsa, \"n koy 12\" = Ay Dede, \"n kaldir\").");
+  Serial.println("Geliştirme: \"8 4\" (Elsa, şato) | \"8\" (Elsa, sürpriz yer): hazır varsa hemen, yoksa canlı.");
   Serial.println("Sona aday sayısı (en çok 16) eklenirse her zaman üretilir, en iyisi seçilir: \"8 4 8\" (8 aday).");
   Serial.println("(ürün önerisi: kuyrukta önceden hazırlanan hikâye K=16, beklenen hikâye K=4-8)");
   Serial.printf("Ses: \"s <metin>\" metni okur | \"o\" hikâyeyi okuma %s (şu an %s) | \"v+\" \"v-\" \"v N\" ses seviyesi\n",
                 ses_var ? "aç/kapa" : "(ses modeli yok)", ses_var && ses_oku ? "açık" : "kapalı");
   Serial.println("Kuyruk: \"k\" durum | \"k+\" \"k-\" arka plan üretimi aç/kapa | \"k sil\" hazırları sil");
-  Serial.println("Düğme taklidi: \"t f\" figür, \"t y\" yer, \"t o\" oynat (büyük harf: uzun basış), \"t +\" \"t -\" ses,"
-                 " \"t a\" arka plan | \"n 04A1B2C3\" NFC etiketi | \"u\" uyku denemesi\n");
+  Serial.println("Sesli komut taklidi: \"w uyandirma\" \"w dur\" \"w devam\" \"w baska\" \"w bir_daha\" \"w sesi_ac\""
+                 " \"w sesi_kis\" | \"n\" stand | \"a\" ayar modu | \"sahip\" | \"h\" halka | \"u\" uyku denemesi\n");
 }
 
 static int govde_yasak[2], idx[TOP_K];
@@ -487,20 +511,172 @@ static void hiz_testi() {
   Serial.printf("seçilen head yolu: %s (önceki: %s)\n\n", HEAD_AD[head_mod], HEAD_AD[secilen]);
 }
 
-// ---- durum: seçili figür/yer, son okunan hikâye ----
-static int secili_f = 0, secili_j = -1;      // düğmelerle seçilen figür ve figürün yeri (-1: sürpriz)
-static int16_t son_tok[N_URET];              // son okunan hikâye (OYNAT uzun: yeniden oku)
+// ---- durum: ayarlar, standdaki oyuncak, son okunan içerik, uyku ve ayar modları ----
+// Donanım figürü d (generated/figur_donanim.h: etiketteki nfc_no, halka rengi, mod) -> model figürü DONANIM_MODEL[d]
+// (istemler.h; -1: model bilmiyor, yerleşik metin). Tanınmış (sahip olunan) figürler sahip_maske'de (bit d).
+static_assert(DONANIM_N <= 32, "sahip maskesi 32 bit");
+static Ayarlar ay;
+static uint32_t sahip_maske = 0;
+static bool llm_var = false;
+#if DUGME_ACIK
+static int secili_f = 0, secili_j = -1;      // geliştirme: düğmeler
+#endif
+static int16_t son_tok[N_URET];              // son model hikâyesi (plan + gövde)
 static int son_n = 0, son_plan = 0, son_f = -1, son_j = -1;
+static int son_d = -1, son_yerlesik = -1;    // son okunan içeriğin donanım figürü; yerleşik metin no (-1: model)
+static int yerlesik_sira[DONANIM_N];         // yerleşik listelerde sıradaki metin
+static uint8_t canli_yer[N_FIGUR];           // canlı üretimde figürün sıradaki yeri (yerler döner)
+static struct { bool var; int d, cumle; } durak;   // "Dur" ile duran okuma: figür, kaldığı cümle
+// Stand: alandaki etiket (nfc_tara her NFC_YOKLA_MS'de günceller)
+static struct { bool dolu; uint8_t uid[10]; int uid_n, no, d; uint32_t gordu_ms; } stand;
+// Uyku (gece figürü): ninniler -> zamanlayıcı dolunca halka ve müzik 60 s'de söner -> kapalı (mikrofon, yükselteç,
+// halka kapalı; stand yoklanır, yeni oyuncak konunca uyanır)
+enum { UYKU_YOK, UYKU_NINNI, UYKU_SONUYOR, UYKU_KAPALI };
+static const char *const UYKU_AD[4] = {"yok", "ninni", "sönüyor", "kapalı"};
+static struct { int durum; uint32_t bitis_ms, sonme_ms; } uyku;
+// Ayar modu (ayar kartı standda): Wi-Fi erişim noktası + ayar sayfası
+enum { TANIT_YOK, TANIT_BEKLE, TANIT_SONUC };
+static struct {
+  bool acik, tanit_oldu, kapat_iste, tanit_tamam;
+  uint32_t bas_ms, bos_ms, tanit_ms;
+  int tanit, tanit_no;
+  char mesaj[128];
+} ayr;
+static uint32_t son_etkinlik_ms = 0;          // son olay / seri komut
+static bool uretim_serbest = false;          // geliştirme (seri "8 4"): standda oyuncak olmasa da üret
+static bool ayar_kirli = false;
 
-// ---- olaylar: düğmeler (dugmeler.h; kartta ayrı görevde 10 ms'de bir örneklenir), NFC (nfc.h), seri taklit ----
-static Dugmeler dg;                 // düğme görevi üretir, ana döngü tüketir
-static OlayHalka ana_halka;         // ana döngünün kendi olayları (NFC, "t" komutu)
+static int donanim_bul(int no) {
+  for (int d = 0; d < DONANIM_N; d++)
+    if (DONANIM_NFC[d] == no) return d;
+  return -1;
+}
+static int model_donanim(int f) {  // model figürünün donanım figürü (yoksa -1)
+  for (int d = 0; d < DONANIM_N; d++)
+    if (DONANIM_MODEL[d] == f) return d;
+  return -1;
+}
+// Tanınmış donanım figürlerinin model figürleri (arka plan yalnız bunlar için üretir)
+static uint32_t model_maske() {
+  uint32_t m = 0;
+  for (int d = 0; d < DONANIM_N; d++)
+    if (((sahip_maske >> d) & 1) && DONANIM_MODEL[d] >= 0) m |= 1u << DONANIM_MODEL[d];
+  return m;
+}
+
+// ---- halka (NeoPixel, HALKA_PIN): halka.h durumdan kareye, RMT ile yollanır; kartta ayrı görev 30 kare/s ----
+static Halka halka;
+static portMUX_TYPE halka_kilit = portMUX_INITIALIZER_UNLOCKED;
+static bool halka_var = false, halka_gorevi_var = false, halka_karanlik = false;
+static uint8_t halka_kare[HALKA_MAKS][3];
+static rmt_data_t halka_bit[HALKA_LED_SAYISI * 24];
+static uint32_t halka_son_ms = 0, halka_bitti_ms = 0;
+static bool acilis_bekliyor = true;           // açılış gökkuşağı bitince halka_bosta()
+static volatile uint8_t konusma_seviye = 0;   // çalınan sesin yüksekliği 0..255 (okurken halka dalgalanır)
+static char halka_son_durum[48];
+#ifndef HALKA_DURUM_DEGISTI  // bilgisayardaki deneme: durum değişince döküm
+#define HALKA_DURUM_DEGISTI(metin)
+#endif
+
+// Bir kare: hesapla (kilit altında, ~20 µs), WS2812 bitlerine çevir (GRB, 10 MHz RMT: 1 = 0,8/0,4 µs, 0 = 0,4/0,8 µs)
+static void halka_tik_(uint32_t ms) {
+  char d[48];
+  portENTER_CRITICAL(&halka_kilit);
+  halka.ses = konusma_seviye;
+  halka_ciz(&halka, ms, halka_kare);
+  halka_durum_metni(&halka, d, sizeof d);
+  portEXIT_CRITICAL(&halka_kilit);
+  halka_son_ms = ms;
+  if (strcmp(d, halka_son_durum)) {
+    snprintf(halka_son_durum, sizeof halka_son_durum, "%s", d);
+    HALKA_DURUM_DEGISTI(d);
+  }
+  if (!halka_var) return;
+  bool karanlik = true;
+  for (int i = 0; i < HALKA_LED_SAYISI; i++) karanlik &= !(halka_kare[i][0] | halka_kare[i][1] | halka_kare[i][2]);
+  if (karanlik && halka_karanlik) return;  // sönük halka bir kez yollanır (uykuda boşuna RMT yok)
+  halka_karanlik = karanlik;
+  for (int i = 0; i < HALKA_LED_SAYISI; i++) {
+    const uint8_t grb[3] = {halka_kare[i][1], halka_kare[i][0], halka_kare[i][2]};
+    for (int c = 0; c < 3; c++)
+      for (int b = 0; b < 8; b++) {
+        rmt_data_t *r = &halka_bit[(i * 3 + c) * 8 + b];
+        bool bir = (grb[c] >> (7 - b)) & 1;
+        r->level0 = 1; r->duration0 = bir ? 8 : 4;
+        r->level1 = 0; r->duration1 = bir ? 4 : 8;
+      }
+  }
+  rmtWrite(HALKA_PIN, halka_bit, HALKA_LED_SAYISI * 24, RMT_WAIT_FOR_EVER);
+}
+static void halka_gorevi(void *) {
+  for (;;) {
+    halka_tik_(millis());
+    vTaskDelay(pdMS_TO_TICKS(1000 / HALKA_FPS));
+  }
+}
+// Görev yoksa (bilgisayardaki deneme) ana döngüden
+static void halka_tik() {
+  if (!halka_gorevi_var && millis() - halka_son_ms >= 1000 / HALKA_FPS) halka_tik_(millis());
+}
+static void halka_durum(int taban) {
+  acilis_bekliyor = false;  // açılış gökkuşağının yerine başka durum geldi
+  portENTER_CRITICAL(&halka_kilit);
+  halka_taban(&halka, taban, millis());
+  portEXIT_CRITICAL(&halka_kilit);
+  halka_tik();
+}
+static void halka_figur(int d) {
+  portENTER_CRITICAL(&halka_kilit);
+  halka_renk(&halka, &DONANIM_RENK[3 * d]);
+  portEXIT_CRITICAL(&halka_kilit);
+}
+static void halka_ustte(int ust, uint32_t sure) {
+  portENTER_CRITICAL(&halka_kilit);
+  halka_ust(&halka, ust, millis(), sure);
+  portEXIT_CRITICAL(&halka_kilit);
+  halka_tik();
+}
+static void halka_ilerle(int pay, int payda) {
+  portENTER_CRITICAL(&halka_kilit);
+  halka_ilerleme(&halka, pay, payda);
+  portEXIT_CRITICAL(&halka_kilit);
+  halka_tik();
+}
+static void halka_ayarla() {  // ayardaki parlaklık ve boşta nefes
+  portENTER_CRITICAL(&halka_kilit);
+  halka.parlaklik = ay.parlaklik;
+  halka.nefes = ay.nefes;
+  portEXIT_CRITICAL(&halka_kilit);
+}
+static void halka_baslat() {
+  halka_kur(&halka, HALKA_LED_SAYISI, HALKA_PARLAKLIK_SINIR, HALKA_AKIM_SINIR_MA);
+  halka_ayarla();
+  halka_var = rmtInit(HALKA_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_2, 10000000);
+  if (!halka_var) Serial.println("UYARI: halka (RMT) kurulamadı");
+  halka_taban(&halka, HT_ACILIS, millis());
+  // düşük öncelik (loopTask ile aynı, 1. çekirdek): kare hesabı ~0,1 ms, RMT yollaması DMA'sız ama bekler (CPU boş)
+  halka_gorevi_var = xTaskCreatePinnedToCore(halka_gorevi, "halka", 3072, NULL, 1, NULL, 1) == pdPASS;
+}
+
+// ---- olaylar: stand (NFC, nfc.h), sesli komut (KWS, mikrofon görevi), geliştirme düğmeleri, seri taklit ----
+static OlayHalka ana_halka;         // ana döngünün kendi olayları (stand, seri "w")
+static OlayHalka kws_halka;         // mikrofon görevi yazar
+static bool nfc_var = false;
+static uint32_t nfc_son_ms = 0;
+static uint32_t dinle_bitis = 0;    // "Merhaba Eko"dan sonraki komut penceresinin sonu (0: dinlemiyor)
+#ifndef SAHTE_ZAMANLI  // bilgisayardaki deneme: zamanı gelen taklit satırları
+#define SAHTE_ZAMANLI()
+#endif
+
+static const char *kws_ad(int e) {
+  static const char *const AD[] = {"yok", "uyandırma", "dur", "devam", "başka", "bir daha", "sesi aç", "sesi kıs"};
+  return e >= 0 && e < (int)(sizeof AD / sizeof AD[0]) ? AD[e] : "?";
+}
+
+#if DUGME_ACIK
+static Dugmeler dg;
 static const int DUGME_PIN[DUGME_N] = {DUGME_FIGUR_PIN, DUGME_YER_PIN, DUGME_OYNAT_PIN};
-static bool dugme_gorevi_var = false, nfc_var = false;
-static uint32_t nfc_son_ms = 0, nfc_gordu_ms = 0;
-static uint8_t nfc_son_uid[10];
-static int nfc_son_n = 0;
-
+static bool dugme_gorevi_var = false;
 static void dugme_tara() {
   bool b[DUGME_N];
   for (int i = 0; i < DUGME_N; i++) b[i] = DUGME_PIN[i] >= 0 && digitalRead(DUGME_PIN[i]) == LOW;
@@ -512,91 +688,74 @@ static void dugme_gorevi(void *) {
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
+#endif
 
 static void uid_yaz(const uint8_t *u, int n) {
   for (int i = 0; i < n; i++) Serial.printf("%02X", u[i]);
 }
 
-// Okunan (ya da "n" komutuyla verilen) etiket: tablodaysa figür olayı
-static void nfc_etiket(const uint8_t *u, int n) {
-  int f = nfc_figur(u, n);
-  if (f < 0 || f >= N_FIGUR) {
-    Serial.print("bilinmeyen etiket: ");
-    uid_yaz(u, n);
-    Serial.println(" (nfc.h NFC_TABLO'ya figürüyle ekleyin)");
-    return;
-  }
-  halka_ekle(&ana_halka, OLAY_NFC, (int8_t)f);
-}
-
-// Okuyucuyu yoklar: yeni etiket konunca bir kez olay verir; etiket 1,5 s görünmezse kalkmış sayılır.
+// Standı yoklar: yeni etiket konunca kaydını okuyup bir kez olay verir; etiket NFC_KALKTI_MS görünmezse kalkmıştır.
 static void nfc_tara() {
   uint8_t u[10];
   int n = nfc_uid_oku(u, sizeof u);
   uint32_t simdi = millis();
   if (n <= 0) {
-    if (nfc_son_n && simdi - nfc_gordu_ms > 1500) nfc_son_n = 0;
+    if (stand.dolu && simdi - stand.gordu_ms > NFC_KALKTI_MS) {
+      stand.dolu = false;
+      halka_ekle(&ana_halka, OLAY_STAND_KALKTI, stand.no);
+    }
     return;
   }
-  nfc_gordu_ms = simdi;
-  if (n == nfc_son_n && !memcmp(u, nfc_son_uid, n)) return;
-  memcpy(nfc_son_uid, u, n);
-  nfc_son_n = n;
-  nfc_etiket(u, n);
+  stand.gordu_ms = simdi;
+  if (stand.dolu && n == stand.uid_n && !memcmp(u, stand.uid, n)) return;
+  if (stand.dolu) halka_ekle(&ana_halka, OLAY_STAND_KALKTI, stand.no);  // kalkışı görülmeden başka etiket
+  bool kayit = false;
+  int no = -1;
+  for (int k = 0; k < 3 && no < 0; k++) no = nfc_etiket_no(u, n, &kayit);  // okuma bozulursa iki kez daha
+  stand.dolu = true;
+  memcpy(stand.uid, u, n);
+  stand.uid_n = n;
+  stand.no = no;
+  stand.d = donanim_bul(no);
+  Serial.print("(stand: etiket ");
+  uid_yaz(u, n);
+  if (no < 0) {
+    Serial.println(")\nbilinmeyen etiket (ayar sayfasında \"oyuncak tanıt\" ile yazın ya da nfc.h NFC_TABLO'ya ekleyin)");
+    halka_ekle(&ana_halka, OLAY_STAND_BILINMEYEN, 0);
+    return;
+  }
+  Serial.printf(", nfc_no %d%s)\n", no, kayit ? "" : " UID tablosundan");
+  halka_ekle(&ana_halka, OLAY_STAND_KONDU, no);
 }
 
-// Düğme görevi yoksa (bilgisayardaki deneme) düğmeleri burada örnekler; NFC'yi 250 ms'de bir yoklar.
+static void dinle_bitir(bool anlasildi);
 static void olaylari_topla() {
+  SAHTE_ZAMANLI();
+#if DUGME_ACIK
   if (!dugme_gorevi_var) dugme_tara();
-  if (nfc_var && millis() - nfc_son_ms >= 250) { nfc_son_ms = millis(); nfc_tara(); }
+#endif
+  if (nfc_var && millis() - nfc_son_ms >= NFC_YOKLA_MS) { nfc_son_ms = millis(); nfc_tara(); }
+  if (dinle_bitis && (int32_t)(millis() - dinle_bitis) >= 0) dinle_bitir(false);  // komut gelmedi
+  halka_tik();
 }
-static bool olay_bak_(Olay *o) { return halka_bak(&ana_halka, o) || halka_bak(&dg.h, o); }
-static bool olay_al_(Olay *o) { return halka_al(&ana_halka, o) || halka_al(&dg.h, o); }
+static bool olay_bak_(Olay *o) {
+  if (halka_bak(&ana_halka, o) || halka_bak(&kws_halka, o)) return true;
+#if DUGME_ACIK
+  if (halka_bak(&dg.h, o)) return true;
+#endif
+  return false;
+}
+static bool olay_al_(Olay *o) {
+  if (halka_al(&ana_halka, o) || halka_al(&kws_halka, o)) return true;
+#if DUGME_ACIK
+  if (halka_al(&dg.h, o)) return true;
+#endif
+  return false;
+}
 static bool olay_var() { olaylari_topla(); return olay_bak_(NULL); }
-// Konuşmayı ya da canlı üretimi durduran OYNAT basışı "dur" demektir: ardından yeni hikâye başlatmasın.
-static void oynat_olayini_yut() {
-  Olay o;
-  if (olay_bak_(&o) && o.tur == OLAY_OYNAT) olay_al_(&o);
-}
 static bool durdur_istendi() { return olay_var() || Serial.available() > 0; }
-static bool canli_kes() { return olay_var(); }  // canlı hikâye ve "f j K" testi: yalnız düğme/NFC keser
 
-// ---- LED (kart üstü RGB; DURUM_LED_PIN varsa o da) ----
-enum { LED_KAPALI, LED_KONUSMA, LED_CANLI, LED_ARKA, LED_HATA, LED_TAMAM };
-static uint8_t led_rgb[3] = {1, 1, 1};  // ilk yazım gönderilsin
-static void led_renk(uint8_t r, uint8_t g, uint8_t b) {
-  if (led_rgb[0] == r && led_rgb[1] == g && led_rgb[2] == b) return;
-  led_rgb[0] = r; led_rgb[1] = g; led_rgb[2] = b;
-#ifdef RGB_BUILTIN
-#if defined(ESP_ARDUINO_VERSION_MAJOR) && ESP_ARDUINO_VERSION_MAJOR >= 3
-  rgbLedWrite(RGB_BUILTIN, r, g, b);
-#else
-  neopixelWrite(RGB_BUILTIN, r, g, b);
-#endif
-#endif
-#if DURUM_LED_PIN >= 0
-  digitalWrite(DURUM_LED_PIN, (r | g | b) ? HIGH : LOW);
-#endif
-}
-static void led(int durum) {
-  const uint8_t L = LED_PARLAKLIK;
-  switch (durum) {
-    case LED_KONUSMA: led_renk(0, L, 0); break;            // yeşil: konuşuyor
-    case LED_CANLI: led_renk(L, L / 2, 0); break;          // turuncu: çocuk beklerken canlı üretiyor
-    case LED_ARKA: led_renk(0, 0, L / 8 + 1); break;       // loş mavi: boşta kuyruğa üretiyor
-    case LED_HATA: led_renk(L, 0, 0); break;               // kırmızı: model yok / hata
-    case LED_TAMAM: led_renk(L / 2, L / 2, L / 2); break;  // beyaz: düğme alındı
-    default: led_renk(0, 0, 0);
-  }
-}
-static void led_yanip(int durum, int kez) {
-  for (int i = 0; i < kez; i++) {
-    led(durum); delay(120);
-    led(LED_KAPALI); delay(120);
-  }
-}
-
-// ---- ses: metinden konuşma (ses.h), I2S hoparlör, ses seviyesi ----
+// ---- ses: metinden konuşma (ses.h), I2S0 hoparlör, ses seviyesi, müzik kutusu ----
 static const int I2S_BCLK = I2S_BCLK_PIN, I2S_LRC = I2S_LRC_PIN, I2S_DIN = I2S_DIN_PIN;
 static const int CAL_BAYT = 32000;      // çalma tamponu: 1 s ses (16 kHz x 2 B)
 static const int SES_SR = 16000;        // ses.bin yoksa da (bip için) I2S bu hızda
@@ -612,11 +771,29 @@ static bool konusma_kesildi = false, konusma_kesilebilir = false;
 static int ses_seviye = SES_SEVIYE_VARSAYILAN;
 static_assert(SES_SEVIYE_N == 8, "SES_KAZANC tablosu 8 seviye");
 static const int16_t SES_KAZANC[SES_SEVIYE_N] = {32, 45, 64, 90, 128, 181, 256, 362};  // Q8 (256 = 1), ~3 dB adım
+static volatile int32_t cal_kazanc = 256;   // Q8; çalıcı uygular: ses aç/kıs okurken hemen duyulur
+static uint16_t kisma_dinle = 256;          // "Merhaba Eko"dan sonra komut duyulsun diye konuşma kısılır
+static MuzikKutusu muzik;
+static volatile bool muzik_acik = false;
+static volatile uint16_t muzik_seviye = 0;  // 0..256 (ninni sonunda söner)
+// Okuma tarzı (donanım figürünün modu): ninni yavaş, alçak, kısık, uzun aralı
+static const struct { float hiz, perde, kazanc; int ara_ms; } SES_STIL[2] = {{1.f, 0.f, 1.f, 250},
+                                                                              {1.f / 0.75f, -2.f, 0.6f, 900}};
+static int stil_ara_ms = 250;
+static void ses_stili(int mod) {
+  if (mod < 0 || mod > 1) mod = 0;
+  ses.hiz = SES_STIL[mod].hiz;
+  ses.perde_kaydir = SES_STIL[mod].perde;
+  ses.kazanc = SES_STIL[mod].kazanc;
+  stil_ara_ms = SES_STIL[mod].ara_ms;
+}
+static void kazanc_guncelle() { cal_kazanc = (int32_t)SES_KAZANC[ses_seviye] * kisma_dinle / 256; }
 
-// Sıcak tamponlar (SES_ALT kare etkinlik, FFT) dahili SRAM'e, 48 KB pay bırakarak; gerisi PSRAM.
+// Sıcak tamponlar (SES_ALT kare etkinlik, FFT) dahili SRAM'e, SES_SRAM_PAY bırakarak (Wi-Fi ayar modu için); gerisi
+// PSRAM.
 static void *ses_ayir(size_t n, int sicak) {
   void *p = NULL;
-  if (sicak && heap_caps_get_free_size(MALLOC_CAP_INTERNAL) > n + 48 * 1024)
+  if (sicak && heap_caps_get_free_size(MALLOC_CAP_INTERNAL) > n + SES_SRAM_PAY)
     p = heap_caps_malloc(n, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
   if (!p) p = ps(n);
   return p;
@@ -632,7 +809,7 @@ static void ses_paralel(SesIs is, void *arg, int n) {
   job_fn = NULL;
 }
 
-// MAX98357A SD ucu bağlıysa: konuşmazken yükselteç kapalı (boşta ~2-3 mA, hışırtı yok)
+// MAX98357A SD ucu: konuşmazken yükselteç kapalı (boşta ~2-3 mA, hışırtı yok)
 static void amp(bool acik) {
 #if AMP_SD_PIN >= 0
   digitalWrite(AMP_SD_PIN, acik ? HIGH : LOW);
@@ -642,44 +819,58 @@ static void amp(bool acik) {
 #endif
 }
 
-// Çalma görevi: tampondan I2S'e (i2s.write DMA dolunca bekler). Sentez bu arada sonraki parçayı hesaplar.
+// Çalma görevi: tampondan I2S'e (i2s.write DMA dolunca bekler). Kazanç burada uygulanır (anında etkili); ninni
+// modunda müzik kutusu karıştırılır, konuşma yokken de (cümle aralarında) müzik sürer. Sesin yüksekliği halkaya.
 static void calici(void *) {
   static int16_t buf[256];
   for (;;) {
-    size_t n = xStreamBufferReceive(cal_akim, buf, sizeof buf, portMAX_DELAY);
-    if (n && !cal_sustur) i2s.write((const uint8_t *)buf, n);
+    size_t n = xStreamBufferReceive(cal_akim, buf, sizeof buf, muzik_acik ? 0 : portMAX_DELAY);
+    int k = cal_sustur ? 0 : (int)(n / 2);
+    if (!k) {
+      if (!muzik_acik) continue;
+      k = 256;  // yalnız müzik: 16 ms
+      memset(buf, 0, sizeof buf);
+    }
+    const int32_t g = cal_kazanc;
+    uint32_t top = 0;
+    for (int i = 0; i < k; i++) {
+      int32_t v = ((int32_t)buf[i] * g) / 256;
+      buf[i] = (int16_t)(v > 32767 ? 32767 : v < -32768 ? -32768 : v);
+      top += (uint32_t)(v < 0 ? -v : v);
+    }
+    uint32_t sv = top / (uint32_t)k / 24;
+    konusma_seviye = (uint8_t)(sv > 255 ? 255 : sv);
+    if (muzik_acik) mk_karistir(&muzik, buf, k, (int)(muzik_seviye * (g > 256 ? 256 : g) / 256));
+    i2s.write((const uint8_t *)buf, (size_t)k * 2);
   }
 }
 
-// Sentezin PCM'i: ses seviyesiyle ölçeklenip (doyumlu) çalma tamponuna. Düğmeye basılır ya da seri porta bir şey
-// gelirse konuşma hemen susar (tampondaki ses atılır; sentez cümle sonunda durur).
+enum { KES_YOK = 0, KES_HEMEN = 1, KES_CUMLE = 2 };
+static int okuma_denetle_(bool uretim);
+static int okuma_denetle() { return okuma_denetle_(false); }
+
+// Sentezin PCM'i çalma tamponuna. Okurken olaylara bakılır: "Dur", başka oyuncak, oyuncak çekildi ("hemen dur"
+// ayarı) ya da seri porta bir şey gelirse konuşma hemen susar (tampondaki ses atılır).
 static void pcm_yaz(void *, const int16_t *pcm, int n) {
   if (konusma_kesildi) return;
-  if (konusma_kesilebilir && durdur_istendi()) { konusma_kesildi = true; cal_sustur = true; return; }
-  static int16_t buf[256];
-  const int32_t g = SES_KAZANC[ses_seviye];
+  if (konusma_kesilebilir && okuma_denetle() == KES_HEMEN) { konusma_kesildi = true; cal_sustur = true; return; }
+#ifndef ESP_PLATFORM
+  if (n > 0) {  // bilgisayarda çalıcı çalışmaz: halka için yükseklik burada
+    uint32_t top = 0;
+    for (int i = 0; i < n; i++) top += (uint32_t)(pcm[i] < 0 ? -pcm[i] : pcm[i]);
+    uint32_t sv = top / (uint32_t)n / 24;
+    konusma_seviye = (uint8_t)(sv > 255 ? 255 : sv);
+  }
+#endif
   int64_t t0 = esp_timer_get_time();
-  while (n > 0) {
-    int k = n < 256 ? n : 256;
-    for (int i = 0; i < k; i++) {
-      int32_t v = ((int32_t)pcm[i] * g) / 256;
-      buf[i] = (int16_t)(v > 32767 ? 32767 : v < -32768 ? -32768 : v);
-    }
-    const uint8_t *p = (const uint8_t *)buf;
-    size_t kalan = (size_t)k * 2;
-    while (kalan) {
-      size_t y = xStreamBufferSend(cal_akim, p, kalan, portMAX_DELAY);
-      p += y; kalan -= y;
-    }
-    pcm += k; n -= k;
+  const uint8_t *p = (const uint8_t *)pcm;
+  size_t kalan = (size_t)n * 2;
+  while (kalan) {
+    size_t y = xStreamBufferSend(cal_akim, p, kalan, portMAX_DELAY);
+    p += y; kalan -= y;
   }
   cal_bekleme_us += esp_timer_get_time() - t0;
   bekci_besle();
-}
-
-static int ses_dur(void *) {  // cümle aralarında: durdurulsun mu
-  if (!konusma_kesildi && konusma_kesilebilir && durdur_istendi()) { konusma_kesildi = true; cal_sustur = true; }
-  return konusma_kesildi;
 }
 
 // Tampon boşalsın, DMA'da kalan (6 x 240 örnek = 90 ms) çalınsın
@@ -689,34 +880,88 @@ static void cal_bitir() {
   cal_sustur = false;
 }
 
-// Metni cümle cümle seslendirir (ilk cümle sentezlenirken çalmaya başlar); bitince çalmanın bitmesini bekler.
-// rapor: "[ses: ...]" satırı yazılsın. Döner: sonuna kadar okundu (düğme/seri ile kesilmedi).
-static bool konus_(const char *metin, bool rapor) {
-  if (!ses_var) { if (rapor) Serial.println("konuşma kapalı (ses bölümü ya da ses.bin yok)"); return false; }
+// Ses modeli yokken okuma süresi taklidi (bilgisayardaki deneme: SESSIZ_MS_HARF); arada olaylara bakılır
+static void sessiz_bekle(int ms) {
+  while (ms > 0 && !konusma_kesildi) {
+    int k = ms < 100 ? ms : 100;
+    delay(k);
+    ms -= k;
+    konusma_seviye = (uint8_t)(100 + (ms / 100 % 3) * 60);
+    if (konusma_kesilebilir && okuma_denetle() == KES_HEMEN) konusma_kesildi = true;
+  }
+}
+
+// Metni cümle cümle okur (ses.h ses_cumle_sonu ile bölünür; ilk cümle hesaplanırken çalmaya başlar). bas: başlanan
+// cümle (duraklatılan okuma kaldığı yerden), ilerleme: halka okunan cümle oranını gösterir, ara_ms: cümle arası.
+// Olaylar okuma_denetle'de: hemen kesme (cümle ortasında) ya da cümle sonunda durma. Döner: kesildiği cümle (bu cümle
+// baştan okunur); hepsi okunduysa cümle sayısı (okuma_n).
+#define CUMLE_MAKS 64
+static int okuma_n = 0;
+static bool okuma_ortada = false;  // son okuma cümle ortasında kesildi
+static int metin_oku(const char *metin, int bas, bool ilerleme, int ara_ms) {
+  static const char *cb[CUMLE_MAKS], *ce[CUMLE_MAKS];
+  int n = 0;
+  for (const char *p = metin; *p;) {
+    const char *s = ses_cumle_sonu(p);
+    if (ses_harfli(p, s)) {
+      if (n == CUMLE_MAKS) { ce[n - 1] = s; }  // sığmayan cümleler sonuncuya eklenir
+      else { cb[n] = p; ce[n] = s; n++; }
+    }
+    p = s;
+  }
+  okuma_n = n;
+  if (bas >= n) return n;
+  const bool sesli = ses_var && ses_oku;
+  if (!hoparlor_var && !(SESSIZ_MS_HARF > 0)) {  // hoparlör yok: yalnız seri porta
+    if (ilerleme) halka_ilerle(n, n);
+    return n;
+  }
   amp(true);
-  led(LED_KONUSMA);
   cal_bekleme_us = 0;
   konusma_kesildi = false;
   konusma_kesilebilir = true;
+  cal_sustur = false;
   int64_t t0 = esp_timer_get_time();
-  long n = ses_metin(&ses, metin, pcm_yaz, NULL, 250, ses_dur);
-  float hesap = (esp_timer_get_time() - t0 - cal_bekleme_us) / 1e6f, sure = n > 0 ? n / (float)ses.sr : 0.f;
+  long ornek = 0;
+  int i = bas;
+  for (; i < n; i++) {
+    if (ilerleme) halka_ilerle(i, n);
+    if (i > bas && ara_ms > 0) {
+      if (sesli) ses_sessizlik(&ses, ara_ms, pcm_yaz, NULL);
+      else if (SESSIZ_MS_HARF > 0) sessiz_bekle(ara_ms);
+    }
+    if (konusma_kesildi || okuma_denetle() != KES_YOK) break;
+    if (sesli) {
+      long r = ses_cumle_n(&ses, cb[i], (size_t)(ce[i] - cb[i]), pcm_yaz, NULL);
+      if (r < 0) { Serial.printf("ses hatası: %s\n", ses_hata); break; }
+      ornek += r;
+    } else if (SESSIZ_MS_HARF > 0) {
+      sessiz_bekle((int)(ce[i] - cb[i]) * SESSIZ_MS_HARF);
+    }
+    if (konusma_kesildi) break;
+  }
+  if (ilerleme && i >= n) halka_ilerle(n, n);
   bool kesildi = konusma_kesildi;
+  okuma_ortada = kesildi && i < n;
   konusma_kesilebilir = false;
-  if (!kesildi) ses_sessizlik(&ses, 150, pcm_yaz, NULL);  // DMA'da kalan son parça sussun
+  if (sesli && !kesildi) ses_sessizlik(&ses, 150, pcm_yaz, NULL);  // DMA'da kalan son parça sussun
   cal_bitir();
   konusma_kesildi = false;
-  led(LED_KAPALI);
-  amp(false);
-  if (n < 0) Serial.printf("ses hatası: %s\n", ses_hata);
-  else if (rapor)
+  konusma_seviye = 0;
+  if (!muzik_acik) amp(false);
+  if (sesli && ornek > 0) {
+    float hesap = (esp_timer_get_time() - t0 - cal_bekleme_us) / 1e6f, sure = ornek / (float)ses.sr;
     Serial.printf("[ses: %.1f s konuşma, %.1f s hesap = %.2f s hesap / s ses%s]\n", sure, hesap,
-                  sure > 0 ? hesap / sure : 0.f, kesildi ? "; durduruldu" : "");
-  return !kesildi && n >= 0;
+                  sure > 0 ? hesap / sure : 0.f, i < n ? "; durduruldu" : "");
+  }
+  return i;
 }
-static void konus(const char *metin) { konus_(metin, true); }
+static bool konus(const char *metin) {
+  Serial.printf("[%s]\n", metin);
+  return metin_oku(metin, 0, false, 250) >= okuma_n;
+}
 
-// Kısa ton (ses modeli olmasa da hoparlör varsa): düğme onayı, ses seviyesi, hata. Kesilmez.
+// Kısa ton (ses modeli olmasa da hoparlör varsa): ses seviyesi onayı. Kesilmez.
 static void bip(int hz, int ms) {
   if (!hoparlor_var) return;
   amp(true);
@@ -734,17 +979,10 @@ static void bip(int hz, int ms) {
   memset(b, 0, sizeof b);
   for (int i = 0; i < SES_SR * 60 / 1000; i += 256) pcm_yaz(NULL, b, 256);
   cal_bitir();
-  amp(false);
+  if (!muzik_acik) amp(false);
 }
 
-// Kısa duyuru (figür / yer adı): ses modeli varsa söyler, yoksa bip
-static void duyur(const char *metin) {
-  Serial.printf("[%s]\n", metin);
-  if (ses_var) konus_(metin, false);
-  else bip(880, 70);
-}
-
-// I2S, çalma tamponu ve çalma görevi (ses.bin olmasa da: bip)
+// I2S0, çalma tamponu ve çalma görevi (ses.bin olmasa da: bip)
 static void hoparlor_kur(int sr) {
   uint8_t *depo = (uint8_t *)ps(CAL_BAYT + 1);
   if (!depo) depo = (uint8_t *)heap_caps_malloc(CAL_BAYT + 1, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
@@ -758,6 +996,7 @@ static void hoparlor_kur(int sr) {
     Serial.println("ses: çalma görevi kurulamadı: konuşma kapalı"); return;
   }
   hoparlor_var = true;
+  mk_kur(&muzik);
 }
 
 // Açılışta: "ses" bölümü (alt tip 0x41) ve ses.bin varsa modeli; her durumda I2S'i ve çalma görevini kurar.
@@ -777,46 +1016,73 @@ static void ses_kur() {
   }
   hoparlor_kur(ses_model_var ? ses.sr : SES_SR);
   ses_var = ses_oku = ses_model_var && hoparlor_var;
-  led(LED_KAPALI);
+  kazanc_guncelle();
   if (ses_var)
     Serial.printf("ses: akustik d=%d (%d+%d+%d blok), vocoder d=%d (%d blok) | bellek %.0f KB PSRAM + %.0f KB SRAM | "
-                  "I2S BCLK %d LRC %d DIN %d | hikâyeyi okuma: açık (\"o\" ile kapat)\n",
+                  "I2S0 BCLK %d LRC %d DIN %d SD %d\n",
                   ses.ad, ses.n_kod, ses.n_tah, ses.n_coz, ses.vd, ses.n_vblok, ses.bellek_buyuk / 1024.0,
-                  ses.bellek_sicak / 1024.0, I2S_BCLK, I2S_LRC, I2S_DIN);
+                  ses.bellek_sicak / 1024.0, I2S_BCLK, I2S_LRC, I2S_DIN, AMP_SD_PIN);
   else if (hoparlor_var)
-    Serial.printf("hoparlör: açık, yalnız bip (I2S BCLK %d LRC %d DIN %d); hikâyeler seri porta yazılır\n",
+    Serial.printf("hoparlör: açık, yalnız bip (I2S0 BCLK %d LRC %d DIN %d); hikâyeler seri porta yazılır\n",
                   I2S_BCLK, I2S_LRC, I2S_DIN);
 }
 
-// Gövde token'larını (plan hariç) metne çevirip okur. Döner: sonuna kadar okundu.
-static bool hikaye_oku(const int16_t *t, int n) {
-  int len = 0;
-  for (int i = 0; i < n; i++) {
-    int tok = t[i];
-    if (tok < 0 || tok >= VOCAB_N) continue;
-    int b = VOCAB_OFF[tok], e = VOCAB_OFF[tok + 1];
-    if (len + (e - b) >= (int)sizeof oku_buf) break;
-    memcpy(oku_buf + len, VOCAB_BLOB + b, e - b);
-    len += e - b;
+// ---- mikrofon (INMP441, I2S1) ve sesli komut (kws.h) ----
+#if MIK_ACIK
+static I2SClass mik;
+static bool kws_var = false;
+#endif
+static volatile bool mik_iste = false, mik_acik = false;
+#if MIK_ACIK
+// Mikrofon görevi: I2S1'den 32 bitlik örnekleri okur, 16 bite indirir (DC atılır), kws_isle'ye verir; olayları
+// kws_halka'ya yazar. Açma/kapama yalnız bu görevde (mik_iste): uyku modunda saat durur, INMP441 uyur.
+static void mik_gorevi(void *) {
+  static int32_t ham[320];
+  static int16_t pcm[320];
+  int32_t dc = 0;  // Q8
+  for (;;) {
+    if (mik_iste != mik_acik) {
+      if (mik_iste) {
+        mik.setPins(MIK_SCK_PIN, MIK_WS_PIN, -1, MIK_SD_PIN);
+        mik_acik = mik.begin(I2S_MODE_STD, 16000, I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO, I2S_STD_SLOT_LEFT);
+        if (!mik_acik) mik_iste = false;
+        kws_sifirla();
+      } else {
+        mik.end();
+        mik_acik = false;
+      }
+    }
+    if (!mik_acik) { vTaskDelay(pdMS_TO_TICKS(50)); continue; }
+    size_t b = mik.readBytes((char *)ham, sizeof ham);
+    int n = (int)(b / 4);
+    for (int i = 0; i < n; i++) {
+      int32_t v = ham[i] >> MIK_KAYDIRMA;
+      dc += (v * 256 - dc) / 1024;
+      v -= dc / 256;
+      pcm[i] = (int16_t)(v > 32767 ? 32767 : v < -32768 ? -32768 : v);
+    }
+    for (int e = kws_isle(pcm, n); e != KWS_YOK; e = kws_isle(pcm, 0)) halka_ekle(&kws_halka, OLAY_SESLI, e);
   }
-  oku_buf[len] = 0;
-  return konus_(oku_buf, true);
 }
+#endif
 
+// ---- hikâye üretimi (LLM) ----
 static void son_hikaye_sakla(const int16_t *t, int n, int n_plan, int f, int j) {
   memcpy(son_tok, t, n * sizeof(int16_t));
   son_n = n; son_plan = n_plan; son_f = f; son_j = j;
+  son_yerlesik = -1;
 }
 
-// f figür, j figürün kart yeri (0'dan), K aday: urun_uret.main'in bir vakası (en yüksek puanlı aday; eşitlikte ilki).
-// Düğmeye basılırsa (ya da NFC) yarıda kesilir. Döner: hikâye üretildi.
+static bool canli_kes() { return okuma_denetle_(true) != KES_YOK; }  // canlı üretim: oyuncak kalktı, komut ...
+
+// f model figürü, j figürün kart yeri (0'dan), K aday: urun_uret.main'in bir vakası (en yüksek puanlı aday; eşitlikte
+// ilki). Standdan oyuncak kalkar ya da komut gelirse yarıda kesilir. Döner: hikâye üretildi (son_* doldu).
 static bool hikaye(int f, int j, int K) {
   Serial.printf("\n=== %s | %s | %d aday ===\n", FIGUR_AD[f], YER_AD[FIGUR_YER[f * YER_MAKS + j]], K);
   int64_t t0 = esp_timer_get_time();
   llm_profile_reset(&s); ornek_us = 0;
   int toplam = 0, en_n = 0, en_plan = 0; double en_p = -1e30;
   bool kesildi = false;
-  led(LED_CANLI);
   uretim_kes = canli_kes;
   for (int jj = 0; jj < K; jj++) {
     ADAY_BASI(jj);
@@ -840,10 +1106,8 @@ static bool hikaye(int f, int j, int K) {
     if (p > en_p) { en_p = p; en_n = a.n; en_plan = a.n_plan; memcpy(en_tok, aday_tok, a.n * sizeof(int16_t)); }
   }
   uretim_kes = NULL;
-  led(LED_KAPALI);
   if (kesildi) {
     Serial.println("\n(durduruldu)");
-    oynat_olayini_yut();
     return false;
   }
   if (K > 1) {
@@ -854,8 +1118,6 @@ static bool hikaye(int f, int j, int K) {
   Serial.printf("\n\n--- %d aday, toplam %d token %.1f s = %.2f token/s ---\n", K, toplam, sn, toplam / sn);
   profil_yaz();
   son_hikaye_sakla(en_tok, en_n, en_plan, f, j);
-  if (ses_var && ses_oku && en_n > en_plan && !hikaye_oku(en_tok + en_plan, en_n - en_plan)) oynat_olayini_yut();
-  Serial.println("Yeni hikâye için figür ve yer yazın (\"?\" liste).");
   return true;
 }
 
@@ -920,8 +1182,6 @@ static bool llm_kur() {
   return true;
 }
 
-static bool llm_var = false;
-
 // ---- hikâye kuyruğu (kuyruk.h): flash'taki "kuyruk" bölümü (alt tip 0x42) ----
 static Kuyruk kq;
 static bool kuyruk_var = false, arka_acik = true;
@@ -935,6 +1195,8 @@ static int kf_yaz(void *kul, uint32_t ofs, const void *b, uint32_t n) {
 static int kf_sil(void *kul, uint32_t ofs, uint32_t n) {
   return esp_partition_erase_range((const esp_partition_t *)kul, ofs, n) != ESP_OK;
 }
+// Tanınmış figür başına hedef hazır hikâye (yuvalar tanınmış model figürlerine bölünür)
+static int arka_hedef() { return kuyruk_hedef(&kq, model_maske(), N_FIGUR, KUYRUK_FIGUR_MAKS, KUYRUK_PAY); }
 
 // Açılışta: bölümü tarar. İmza = model parmak izi + istem ve yer tabloları: model ya da kartlar değişince eski
 // hikâyeler geçersiz sayılır (yuvaları yeniden kullanılır).
@@ -949,15 +1211,24 @@ static void kuyruk_hazirla() {
   int n = kuyruk_kur(&kq, &fl, imza);
   if (n < 0) { Serial.println("kuyruk bölümü çok küçük: hazır hikâye yok"); return; }
   kuyruk_var = true;
-  Serial.printf("kuyruk: %d yuva (0x%X @ 0x%X), hazır %d hikâye | hedef figür başına %d, K=%d | arka plan %s\n",
-                kq.n_yuva, (unsigned)part->size, (unsigned)part->address, n, KUYRUK_FIGUR_BASI, KUYRUK_K,
-                arka_acik ? "açık" : "kapalı");
+  Serial.printf("kuyruk: %d yuva (0x%X @ 0x%X), hazır %d hikâye | tanınmış figür başına %d (en çok %d), K=%d | "
+                "arka plan %s\n", kq.n_yuva, (unsigned)part->size, (unsigned)part->address, n, arka_hedef(),
+                KUYRUK_FIGUR_MAKS, KUYRUK_K, arka_acik ? "açık" : "kapalı");
+}
+
+static void sahip_yaz() {
+  Serial.print("tanınmış oyuncaklar:");
+  bool hic = true;
+  for (int d = 0; d < DONANIM_N; d++)
+    if ((sahip_maske >> d) & 1) { Serial.printf(" %s", DONANIM_AD[d]); hic = false; }
+  Serial.println(hic ? " (yok: standa konan oyuncak tanınır)" : "");
 }
 
 static void kuyruk_durum() {
+  sahip_yaz();
   if (!kuyruk_var) { Serial.println("kuyruk yok (bölüm ya da model yok)"); return; }
-  Serial.printf("kuyruk: hazır %d / %d yuva (hedef figür başına %d, K=%d) | arka plan %s | bu açılışta %d yazıldı\n",
-                kuyruk_say(&kq, -1, -1), kq.n_yuva, KUYRUK_FIGUR_BASI, KUYRUK_K, arka_acik ? "açık" : "kapalı",
+  Serial.printf("kuyruk: hazır %d / %d yuva (tanınmış figür başına %d, K=%d) | arka plan %s | bu açılışta %d yazıldı\n",
+                kuyruk_say(&kq, -1, -1), kq.n_yuva, arka_hedef(), KUYRUK_K, arka_acik ? "açık" : "kapalı",
                 arka_yazilan);
   for (int f = 0; f < N_FIGUR; f++) {
     Serial.printf("  %2d %-14s %d:", f + 1, FIGUR_AD[f], kuyruk_say(&kq, f, -1));
@@ -969,9 +1240,9 @@ static void kuyruk_durum() {
   }
 }
 
-// ---- arka plan üretimi: boşta, kuyruktaki eksik (figür, yer) için K aday + seçici, en iyisi flash'a ----
-// İş aday aday ilerler: düğmeye basılır ya da seri porta bir şey gelirse o aday bırakılır (biten adaylar ve en
-// iyisi RAM'de kalır), çocuk hikâyesini dinledikten sonra iş kaldığı adaydan sürer.
+// ---- arka plan üretimi: boşta, yalnız tanınmış figürler için eksik (figür, yer): K aday + seçici, en iyisi flash'a ----
+// İş aday aday ilerler: bir olay (oyuncak kondu, sesli komut) ya da seri komut gelirse o aday bırakılır (biten adaylar
+// ve en iyisi RAM'de kalır), çocuk hikâyesini dinledikten sonra iş kaldığı adaydan sürer.
 static struct {
   bool aktif;
   int f, j, K, sonraki, toplam, en_n, en_plan;
@@ -979,28 +1250,36 @@ static struct {
   int64_t us;
 } arka;
 static int16_t arka_tok[N_URET];
+static void halka_bosta();
 
 static bool arka_kes() { return durdur_istendi(); }
 
 // Döner: bir aday üretildi (ya da yarıda kesildi); false: yapılacak iş yok
 static bool arka_adim() {
-  if (!llm_var || !kuyruk_var || !arka_acik) return false;
+  if (!llm_var || !kuyruk_var || !arka_acik || ayr.acik) return false;
+  uint32_t mm = model_maske();
+  int hedef = arka_hedef();
+  if (arka.aktif && !((mm >> arka.f) & 1)) arka.aktif = false;  // figür unutuldu (ayar sayfası)
   if (!arka.aktif) {
     int f, j;
-    if (!kuyruk_sonraki(&kq, KUYRUK_FIGUR_BASI, N_FIGUR, FIGUR_YER_N, &f, &j)) return false;
+    if (!kuyruk_sonraki_sahip(&kq, hedef, N_FIGUR, FIGUR_YER_N, mm, &f, &j)) return false;
     arka.aktif = true; arka.f = f; arka.j = j; arka.K = KUYRUK_K; arka.sonraki = 0; arka.toplam = 0;
     arka.en_p = -1e30; arka.en_n = arka.en_plan = 0; arka.us = 0;
-    Serial.printf("[kuyruk] %s | %s: %d aday üretiliyor (düğme ya da seri komut keser)\n", FIGUR_AD[f],
+    Serial.printf("[kuyruk] %s | %s: %d aday üretiliyor (olay ya da seri komut keser)\n", FIGUR_AD[f],
                   YER_AD[FIGUR_YER[f * YER_MAKS + j]], arka.K);
   }
-  led(LED_ARKA);
+  if (ay.arka_goster && uyku.durum != UYKU_KAPALI) {
+    int d = model_donanim(arka.f);
+    if (d >= 0) halka_figur(d);
+    halka_durum(HT_ARKA);
+  }
   int64_t t0 = esp_timer_get_time();
   uretim_kes = arka_kes;
   ADAY_BASI(arka.sonraki);
   Aday a = aday_uret(arka.f, arka.j, false);
   uretim_kes = NULL;
-  led(LED_KAPALI);
-  if (a.iptal) return true;  // kullanıcı geldi: bu aday sonra baştan
+  if (ay.arka_goster) halka_bosta();
+  if (a.iptal) return true;  // çocuk geldi: bu aday sonra baştan
   arka.us += esp_timer_get_time() - t0;
   double p = puanla(a, arka.f, arka.j);
   ADAY_SONU(arka.sonraki, a, p);
@@ -1014,7 +1293,8 @@ static bool arka_adim() {
   arka.aktif = false;
   const char *fa = FIGUR_AD[arka.f], *ya = YER_AD[FIGUR_YER[arka.f * YER_MAKS + arka.j]];
   if (arka.en_p <= -99) { Serial.printf("[kuyruk] %s | %s: bütün adayların planı bozuk, yeniden denenecek\n", fa, ya); return true; }
-  int y = kuyruk_yaz(&kq, arka.f, arka.j, arka.K, (float)arka.en_p, arka_tok, arka.en_n, arka.en_plan);
+  int y = kuyruk_yer_ac(&kq, mm, hedef) < 0 ? -1
+          : kuyruk_yaz(&kq, arka.f, arka.j, arka.K, (float)arka.en_p, arka_tok, arka.en_n, arka.en_plan);
   KUYRUK_YAZILDI(y, arka.f, arka.j, arka.K, (float)arka.en_p, arka_tok, arka.en_n, arka.en_plan);
   if (y < 0) {
     Serial.println("[kuyruk] HATA: flash'a yazılamadı; arka plan üretimi kapatıldı");
@@ -1032,123 +1312,622 @@ static bool arka_adim() {
 // Bilgisayardaki deneme (tools/kart_pc "#bosta") için: arka planda yapılacak iş kaldı mı
 static bool arka_is_var() {
   int f, j;
-  return llm_var && kuyruk_var && arka_acik && (arka.aktif || kuyruk_sonraki(&kq, KUYRUK_FIGUR_BASI, N_FIGUR, FIGUR_YER_N, &f, &j));
+  return llm_var && kuyruk_var && arka_acik && !ayr.acik &&
+         (arka.aktif || kuyruk_sonraki_sahip(&kq, arka_hedef(), N_FIGUR, FIGUR_YER_N, model_maske(), &f, &j));
 }
 
-// ---- hikâye isteği: hazır varsa hemen, yoksa yarım kalmış arka plan işinin en iyisi, o da yoksa canlı (K=1) ----
-static bool hazir_oku(int f, int j, const char *kaynak) {
-  Serial.printf("\n=== %s | %s | %s ===\n", FIGUR_AD[f], YER_AD[FIGUR_YER[f * YER_MAKS + j]], kaynak);
-  HAZIR_CALINDI(f, j, son_tok, son_n);
-  Serial.print("Sorun:");
+// ---- içerik: donanım figürünün okunacak metni ----
+static const YerlesikListe *yerlesik_liste(int d) {
+  for (size_t i = 0; i < sizeof YERLESIK / sizeof YERLESIK[0]; i++)
+    if (!strcmp(YERLESIK[i].kimlik, DONANIM_KIMLIK[d])) return &YERLESIK[i];
+  return NULL;
+}
+
+static void hikaye_yaz(int f, int j, const char *kaynak) {
+  Serial.printf("\n=== %s | %s | %s ===\nSorun:", FIGUR_AD[f], YER_AD[FIGUR_YER[f * YER_MAKS + j]], kaynak);
   for (int i = 0; i < son_n; i++) yaz(son_tok[i]);
   Serial.println("\n");
-  bool tamam = true;
-  if (ses_var && ses_oku && son_n > son_plan) tamam = hikaye_oku(son_tok + son_plan, son_n - son_plan);
-  if (!tamam) oynat_olayini_yut();
-  return tamam;
 }
 
-// j < 0: figürün herhangi bir yeri (sürpriz)
-static void hikaye_anlat(int f, int j) {
+// d figürü için içerik: model figürüyse hazır (kuyruk; j >= 0 ise o yerin) > yarım arka plan işinin en iyisi >
+// canlı (K=1, yer sırayla döner); modelde yoksa yerleşik metin (yerlesik.h, sırayla). Döner: içerik hazır.
+static bool icerik_hazirla(int d, int j) {
   char kaynak[96];
+  int f = DONANIM_MODEL[d];
+  if (f < 0) {
+    const YerlesikListe *L = yerlesik_liste(d);
+    if (!L || L->n <= 0) { Serial.printf("%s için içerik yok (model bilmiyor, yerleşik metin yok)\n", DONANIM_AD[d]); return false; }
+    son_yerlesik = yerlesik_sira[d] % L->n;
+    yerlesik_sira[d]++;
+    son_d = d;
+    Serial.printf("\n=== %s | yerleşik metin %d/%d ===\n%s\n\n", DONANIM_AD[d], son_yerlesik + 1, L->n, L->metin[son_yerlesik]);
+    return true;
+  }
   for (int y; kuyruk_var && (y = kuyruk_bul(&kq, f, j)) >= 0;) {
     KuyrukBaslik b;
     int n = kuyruk_oku(&kq, y, &b, son_tok, N_URET);
     if (n <= 0) { Serial.printf("kuyruk: yuva %d bozuk, atlandı\n", y); continue; }
     kuyruk_tuket(&kq, y);
-    son_n = n; son_plan = b.n_plan; son_f = f; son_j = b.yer;
+    son_n = n; son_plan = b.n_plan; son_f = f; son_j = b.yer; son_d = d; son_yerlesik = -1;
     snprintf(kaynak, sizeof kaynak, "hazır hikâye (%d aday, puan %.2f; %s için %d hazır kaldı)", b.K, b.puan,
              FIGUR_AD[f], kuyruk_say(&kq, f, -1));
-    hazir_oku(f, b.yer, kaynak);
-    return;
+    HAZIR_CALINDI(f, son_j, son_tok, son_n);
+    hikaye_yaz(f, son_j, kaynak);
+    return true;
   }
   if (arka.aktif && arka.f == f && (j < 0 || arka.j == j) && arka.sonraki > 0 && arka.en_p > -99) {
     son_hikaye_sakla(arka_tok, arka.en_n, arka.en_plan, f, arka.j);
+    son_d = d;
     snprintf(kaynak, sizeof kaynak, "yarım kuyruk işinden (%d/%d aday, puan %.2f)", arka.sonraki, arka.K, arka.en_p);
     arka.aktif = false;  // bu (figür, yer) için iş baştan
-    hazir_oku(f, son_j, kaynak);
+    HAZIR_CALINDI(f, son_j, son_tok, son_n);
+    hikaye_yaz(f, son_j, kaynak);
+    return true;
+  }
+  if (!llm_var) { Serial.println("LLM modeli yok: hikâye üretilemiyor."); halka_durum(HT_HATA); return false; }
+  if (j < 0) j = canli_yer[f]++ % FIGUR_YER_N[f];
+  if (!konus("Senin için yeni bir hikâye yazıyorum, biraz bekler misin?") && !uretim_serbest) return false;  // kesildi
+  halka_figur(d);
+  halka_durum(HT_HAZIRLA);
+  if (!hikaye(f, j, 1)) return false;
+  son_d = d;
+  return true;
+}
+
+// Son içeriğin okunacak metni oku_buf'a (model hikâyesinde plan hariç gövde)
+static void icerik_metni() {
+  if (son_yerlesik >= 0) {
+    const YerlesikListe *L = yerlesik_liste(son_d);
+    snprintf(oku_buf, sizeof oku_buf, "%s", L ? L->metin[son_yerlesik % L->n] : "");
     return;
   }
-  if (!llm_var) { Serial.println("LLM modeli yok: hikâye üretilemiyor."); led_yanip(LED_HATA, 3); bip(220, 300); return; }
-  hikaye(f, j >= 0 ? j : (int)(esp_random() % FIGUR_YER_N[f]), 1);
+  int len = 0;
+  for (int i = son_plan; i < son_n; i++) {
+    int tok = son_tok[i];
+    if (tok < 0 || tok >= VOCAB_N) continue;
+    int b = VOCAB_OFF[tok], e = VOCAB_OFF[tok + 1];
+    if (len + (e - b) >= (int)sizeof oku_buf) break;
+    memcpy(oku_buf + len, VOCAB_BLOB + b, e - b);
+    len += e - b;
+  }
+  oku_buf[len] = 0;
 }
 
-static void son_hikayeyi_oku() {
-  if (son_n <= 0) { Serial.println("henüz okunmuş hikâye yok"); bip(330, 150); return; }
-  hazir_oku(son_f, son_j, "son hikâye, yeniden");
+// ---- uyku (gece figürü) ----
+static void uyku_baslat() {
+  uyku.durum = UYKU_NINNI;
+  uyku.bitis_ms = millis() + ay.uyku_dk * 60000UL;
+  if (ay.muzik && hoparlor_var) {
+    mk_kur(&muzik);
+    muzik_seviye = 256;
+    muzik_acik = true;
+    amp(true);
+  }
+  Serial.printf("(uyku modu: ninniler %d dk, müzik kutusu %s)\n", ay.uyku_dk, muzik_acik ? "açık" : "kapalı");
+}
+static void uyku_son() {  // zamanlayıcı doldu, okunan ninni bitti: halka ve müzik 60 s'de söner
+  uyku.durum = UYKU_SONUYOR;
+  uyku.sonme_ms = millis();
+  portENTER_CRITICAL(&halka_kilit);
+  halka_taban(&halka, HT_GECE, millis());
+  halka.sonme_ms = uyku.sonme_ms ? uyku.sonme_ms : 1;
+  portEXIT_CRITICAL(&halka_kilit);
+  Serial.println("(uyku: zamanlayıcı doldu; halka ve müzik 60 sn'de sönüyor)");
+}
+static void uyku_kapat() {  // mikrofon, yükselteç, müzik ve halka kapanır; stand yoklanmaya devam eder
+  muzik_acik = false;
+  muzik_seviye = 0;
+  amp(false);
+  mik_iste = false;
+  uyku.durum = UYKU_KAPALI;
+  halka_durum(HT_KAPALI);
+  Serial.println("(uyku: kapandı; mikrofon, yükselteç ve halka kapalı. Uyandırmak için standa bir oyuncak koyun)");
+}
+static void uyku_uyan() {
+  if (uyku.durum == UYKU_YOK) return;
+  if (uyku.durum == UYKU_KAPALI) Serial.println("(uyku: uyandı)");
+  muzik_acik = false;
+  muzik_seviye = 0;
+#if MIK_ACIK
+  if (kws_var) mik_iste = true;
+#endif
+  uyku.durum = UYKU_YOK;
 }
 
-// ---- ayarlar (NVS, Preferences): ses seviyesi, seçili figür/yer, arka plan; boşta yazılır ----
-static Preferences ayar;
-static bool ayar_acik = false, ayar_kirli = false;
-static uint32_t son_etkinlik_ms = 0;          // son düğme / seri komut / NFC
+// Halkanın boştaki durumu: ayar > uyku > hata (model yok) > standda oyuncak > boşta
+static void halka_bosta() {
+  halka_bitti_ms = 0;
+  if (ayr.acik) halka_durum(HT_AYAR);
+  else if (uyku.durum == UYKU_KAPALI) halka_durum(HT_KAPALI);
+  else if (uyku.durum == UYKU_SONUYOR) {}  // gece sönmesi sürüyor
+  else if (uyku.durum == UYKU_NINNI) halka_durum(HT_GECE);
+  else if (!llm_var) halka_durum(HT_HATA);
+  else if (stand.dolu && stand.d >= 0) { halka_figur(stand.d); halka_durum(HT_OYUNCAK); }
+  else halka_durum(HT_BOSTA);
+}
 
+// ---- okuma: oyuncağın içeriği (yeni / son içerik baştan / duran okuma kaldığı cümleden) ----
+enum { OYNA_YENI, OYNA_TEKRAR, OYNA_DEVAM };
+static void oyna_(int d, int mod, int j) {
+  for (;;) {
+    int bas = 0;
+    if (mod == OYNA_DEVAM && durak.var && durak.d == d && son_d == d) {
+      bas = durak.cumle;
+      Serial.printf("(devam: %d. cümleden)\n", bas + 1);
+    } else if (mod == OYNA_TEKRAR && son_d == d && (son_yerlesik >= 0 || son_n > 0)) {
+      Serial.println("(bir daha: baştan)");
+    } else if (!icerik_hazirla(d, j)) {
+      halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
+      halka_bosta();
+      return;
+    }
+    durak.var = false;
+    bool gece = DONANIM_MOD[d] == MOD_UYKU;
+    halka_figur(d);
+    halka_ilerle(bas, 1);
+    halka_durum(gece ? HT_GECE : HT_OKUMA);
+    icerik_metni();
+    ses_stili(DONANIM_MOD[d]);
+    int k = metin_oku(oku_buf, bas, !gece, stil_ara_ms);
+    ses_stili(MOD_HIKAYE);
+    int n = okuma_n;
+    Serial.printf("(okuma: %d/%d cümle%s)\n", k, n, k < n ? (okuma_ortada ? ", durdu, cümle ortasında" : ", durdu") : "");
+    if (k < n) {  // durdu: sebebi (dur, başka, oyuncak kalktı ...) ana döngü işler
+      durak.var = true; durak.d = d; durak.cumle = k;
+      return;
+    }
+    if (gece && uyku.durum == UYKU_NINNI) {
+      if (!(stand.dolu && stand.d == d)) { uyku_uyan(); halka_bosta(); return; }  // gece figürü kalktı (bitir ayarı)
+      if ((int32_t)(millis() - uyku.bitis_ms) < 0) { mod = OYNA_YENI; continue; }  // zamanlayıcı sürüyor: sıradaki
+      uyku_son();
+      return;
+    }
+    halka_bitti_ms = millis() | 1;  // ilerleme dolu kalır, 3 s sonra boşta
+    return;
+  }
+}
+static void oyna(int d, int mod) { oyna_(d, mod, -1); }
+
+// ---- ayarlar (NVS, Preferences) ----
+static Preferences prefs;
+static bool prefs_acik = false;
+
+static void ayar_uygula() {
+  ayar_duzelt(&ay);
+  if (ses_seviye > ay.ses_maks) ses_seviye = ay.ses_maks;
+  kazanc_guncelle();
+  halka_ayarla();
+}
 static void ayar_yukle() {
-  ayar_acik = ayar.begin("hikaye", false);
-  if (!ayar_acik) return;
-  ses_seviye = ayar.getUChar("ses", SES_SEVIYE_VARSAYILAN);
-  secili_f = ayar.getUChar("figur", 0);
-  secili_j = ayar.getChar("yer", -1);
-  arka_acik = ayar.getBool("arka", true);
+  ayar_varsayilan(&ay);
+  prefs_acik = prefs.begin("hikaye", false);
+  if (!prefs_acik) return;
+  ses_seviye = prefs.getUChar("ses", SES_SEVIYE_VARSAYILAN);
+  String ad = prefs.getString("ad", "");
+  char t[AYAR_AD_BAYT];
+  if (ad_temizle(ad.c_str(), t) == AD_TAMAM) snprintf(ay.ad, sizeof ay.ad, "%s", t);
+  ay.ses_maks = prefs.getUChar("ses_maks", ay.ses_maks);
+  ay.uyku_dk = prefs.getUChar("uyku_dk", ay.uyku_dk);
+  ay.parlaklik = prefs.getUChar("parlak", ay.parlaklik);
+  ay.cekilince = prefs.getUChar("cekil", ay.cekilince);
+  ay.nefes = prefs.getUChar("nefes", ay.nefes);
+  ay.arka_goster = prefs.getUChar("arka_gos", ay.arka_goster);
+  ay.muzik = prefs.getUChar("muzik", ay.muzik);
+  sahip_maske = prefs.getUInt("sahip", 0) & ((1u << DONANIM_N) - 1);
+  arka_acik = prefs.getBool("arka", true);
   if (ses_seviye < 0 || ses_seviye >= SES_SEVIYE_N) ses_seviye = SES_SEVIYE_VARSAYILAN;
-  if (secili_f < 0 || secili_f >= N_FIGUR) secili_f = 0;
-  if (secili_j < -1 || secili_j >= FIGUR_YER_N[secili_f]) secili_j = -1;
+  ayar_uygula();
+}
+static void ayar_kaydet_simdi() {
+  ayar_kirli = false;
+  if (!prefs_acik) return;
+  prefs.putUChar("ses", (uint8_t)ses_seviye);
+  prefs.putString("ad", ay.ad);
+  prefs.putUChar("ses_maks", ay.ses_maks);
+  prefs.putUChar("uyku_dk", ay.uyku_dk);
+  prefs.putUChar("parlak", ay.parlaklik);
+  prefs.putUChar("cekil", ay.cekilince);
+  prefs.putUChar("nefes", ay.nefes);
+  prefs.putUChar("arka_gos", ay.arka_goster);
+  prefs.putUChar("muzik", ay.muzik);
+  prefs.putUInt("sahip", sahip_maske);
+  prefs.putBool("arka", arka_acik);
 }
 static void ayar_kaydet() {  // konuşma ya da üretim sırasında flash'a yazılmasın: boşta, 2 s sonra
-  if (!ayar_acik || !ayar_kirli || millis() - son_etkinlik_ms < 2000) return;
-  ayar.putUChar("ses", (uint8_t)ses_seviye);
-  ayar.putUChar("figur", (uint8_t)secili_f);
-  ayar.putChar("yer", (int8_t)secili_j);
-  ayar.putBool("arka", arka_acik);
-  ayar_kirli = false;
+  if (ayar_kirli && millis() - son_etkinlik_ms >= 2000) ayar_kaydet_simdi();
+}
+// Oyuncak standa ilk kez kondu: tanınır (kalıcı); arka plan artık onun için de hikâye hazırlar
+static void sahip_ekle(int d) {
+  if ((sahip_maske >> d) & 1) return;
+  sahip_maske |= 1u << d;
+  ayar_kaydet_simdi();
+  Serial.printf("(yeni oyuncak tanındı: %s%s)\n", DONANIM_AD[d],
+                DONANIM_MODEL[d] >= 0 ? "; boşta onun hikâyeleri hazırlanacak" : "; yerleşik metinleri var");
 }
 
-static const char *secili_yer_ad() { return secili_j < 0 ? "sürpriz yer" : YER_AD[FIGUR_YER[secili_f * YER_MAKS + secili_j]]; }
-
-static void ses_seviye_ayarla(int v) {
-  ses_seviye = v < 0 ? 0 : v >= SES_SEVIYE_N ? SES_SEVIYE_N - 1 : v;
+// ---- ses düzeyi, dinleme penceresi ----
+static void ses_degistir(int yon) {
+  int v = ses_seviye + yon;
+  ses_seviye = v < 0 ? 0 : v > ay.ses_maks ? ay.ses_maks : v;
   ayar_kirli = true;
-  Serial.printf("ses seviyesi %d/%d (kazanç %.2f)\n", ses_seviye, SES_SEVIYE_N - 1, SES_KAZANC[ses_seviye] / 256.0);
-  bip(660, 120);
+  kazanc_guncelle();
+  portENTER_CRITICAL(&halka_kilit);
+  halka.duzey = (uint8_t)ses_seviye;
+  halka.maks = (uint8_t)(SES_SEVIYE_N - 1);
+  portEXIT_CRITICAL(&halka_kilit);
+  halka_ustte(HU_SES, HALKA_SES_MS);
+  Serial.printf("ses seviyesi %d/%d (en çok %d; kazanç %.2f)\n", ses_seviye, SES_SEVIYE_N - 1, ay.ses_maks,
+                SES_KAZANC[ses_seviye] / 256.0);
+}
+static void dinle_bitir(bool anlasildi) {
+  if (!dinle_bitis) return;
+  dinle_bitis = 0;
+  kisma_dinle = 256;
+  kazanc_guncelle();
+  halka_ustte(anlasildi ? HU_ONAY : HU_ANLASILMADI, HALKA_ONAY_MS);
+  if (!anlasildi) Serial.println("(sesli komut: anlaşılmadı)");
+}
+// Okurken (ve üretirken) olduğu yerde işlenen komutlar: uyandırma (dinliyorum: konuşma kısılır), ses aç/kıs, devam
+static bool sesli_yerinde_mi(int e) { return e == KWS_UYANDIRMA || e == KWS_SESI_AC || e == KWS_SESI_KIS || e == KWS_DEVAM; }
+static void sesli_yerinde(int e) {
+  if (e == KWS_UYANDIRMA) {
+    dinle_bitis = (millis() + DINLE_MS) | 1;
+    kisma_dinle = 90;  // ~-9 dB: çocuğun komutu duyulsun
+    kazanc_guncelle();
+    halka_ustte(HU_DINLE, DINLE_MS);
+  } else if (e == KWS_SESI_AC || e == KWS_SESI_KIS) {
+    dinle_bitis = 0;
+    kisma_dinle = 256;
+    ses_degistir(e == KWS_SESI_AC ? 1 : -1);
+  } else {
+    dinle_bitir(true);
+  }
 }
 
-// ---- düğme / NFC olayları ----
+// Okuma ve canlı üretim sırasında olaylara bakar. Yerinde işlenenler tüketilir; durduranlar sırada kalır, ana döngü
+// okuma bittikten sonra işler. Döner: KES_YOK | KES_HEMEN | KES_CUMLE (oyuncak çekildi, "cümle sonunda dur" ayarı).
+// uretim: canlı üretim (oyuncak çekilince her zaman durur; seri giriş kesmez: "f j K" denemesi).
+static int okuma_denetle_(bool uretim) {
+  olaylari_topla();
+  Olay o;
+  while (olay_bak_(&o)) {
+    if (o.tur == OLAY_SESLI) {
+      if (!sesli_yerinde_mi(o.deger)) return KES_HEMEN;  // dur, başka, bir daha
+      olay_al_(&o);
+      Serial.printf("(sesli komut: %s)\n", kws_ad(o.deger));
+      sesli_yerinde(o.deger);
+      continue;
+    }
+    if (o.tur == OLAY_STAND_KALKTI) {
+      if (uretim || ay.cekilince == CEKILINCE_HEMEN) return KES_HEMEN;
+      if (ay.cekilince == CEKILINCE_CUMLE) return KES_CUMLE;
+      olay_al_(&o);
+      Serial.println("(oyuncak kalktı: okuma bitirilecek)");
+      continue;
+    }
+    if (o.tur == OLAY_STAND_BILINMEYEN) { olay_al_(&o); continue; }
+    return KES_HEMEN;  // başka oyuncak / ayar kartı kondu, düğme
+  }
+  if (!uretim && Serial.available()) return KES_HEMEN;
+  return KES_YOK;
+}
+
+// ---- ayar modu: ayar kartı standa konunca Wi-Fi erişim noktası (WPA2, her açılışta yeni 8 haneli şifre: oyuncak
+// sesli söyler), DNS her adı karta yönlendirir (telefonda ayar sayfası kendiliğinden açılır), ayar sayfası ----
+static WebServer web(80);
+static DNSServer dns;
+static char ayar_sifre[9], ayar_ssid[33];
+static bool web_kuruldu = false;
+
+static void web_json(int kod, const char *govde) { web.send(kod, "application/json; charset=utf-8", govde); }
+static void web_yonlendir() {
+  web.sendHeader("Location", "http://192.168.4.1/", true);
+  web.send(302, "text/plain", "");
+}
+static const char *web_alan(void *, const char *ad) {
+  static String s;
+  if (!web.hasArg(ad)) return NULL;
+  s = web.arg(ad);
+  return s.c_str();
+}
+static void web_sayfa() { web.send(200, "text/html; charset=utf-8", AYAR_SAYFA); }
+static void web_durum() {
+  static char b[2560];
+  int n = snprintf(b, sizeof b, "{\"ayar\":{");
+  n += ayar_json(&ay, b + n, sizeof b - n);
+  long kalan = (long)(AYAR_SURE_MS - (millis() - ayr.bas_ms)) / 1000;
+  n += snprintf(b + n, sizeof b - n, "},\"kalan_sn\":%ld,\"ses_maks_ust\":%d,\"figurler\":[", kalan < 0 ? 0 : kalan,
+                SES_SEVIYE_N - 1);
+  for (int d = 0; d < DONANIM_N && n < (int)sizeof b - 200; d++) {
+    int f = DONANIM_MODEL[d];
+    n += snprintf(b + n, sizeof b - n, "%s{\"no\":%d,\"ad\":\"%s\",\"sahip\":%d,\"hazir\":%d,\"gece\":%d}", d ? "," : "",
+                  DONANIM_NFC[d], DONANIM_AD[d], (int)((sahip_maske >> d) & 1),
+                  f >= 0 && kuyruk_var ? kuyruk_say(&kq, f, -1) : -1, DONANIM_MOD[d] == MOD_UYKU);
+  }
+  snprintf(b + n, sizeof b - n, "],\"ayar_karti\":%d,\"tanit\":{\"durum\":%d,\"no\":%d,\"tamam\":%d,\"mesaj\":\"%s\"}}",
+           AYAR_KARTI_NFC, ayr.tanit, ayr.tanit_no, ayr.tanit_tamam, ayr.mesaj);
+  web_json(200, b);
+}
+static void web_kaydet() {
+  char h[128], b[192];
+  if (ayar_form_uygula(&ay, web_alan, NULL, h, sizeof h)) {
+    snprintf(b, sizeof b, "{\"tamam\":false,\"hata\":\"%s\"}", h);
+    web_json(400, b);
+    return;
+  }
+  ayar_uygula();
+  ayar_kaydet_simdi();
+  Serial.printf("[ayar] kaydedildi: ad \"%s\", en yüksek ses %d, uyku %d dk, parlaklık %d, çekilince %s, nefes %d, "
+                "hazırlık ışığı %d, müzik %d\n", ay.ad, ay.ses_maks, ay.uyku_dk, ay.parlaklik, CEKILINCE_AD[ay.cekilince],
+                ay.nefes, ay.arka_goster, ay.muzik);
+  web_json(200, "{\"tamam\":true}");
+}
+static void web_tanit() {
+  int no = 0;
+  if (!web.hasArg("no") || !ayar_sayi(web.arg("no").c_str(), &no) || (donanim_bul(no) < 0 && no != AYAR_KARTI_NFC)) {
+    web_json(400, "{\"tamam\":false,\"hata\":\"Figür seçin.\"}");
+    return;
+  }
+  ayr.tanit = TANIT_BEKLE;
+  ayr.tanit_no = no;
+  ayr.tanit_ms = millis();
+  ayr.tanit_oldu = true;
+  ayr.tanit_tamam = false;
+  snprintf(ayr.mesaj, sizeof ayr.mesaj, "Ayar kartını kaldırın, figürün tabanını standa koyun (60 sn).");
+  Serial.printf("[ayar] oyuncak tanıt: nfc_no %d bekleniyor\n", no);
+  web_json(200, "{\"tamam\":true}");
+}
+static void web_sil() {
+  bool unut = web.hasArg("unut") && web.arg("unut") == "1";
+  int n = kuyruk_var ? kuyruk_temizle(&kq) : 0;
+  arka.aktif = false;
+  if (unut) { sahip_maske = 0; ayar_kaydet_simdi(); }
+  Serial.printf("[ayar] hikâyeler silindi: %d hazır hikâye%s\n", n, unut ? "; tanınmış oyuncaklar unutuldu" : "");
+  char b[64];
+  snprintf(b, sizeof b, "{\"tamam\":true,\"silinen\":%d}", n);
+  web_json(200, b);
+}
+static void web_bitir() {
+  web_json(200, "{\"tamam\":true}");
+  ayr.kapat_iste = true;
+}
+static void web_kur() {
+  if (web_kuruldu) return;
+  web.on("/", HTTP_GET, web_sayfa);
+  web.on("/durum", HTTP_GET, web_durum);
+  web.on("/kaydet", HTTP_POST, web_kaydet);
+  web.on("/tanit", HTTP_POST, web_tanit);
+  web.on("/sil", HTTP_POST, web_sil);
+  web.on("/bitir", HTTP_POST, web_bitir);
+  // telefonların "internet var mı" denemeleri: sayfaya yönlendir (captive portal penceresi açılır)
+  static const char *const YOKLAMA[] = {"/generate_204", "/gen_204", "/hotspot-detect.html", "/library/test/success.html",
+                                        "/connecttest.txt", "/ncsi.txt", "/redirect", "/canonical.html", "/fwlink"};
+  for (size_t i = 0; i < sizeof YOKLAMA / sizeof YOKLAMA[0]; i++) web.on(YOKLAMA[i], web_yonlendir);
+  web.onNotFound(web_yonlendir);
+  web_kuruldu = true;
+}
+
+static void ayar_modu_ac() {
+  if (ayr.acik) return;
+  memset(&ayr, 0, sizeof ayr);
+  ayr.acik = true;
+  ayr.bas_ms = ayr.bos_ms = millis();
+  durak.var = false;
+  for (int i = 0; i < 8; i++) ayar_sifre[i] = (char)('0' + esp_random() % 10);
+  ayar_sifre[8] = 0;
+  uint8_t mac[6] = {0};
+  esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
+  snprintf(ayar_ssid, sizeof ayar_ssid, "%s%02X%02X", AYAR_SSID_ONEK, mac[4], mac[5]);
+  halka_durum(HT_AYAR);
+  Serial.printf("[ayar modu] boş SRAM %u B, PSRAM %u B\n", (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+                (unsigned)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+  WiFi.mode(WIFI_AP);
+  IPAddress ip(192, 168, 4, 1), ag(255, 255, 255, 0);
+  WiFi.softAPConfig(ip, ip, ag);
+  if (!WiFi.softAP(ayar_ssid, ayar_sifre, 1, 0, 2)) {  // WPA2-PSK, kanal 1, görünür, en çok 2 bağlantı
+    Serial.println("[ayar modu] HATA: Wi-Fi erişim noktası açılamadı");
+    WiFi.mode(WIFI_OFF);
+    ayr.acik = false;
+    halka_durum(HT_HATA);
+    konus("Ayar modu açılamadı.");
+    return;
+  }
+  dns.setErrorReplyCode(DNSReplyCode::NoError);
+  dns.start(53, "*", ip);
+  web_kur();
+  web.begin();
+  Serial.printf("[ayar modu] Wi-Fi: %s | şifre: %s | sayfa: http://192.168.4.1 | en çok %lu dk\n", ayar_ssid,
+                ayar_sifre, AYAR_SURE_MS / 60000);
+  char r[128], m[400];
+  rakam_metni(ayar_sifre, r, sizeof r);
+  snprintf(m, sizeof m, "Ayar modu açık. Telefonunla Masalcı Ayar ağına bağlan. Şifre: %s. Tekrar ediyorum: %s.", r, r);
+  konus(m);
+}
+
+static void ayar_modu_kapat(const char *neden) {
+  web.stop();
+  dns.stop();
+  WiFi.softAPdisconnect(true);
+  WiFi.mode(WIFI_OFF);
+  ayr.acik = false;
+  ayar_kaydet_simdi();
+  Serial.printf("[ayar modu kapandı: %s]\n", neden);
+  halka_bosta();
+  konus("Ayarlar kaydedildi.");
+  son_etkinlik_ms = millis();
+}
+
+// Standdaki etikete tanıtılan figürü yazar, doğrular
+static void tanit_yaz() {
+  int r = nfc_kayit_yaz(ayr.tanit_no, stand.uid, stand.uid_n);
+  int d = donanim_bul(ayr.tanit_no);
+  const char *ad = d >= 0 ? DONANIM_AD[d] : "ayar kartı";
+  char m[128];
+  ayr.tanit = TANIT_SONUC;
+  ayr.tanit_tamam = r == NFC_YAZ_TAMAM;
+  if (ayr.tanit_tamam) {
+    stand.no = ayr.tanit_no;
+    stand.d = d;
+    if (d >= 0) sahip_ekle(d);
+    snprintf(ayr.mesaj, sizeof ayr.mesaj, "Tamam: bu etiket artık %s.", ad);
+    snprintf(m, sizeof m, "Tamam, bu artık %s.", ad);
+    halka_ustte(HU_ONAY, HALKA_ONAY_MS);
+  } else {
+    snprintf(ayr.mesaj, sizeof ayr.mesaj, "Etiket yazılamadı: %s.", NFC_YAZ_AD[-r]);
+    snprintf(m, sizeof m, "Etiket yazılamadı.");
+    halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
+  }
+  Serial.printf("[ayar] oyuncak tanıt: %s\n", ayr.mesaj);
+  konus(m);
+}
+
+// Ayar modunda ana döngü: sayfa istekleri, standdaki etiket ("oyuncak tanıt"), süreler
+static void ayar_dongu() {
+  dns.processNextRequest();
+  web.handleClient();
+  uint32_t simdi = millis();
+  Olay o;
+  while (ayr.acik && olay_al_(&o)) {
+    if (o.tur == OLAY_STAND_KONDU || o.tur == OLAY_STAND_BILINMEYEN) {
+      bool ayar_karti = o.tur == OLAY_STAND_KONDU && o.deger == AYAR_KARTI_NFC;
+      if (ayr.tanit == TANIT_BEKLE && (!ayar_karti || ayr.tanit_no == AYAR_KARTI_NFC)) tanit_yaz();
+    } else if (o.tur == OLAY_STAND_KALKTI && !ayr.tanit_oldu) {
+      ayar_modu_kapat("ayar kartı kaldırıldı");
+      return;
+    }  // sesli komutlar ve düğmeler ayar modunda yok sayılır
+  }
+  if (ayr.tanit == TANIT_BEKLE && simdi - ayr.tanit_ms > AYAR_TANIT_MS) {
+    ayr.tanit = TANIT_SONUC;
+    ayr.tanit_tamam = false;
+    snprintf(ayr.mesaj, sizeof ayr.mesaj, "Süre doldu: standa etiket konmadı.");
+  }
+  if (stand.dolu || ayr.tanit == TANIT_BEKLE) ayr.bos_ms = simdi;
+  if (ayr.kapat_iste) ayar_modu_kapat("sayfadan bitirildi");
+  else if (simdi - ayr.bas_ms >= AYAR_SURE_MS) ayar_modu_kapat("10 dakika doldu");
+  else if (ayr.tanit_oldu && simdi - ayr.bos_ms >= AYAR_BOS_KAPAT_MS) ayar_modu_kapat("stand 1 dakikadır boş");
+}
+
+// ---- olaylar (okuma dışında, ana döngüde) ----
+static void bekle_olayli(uint32_t ms) {  // halka dolarken: olaylar toplanır, oyuncak kalkarsa erken biter
+  uint32_t bas = millis();
+  while (millis() - bas < ms && stand.dolu) {
+    delay(10);
+    olaylari_topla();
+  }
+}
+
+static void stand_kondu(int no) {
+  uyku_uyan();
+  if (no == AYAR_KARTI_NFC) { ayar_modu_ac(); return; }
+  int d = donanim_bul(no);
+  if (d < 0) {
+    Serial.printf("nfc_no %d bu yazılımda tanımlı değil (data/figur_donanim.json)\n", no);
+    halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
+    return;
+  }
+  sahip_ekle(d);
+  durak.var = false;
+  Serial.printf("\n[oyuncak: %s]\n", DONANIM_AD[d]);
+  halka_figur(d);
+  halka_durum(HT_DOLMA);
+  bekle_olayli(HALKA_DOLMA_MS);
+  if (!stand.dolu || stand.no != no) return;  // dolarken kalktı
+  bool gece = DONANIM_MOD[d] == MOD_UYKU;
+  if (gece) uyku_baslat();
+  char s[256];
+  if (gece) ninni_selam_metni(ay.ad, s, sizeof s);
+  else selam_metni(ay.ad, DONANIM_AD[d], s, sizeof s);
+  Serial.printf("[%s]\n", s);
+  halka_ilerle(0, 1);
+  halka_durum(gece ? HT_GECE : HT_OKUMA);
+  ses_stili(DONANIM_MOD[d]);
+  bool tamam = metin_oku(s, 0, false, stil_ara_ms) >= okuma_n;
+  ses_stili(MOD_HIKAYE);
+  if (tamam) oyna(d, OYNA_YENI);  // kesildiyse sebebi (kalktı, komut) ana döngüde
+}
+
+static void stand_kalkti() {
+  Serial.println("(oyuncak kalktı)");
+  durak.var = false;
+  if (uyku.durum == UYKU_NINNI || uyku.durum == UYKU_SONUYOR) { uyku_uyan(); amp(false); }
+  halka_bosta();
+}
+
+static void sesli_isle(int e) {
+  Serial.printf("(sesli komut: %s)\n", kws_ad(e));
+  if (e == KWS_UYANDIRMA || e == KWS_SESI_AC || e == KWS_SESI_KIS) {
+    sesli_yerinde(e);
+    if (e != KWS_UYANDIRMA && !muzik_acik) bip(660, 80);
+    return;
+  }
+  bool dinliyordu = dinle_bitis != 0;
+  dinle_bitir(true);
+  int d = stand.dolu ? stand.d : -1;
+  if (e == KWS_DUR) {  // okuma zaten durdu (kaldığı yer saklandı) ya da okunan yok
+    if (!dinliyordu) halka_ustte(HU_ONAY, HALKA_ONAY_MS);
+    return;
+  }
+  if (e != KWS_DEVAM && e != KWS_BASKA && e != KWS_BIR_DAHA) {
+    halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
+    return;
+  }
+  if (d < 0) {  // standda oyuncak yok: hikâye okunmaz
+    halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
+    konus("Önce bir oyuncağını standa koy.");
+    halka_bosta();
+    return;
+  }
+  if (!dinliyordu) halka_ustte(HU_ONAY, HALKA_ONAY_MS);
+  oyna(d, e == KWS_DEVAM ? OYNA_DEVAM : e == KWS_BASKA ? OYNA_YENI : OYNA_TEKRAR);
+}
+
 static void olay_isle(const Olay &o) {
-  Serial.printf("(düğme: %s)\n", OLAY_AD[o.tur]);
   switch (o.tur) {
+    case OLAY_STAND_KONDU: stand_kondu(o.deger); break;
+    case OLAY_STAND_BILINMEYEN: halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS); break;
+    case OLAY_STAND_KALKTI: stand_kalkti(); break;
+    case OLAY_SESLI: sesli_isle(o.deger); break;
+#if DUGME_ACIK
+    // geliştirme düğmeleri: figür / yer seçimi standı ve tanınmışlığı atlar
     case OLAY_FIGUR:
     case OLAY_FIGUR_UZUN:
-    case OLAY_NFC:
-      secili_f = o.tur == OLAY_NFC ? o.deger : (secili_f + (o.tur == OLAY_FIGUR ? 1 : N_FIGUR - 1)) % N_FIGUR;
+      secili_f = (secili_f + (o.tur == OLAY_FIGUR ? 1 : N_FIGUR - 1)) % N_FIGUR;
       secili_j = -1;
-      ayar_kirli = true;
-      Serial.printf("figür: %d %s (%d hazır hikâye)\n", secili_f + 1, FIGUR_AD[secili_f],
-                    kuyruk_var ? kuyruk_say(&kq, secili_f, -1) : 0);
-      duyur(FIGUR_AD[secili_f]);
-      if (o.tur == OLAY_NFC && NFC_OYNAT && !olay_var()) hikaye_anlat(secili_f, -1);
+      Serial.printf("(düğme) figür: %d %s\n", secili_f + 1, FIGUR_AD[secili_f]);
       break;
     case OLAY_YER:
     case OLAY_YER_UZUN:
       secili_j = o.tur == OLAY_YER_UZUN || secili_j + 1 >= FIGUR_YER_N[secili_f] ? -1 : secili_j + 1;
-      ayar_kirli = true;
-      Serial.printf("yer: %s (%s)\n", secili_yer_ad(), FIGUR_AD[secili_f]);
-      duyur(secili_yer_ad());
+      Serial.printf("(düğme) yer: %s\n", secili_j < 0 ? "sürpriz" : YER_AD[FIGUR_YER[secili_f * YER_MAKS + secili_j]]);
       break;
-    case OLAY_OYNAT: hikaye_anlat(secili_f, secili_j); break;
-    case OLAY_OYNAT_UZUN: son_hikayeyi_oku(); break;
-    case OLAY_SES_ARTI: ses_seviye_ayarla(ses_seviye + 1); break;
-    case OLAY_SES_EKSI: ses_seviye_ayarla(ses_seviye - 1); break;
+    case OLAY_OYNAT: { int d = model_donanim(secili_f); if (d >= 0) oyna_(d, OYNA_YENI, secili_j); break; }
+    case OLAY_OYNAT_UZUN: if (son_d >= 0) oyna(son_d, OYNA_TEKRAR); break;
+    case OLAY_SES_ARTI: ses_degistir(1); break;
+    case OLAY_SES_EKSI: ses_degistir(-1); break;
     case OLAY_ARKA:
       arka_acik = !arka_acik;
       ayar_kirli = true;
       Serial.printf("arka plan üretimi: %s\n", arka_acik ? "açık" : "kapalı");
-      led_yanip(arka_acik ? LED_ARKA : LED_HATA, 2);
-      bip(arka_acik ? 880 : 440, 150);
       break;
+#endif
+    default: break;
   }
 }
 
-// ---- güç: hafif uyku ----
+// Ana döngünün süreleri: okuma bitince halka, ninni zamanlayıcısı, gece sönmesi, açılış
+static void zamanlayicilar() {
+  uint32_t s = millis();
+  if (acilis_bekliyor && halka.taban != HT_ACILIS) { acilis_bekliyor = false; halka_bosta(); }
+  if (halka_bitti_ms && s - halka_bitti_ms >= 3000) halka_bosta();
+  if (uyku.durum == UYKU_NINNI && (int32_t)(s - uyku.bitis_ms) >= 0) uyku_son();
+  if (uyku.durum == UYKU_SONUYOR) {
+    uint32_t e = s - uyku.sonme_ms;
+    muzik_seviye = (uint16_t)(e >= UYKU_SONME_MS ? 0 : 256 - 256 * e / UYKU_SONME_MS);
+    if (e >= UYKU_SONME_MS) uyku_kapat();
+  }
+}
+
+// ---- güç: hafif uyku (yalnız uyku modunda: mikrofon kapalı; stand UYKU_DILIM_MS'de bir yoklanır) ----
 static int uyku_sayisi = 0;
 static int64_t uyku_us = 0;
 
@@ -1161,16 +1940,11 @@ static bool seri_bagli() {
 #endif
 }
 
-// Hafif uyku: CPU durur, PSRAM ve RAM korunur (model yeniden yüklenmez). Düğme (LOW) ya da süre uyandırır; UART
-// girişinde (CDC kapalıyken) seri porttan gelen ilk karakterler uyandırır ama kaybolur.
+// Hafif uyku: CPU durur, PSRAM ve RAM korunur (model yeniden yüklenmez). Süre uyandırır; UART girişinde (CDC
+// kapalıyken) seri porttan gelen ilk karakterler uyandırır ama kaybolur.
 static void hafif_uyku(uint32_t ms) {
-  led(LED_KAPALI);
-  amp(false);
   Serial.flush();
   esp_sleep_enable_timer_wakeup((uint64_t)ms * 1000);
-  for (int i = 0; i < DUGME_N; i++)
-    if (DUGME_PIN[i] >= 0) gpio_wakeup_enable((gpio_num_t)DUGME_PIN[i], GPIO_INTR_LOW_LEVEL);
-  esp_sleep_enable_gpio_wakeup();
 #if !ARDUINO_USB_CDC_ON_BOOT
   uart_set_wakeup_threshold(UART_NUM_0, 3);
   esp_sleep_enable_uart_wakeup(UART_NUM_0);
@@ -1179,20 +1953,32 @@ static void hafif_uyku(uint32_t ms) {
   esp_light_sleep_start();
   uyku_us += esp_timer_get_time() - t0;
   uyku_sayisi++;
-  for (int i = 0; i < DUGME_N; i++)
-    if (DUGME_PIN[i] >= 0) gpio_wakeup_disable((gpio_num_t)DUGME_PIN[i]);
 }
 
-// Boşta: üretecek iş yoksa ve UYKU_BEKLE_MS geçtiyse uyu, yoksa kısa bekle
 static void bosta_bekle() {
-  if (UYKU_ACIK && millis() - son_etkinlik_ms >= UYKU_BEKLE_MS && !dugme_basili(&dg) && !seri_bagli() &&
-      !Serial.available())
-    hafif_uyku(UYKU_DILIM_MS);
-  else
-    delay(20);
+  if (uyku.durum == UYKU_KAPALI && !seri_bagli() && !Serial.available()) hafif_uyku(UYKU_DILIM_MS);
+  else delay(20);
 }
 
-// ---- seri komutlar ----
+// ---- seri komutlar (geliştirme; ürün yalnız stand ve sesle kullanılır) ----
+static int kws_olay_bul(const char *ad) {
+  static const char *const AD[] = {"", "uyandirma", "dur", "devam", "baska", "bir_daha", "sesi_ac", "sesi_kis"};
+  for (int i = 1; i < (int)(sizeof AD / sizeof AD[0]); i++)
+    if (!strcmp(ad, AD[i])) return i;
+  return -1;
+}
+static int onaltilik(const char *p, uint8_t *u, int kap) {
+  int n = 0;
+  while (n < kap && p[0] && p[1]) {
+    if (*p == ' ' || *p == ':') { p++; continue; }
+    unsigned v;
+    if (sscanf(p, "%2x", &v) != 1) break;
+    u[n++] = (uint8_t)v;
+    p += 2;
+  }
+  return n;
+}
+
 static void seri_komut(String g) {
   if (g == "?") { liste(); return; }
   if (g == "o" || g == "O") {
@@ -1204,12 +1990,69 @@ static void seri_komut(String g) {
   if (g.startsWith("s ") || g.startsWith("S ")) { konus(g.c_str() + 2); return; }
   if (g == "v" || g.startsWith("v+") || g.startsWith("v-") || g.startsWith("v ")) {
     const char *p = g.c_str() + 1;
-    if (*p == '+') ses_seviye_ayarla(ses_seviye + 1);
-    else if (*p == '-') ses_seviye_ayarla(ses_seviye - 1);
-    else if (*p == ' ') ses_seviye_ayarla(atoi(p + 1));
-    else Serial.printf("ses seviyesi %d/%d\n", ses_seviye, SES_SEVIYE_N - 1);
+    if (*p == '+') ses_degistir(1);
+    else if (*p == '-') ses_degistir(-1);
+    else if (*p == ' ') ses_degistir(atoi(p + 1) - ses_seviye);
+    else Serial.printf("ses seviyesi %d/%d (en çok %d)\n", ses_seviye, SES_SEVIYE_N - 1, ay.ses_maks);
     return;
   }
+  if (g.startsWith("w ")) {  // sesli komut taklidi: "w uyandirma", "w dur", "w devam", "w baska", "w bir_daha" ...
+    int e = kws_olay_bul(g.c_str() + 2);
+    if (e < 0) { Serial.println("w uyandirma|dur|devam|baska|bir_daha|sesi_ac|sesi_kis"); return; }
+    halka_ekle(&ana_halka, OLAY_SESLI, e);
+    return;
+  }
+  if (g == "n") {
+    Serial.printf("NFC: %s | stand %s", NFC_AD, stand.dolu ? "dolu: " : "boş\n");
+    if (stand.dolu) {
+      uid_yaz(stand.uid, stand.uid_n);
+      Serial.printf(" nfc_no %d (%s)\n", stand.no, stand.d >= 0 ? DONANIM_AD[stand.d] : stand.no == AYAR_KARTI_NFC ? "ayar kartı" : "?");
+    }
+    return;
+  }
+#if NFC_OKUYUCU == 0
+  if (g.startsWith("n ")) {  // taslak okuyucu: alandaki etiket
+    const char *p = g.c_str() + 2;
+    uint8_t u[10];
+    if (!strncmp(p, "koy uid ", 8)) {
+      int n = onaltilik(p + 8, u, 7);
+      if (n) nfc_sahte_koy_bos(u, n, false);
+    } else if (!strncmp(p, "koy bos", 7)) {
+      int n = onaltilik(p + 7, u, 7);
+      static const uint8_t VARSAYILAN[7] = {0x04, 0xB0, 0x5E, 0x11, 0x22, 0x33, 0x80};
+      nfc_sahte_koy_bos(n == 7 ? u : VARSAYILAN, 7, true);
+    } else if (!strncmp(p, "koy ", 4)) {
+      nfc_sahte_koy_no(atoi(p + 4));
+    } else if (!strcmp(p, "kaldir")) {
+      nfc_sahte_kaldir();
+    } else if (!strcmp(p, "kilitle")) {
+      nfc_sahte.kilitli = !nfc_sahte.kilitli;
+    } else {
+      Serial.println("n koy <nfc_no> | n koy bos [UID] | n koy uid <UID> | n kaldir | n kilitle");
+    }
+    return;
+  }
+#endif
+  if (g == "a") { ayar_modu_ac(); return; }
+  if (g == "a kapat") { if (ayr.acik) ayar_modu_kapat("seri komut"); return; }
+  if (g == "sahip" || g.startsWith("sahip ")) {  // tanınmış oyuncaklar: "sahip hepsi|yok|+3|-3" (nfc_no)
+    const char *p = g.c_str() + 5;
+    while (*p == ' ') p++;
+    int d;
+    if (!strcmp(p, "hepsi")) sahip_maske = (1u << DONANIM_N) - 1;
+    else if (!strcmp(p, "yok")) sahip_maske = 0;
+    else if ((*p == '+' || *p == '-') && (d = donanim_bul(atoi(p + 1))) >= 0)
+      sahip_maske = *p == '+' ? sahip_maske | 1u << d : sahip_maske & ~(1u << d);
+    if (*p) ayar_kaydet_simdi();
+    sahip_yaz();
+    return;
+  }
+  if (g == "h") {
+    Serial.printf("halka: %s | %d LED, tavan %%%d, ayar %%%d, akım ~%d mA | uyku: %s\n", halka_son_durum,
+                  HALKA_LED_SAYISI, HALKA_PARLAKLIK_SINIR, ay.parlaklik, halka.akim_ma, UYKU_AD[uyku.durum]);
+    return;
+  }
+#if DUGME_ACIK
   if (g.startsWith("t ") && g.length() >= 3) {  // düğme taklidi
     static const char HARF[] = "fFyYoO+-a";
     static const uint8_t TUR[] = {OLAY_FIGUR, OLAY_FIGUR_UZUN, OLAY_YER, OLAY_YER_UZUN, OLAY_OYNAT, OLAY_OYNAT_UZUN,
@@ -1219,22 +2062,9 @@ static void seri_komut(String g) {
     halka_ekle(&ana_halka, TUR[h - HARF], 0);
     return;
   }
-  if (g.startsWith("n ")) {  // NFC etiketi taklidi: "n 04A1B2C3"
-    uint8_t u[10];
-    int n = 0;
-    for (const char *p = g.c_str() + 2; n < 10 && p[0] && p[1];) {
-      if (*p == ' ' || *p == ':') { p++; continue; }
-      unsigned v;
-      if (sscanf(p, "%2x", &v) != 1) break;
-      u[n++] = (uint8_t)v;
-      p += 2;
-    }
-    if (n) nfc_etiket(u, n);
-    else Serial.println("örnek: n 04A1B2C3");
-    return;
-  }
+#endif
   if (g == "u") {
-    Serial.println("10 s hafif uyku (düğme uyandırır)...");
+    Serial.println("10 s hafif uyku...");
     int64_t t0 = esp_timer_get_time();
     hafif_uyku(10000);
     Serial.printf("uyandı: %.1f s (sebep %d)\n", (esp_timer_get_time() - t0) / 1e6, (int)esp_sleep_get_wakeup_cause());
@@ -1255,7 +2085,6 @@ static void seri_komut(String g) {
   }
   if (!llm_var) { Serial.println("LLM modeli yok: yalnız \"s <metin>\" çalışır."); return; }
   if (g == "b" || g == "B") { hiz_testi(); return; }
-  if (g == "r" || g == "R") { hikaye_anlat((int)(esp_random() % N_FIGUR), -1); return; }
   int a = -1, y = -1, k = 1;
   int n = sscanf(g.c_str(), "%d %d %d", &a, &y, &k);
   int f = a - 1, j = n >= 2 ? y - 1 : -1;
@@ -1263,8 +2092,15 @@ static void seri_komut(String g) {
     Serial.println("Anlaşılmadı. Örnek: \"8 4\" (figür no, o figürün yer no) ya da \"8 4 8\" (8 aday). \"?\" liste.");
     return;
   }
-  if (n >= 3) hikaye(f, j, k < 1 ? 1 : k > 16 ? 16 : k);  // aday sayısı verildi: her zaman üret (test)
-  else hikaye_anlat(f, j);                               // hazır varsa hemen
+  uretim_serbest = true;  // geliştirme: standda oyuncak olmasa da üretilir
+  int d = model_donanim(f);
+  if (n >= 3) {  // aday sayısı verildi: her zaman üret (test), sonra oku
+    if (hikaye(f, j, k < 1 ? 1 : k > 16 ? 16 : k) && d >= 0) { son_d = d; oyna(d, OYNA_TEKRAR); }
+    Serial.println("Yeni hikâye için figür ve yer yazın (\"?\" liste).");
+  } else if (d >= 0) {
+    oyna_(d, OYNA_YENI, j);  // hazır varsa hemen
+  }
+  uretim_serbest = false;
 }
 
 void setup() {
@@ -1273,7 +2109,12 @@ void setup() {
   Serial.println("\n=== Hikâye Oyuncağı ===");
   bekci_kur();
   esp_reset_reason_t neden = esp_reset_reason();
+#if AMP_SD_PIN >= 0
+  pinMode(AMP_SD_PIN, OUTPUT);
+  digitalWrite(AMP_SD_PIN, LOW);
+#endif
   ayar_yukle();
+  halka_baslat();  // açılış gökkuşağı (model yüklenirken)
   if (neden == ESP_RST_BROWNOUT) {
     Serial.println("UYARI: güç düşmesiyle (brownout) yeniden başladı: güç kaynağı/kablo zayıf ya da hoparlör çok "
                    "akım çekiyor (README \"Güç\"). Bu açılışta ses kısıldı.");
@@ -1281,32 +2122,31 @@ void setup() {
   } else if (neden == ESP_RST_TASK_WDT || neden == ESP_RST_INT_WDT || neden == ESP_RST_WDT || neden == ESP_RST_PANIC) {
     Serial.printf("UYARI: önceki çalışma hatayla bitti (yeniden başlama sebebi %d); bu satırı bana gönderin\n", (int)neden);
   }
-  for (int i = 0; i < DUGME_N; i++)
-    if (DUGME_PIN[i] >= 0) pinMode(DUGME_PIN[i], INPUT_PULLUP);
-#if AMP_SD_PIN >= 0
-  pinMode(AMP_SD_PIN, OUTPUT);
-  digitalWrite(AMP_SD_PIN, LOW);
-#endif
-#if DURUM_LED_PIN >= 0
-  pinMode(DURUM_LED_PIN, OUTPUT);
-#endif
   main_h = xTaskGetCurrentTaskHandle();
   iki_cekirdek = xTaskCreatePinnedToCore(worker_main, "mv", 4096, NULL, 2, &worker_h, 0) == pdPASS;
   llm_var = llm_kur();
   ses_kur();  // LLM'den sonra: LLM'in PSRAM yerleşimi (head kopyası) eskisi gibi kalsın, ses kalanı kullanır
-  if (ses_var)
-    Serial.printf("boş (ses sonrası): SRAM %.0f KB | PSRAM %.2f MB\n", heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024.0,
-                  heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1048576.0);
   kuyruk_hazirla();
   nfc_var = nfc_kur();
+#if MIK_ACIK
+  kws_var = kws_kur();
+  if (kws_var && xTaskCreatePinnedToCore(mik_gorevi, "mik", 6144, NULL, 3, NULL, 0) == pdPASS) mik_iste = true;
+#endif
+#if DUGME_ACIK
+  for (int i = 0; i < DUGME_N; i++)
+    if (DUGME_PIN[i] >= 0) pinMode(DUGME_PIN[i], INPUT_PULLUP);
   dugme_gorevi_var = xTaskCreatePinnedToCore(dugme_gorevi, "dugme", 3072, NULL, 3, NULL, 1) == pdPASS;
-  Serial.printf("düğmeler: FİGÜR %d, YER %d, OYNAT %d | NFC: %s | uyku: %s | ses seviyesi %d/%d | bekçi %d s%s\n",
-                DUGME_FIGUR_PIN, DUGME_YER_PIN, DUGME_OYNAT_PIN,
-                nfc_var ? "var" : NFC_OKUYUCU ? "okuyucu bulunamadı" : "yok (\"n <uid>\" ile denenir)",
-                UYKU_ACIK ? "açık" : "kapalı", ses_seviye, SES_SEVIYE_N - 1, BEKCI_SN, bekci_var ? "" : " (kurulamadı)");
-  Serial.printf("seçili: %s, %s\n", FIGUR_AD[secili_f], secili_yer_ad());
+#endif
+  Serial.printf("boş: SRAM %.0f KB | PSRAM %.2f MB\n", heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024.0,
+                heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1048576.0);
+  Serial.printf("stand NFC: %s%s | mikrofon: %s | halka: %d LED, GPIO %d%s | ses seviyesi %d/%d (en çok %d) | "
+                "bekçi %d s%s\n", NFC_AD, nfc_var ? "" : " BULUNAMADI", mik_iste ? "açık (Merhaba Eko)" : "kapalı",
+                HALKA_LED_SAYISI, HALKA_PIN, halka_var ? "" : " (RMT yok)", ses_seviye, SES_SEVIYE_N - 1, ay.ses_maks,
+                BEKCI_SN, bekci_var ? "" : " (kurulamadı)");
+  Serial.printf("ayarlar: ad \"%s\", uyku %d dk, parlaklık %d, çekilince %s, müzik kutusu %s\n", ay.ad, ay.uyku_dk,
+                ay.parlaklik, CEKILINCE_AD[ay.cekilince], ay.muzik ? "açık" : "kapalı");
+  sahip_yaz();
   liste();
-  if (!llm_var) led_yanip(LED_HATA, 3);
   son_etkinlik_ms = millis();
 }
 
@@ -1320,11 +2160,11 @@ void loop() {
     son_etkinlik_ms = millis();
     return;
   }
+  if (ayr.acik) { ayar_dongu(); delay(2); return; }
+  zamanlayicilar();
   Olay o;
   if (olay_al_(&o)) {
-    led(LED_TAMAM);
     olay_isle(o);
-    led(LED_KAPALI);
     son_etkinlik_ms = millis();
     return;
   }

@@ -118,10 +118,10 @@ int main(void) {
   // elle eklenen olaylar (ana döngünün halkası)
   OlayHalka h;
   memset(&h, 0, sizeof h);
-  halka_ekle(&h, OLAY_NFC, 7);
+  halka_ekle(&h, OLAY_STAND_KONDU, 200);  // ayar kartı: nfc_no 200 int8'e sığmaz
   Olay o;
-  if (!halka_bak(&h, &o) || o.tur != OLAY_NFC || o.deger != 7 || !halka_al(&h, &o) || halka_bak(&h, NULL)) {
-    printf("HATA: NFC olayı\n");
+  if (!halka_bak(&h, &o) || o.tur != OLAY_STAND_KONDU || o.deger != 200 || !halka_al(&h, &o) || halka_bak(&h, NULL)) {
+    printf("HATA: stand olayı\n");
     hata++;
   }
   printf(hata ? "dugme_test: %d HATA\n" : "dugme_test: hepsi geçti\n", hata);

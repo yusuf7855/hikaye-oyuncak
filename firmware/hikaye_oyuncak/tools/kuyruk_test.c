@@ -1,7 +1,8 @@
 // kuyruk.h'nin bilgisayarda denemesi: bellekte NOR flash taklidi (yazma yalnız 1 -> 0, silme 4 KB, yazma sınırıyla
 // güç kesilmesi). Denenen: çöp dolu bölüm, doldurma politikası (figür başına hedef, yerlerin dönmesi), yeniden
 // başlatmada aynen okuma, en eskisinin önce çalınması, tüketme, CRC bozulması, imza değişimi, kap sınırı, her
-// noktada güç kesilmesi (yarım yazılan hikâye hiç görünmez, eskiler bozulmaz), aşınma dengesi.
+// noktada güç kesilmesi (yarım yazılan hikâye hiç görünmez, eskiler bozulmaz), aşınma dengesi, tanınmış figürler
+// (yuvaların tanınmış figürlere bölünmesi, hedef düşünce yer açma).
 // Derle:  cc -O2 -Wall -o /tmp/kuyruk_test firmware/hikaye_oyuncak/tools/kuyruk_test.c
 // Çalıştır: /tmp/kuyruk_test   (çıkış kodu 0: hepsi geçti)
 #include <stdio.h>
@@ -206,6 +207,51 @@ int main(void) {
   DENE(doldur(&q, 10) == YUVA, "48 yuva dolmalı");
   DENE(uret_yaz(&q, 0, 0) == -1, "dolu kuyruğa yazıldı");
   DENE(kuyruk_temizle(&q) == YUVA && kuyruk_kur(&q, &FL, 0x55) == 0, "temizle");
+
+  // 11. tanınmış figürler (ürün, 32 yuva): arka plan yalnız onlar için üretir, yuvalar onlara bölünür
+  {
+    KuyrukFlash fl32 = FL;
+    fl32.boyut = 32 * KUYRUK_SEKTOR;
+    memset(flash, 0xFF, sizeof flash);
+    kuyruk_kur(&q, &fl32, 0x66);
+    DENE(q.n_yuva == 32, "32 yuva");
+    DENE(kuyruk_hedef(&q, 0, 11, 6, 2) == 0 && !kuyruk_sonraki_sahip(&q, 1, 11, YER_N, 0, &f, &j),
+         "tanınmış figür yokken iş verildi");
+    uint32_t sahip = 1u << 7;  // yalnız Elsa
+    int hedef = kuyruk_hedef(&q, sahip, 11, 6, 2), yazilan = 0;
+    DENE(hedef == 6, "tek figürde hedef %d", hedef);
+    while (kuyruk_sonraki_sahip(&q, hedef, 11, YER_N, sahip, &f, &j) && yazilan < 100) {
+      DENE(f == 7, "tanınmayan figür %d üretildi", f);
+      DENE(kuyruk_yer_ac(&q, sahip, hedef) >= 0 && uret_yaz(&q, f, j) >= 0, "yazılamadı");
+      yazilan++;
+    }
+    DENE(yazilan == 6 && kuyruk_say(&q, 7, -1) == 6, "Elsa %d hikâye", kuyruk_say(&q, 7, -1));
+    for (int jj = 0; jj < YER_N[7]; jj++) DENE(kuyruk_say(&q, 7, jj) >= 1 && kuyruk_say(&q, 7, jj) <= 2, "Elsa yerleri dönmedi");
+    sahip |= 1u << 0 | 1u << 2;  // Niloya ve Pepee de tanındı
+    hedef = kuyruk_hedef(&q, sahip, 11, 6, 2);
+    DENE(hedef == 6, "üç figürde hedef %d", hedef);
+    while (kuyruk_sonraki_sahip(&q, hedef, 11, YER_N, sahip, &f, &j) && yazilan < 100) {
+      DENE(kuyruk_yer_ac(&q, sahip, hedef) >= 0 && uret_yaz(&q, f, j) >= 0, "yazılamadı");
+      yazilan++;
+    }
+    DENE(kuyruk_say(&q, 0, -1) == 6 && kuyruk_say(&q, 2, -1) == 6 && kuyruk_say(&q, -1, -1) == 18, "üç figür 6'şar");
+    sahip = 0x7FF;  // 11 figürün hepsi: hedef 2'ye iner, fazlası yer açmak için tüketilir
+    hedef = kuyruk_hedef(&q, sahip, 11, 6, 2);
+    DENE(hedef == 2, "11 figürde hedef %d", hedef);
+    int tur = 0;
+    while (kuyruk_sonraki_sahip(&q, hedef, 11, YER_N, sahip, &f, &j) && tur++ < 100) {
+      int y0 = kuyruk_yer_ac(&q, sahip, hedef);
+      DENE(y0 >= 0 && uret_yaz(&q, f, j) >= 0, "yer açılamadı");
+    }
+    for (int ff = 0; ff < 11; ff++) DENE(kuyruk_say(&q, ff, -1) >= 2, "figür %d: %d (hedef 2)", ff, kuyruk_say(&q, ff, -1));
+    DENE(kuyruk_say(&q, -1, -1) == 32, "dolu kuyruk %d", kuyruk_say(&q, -1, -1));
+    // tanınmayan figürün hikâyesi yer açarken önce gider
+    sahip = 1u << 0;
+    int elsa = kuyruk_say(&q, 7, -1), nil = kuyruk_say(&q, 0, -1);
+    DENE(kuyruk_yer_ac(&q, sahip, 6) >= 0 && kuyruk_say(&q, 0, -1) == nil && kuyruk_say(&q, -1, -1) == 31,
+         "yer açma tanınan figürden aldı");
+    (void)elsa;
+  }
 
   printf(hata ? "kuyruk_test: %d HATA\n" : "kuyruk_test: hepsi geçti\n", hata);
   return hata != 0;

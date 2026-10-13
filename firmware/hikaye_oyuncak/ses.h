@@ -17,6 +17,7 @@
 //   s.paralel = ...;                       // istenirse iki çekirdek (NULL: tek)
 //   ses_cumle(&s, "Bir varmış bir yokmuş.", cb, kul);   // cb(kul, int16 *pcm, n) parça parça çağrılır
 //   ses_metin(&s, hikaye, cb, kul, 250);   // cümlelere böler, aralara 250 ms sessizlik
+//   s.hiz = 1.33f; s.perde_kaydir = -2; s.kazanc = 0.6f;   // ninni: yavaş, alçak, kısık (varsayılan 1, 0, 1)
 //
 // Başlık dosyası hem C (tools/ses_test.c) hem C++ (.ino) olarak derlenir.
 #pragma once
@@ -93,7 +94,8 @@ typedef struct Ses {
   float istat[4];
   // ayarlar (yüklemeden sonra değiştirilebilir)
   float hiz;            // > 1 yavaş (Akustik.uret hiz)
-  float perde_kaydir;   // yarım ton
+  float perde_kaydir;   // yarım ton (tahmin edilen perdeye eklenir; < 0 alçak)
+  float kazanc;         // çıkış kazancı (1: değişmez; ninni modu kısık okur)
   SesParalel paralel;
   // çalışma alanı
   float *ex, *alan, *tahmin, *pA, *pB, *z, *hid, *u, *col, *dwt, *satir[2];
@@ -416,8 +418,10 @@ static void ses_pcm_bosalt(Ses *s) {
 
 static void ses_ornek_ver(Ses *s, const float *x, int n) {
   if (s->kanca_dalga) s->kanca_dalga(s->kanca_kul, x, n);
+  const float g = s->kazanc;
   for (int i = 0; i < n; i++) {
-    float v = x[i] > 1.f ? 1.f : x[i] < -1.f ? -1.f : x[i];
+    float v = g != 1.f ? x[i] * g : x[i];
+    v = v > 1.f ? 1.f : v < -1.f ? -1.f : v;
     s->pcm[s->n_pcm++] = (int16_t)lrintf(v * 32767.f);
     if (s->n_pcm == SES_PCM_N) ses_pcm_bosalt(s);
   }
@@ -526,6 +530,7 @@ static void *ses_ay(struct Ses *s, SesAyir ayir, size_t n, int sicak) {
 SES_API int ses_yukle(Ses *s, const uint8_t *img, size_t boyut, SesAyir ayir) {
   memset(s, 0, sizeof *s);
   s->hiz = 1.f;
+  s->kazanc = 1.f;
   if (!ayir) ayir = ses_varsayilan_ayir;
   uint32_t sihir, surum, n;
   if (!img || boyut < 144) { ses_hata = "ses.bin yok"; return -1; }
@@ -810,13 +815,11 @@ SES_API void ses_sessizlik(Ses *s, int ms, SesPcm cb, void *kul) {
   }
 }
 
-// Metni cümlelere böler (. ! ? … ve satır sonu; ardından gelen tırnak/ayraçlar cümleye dahil; sonrası küçük
-// harfle sürüyorsa bölmez: "Dur!" dedi.), her cümleyi
-// seslendirir, aralara ara_ms sessizlik koyar. dur() 1 dönerse (NULL olabilir) cümle aralarında durur.
-SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_ms, int (*dur)(void *kul)) {
-  const char *p = metin, *bas = metin;
-  long top = 0;
-  int ilk = 1;
+// Cümle sınırı: bas'tan başlayan cümlenin sonu (bir sonrakinin başı; metin sonunda NUL'u gösterir). Cümle . ! ? …
+// ya da satır sonuyla biter; ardından gelen noktalama ve kapanış tırnakları/ayraçları cümlede kalır; sonrası küçük
+// harfle sürüyorsa ("Dur!" dedi.) bölmez.
+SES_API const char *ses_cumle_sonu(const char *bas) {
+  const char *p = bas;
   for (;;) {
     char c = *p;
     int son = c == 0 || c == '\n' || c == '.' || c == '!' || c == '?' ||
@@ -843,10 +846,26 @@ SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_
         }
       }
     }
-    int harf = 0;
-    for (const char *q = bas; q < p; q++)
-      if (((unsigned char)*q >= 'A' && (unsigned char)*q <= 'z') || (unsigned char)*q >= 0xC0) { harf = 1; break; }
-    if (harf) {
+    return p;
+  }
+}
+
+// [bas, son) içinde harf var mı (yalnız noktalama/boşluk olan parça okunmaz)
+SES_API int ses_harfli(const char *bas, const char *son) {
+  for (const char *q = bas; q < son; q++)
+    if (((unsigned char)*q >= 'A' && (unsigned char)*q <= 'z') || (unsigned char)*q >= 0xC0) return 1;
+  return 0;
+}
+
+// Metni cümlelere böler (ses_cumle_sonu), her cümleyi seslendirir, aralara ara_ms sessizlik koyar. dur() 1 dönerse
+// (NULL olabilir) cümle aralarında durur.
+SES_API long ses_metin(Ses *s, const char *metin, SesPcm cb, void *kul, int ara_ms, int (*dur)(void *kul)) {
+  const char *bas = metin;
+  long top = 0;
+  int ilk = 1;
+  for (;;) {
+    const char *p = ses_cumle_sonu(bas);
+    if (ses_harfli(bas, p)) {
       if (!ilk && ara_ms > 0) ses_sessizlik(s, ara_ms, cb, kul);
       if (dur && dur(kul)) return top;
       long r = ses_cumle_n(s, bas, (size_t)(p - bas), cb, kul);

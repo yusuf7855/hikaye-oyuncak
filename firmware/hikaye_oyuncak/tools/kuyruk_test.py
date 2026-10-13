@@ -8,12 +8,12 @@ kartı yeniden başlatmaktır.
   2. çal:      yeniden başlat; "8" Elsa'nın en eski hazır hikâyesini hiç üretmeden çalar, tüketir; "8 1" yer seçerek.
   3. kalıcı:   yeniden başlat; tüketilenler tüketilmiş kalır; boşta yalnız eksikler yeniden üretilir.
   4. bozulma:  dosyada bir hikâyenin bir baytı bozulur: o yuva açılışta yok sayılır ve yeniden üretilir.
-  5. düğmeler: FİGÜR/YER/OYNAT kısa-uzun, OYNAT + FİGÜR/YER ses, FİGÜR + YER arka plan, NFC etiketi, hafif uyku,
-               ayarların NVS'te kalması.
-  6. kesme:    arka plan üretimi sürerken OYNAT'a basılır: aday bırakılır, hikâye okunur, iş kaldığı yerden sürer;
-               canlı üretim OYNAT ile durur ve o basış yeni hikâye başlatmaz.
+  5. kesme:    arka plan üretimi sürerken oyuncak standa konur: aday bırakılır, oyuncak selamlanır, hikâyesi okunur,
+               iş kaldığı yerden sürer; canlı üretim oyuncak çekilince durur.
+  (Stand, sesli komut, halka, ayar modu, gece figürü: tools/urun_akis_test.py. Düğmeler yalnız geliştirmede:
+  tools/dugme_test.c.)
 
-Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/kuyruk_test.py [--K 3] [--basi 2] [--urun] [--ses ses.bin]
+Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/kuyruk_test.py [--K 3] [--basi 2] [--urun]
 Çıkış kodu: hata varsa 1.
 """
 import argparse
@@ -30,10 +30,9 @@ TOOLS = os.path.dirname(os.path.abspath(__file__))
 SKETCH = os.path.dirname(TOOLS)
 ROOT = os.path.dirname(os.path.dirname(SKETCH))
 MODEL = os.path.join(ROOT, "hf_c3ft_karma")
-KUYRUK_OFS, KUYRUK_BOYUT, SEKTOR = 0xB80000, 0x30000, 4096
+KUYRUK_OFS, KUYRUK_BOYUT, SEKTOR = 0xFE0000, 0x20000, 4096
 N_FIGUR = 11
 YER_N = [4, 3, 4, 4, 3, 4, 4, 4, 5, 3, 3]
-PIN_FIGUR, PIN_YER, PIN_OYNAT = 7, 15, 16
 
 hatalar = []
 
@@ -48,7 +47,7 @@ def dene(kosul, mesaj):
 def derle(d, K, basi):
     kart = os.path.join(d, "kart_pc")
     subprocess.run([os.environ.get("CXX", "g++"), "-O2", "-Wall", "-Wno-unused-function", f"-DKUYRUK_K={K}",
-                    f"-DKUYRUK_FIGUR_BASI={basi}", "-I" + os.path.join(TOOLS, "kart_pc", "sahte"), "-o", kart,
+                    f"-DKUYRUK_FIGUR_MAKS={basi}", "-I" + os.path.join(TOOLS, "kart_pc", "sahte"), "-o", kart,
                     os.path.join(TOOLS, "kart_pc", "kart_pc.cpp")], check=True)
     return kart
 
@@ -153,16 +152,11 @@ def urun_karsilastir(d, isler_, tohum, K):
               f"{'aynı' if ok else 'FARKLI'}")
 
 
-def bas_birak(pin, ms):
-    return [f"#pin {pin} 0", f"#bekle {ms}", f"#pin {pin} 1", "#bekle 100"]
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--K", type=int, default=3, help="kuyruk aday sayısı (ürün 16; deneme hızlı olsun diye 3)")
     ap.add_argument("--basi", type=int, default=2, help="figür başına hazır hikâye (ürün 3)")
     ap.add_argument("--urun", action="store_true", help="ilk iki işi urun_uret.py ile karşılaştır")
-    ap.add_argument("--ses", help="ses.bin (verilirse düğme denemesi konuşmayla)")
     ap.add_argument("--dizin")
     a = ap.parse_args()
     d = a.dizin or tempfile.mkdtemp(prefix="kuyruk_test_")
@@ -177,7 +171,7 @@ def main():
         f.write(bytes(random.getrandbits(8) for _ in range(KUYRUK_BOYUT)))
     if os.path.exists(os.path.join(d, "nvs.txt")):
         os.remove(os.path.join(d, "nvs.txt"))
-    out, err = kos(kart, d, ["#tohum 100", "#durum", "#bosta", "#durum", "k"])
+    out, err = kos(kart, d, ["#tohum 100", "#durum", "sahip hepsi", "#bosta", "#durum", "k"])
     olay = ayikla(err)
     ii = isler(olay, K)
     dene(durum(olay) == [0, toplam], f"hazır sayısı {durum(olay)}, beklenen [0, {toplam}]")
@@ -234,62 +228,22 @@ def main():
     dene(len(yeni) == 1 and yeni[0]["f"] == hedef["f"], "bozulan yeniden üretilmedi")
     print(f"  bozuk yuva yok sayıldı ve yeniden üretildi (figür {hedef['f'] + 1})")
 
-    print("5. düğmeler, NFC, ses seviyesi, uyku, ayarlar" + (" (konuşmalı)" if a.ses else ""))
-    niloya = [i for i in ii if i["f"] == 0]
-    sat = ["k-", "#durum"]
-    sat += bas_birak(PIN_FIGUR, 100)                  # Maşa
-    sat += bas_birak(PIN_FIGUR, 1000)                 # uzun: geri, Niloya
-    sat += bas_birak(PIN_YER, 100)                    # Niloya'nın 1. yeri (orman)
-    sat += bas_birak(PIN_OYNAT, 100)                  # Niloya orman: hazır
-    sat += ["#pin 16 0", "#bekle 300"] + bas_birak(PIN_FIGUR, 80) + bas_birak(PIN_YER, 80) + bas_birak(PIN_YER, 80)
-    sat += bas_birak(PIN_FIGUR, 80) + ["#pin 16 1", "#bekle 100"]  # ses 7, 6, 5, 6; OYNAT'ın kendi olayı yok
-    sat += bas_birak(PIN_OYNAT, 1200)                 # uzun: son hikâye yeniden
-    sat += ["n DEADBEEF", "#bekle 50", "n 04 A1 B2 C3", "#bekle 50"]  # bilinmeyen; Niloya (NFC_OYNAT: çalar)
-    sat += ["#pin 7 0", "#bekle 200", "#pin 15 0", "#bekle 3600", "#pin 7 1", "#pin 15 1", "#bekle 100"]  # arka aç
-    sat += ["k-", "#pin_sonra 15 0 35000", "#pin_sonra 15 1 35100", "#bekle 70000", "#durum"]  # uyku; YER uyandırır
-    out, err = kos(kart, d, sat, ses=a.ses)
-    olay = ayikla(err)
-    dene("figür: 2 Maşa" in out, "FİGÜR kısa: Maşa")
-    dene(out.count("figür: 1 Niloya") >= 2, "FİGÜR uzun ve NFC: Niloya")
-    dene("yer: orman (Niloya)" in out, "YER kısa: orman")
-    cal = [o for o in olay if o[0] == "CALINDI"]
-    nil_or = [i for i in niloya if i["j"] == 0]
-    dene(len(cal) >= 3 and cal[0][1:3] == (0, 0) and (not nil_or or cal[0][3] == nil_or[0]["tok"]),
-         "OYNAT: Niloya orman hazırı çalınmadı")
-    dene(len(cal) >= 2 and cal[1][3] == cal[0][3], "OYNAT uzun: son hikâye yeniden okunmadı")
-    sv = re.findall(r"ses seviyesi (\d)/7 \(", out)
-    dene(sv == ["7", "6", "5", "6"], f"OYNAT + FİGÜR / YER: ses seviyeleri {sv}")
-    dene(out.count("(düğme: oynat)") == 1, f"OYNAT basışı {out.count('(düğme: oynat)')} kez (ikili basışta bastırılmadı?)")
-    dene("bilinmeyen etiket: DEADBEEF" in out, "bilinmeyen NFC etiketi")
-    dene(len(cal) >= 3 and cal[2][1] == 0, "NFC: Niloya hikâyesi başlamadı")
-    dene("arka plan üretimi: açık" in out, "FİGÜR + YER: arka plan")
-    uyku = [o for o in olay if o[0] == "UYKU"]
-    dene(any(u[1] >= 10000 for u in uyku), "boşta hafif uyku yok")
-    dene(any(u[2] for u in uyku) and out.count("yer: orman (Niloya)") == 2, "uykuda YER basışı uyandırmadı")
-    dene(any(o[0] == "DURUM" and o[3] > 0 for o in olay), "uyku sayılmadı")
-    dene(not any(o[0] == "ADAY" for o in olay), "düğme denemesinde üretim olmamalıydı (hazırlar yeterdi)")
-    if a.ses:
-        dene("[Niloya]" in out and "[ses:" in out, "konuşma yok")
-    out, err = kos(kart, d, ["#durum"])
-    dene("seçili: Niloya, orman" in out and "ses seviyesi 6/7 |" in out and "arka plan kapalı" in out,
-         "ayarlar NVS'te kalmadı")
-    print(f"  düğmeler, NFC, ses seviyesi, {len(uyku)} hafif uyku, ayarlar tamam")
-
-    print("6. kesme: arka plan üretimi sırasında OYNAT; canlı üretim sırasında OYNAT")
+    print("5. kesme: arka plan üretimi sürerken oyuncak kondu; canlı üretim sürerken oyuncak çekildi")
     os.remove(os.path.join(d, "kuyruk.bin"))
-    # ARKA_BEKLE_MS (5 s, sahte saat) sonra iş başlar; basış ondan ~1,2 s sonra (gerçek saat: aday ortası)
-    out, err = kos(kart, d, ["k+", "#tohum 500", "#pin_sonra 16 0 6200", "#pin_sonra 16 1 6300", "#bosta 1", "#durum"])
+    # ARKA_BEKLE_MS (5 s, sahte saat) sonra iş başlar; etiket ondan ~1,2 s sonra konur (gerçek saat: aday ortası)
+    out, err = kos(kart, d, ["k+", "sahip yok", "sahip +1", "#tohum 500", "#sonra 6200 #etiket koy 1", "#bosta 1",
+                             "#durum"])
     olay = ayikla(err)
     ii6 = isler(olay, K)
-    dene("(düğme: oynat)" in out, "arka planda OYNAT görülmedi")
-    dene("yarım kuyruk işinden" in out or "=== Niloya" in out, "OYNAT'tan sonra hikâye yok")
+    dene("[oyuncak: Niloya]" in out and "Niloya'nın hikâyesini" in out, "arka planda konan oyuncak selamlanmadı")
+    dene("yarım kuyruk işinden" in out or "=== Niloya" in out, "oyuncak konunca hikâye yok")
     dene(len(ii6) == 1, "iş sürüp bitmedi")
-    print(f"  arka plan: {'yarım işin en iyisi çalındı' if 'yarım kuyruk işinden' in out else 'canlı'}; iş sonra tamamlandı")
-    out, err = kos(kart, d, ["k-", "k sil", "#pin_sonra 16 0 300", "#pin_sonra 16 1 400", "6 1", "#bekle 300", "#durum"])
-    olay = ayikla(err)
-    dene("(durduruldu)" in out, "canlı üretim OYNAT ile durmadı")
-    dene(out.count("=== Hayri") == 1, "durduran OYNAT yeni hikâye başlattı")
-    print("  canlı üretim durdu, basış yutuldu")
+    print(f"  arka plan: {'yarım işin en iyisi okundu' if 'yarım kuyruk işinden' in out else 'canlı'}; iş sonra tamamlandı")
+    out, err = kos(kart, d, ["k-", "k sil", "sahip +6", "#etiket koy 6", "#sonra 4500 #etiket kaldir", "#bekle 20000",
+                             "#durum"], ek_env={"KART_SAAT": "sahte"})
+    dene("(durduruldu)" in out, "canlı üretim oyuncak çekilince durmadı")
+    dene("(okuma:" not in out, "çekilen oyuncağın hikâyesi okundu")
+    print("  canlı üretim durdu, hikâye okunmadı")
 
     print(f"\nkuyruk_test.py: {'HATA ' + str(len(hatalar)) if hatalar else 'hepsi geçti'} ({d})")
     if not a.dizin and not hatalar:

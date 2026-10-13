@@ -6,10 +6,12 @@ gösterir. İnternet, SD kart ya da bilgisayar gerekmez. Ses modeli (`ses.bin`) 
 takılıysa hikâyeyi kartın kendisinde sesli okur (bkz. **5. Ses**).
 
 İki türlü kullanılır:
-- **Oyuncak olarak** (bilgisayarsız, bkz. **6**): üç düğme (FİGÜR, YER, OYNAT) ve kart üstündeki renkli LED. Oyuncak
-  boşta beklerken her figür için hikâyeleri **önceden** hazırlayıp flash'a saklar (hikâye kuyruğu, 16 aday + seçici);
-  çocuk OYNAT'a basınca hazır hikâye beklemeden okunur. Hazır yoksa canlı yazılır.
-- **Seri monitörden** (bilgisayarla deneme, bkz. **4**): eski test komutlarının hepsi aynen çalışır.
+- **Oyuncak olarak** (bilgisayarsız, bkz. **6**; ürün tanımı `docs/URUN_TANIMI.md`): düğme yok. Çocuk figürünü NFC
+  standına koyar; kart selamlar ve **o figürün** hikâyesini okur, standın halkası (NeoPixel) durumu gösterir. Sesli
+  komutlar "Merhaba Eko" ile (dur, devam, başka, bir daha, sesini aç/kıs). Gece figürü "Ay Dede" ninni modunu açar;
+  "ayar kartı" telefondan ayar sayfasını (Wi-Fi) açar. Kart boştayken **standa konmuş** figürler için hikâyeleri
+  önceden hazırlayıp flash'a saklar (hikâye kuyruğu, 16 aday + seçici).
+- **Seri monitörden** (bilgisayarla deneme, bkz. **4**): test komutları çalışır (geliştirme içindir).
 
 Şu an yüklenecek model: **c3ft_karma** (`modeller/c3ft_karma/model.bin`, 10,3 MB; C3: d192, 12 katman, FFN 512, PLE 56,
 V16384) — ürün modeli (10 bin hikâyeli karma veri; kör kıyasta 1030s2'yi geçti, `degerlendirme/urun_kiyas_karma`).
@@ -22,6 +24,8 @@ aynıdır (istem, isim süzgeci, plan modu, seçici; bkz. **Geliştirici notlar�
 ## Gerekenler
 
 - ESP32-S3-DevKitC-1 **N16R8** (16 MB flash, 8 MB PSRAM) ve USB kablosu
+- Ürün parçaları (bağlantılar **6**): MAX98357A + hoparlör, INMP441 mikrofon, RC522 NFC okuyucu + NTAG213/215
+  etiketler (figür tabanları, ayar kartı), WS2812B halka + 74AHCT1G125 + 330 Ω + 1000 µF, 5 V 2 A USB-C adaptör
 - [Arduino IDE 2](https://www.arduino.cc/en/software) (Windows, Mac ya da Linux)
 - Python 3 (model dosyasını yüklemek için `esptool`): `pip install esptool`
 - Bu depo: GitHub'da `yusuf7855/hikaye-oyuncak`, dal `claude/wonderful-pasteur-x7seiq` → **Code → Download ZIP**
@@ -43,14 +47,15 @@ aynıdır (istem, isim süzgeci, plan modu, seçici; bkz. **Geliştirici notlar�
    | Board | **ESP32S3 Dev Module** |
    | Flash Size | **16MB (128Mb)** |
    | PSRAM | **OPI PSRAM** |
-   | Partition Scheme | **Custom** (çizim klasöründeki `partitions.csv`: uygulama 1 MB, model 0x110000, kuyruk 0xB80000, ses 0xBB0000) |
+   | Partition Scheme | **Custom** (çizim klasöründeki `partitions.csv`: uygulama 1,75 MB, model **0x1D0000**, ses 0xBB0000, kuyruk 0xFE0000) |
    | CPU Frequency | 240MHz |
    | USB CDC On Boot | **Enabled** (kartın "USB" yazan girişini kullanıyorsanız); "COM/UART" girişinde **Disabled** |
    | Erase All Flash Before Sketch Upload | **Disabled** (açık olursa model silinir) |
    | Port | kartın portu (Windows'ta COM3, COM5 gibi) |
 
-3. **Upload** (→) düğmesine basın. Derleme birkaç dakika sürebilir. (Bilgisayarda Arduino çekirdeği 3.3.12 ile
-   derlendi: uygulama 927 956 B, 1 MB bölümün %88'i.)
+3. **Library Manager**'dan **MFRC522** kütüphanesini (GithubCommunity, 1.4.x) kurun (NFC okuyucu RC522).
+4. **Upload** (→) düğmesine basın. Derleme birkaç dakika sürebilir. (Bilgisayarda Arduino çekirdeği 3.3.12 ile
+   derlendi: uygulama 1 690 224 B, 1,75 MB bölümün %92'si; statik RAM 153 820 B.)
 
 ## 3. Model dosyalarını yükleyin (bir kez; model değişince tekrar)
 
@@ -58,37 +63,38 @@ Flash düzeni (`partitions.csv`):
 
 | Bölüm | Adres | Boyut | İçerik |
 |---|---|---|---|
-| nvs | 0x9000 | 20 KB | ayarlar: ses seviyesi, seçili figür/yer, arka plan açık mı |
-| factory (uygulama) | 0x10000 | 1 MB | Arduino'nun yüklediği yazılım (927 956 B) |
-| model | **0x110000** | 0xA70000 (10,4 MB) | LLM `model.bin`: C3 c3ft_karma 10 331 252 B (0x9DA474), pay 613 260 B |
-| kuyruk | 0xB80000 | 0x30000 (192 KB) | hazır hikâyeler: 48 yuva × 4 KB (yazılım kendisi doldurur; yüklenecek dosya yok) |
-| ses | **0xBB0000** | 0x440000 (4,25 MB) | ses modeli `ses.bin` (~4,34 MB; `ses/disa_aktar.py` üretir) |
-| coredump | 0xFF0000 | 64 KB | çökme dökümü |
+| nvs | 0x9000 | 20 KB | ayarlar: ad, ses, uyku, halka, çekilince, müzik, tanınmış oyuncaklar |
+| factory (uygulama) | 0x10000 | 0x1C0000 (1,75 MB) | Arduino'nun yüklediği yazılım (1 690 224 B, %92) |
+| model | **0x1D0000** | 0x9E0000 (9,9 MB) | LLM `model.bin`: C3 c3ft_karma 10 331 252 B (0x9DA474), pay 23 436 B |
+| ses | **0xBB0000** | 0x430000 (4,19 MB) | ses modeli `ses.bin` (4 344 208 B; pay 46 704 B; `ses/disa_aktar.py` üretir) |
+| kuyruk | 0xFE0000 | 0x20000 (128 KB) | hazır hikâyeler: 32 yuva × 4 KB (yazılım kendisi doldurur; yüklenecek dosya yok) |
 
-> **Ekim 2026 değişikliği:** kuyruk bölümü model bölümünün sonundaki boş paydan alındı (model bölümü 0xAA0000 →
-> 0xA70000). **model ve ses adresleri değişmedi**: daha önce `model.bin` ve `ses.bin` yüklenmiş bir kartta yalnız
-> yazılımı (yeni `partitions.csv` ile, Partition Scheme **Custom**) yeniden yüklemek yeter. O bölgede eski modelden
-> kalan baytlar olabilir; yazılım onları tanır (sihir + CRC) ve boş sayar. Eski C2 modeli (11 105 372 B) artık model
-> bölümüne sığmaz (C3 ürün modeli sığar).
+> **Ekim 2026 (ayar modu) değişikliği — model yeniden yüklenmeli:** Wi-Fi + WebServer uygulamayı ~0,6 MB büyüttü
+> (1 MB'a sığmaz). Uygulama 1,75 MB oldu; model bölümü `model.bin`'in boyuna indirildi ve **0x110000'dan 0x1D0000'e
+> kaydı**. Modeli 0x110000'da tutmak mümkün değildi: uygulama hep 0x10000'dan başlayıp modelden önce durduğu için
+> 0x110000'daki model uygulamayı 1 MB'ta tutar (uygulamayı modelden sonraya koymak da sığmıyor: 16 MB'ta model
+> 9,9 + ses 4,2 + uygulama 1,75 MB). **ses adresi değişmedi** (bölüm 64 KB kısaldı, ses.bin yine sığar). Kuyruk
+> flash'ın sonuna taşındı ve 32 yuvaya indi (yalnız tanınmış figürler için doldurulduğundan yeter); coredump bölümü
+> kaldırıldı (yer yok; çökmede yalnız seri porttaki döküm kalır). Eski bir kartta: yazılımı (Partition Scheme
+> **Custom**) ve `model.bin`'i **0x1D0000**'e yeniden yükleyin; `ses.bin`'e dokunmak gerekmez.
 
 Kart takılıyken, depo klasöründe bir komut penceresi açıp (portu kendinizinkiyle değiştirin):
 
 ```bash
 # Windows
-python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x110000 modeller\c3ft_karma\model.bin 0xBB0000 ses.bin
+python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x1D0000 modeller\c3ft_karma\model.bin 0xBB0000 ses.bin
 # Mac / Linux
-python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x110000 modeller/c3ft_karma/model.bin 0xBB0000 ses.bin
+python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x1D0000 modeller/c3ft_karma/model.bin 0xBB0000 ses.bin
 ```
 
-`ses.bin` henüz yoksa komuttan `0xBB0000 ses.bin` kısmını çıkarın: kart konuşmadan eskisi gibi çalışır. Yalnız ses
-modelini değiştirmek için: `... write_flash 0xBB0000 ses.bin`.
+`ses.bin` henüz yoksa komuttan `0xBB0000 ses.bin` kısmını çıkarın: kart konuşmadan çalışır (hikâyeler seri porta
+yazılır). Yalnız ses modelini değiştirmek için: `... write_flash 0xBB0000 ses.bin`.
 
-Yükleme ~1–1,5 dakika sürer. Kart yükleme modundan çıkmazsa **RST** düğmesine basın.
-(Sıra önemli değil: yazılım ve modeller flash'ın farklı yerlerine yazılır.) Model adresi C2'dekiyle aynı (0x110000):
-eski model yüklü bir kartta yalnız yazılımı ve yeni `model.bin`'i yüklemek yeter; `ses.bin`'e dokunmak gerekmez.
-Yazılım ile model birlikte değişti: eski yazılım yeni modelle (ya da tersi) çalışmaz. Model değişince kuyruktaki eski
-hikâyeler kendiliğinden geçersiz sayılır (imza: modelin parmak izi + istem tablosu) ve yeniden üretilir. Kuyruğu elle
-boşaltmak için seri monitörde `k sil` ya da `python -m esptool --chip esp32s3 --port COM5 erase_region 0xB80000 0x30000`.
+Yükleme ~1–1,5 dakika sürer. Kart yükleme modundan çıkmazsa **RST** düğmesine basın. (Sıra önemli değil: yazılım ve
+modeller flash'ın farklı yerlerine yazılır.) Yazılım ile model birlikte değişti: eski yazılım yeni modelle (ya da
+tersi) çalışmaz. Model değişince kuyruktaki eski hikâyeler kendiliğinden geçersiz sayılır (imza: modelin parmak izi +
+istem tablosu) ve yeniden üretilir. Kuyruğu elle boşaltmak için ayar sayfasında "Hikâyeleri sil", seri monitörde
+`k sil` ya da `python -m esptool --chip esp32s3 --port COM5 erase_region 0xFE0000 0x20000`.
 
 ## 4. Deneyin
 
@@ -102,8 +108,10 @@ head: 4-bit hızlı yol, kodlar flash'ta (1.50 MB)
 PSRAM toplam (LLM): 7.25 MB
 model.bin: 10331252 B, parmak izi fp=00ea3e55
 ...
-kuyruk: 48 yuva (0x30000 @ 0xB80000), hazır 0 hikâye | hedef figür başına 3, K=16 | arka plan açık
-düğmeler: FİGÜR 7, YER 15, OYNAT 16 | NFC: yok ("n <uid>" ile denenir) | uyku: açık | ses seviyesi 6/7 | bekçi 30 s
+kuyruk: 32 yuva (0x20000 @ 0xFE0000), hazır 0 hikâye | tanınmış figür başına 0 (en çok 6), K=16 | arka plan açık
+stand NFC: RC522 | mikrofon: açık (Merhaba Eko) | halka: 35 LED, GPIO 18 | ses seviyesi 5/7 (en çok 7) | bekçi 30 s
+ayarlar: ad "", uyku 20 dk, parlaklık 60, çekilince cümle sonunda dur, müzik kutusu açık
+tanınmış oyuncaklar: (yok: standa konan oyuncak tanınır)
 ```
 
 `model.bin` satırındaki **fp=00ea3e55** doğru model yüklendiğini gösterir. Figür ve yer numaraları (`?` listeler):
@@ -126,21 +134,25 @@ Yer numarası figürün kendi listesindendir (her figür yalnız kartındaki yer
 
 | Yazılan | Anlamı |
 |---|---|
-| `8 4` | Elsa, şato — kuyrukta hazır Elsa/şato hikâyesi varsa hemen okunur, yoksa canlı yazılır |
-| `8` | Elsa, sürpriz yer — Elsa'nın herhangi bir hazır hikâyesi, yoksa rastgele yerinde canlı |
+| `8 4` | Elsa, şato — kuyrukta hazır Elsa/şato hikâyesi varsa hemen okunur, yoksa canlı yazılır (standı ve tanınmışlığı atlar: geliştirme) |
+| `8` | Elsa, herhangi bir yer — en eski hazır hikâye, yoksa sıradaki yerinde canlı |
 | `1 2` | Niloya, dağ |
-| `8 4 8` | **her zaman** 8 aday üretir (en çok 16), seçiciyle en iyisini yazar (test; kuyruğa bakmaz) |
-| `8 4 1` | her zaman canlı (eski `8 4`) |
-| `r` | rastgele figür, sürpriz yer |
+| `8 4 8` | **her zaman** 8 aday üretir (en çok 16), seçiciyle en iyisini yazar ve okur (test; kuyruğa bakmaz) |
+| `8 4 1` | her zaman canlı |
 | `?` | figür ve yer listesi |
 | `b` | hız testi: head'in üç yolunu ölçer, token başına ms dökümünü yazar, en hızlısını seçer |
-| `k` | kuyruk durumu: figür figür hazır hikâye sayısı ve yerleri |
+| `k` | tanınmış oyuncaklar ve kuyruk durumu: figür figür hazır hikâye sayısı ve yerleri |
 | `k+` / `k-` | boşta arka plan üretimini aç / kapat (kalıcı) |
 | `k sil` | hazır hikâyelerin hepsini sil (boşta yeniden üretilir) |
-| `v+` / `v-` / `v 3` | ses seviyesi (0–7, varsayılan 6) |
-| `t f` `t y` `t o` | düğme taklidi: FİGÜR, YER, OYNAT kısa basış; büyük harf (`t F`) uzun basış; `t +` `t -` ses; `t a` arka plan |
-| `n 04A1B2C3` | NFC etiketi taklidi (UID onaltılık) |
-| `u` | 10 s hafif uyku denemesi (bir düğme uyandırır; akım ölçmek için; USB seri bağlantısı kopabilir, monitörü yeniden açın) |
+| `v+` / `v-` / `v 3` | ses seviyesi (0–7, en çok ayardaki sınır) |
+| `n` | standdaki etiket (UID, nfc_no) |
+| `n koy 8` / `n koy 12` / `n koy 200` / `n koy bos` / `n koy uid 04A1B2C3` / `n kaldir` | yalnız taslak okuyucuda (`NFC_OKUYUCU 0`): standa etiket koyma taklidi (Elsa, Ay Dede, ayar kartı, boş NTAG, kayıtsız etiket) |
+| `w uyandirma` `w dur` `w devam` `w baska` `w bir_daha` `w sesi_ac` `w sesi_kis` | sesli komut taklidi |
+| `a` / `a kapat` | ayar modunu aç / kapat (ayar kartı yerine) |
+| `sahip` / `sahip +8` / `sahip -8` / `sahip hepsi` / `sahip yok` | tanınmış oyuncaklar (nfc_no ile) |
+| `h` | halkanın durumu, akım tahmini |
+| `s Merhaba` / `o` | metni oku / hikâyeyi sesli okumayı aç-kapa |
+| `u` | 10 s hafif uyku denemesi (akım ölçmek için; USB seri bağlantısı kopabilir) |
 
 Aday sayısı yazılmazsa kuyruk önce denenir, hazır yoksa 1 aday (canlı). Boşta (son komuttan 5 s sonra) kart kuyruğu
 doldurmaya başlar ve seri porta `[kuyruk] Elsa | şato: 16 aday, puan -2.13 -> yuva 5 ...` gibi satırlar yazar; seri
@@ -183,10 +195,11 @@ kalır (PSRAM'de yer yok). Açılışta `çekirdek 4-bit` yazar. Beklenen hız �
 | BCLK | GPIO4 |
 | LRC | GPIO5 |
 | DIN | GPIO6 |
-| SD, GAIN | boş (varsayılan: iki kanalın ortalaması, 9 dB) |
+| SD | GPIO7 (konuşmazken LOW: yükselteç uyur; HIGH'da iki kanalın ortalaması) |
+| GAIN | boş (9 dB) |
 
 Ses 16 kHz, 16 bit, mono; I2S'te iki kanala da aynı örnek gönderilir (SD ayarı ne olursa olsun duyulur).
-Konuşurken kart üstündeki RGB LED yeşil yanar.
+Konuşurken standın halkası okunan kısmı gösterir (bkz. 6. Halka).
 
 `ses.bin` yüklüyse açılışta `ses: akustik d=192 ... | hikâyeyi okuma: açık` satırı görünür. C3 ile LLM'den sonra
 PSRAM'de ≈0,7 MB kalır; ses için ≈0,5 MB yeter. Komutlar:
@@ -197,7 +210,7 @@ PSRAM'de ≈0,7 MB kalır; ses için ≈0,5 MB yeter. Komutlar:
 | `o` | üretilen hikâyeyi otomatik okumayı aç/kapa (ses modeli varsa açık başlar) |
 
 Hikâye cümle cümle okunur: ilk cümle hesaplanırken çalmaya başlar, sonraki cümle çalarken hesaplanır. Okurken seri
-monitöre bir şey yazıp gönderirseniz (ya da bir düğmeye basarsanız) ses hemen susar. Her okumadan sonra
+monitöre bir şey yazıp gönderirseniz (ya da "Merhaba Eko, dur" denirse, oyuncak çekilirse: ayara göre) ses susar. Her okumadan sonra
 `[ses: X s konuşma, Y s hesap = Z s hesap / s ses]` yazılır: **Z 1'den küçükse gerçek zamandan hızlıdır**; bu satırı
 bana gönderin.
 
@@ -214,98 +227,171 @@ PyTorch'la aynı sonucu verdiğini bilgisayarda denemek için:
 
 ## 6. Oyuncak olarak (bilgisayarsız)
 
-### Bağlantılar
+Ürün tanımı: `docs/URUN_TANIMI.md` (bağlayıcı). **Düğme yok.** Çocuk oyuncağını standa koyar; kart o oyuncağın
+hikâyesini okur. Sesli komutlar "Merhaba Eko" ile. Ayarlar ebeveynin "ayar kartı"yla telefondan.
 
-Pin numaralarının hepsi tek yerde: `donanim.h` (değiştirip yeniden yükleyin).
+### Bağlantılar (pin haritası, kesin)
 
-| Parça | ESP32-S3 | Not |
-|---|---|---|
-| FİGÜR düğmesi | GPIO7 ↔ GND | iç pull-up; basılı = LOW |
-| YER düğmesi | GPIO15 ↔ GND | |
-| OYNAT düğmesi | GPIO16 ↔ GND | |
-| Durum ışığı | kart üstü RGB LED | ayrıca tek renkli LED: `DURUM_LED_PIN` (aktif HIGH, 330 Ω ile) |
-| MAX98357A SD (isteğe bağlı) | `AMP_SD_PIN` (varsayılan bağlı değil) | bağlanırsa konuşmazken yükselteç kapanır (az akım, hışırtı yok) |
-| NFC okuyucu (isteğe bağlı) | RC522: SCK 12, MISO 13, MOSI 11, SS 10, RST 9 · PN532 (I2C): SDA 8, SCL 18, IRQ 17, RST 9 | `NFC_OKUYUCU` 1 / 2 (bkz. aşağı) |
-| Hoparlör | bkz. **5. Ses** (BCLK 4, LRC 5, DIN 6) | |
+Pinlerin hepsi `donanim.h`'de; değişirse `docs/URUN_TANIMI.md` ve bu tablo birlikte değişir.
 
-Düğmeler için 1–21 arası GPIO seçin (hafif uykudan uyandırabilenler bunlar). 0, 3, 45, 46 (açılış ayarı), 19/20
-(USB), 26–37 (flash ve PSRAM), 38/48 (RGB LED), 43/44 (UART) kullanılmaz.
+| Parça | Sinyal | ESP32-S3 GPIO | Not |
+|---|---|---|---|
+| MAX98357A hoparlör yükselteci (I2S0) | BCLK / LRC / DIN / SD | 4 / 5 / 6 / 7 | VIN 5V, GND; SD: konuşmazken LOW (yükselteç uyur) |
+| INMP441 mikrofon (I2S1) | SCK / WS / SD | 15 / 16 / 17 | VDD 3V3, GND, **L/R → GND** (sol kanal) |
+| RC522 NFC okuyucu (SPI, **3,3 V**) | SCK / MISO / MOSI / SDA(SS) / RST | 12 / 13 / 11 / 10 / 9 | IRQ boş; 5 V'a bağlamayın |
+| NeoPixel halka (WS2812B) | DIN | 18 | 74AHCT1G125 seviye çevirici (3,3 → 5 V) + 330 Ω seri direnç; halka girişinde 1000 µF; halka 5 V'tan beslenir |
+| Kart üstü RGB LED | — | 48 (38) | kullanılmaz |
+
+Kullanılmayan uçlar: 0, 3, 45, 46 (açılış), 19/20 (USB), 26–37 (flash/PSRAM), 43/44 (UART). Güç: USB-C 5 V / 2 A
+adaptör. PN532 okuyucu da kullanılabilir (`NFC_OKUYUCU 2`): aynı SPI uçlarına, modülün anahtarları SPI'ye alınarak
+(RSTPDN → GPIO9). Geliştirme için düğmeler `DUGME_ACIK 1` ile açılır (FİGÜR 1, YER 2, OYNAT 14; GND'ye).
+
+Gereken Arduino kütüphanesi: **MFRC522** (GithubCommunity, 1.4.x) — Library Manager'dan. PN532 için ayrıca
+**Adafruit PN532** (+ Adafruit BusIO). Wi-Fi, WebServer, DNSServer, ESP_I2S, RMT çekirdekle gelir; halka için ayrı
+kütüphane yok (çekirdeğin `rmtInit`/`rmtWrite`'ı; Adafruit_NeoPixel gerekmez).
 
 ### Kullanım
 
-| Düğme | Kısa basış | Uzun basış (≥ 0,8 s, bırakınca) |
-|---|---|---|
-| FİGÜR | sonraki figür (adını söyler; ses modeli yoksa bip) | önceki figür |
-| YER | figürün sonraki yeri; son yerden sonra "sürpriz yer" | sürpriz yer (rastgele) |
-| OYNAT | hikâye: hazır varsa hemen; konuşurken ya da yazarken: **dur** | son hikâyeyi yeniden oku |
-| OYNAT basılıyken FİGÜR / YER | ses aç / ses kıs (8 seviye, bip ile) | |
-| FİGÜR + YER birlikte 3 s | arka plan üretimini aç/kapat | |
-
-| LED | Anlamı |
+| Ne olur | Oyuncak ne yapar |
 |---|---|
-| yeşil | konuşuyor |
-| turuncu | çocuk beklerken canlı hikâye yazıyor (hazır yoktu) |
-| loş mavi | boşta, kuyruğa hikâye hazırlıyor |
-| kısa beyaz | düğme alındı |
-| kırmızı yanıp sönme | model yok / üretilemedi |
-| kapalı | boşta ya da uykuda |
+| Oyuncak standa kondu | Halka figürün renginde dolar (0,6 sn) → "Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım." → en eski hazır hikâye hemen okunur (hazır yoksa "Senin için yeni bir hikâye yazıyorum..." ve canlı yazılır, ~1 dk). Figürün yerleri kendiliğinden döner. |
+| Oyuncak ilk kez kondu | "Tanınır" (kalıcı). Kart boştayken **yalnız tanınmış** oyuncaklar için hikâye hazırlar; hiç konmamış oyuncağın hikâyesi yazılmaz, okunmaz. |
+| Oyuncak standdan alındı | Ayara göre: cümle bitince durur (varsayılan) / hemen durur / hikâyeyi bitirir. |
+| Standda oyuncak yok | Hikâye okunmaz; "başka", "bir daha", "devam" denirse "Önce bir oyuncağını standa koy." |
+| Ay Dede (gece figürü) kondu | Ninni modu (aşağıda). |
+| Ayar kartı kondu | Ayar modu (aşağıda). |
 
-Seçili figür, yer, ses seviyesi ve arka plan ayarı NVS'te saklanır: kart kapanıp açılınca aynı kalır.
+**Sesli komutlar** — önce "Merhaba Eko" (halka: beyaz dönen nokta, okuma kısılır), sonra ~4 sn içinde:
+
+| Komut | Çocuğun diyebileceği | Ne olur |
+|---|---|---|
+| DUR | "Dur", "Dursun", "Sus" | Okuma hemen durur; kaldığı cümle saklanır |
+| DEVAM | "Devam", "Devam et", "Hadi" | Duran okuma kaldığı cümleden sürer; duran yoksa aynı oyuncağın yeni hikâyesi |
+| BAŞKA | "Başka", "Başka masal", "Bunu sevmedim" | Aynı oyuncağın başka hikâyesi |
+| BİR DAHA | "Bir daha", "Yine", "Tekrar" | Son hikâye baştan |
+| SESİ AÇ / KIS | "Sesini aç" ... / "Sesini kıs" ... | Bir seviye (okuma durmaz); halka 2 sn ses düzeyini gösterir |
+
+Hiçbir komut figür seçmez. Anlaşılan komut: kısa yeşil; "Merhaba Eko"dan sonra komut gelmezse kısa turuncu.
+Mikrofon INMP441, I2S1 16 kHz; tanıma `kws.h` (ayrı geliştirme, `tools/kws_test.py`). Seri monitörden taklit:
+`w uyandirma`, `w dur`, `w devam`, `w baska`, `w bir_daha`, `w sesi_ac`, `w sesi_kis`.
+
+### Halka
+
+| Durum | Halka |
+|---|---|
+| Açılış | Gökkuşağı tek tur, sonra söner |
+| Boşta, oyuncak yok | Çok sönük nefes alan beyaz (ayardan kapatılabilir) |
+| Oyuncak kondu | Figürün rengiyle 0,6 sn'de dolar (renkler `data/figur_donanim.json`) |
+| Selamlama / okuma | Figür renginde; okunan cümle oranı kadar LED dolu, kalanı sönük; parlaklık konuşma sesiyle hafifçe dalgalanır |
+| Canlı hikâye yazılıyor | Figür renginde dönen nokta |
+| Okuma bitti, oyuncak standda | 3 sn dolu, sonra figür renginde çok sönük nefes |
+| "Merhaba Eko" duyuldu | Beyaz dönen nokta (dinliyorum) |
+| Komut anlaşıldı / anlaşılmadı | Kısa yeşil / kısa turuncu yanıp sönme |
+| Ses aç/kıs | 0..7 düzeyi kadar beyaz LED, 2 sn |
+| Arka planda hikâye hazırlanıyor | Çok sönük, yavaş dönen figür rengi nokta (ayardan kapatılabilir) |
+| Ninni modu (Ay Dede) | Gece mavisi, yavaş parıldayan yıldızlar; zamanlayıcı dolunca 60 sn'de söner |
+| Ayar modu | Turkuaz nefes |
+| Hata (model yok, Wi-Fi açılamadı) | Kırmızı yanıp sönme |
+
+LED sayısı `HALKA_LED_SAYISI` (varsayılan 35; ürün sahibi doğrulayacak). Parlaklık tavanı `HALKA_PARLAKLIK_SINIR`
+(%25), ayardaki parlaklık bu tavanın yüzdesidir; kare başına akım tahmini (kanal başına 20 mA × değer/255)
+`HALKA_AKIM_SINIR_MA`'yı (600 mA) aşarsa kare kısılır (%25'te 35 beyaz LED ≈ 527 mA). Kareler ayrı, düşük
+öncelikli bir görevde 30 kare/s hesaplanır ve RMT ile (10 MHz, GRB) yollanır: LLM ve ses beklemez.
+
+### Ninni modu: gece figürü "Ay Dede" (nfc_no 12)
+
+- Selam: "İyi geceler Emre, şimdi sana bir ninni söyleyeceğim." Sonra ninniler art arda okunur: **yavaş** (%75 hız),
+  **alçak** (−2 yarım ton), **kısık** (×0,6) ve cümle aralarında 0,9 sn (ses.h `hiz`, `perde_kaydir`, `kazanc`;
+  varsayılanlarla ses eskisiyle bayt bayt aynı).
+- İsteğe bağlı çok kısık **müzik kutusu** (kartta sentezlenir, `muzik_kutusu.h`; ayardan kapatılır).
+- **Uyku zamanlayıcısı** (ayar: 10/20/30 dk) dolunca okunan ninni bitirilir; halka ve müzik **60 sn'de söner**; sonra
+  mikrofon, yükselteç ve halka kapanır, kart hafif uykuda standı yoklar. Standa (yeniden) bir oyuncak konunca uyanır.
+  Ay Dede erken alınırsa ninni modu biter.
+- İçerik: hikâye modeli "gece" figürünü henüz bilmiyor; ninniler kartta gömülü (`yerlesik.h`, 8 kısa metin, sırayla).
+  Model bu figürle eğitilip `tools/basliklar.py` yeniden çalıştırılınca `generated/figur_donanim.h`'de
+  `DONANIM_MODEL` değişir ve Ay Dede kendiliğinden kuyruk/üretim yoluna geçer (kod değişmez).
+
+### Ayar kartı ve ayar modu
+
+Ayar kartı = kaydında **nfc_no 200** yazan etiket. Standa konunca:
+
+1. Halka turkuaz nefes alır; kart Wi-Fi erişim noktası açar: ad **`Masalci-Ayar-XXXX`** (XXXX: kartın MAC'inin son
+   iki baytı), **WPA2**, şifre her açılışta yeni **8 haneli** sayı; oyuncak şifreyi **sesli iki kez söyler** (seri
+   porta da yazar).
+2. Telefon ağa bağlanınca ayar sayfası kendiliğinden açılır (DNS her adı karta yönlendirir; açılmazsa tarayıcıda
+   `http://192.168.4.1`). İnternet hiç kullanılmaz.
+3. Sayfada: çocuğun adı (en çok 20 harf, yalnız harf ve boşluk; Türkçe harfler), en yüksek ses (1–7), uyku
+   zamanlayıcısı (10/20/30 dk), halka parlaklığı, boşta nefes ışığı, hazırlık ışığı, ninnide müzik kutusu, oyuncak
+   alınınca ne olsun, **oyuncak tanıt**, **hikâyeleri sil** (isteğe bağlı: tanınan oyuncakları da unut). Doğrulama
+   kartta (`ayarlar.h`); geçersiz form hiç uygulanmaz. Ayarlar NVS'te (Preferences) kalır.
+4. Wi-Fi yalnız ayar modunda açıktır; kapanır: ayar kartı alınınca, sayfadan "Bitir"le ya da **10 dakika** sonra
+   ("oyuncak tanıt" kullanıldıysa kart alınması beklenen bir adımdır: o zaman stand 1 dk boş kalınca kapanır). Ayar
+   modunda arka plan üretimi ve sesli komutlar durur.
+
+**Neden açık ağ değil, WPA2 + söylenen şifre?** Ayar sayfası çocuğun adını gösterir ve değiştirir, etiket yazar,
+hikâyeleri siler. Açık ağda o 10 dakika içinde yakındaki herhangi biri (komşu, okul servisi) bağlanabilir ve trafik
+(çocuğun adı) şifresiz geçer. WPA2 trafiği şifreler; şifrenin her seferinde yeni olması ve **yalnız oyuncağın
+yanındakinin duyacağı şekilde söylenmesi**, ayar kartına ve oyuncağa fiziksel olarak erişen yetişkini (kartı
+standa koyan kişi) yetkili sayar; etikete/kutuya basılı sabit şifre gerekmez, kaybolmaz, kopyalanamaz. En çok 2
+bağlantı, 10 dakika sınırı ve kartın çekilmesiyle kapanma açık kalma süresini kısaltır. Bedeli: ebeveyn 8 rakam
+yazar (yılda birkaç kez).
+
+### Oyuncak tanıtma (figür etiketlerini programlamak)
+
+Figür tabanındaki NTAG213/215 etiketin kullanıcı belleğine (sayfa 4–5) 8 baytlık kayıt yazılır (`etiket.h`):
+`"EKO"` + sürüm (1) + nfc_no (2 bayt) + CRC-16/CCITT. Kart her yeni etikette kaydı okur; kayıt yoksa ya da bozuksa
+UID tablosuna (`nfc.h NFC_TABLO`) düşer; o da yoksa "bilinmeyen etiket" (kısa turuncu).
+
+1. Ayar kartını standa koyun, telefondan ayar sayfasını açın.
+2. "Oyuncak tanıt"ta figürü seçin (yedek ayar kartı yazmak için "Ayar kartı"), **Etikete yaz**.
+3. Ayar kartını alın, yeni figürü (ya da boş etiketi) 60 sn içinde standa koyun. Kart yazar, geri okuyup doğrular;
+   sayfada ve sesle sonucu söyler ("Tamam, bu artık Niloya."). Figür tanınmış sayılır.
+
+NFC numaraları ve renkler `data/figur_donanim.json`'da (sürüm 2: 11 figür + Ay Dede 12; ayar kartı 200). Numara
+asla yeniden kullanılmaz. RC522 kitindeki MIFARE Classic kartlar NTAG değildir: onlara kayıt yazılamaz (UID
+tablosuyla kullanılabilir).
 
 ### Hikâye kuyruğu
 
-- Boşta (son düğmeden 5 s sonra) kart, hazır hikâyesi az olan figürü seçip onun sıradaki yeri için **16 aday** üretir,
-  seçiciyle (`secici_urun_puanla`, ürün önerisi K=16) en iyisini flash'a yazar. Hedef figür başına **3** hikâye
-  (`KUYRUK_FIGUR_BASI`), toplam 33; yerler döner. Tahmini süre (3,7 token/s, kartta ölçülmedi): hikâye başına
-  ~10 dakika, kuyruğun tamamı ~5–6 saat — ilk açılışta bir gece prize takılı bırakın.
-- OYNAT: seçili figürün (yer seçiliyse o yerin) **en eski** hazır hikâyesi hemen okunur ve tüketilir; yerine boşta yenisi
-  üretilir. Hazır yoksa, o figür için yarım kalmış bir kuyruk işi varsa onun o ana kadarki en iyi adayı okunur; o da
-  yoksa hikâye canlı yazılır (K=1, eskisi gibi).
-- Üretim aday aday ilerler; düğmeye basılınca (ya da seri porta bir şey gelince) o aday bırakılır, çocuk dinledikten
-  sonra iş kaldığı adaydan sürer. Yazma güç kesilmesine dayanıklıdır (yarım hikâye hiç görünmez), hikâye çalınınca
-  silme yapılmaz (konuşurken flash silinmez), yuvalar sırayla döner (aşınma dengesi; sektör başına ~100 000 silme,
-  48 sektör: milyonlarca hikâye).
-
-### NFC figür okuyucu (isteğe bağlı)
-
-Arayüz `nfc.h`'de: figürün tabanındaki etiketin UID'si `NFC_TABLO`'dan figüre çevrilir; figür okuyucuya konunca seçilir,
-adı söylenir ve (`NFC_OYNAT` 1 ise) hikâye başlar. Varsayılan `NFC_OKUYUCU 0`: okuyucu yok, seri monitörde
-`n 04A1B2C3` ile denenir. RC522 için `NFC_OKUYUCU 1` + Arduino kütüphanesi **MFRC522**; PN532 (I2C) için
-`NFC_OKUYUCU 2` + **Adafruit PN532** (ikisi de derlendi, kartta denenmedi). Bilinmeyen etiket konunca seri porta
-`bilinmeyen etiket: 04A1B2C3` yazılır; onu figürüyle `NFC_TABLO`'ya ekleyin.
+- Boşta (son olaydan 5 s sonra) kart, **tanınmış** figürlerden hazır hikâyesi en az olanı seçip sıradaki yeri için
+  **16 aday** üretir, seçiciyle en iyisini flash'a yazar. 32 yuva tanınmış figürlere bölünür: figür başına
+  `min(6, (32 − 2) / tanınmış figür sayısı)` (tek figür 6, 11 figür 2). Yeni figür tanınınca hedef düşer; yer
+  gerekirse fazlası olan figürün en eski hikâyesi bırakılır.
+- Oyuncak konunca o figürün **en eski** hazır hikâyesi hemen okunur ve tüketilir; yerine boşta yenisi üretilir. Hazır
+  yoksa yarım kalmış bir kuyruk işinin o ana kadarki en iyisi, o da yoksa canlı (K=1).
+- Üretim aday aday ilerler; oyuncak konunca (ya da sesli komut, seri komut) o aday bırakılır, iş sonra sürer. Yazma
+  güç kesilmesine dayanıklıdır, yuvalar sırayla döner (aşınma dengesi).
 
 ### Güç
 
-- **Hafif uyku:** son düğmeden 30 s sonra, kuyruk doluysa (ya da arka plan kapalıysa) kart hafif uykuya geçer
-  (10 s'lik dilimler; CPU durur, PSRAM ve model yerinde kalır, uyanış anında). Herhangi bir düğme uyandırır. USB
-  seri monitör bağlıyken uyunmaz (USB bağlantısı kopmasın); UART girişinden (USB CDC On Boot: Disabled) kullanırken
-  seri porttan gelen ilk karakterler kartı uyandırır ama kaybolur — komutu bir daha gönderin. Uyku akımı kartta
-  ölçülmedi (`u` komutu 10 s uyutur).
-- **Ses seviyesi:** yazılımla (8 seviye, ~3 dB adım, en yüksek 1,4× doyumlu); OYNAT + FİGÜR / YER ya da `v+` `v-`.
-- **Güç düşmesi (brownout):** LLM iki çekirdekte + PSRAM + flash ≈ 250–350 mA, hoparlör 5 V'tan tepe akımda 0,5–1 A
-  çekebilir. Zayıf USB portu ya da ince kabloda gerilim düşer ve kart yeniden başlar. Açılışta
-  `UYARI: güç düşmesiyle (brownout) yeniden başladı` görürseniz: 5 V 2 A adaptör ve kısa/kalın kablo kullanın,
-  MAX98357A'nın VIN–GND uçlarına 470–1000 µF kondansatör koyun, sesi kısın (o açılışta yazılım sesi kendisi 4'e
-  indirir). Brownout dedektörünü kapatmayın. Kuyruk yazımı güç kesilmesine dayanıklıdır.
-- **Görev bekçisi:** ana döngü 30 s beslenmezse (`BEKCI_SN`) kart yeniden başlar; uzun üretim (K=16 ≈ 10 dk) her
-  token'da, konuşma her ses parçasında besler. Bekçi ya da çökme ile yeniden başlarsa açılışta
-  `UYARI: önceki çalışma hatayla bitti (sebep N)` yazar.
+- **Hafif uyku** yalnız ninni modunun sonunda (mikrofon kapalı): 0,4 s dilimler, aralarda stand yoklanır. Normalde
+  mikrofon "Merhaba Eko"yu dinlediği için kart uyumaz. USB seri monitör bağlıyken uyunmaz.
+- **Ses seviyesi:** yazılımla 8 seviye (~3 dB), en yüksek seviye ayardan sınırlanır; sesli komutla ya da `v+` `v-`.
+- **Güç düşmesi (brownout):** LLM + PSRAM + flash ≈ 250–350 mA, hoparlör tepe 0,5–1 A, halka en çok 600 mA (yazılım
+  sınırı). 5 V 2 A adaptör kullanın; MAX98357A ve halka girişine 470–1000 µF. Açılışta `UYARI: güç düşmesiyle` görülürse
+  ses o açılışta 4'e iner.
+- **Görev bekçisi:** ana döngü 30 s beslenmezse kart yeniden başlar (uzun üretimde her token'da beslenir).
 
 ## Sorun giderme
 
 | Belirti | Çözüm |
 |---|---|
 | `model bölümü yok` | Partition Scheme **Custom** seçilmemiş; seçip yazılımı yeniden yükleyin. |
-| `model okunamadı` | model.bin yüklenmemiş ya da yanlış adrese yüklenmiş: 3. adım, adres **0x110000**. |
+| `model okunamadı` | model.bin yüklenmemiş ya da yanlış adrese yüklenmiş: 3. adım, adres **0x1D0000** (Ekim 2026'dan önce 0x110000'dı: yeniden yükleyin). |
 | `HATA: PSRAM ayrılamadı` | PSRAM ayarı **OPI PSRAM** değil. |
 | `HATA: tokenizer/model uyuşmuyor` ya da anlamsız metin | Eski model (C2) ya da yanlış dosya yüklü: `fp=00ea3e55` olmalı. |
 | `çekirdek flash'ta 4-bit (PSRAM yetmedi, yavaş)` ya da `UYARI: isim süzgeci için PSRAM yok` | PSRAM eksik görünüyor; açılış çıktısını bana gönderin. |
 | `ses bölümü yok` | Yeni `partitions.csv` ile yazılım yeniden yüklenmemiş (Partition Scheme **Custom**). |
 | `kuyruk bölümü yok` | Aynı: Partition Scheme **Custom** ve bu klasördeki `partitions.csv` ile yeniden yükleyin. Kart yine çalışır, hikâyeler hep canlı yazılır. |
-| Düğmeler tepki vermiyor | Düğme GPIO ile **GND** arasında mı (3V3 değil)? Açılıştaki `düğmeler: FİGÜR 7, ...` satırındaki pinler; seri monitörde `t f` çalışıyorsa sorun kabloda. |
+| `stand NFC: RC522 BULUNAMADI` | RC522 kabloları (SCK 12, MISO 13, MOSI 11, SDA 10, RST 9), **3,3 V** besleme; MFRC522 kütüphanesi. Seri monitörde `n` standı gösterir. |
+| Oyuncak konunca bir şey olmuyor | Seri monitörde `(stand: etiket ...)` satırı var mı? `bilinmeyen etiket` ise etiketi ayar sayfasından "oyuncak tanıt" ile yazın. Etiket okuyucuya 1–3 cm yakın olmalı. |
+| "Merhaba Eko" duyulmuyor | INMP441: SCK 15, WS 16, SD 17, **L/R GND'ye**, 3V3. Açılışta `mikrofon: açık` yazmalı. Seri monitörde `w uyandirma` ile tepkiyi deneyin. |
+| Halka yanmıyor ya da renkler karışık | DIN GPIO18 → seviye çevirici (74AHCT1G125) → 330 Ω → halka DIN; halka 5 V ve GND ortak; `HALKA_LED_SAYISI` doğru mu? Seri monitörde `h`. |
+| Ayar ağı görünmüyor | Ayar kartı standda mı (`(stand: ... nfc_no 200)`)? `[ayar modu] Wi-Fi: Masalci-Ayar-...` satırı ve şifre seri portta da yazar. `HATA: Wi-Fi erişim noktası açılamadı` ise açılıştaki boş SRAM satırını bana gönderin. |
+| Ayar sayfası kendiliğinden açılmıyor | Tarayıcıda `http://192.168.4.1` yazın (bazı telefonlar "internet yok" diye ağdan çıkar: "bağlı kal" deyin). |
 | Kart kendi kendine yeniden başlıyor | Açılıştaki `UYARI` satırına bakın: brownout ise güç (bkz. **6 → Güç**), değilse satırı bana gönderin. |
 | `ses: ses.bin değil (sihir): konuşma kapalı` | ses.bin yüklenmemiş ya da yanlış adrese: 3. adım, adres **0xBB0000**. |
-| `hoparlör: açık, yalnız bip` | ses.bin yok ya da yanlış adreste; düğmeler bip ile yanıt verir, hikâyeler seri porta yazılır. |
+| `hoparlör: açık, yalnız bip` | ses.bin yok ya da yanlış adreste; hikâyeler seri porta yazılır. |
 | `ses: bellek ayrılamadı` | PSRAM/SRAM yetmedi (C3'te LLM'den sonra ≈0,7 MB PSRAM kalır); bana açılış çıktısını gönderin (`SES_MAX_SEMBOL`, `SES_PARCA` küçültülebilir). |
 | Ses yok ama `[ses: ...]` satırı geliyor | Kablolar: BCLK 4, LRC 5, DIN 6, GND ortak; hoparlör MAX98357A'nın + ve − ucunda. |
 | Seri monitör boş | USB CDC On Boot ayarı kullandığınız USB girişine uymuyor; değiştirip yeniden yükleyin. |
@@ -350,21 +436,45 @@ adı söylenir ve (`NFC_OYNAT` 1 ise) hikâye başlar. Varsayılan `NFC_OKUYUCU 
   PSRAM + ~200 KB SRAM. Matris işleri LLM'in işçi göreviyle iki çekirdeğe bölünür. Metin -> sembol `ses/metin.py` ile
   aynı. Eşitlik testi (rastgele model kurar, dışa aktarır, C ile PyTorch'u karşılaştırır; süreler birebir, mel ve dalga
   ~1e-6 göreli fark): `python firmware/hikaye_oyuncak/tools/ses_test.py`
-- Ürün parçaları: `donanim.h` (pinler, sabitler), `kuyruk.h` (flash kuyruğu: 4 KB yuva = 32 B başlık [sihir,
-  imza, sıra, figür, yer, K, n, n_plan, puan, CRC-32, tüketildi] + int16 token'lar; yazma sırası sil → token → başlık →
-  en son sihir; tüketme silmeden 4 bayt 0), `dugmeler.h` (sekme süzgeci, kısa/uzun/ikili basış, kilitsiz olay halkası;
-  kartta 10 ms'lik ayrı görev örnekler), `nfc.h` (UID → figür tablosu, RC522/PN532 taslak sürücüleri). Üretim yolu
-  (`aday_uret`) değişmedi; yalnız her token'da bir kesme sorusu (`uretim_kes`) ve bekçi beslemesi eklendi: kart_pc
-  karşılaştırması yine birebir (`kart_pc_karsilastir.py`: uyuşmazlık 0).
-- Denemeler: `cc -O2 -o /tmp/kuyruk_test tools/kuyruk_test.c && /tmp/kuyruk_test` (NOR flash taklidi: çöp dolu bölüm,
-  doldurma politikası, yeniden başlatma, en eskinin önce çalınması, CRC, imza, her noktada güç kesilmesi, aşınma);
-  `tools/dugme_test.c` (sekme, kısa/uzun, ikili basış, millis taşması); `python tools/kuyruk_test.py [--urun]`
-  (çizimin kendisi kart_pc'de, kuyruk bölümü dosyada: doldur → yeniden başlat → çal → kalıcılık → bozulma → düğmeler,
-  NFC, ses seviyesi, uyku, NVS → üretim sırasında OYNAT; `--urun` ilk işleri urun_uret ile de üretir, `--K 16 --basi 3`
-  ürün ayarı). Hepsi `tests/test_kart_kuyruk.py` ile pytest'te.
-- kart_pc ek satırları: `#pin P V`, `#pin_sonra P V MS` (üretim sürerken basış), `#bekle MS` (sahte saat ilerler; delay
-  ve uyku beklemez), `#bosta [N]` (arka plan üretimi), `#durum`; `KART_KUYRUK` (kuyruk bölümü dosyası), `KART_NVS`,
-  `KART_SIFIRLAMA` (ör. 9 = brownout), `KART_FLASH_KES` (N bayttan sonra yazma tutmaz).
-- Gerçek derleme (Arduino çekirdeği 3.3.12, ESP32S3 Dev Module, OPI PSRAM, 16 MB, Custom): uygulama 927 956 B (eski
-  897 308 B; 1 MB bölümde ~120 KB pay), statik RAM 100 448 B (eski 97 256 B). `NFC_OKUYUCU 1` 935 508 B, `2`
-  968 972 B; USB CDC kapalı (UART) da derlenir.
+- Ürün parçaları: `donanim.h` (pinler, sabitler), `olaylar.h` (olay halkası: stand, sesli komut, düğme), `kuyruk.h`
+  (flash kuyruğu: 4 KB yuva = 32 B başlık [sihir, imza, sıra, figür, yer, K, n, n_plan, puan, CRC-32, tüketildi] +
+  int16 token'lar; yazma sırası sil → token → başlık → en son sihir; tüketme silmeden 4 bayt 0; tanınmış figürler:
+  `kuyruk_hedef`, `kuyruk_sonraki_sahip`, `kuyruk_yer_ac`), `etiket.h` (NFC kaydı), `nfc.h` (RC522 / PN532 / taslak
+  sürücü: UID, 16 B okuma, sayfa yazma; kayıt okuma + UID tablosu; tanıtma: yaz + geri oku), `selam.h` (selamlama,
+  Türkçe tamlayan eki, ninni selamı, şifreyi rakam rakam), `ayarlar.h` (ayarlar, form doğrulaması, JSON),
+  `ayar_sayfa.h` (gömülü sayfa), `halka.h` (durumdan kareye; tavan ve akım sınırı), `muzik_kutusu.h`, `yerlesik.h`
+  (modelin bilmediği figürlerin metinleri), `generated/figur_donanim.h` (`tools/basliklar.py`, `--donanim` yalnız bunu
+  yazar), `kws.h` + `generated/kws_model.h` (sesli komut; ayrı geliştirme), `dugmeler.h` (yalnız `DUGME_ACIK 1`).
+  Üretim yolu (`aday_uret`) değişmedi: `kart_pc_karsilastir.py` (11 vaka × 4 aday) uyuşmazlık 0.
+- Görevler: ana döngü (1. çekirdek, LLM + ses sentezi), LLM/ses işçisi (0. çekirdek, öncelik 2), çalıcı (0, 5:
+  I2S0'a yazar, kazancı uygular, müzik kutusunu karıştırır), mikrofon (0, 3: I2S1 → `kws_isle` → olay halkası),
+  halka (1, 1: 30 kare/s, RMT). Okurken olaylara `okuma_denetle` bakar: ses aç/kıs, "Merhaba Eko", devam yerinde
+  işlenir; dur/başka/bir daha ve oyuncak çekilmesi okumayı (ayara göre hemen ya da cümle sonunda) keser, ana döngü
+  sonra işler.
+- Denemeler (hepsi `tests/test_kart_kuyruk.py` ile pytest'te):
+  - `tools/kuyruk_test.c` (NOR flash taklidi: çöp dolu bölüm, doldurma politikası, yeniden başlatma, en eskinin önce
+    çalınması, CRC, imza, her noktada güç kesilmesi, aşınma, tanınmış figürlere bölme ve yer açma),
+  - `tools/dugme_test.c` (sekme, kısa/uzun, ikili basış, millis taşması),
+  - `tools/urun_test.c` (etiket kaydı ve her tek bit bozulması, taslak sürücüde tanıtma/kilitli/NTAG olmayan etiket,
+    11 figür + adsız + ninni selamı, ad doğrulaması ve form, halka durumları/tavan/akım sınırı, müzik kutusu,
+    donanım tablosu): `cc -O2 -o /tmp/urun_test tools/urun_test.c -lm && /tmp/urun_test`,
+  - `python tools/kuyruk_test.py [--urun]` (çizimin kendisi kart_pc'de: doldur → yeniden başlat → çal → kalıcılık →
+    bozulma → arka planda oyuncak konması, canlı üretimde oyuncak çekilmesi; `--urun` ilk işleri urun_uret ile de
+    üretir),
+  - `python tools/urun_akis_test.py` (ürün akışı: tanınma, selam, halka sırası ve RMT karesi, çekilince 3 ayar,
+    sesli komutlar, UID tablosu, gece figürü ve kapanma, ayar kartı: Wi-Fi/şifre, captive, form, tanıt, sil,
+    kalıcılık, kapanmalar).
+  - Ses stili: `ses.h`'nin `hiz`/`perde_kaydir`/`kazanc` varsayılanlarıyla PCM, önceki ses.h ile bayt bayt aynı
+    (gerçek ses.bin ile denendi); `tools/ses_test.py` (C ↔ PyTorch) geçiyor.
+- kart_pc ek satırları: `#bekle MS`, `#bosta [N]`, `#durum`, `#etiket koy N | koy bos | koy uid UID | dosya YOL |
+  kaldir | kilitle | dok`, `#w OLAY`, `#sonra MS SATIR`, `#http GET|POST /yol [gövde]`, `#halka` (RMT bitlerinden
+  çözülen kare), her halka durum değişiminde `HALKA_D`; `KART_SAAT=sahte` (belirli saat: delay + her okumada 50 µs),
+  `KART_KUYRUK`, `KART_NVS`, `KART_SIFIRLAMA`, `KART_FLASH_KES`, `KART_WIFI_HATA`. Geliştirme düğmeleri:
+  `-DDUGME_ACIK=1` ile `#pin P V`, `#pin_sonra P V MS`.
+- Gerçek derleme (Arduino çekirdeği 3.3.12, ESP32S3 Dev Module, OPI PSRAM, 16 MB, Custom, USB CDC açık): uygulama
+  1 690 224 B (1,75 MB bölümün %92'si; Wi-Fi + WebServer + DNSServer ≈ +605 KB, sesli komut modeli ≈ +100 KB),
+  statik RAM 153 820 B (eski 100 448 B; Wi-Fi ~25 KB, KWS ~20 KB, halka RMT tamponu 3,4 KB).
+  Öteki derlemeler: `NFC_OKUYUCU 2` (PN532) 1 723 552 B; `NFC_OKUYUCU 0` + `DUGME_ACIK 1` 1 683 984 B; USB CDC kapalı
+  (UART) + `MIK_ACIK 0` 1 577 776 B. Hepsi uyarısız. Kartta henüz denenmedi (RC522/PN532 sürücüleri, I2S1 mikrofon,
+  RMT halka, Wi-Fi'nin LLM + ses yüklüyken açılıp açılamadığı: açılıştaki "boş: SRAM/PSRAM" ve ayar modundaki
+  "[ayar modu] boş SRAM" satırlarını gönderin).

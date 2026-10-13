@@ -7,7 +7,10 @@
 // pull-up'lı düğmeler 1 başlar), RGB LED (sahte_led), yazılabilir bölüm ("kuyruk": NOR flash gibi, yazma yalnız
 // 1 -> 0, silme 4 KB; KART_KUYRUK dosyasına her değişiklikte yazılır = açılıştan açılışa kalır), hafif uyku (GPIO
 // uyandırması sahte_pin'den; stderr'e "UYKU"), görev bekçisi (sayılır), esp_reset_reason (KART_SIFIRLAMA),
-// Preferences (bellekte; KART_NVS dosyası verilirse ona yazılır).
+// Preferences (bellekte; KART_NVS dosyası verilirse ona yazılır), halka RMT'si (bitler çözülüp sahte_rmt_rgb'ye),
+// kritik bölge (boş), mikrofon I2S'i (hiç veri yok). Wi-Fi, WebServer, DNSServer: ayrı sahte başlıklar.
+// KART_SAAT=sahte: gerçek saat yok; saat delay/uyku ile ve her okumada 50 µs ilerler (üretim de "zaman alır"; okuma,
+// zamanlı olay denemeleri her çalıştırmada aynı olur).
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
@@ -20,6 +23,9 @@
 // ---- zaman, rastgele ----
 static int64_t sahte_zaman_ek_us = 0;  // delay() ve hafif uyku saati ileri alır (gerçekte beklemeden)
 static inline int64_t esp_timer_get_time(void) {
+  static int sahte_saat = -1;
+  if (sahte_saat < 0) { const char *e = getenv("KART_SAAT"); sahte_saat = e && !strcmp(e, "sahte"); }
+  if (sahte_saat) return 1000000 + (sahte_zaman_ek_us += 50);  // her okuma 50 µs: üretim de zaman alır (belirli)
   struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
   return (int64_t)t.tv_sec * 1000000 + t.tv_nsec / 1000 + sahte_zaman_ek_us;
 }
@@ -181,6 +187,10 @@ static inline size_t xStreamBufferReceive(StreamBufferHandle_t, void *, size_t, 
 static inline size_t xStreamBufferSend(StreamBufferHandle_t, const void *, size_t n, uint32_t) { return n; }
 static inline int xStreamBufferIsEmpty(StreamBufferHandle_t) { return 1; }
 #define pdMS_TO_TICKS(ms) (ms)
+typedef int portMUX_TYPE;
+#define portMUX_INITIALIZER_UNLOCKED 0
+#define portENTER_CRITICAL(m) ((void)(m))
+#define portEXIT_CRITICAL(m) ((void)(m))
 static inline void vTaskDelay(uint32_t t) { delay(t); }
 
 // ---- GPIO, LED ----
@@ -222,6 +232,34 @@ static inline void digitalWrite(int p, int v) { sahte_pin_kur(); if (p >= 0 && p
 #define RGB_BUILTIN 48
 static uint8_t sahte_led[3];
 static inline void rgbLedWrite(int, uint8_t r, uint8_t g, uint8_t b) { sahte_led[0] = r; sahte_led[1] = g; sahte_led[2] = b; }
+
+// ---- RMT (halka): yollanan bitler WS2812 zamanlamasıyla çözülür -> sahte_rmt_rgb (RGB), sahte_rmt_n LED ----
+typedef union {
+  struct { uint32_t duration0 : 15; uint32_t level0 : 1; uint32_t duration1 : 15; uint32_t level1 : 1; };
+  uint32_t val;
+} rmt_data_t;
+#define RMT_TX_MODE 1
+#define RMT_MEM_NUM_BLOCKS_2 2
+#define RMT_WAIT_FOR_EVER 0xFFFFFFFFu
+static uint8_t sahte_rmt_rgb[64][3];
+static int sahte_rmt_n = 0, sahte_rmt_hata = 0;
+static long sahte_rmt_kare = 0;
+static inline bool rmtInit(int, int, int, uint32_t hz) { return hz == 10000000; }
+static inline bool rmtWrite(int, rmt_data_t *d, size_t n, uint32_t) {
+  sahte_rmt_n = (int)(n / 24);
+  for (int i = 0; i < sahte_rmt_n && i < 64; i++) {
+    uint8_t grb[3] = {0, 0, 0};
+    for (int b = 0; b < 24; b++) {
+      const rmt_data_t *r = &d[i * 24 + b];
+      bool bir = r->duration0 == 8 && r->duration1 == 4, sifir = r->duration0 == 4 && r->duration1 == 8;
+      if ((!bir && !sifir) || r->level0 != 1 || r->level1 != 0) sahte_rmt_hata++;
+      grb[b / 8] = (uint8_t)(grb[b / 8] << 1 | bir);
+    }
+    sahte_rmt_rgb[i][0] = grb[1]; sahte_rmt_rgb[i][1] = grb[0]; sahte_rmt_rgb[i][2] = grb[2];
+  }
+  sahte_rmt_kare++;
+  return true;
+}
 
 // ---- görev bekçisi ----
 typedef struct { uint32_t timeout_ms, idle_core_mask; bool trigger_panic; } esp_task_wdt_config_t;
@@ -284,24 +322,30 @@ static inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause(void) { return
 // ---- I2S ----
 #define I2S_MODE_STD 0
 #define I2S_DATA_BIT_WIDTH_16BIT 16
+#define I2S_DATA_BIT_WIDTH_32BIT 32
 #define I2S_SLOT_MODE_MONO 1
+#define I2S_STD_SLOT_LEFT 1
 #define I2S_STD_SLOT_BOTH 3
 struct I2SClass {
-  void setPins(int, int, int) {}
+  void setPins(int, int, int, int = -1, int = -1) {}
   bool begin(int, int, int, int, int) { return true; }
+  void end() {}
   size_t write(const uint8_t *, size_t n) { return n; }
+  size_t readBytes(char *, size_t) { return 0; }
 };
 
 // ---- String, Serial ----
 struct String {
   std::string s;
   String(const std::string &x = "") : s(x) {}
+  String(const char *x) : s(x ? x : "") {}
   void trim() {
     size_t a = s.find_first_not_of(" \t\r\n"), b = s.find_last_not_of(" \t\r\n");
     s = a == std::string::npos ? "" : s.substr(a, b - a + 1);
   }
   size_t length() const { return s.size(); }
   bool operator==(const char *x) const { return s == x; }
+  bool operator==(const String &x) const { return s == x.s; }
   char operator[](size_t i) const { return i < s.size() ? s[i] : 0; }
   bool startsWith(const char *x) const { return s.compare(0, strlen(x), x) == 0; }
   const char *c_str() const { return s.c_str(); }
@@ -327,16 +371,24 @@ struct SahteSerial {
 };
 static SahteSerial Serial;
 
-// ---- Preferences (NVS): bellekte; KART_NVS dosyası verilirse "anahtar değer" satırları olarak ona yazılır ----
+// ---- Preferences (NVS): bellekte; KART_NVS dosyası verilirse "s anahtar onaltılık" / "i anahtar sayı" satırları ----
 #include <map>
 struct Preferences {
   std::map<std::string, long> m;
+  std::map<std::string, std::string> ms;
   bool begin(const char *, bool) {
     const char *yol = getenv("KART_NVS");
     FILE *f = yol ? fopen(yol, "r") : NULL;
     if (f) {
-      char k[64]; long v;
-      while (fscanf(f, "%63s %ld", k, &v) == 2) m[k] = v;
+      char t[4], k[64], v[256];
+      while (fscanf(f, "%3s %63s %255s", t, k, v) == 3) {
+        if (t[0] == 'i') m[k] = atol(v);
+        else {
+          std::string d;
+          for (size_t i = 0; v[i] && v[i + 1] && strcmp(v, "-"); i += 2) { unsigned b; sscanf(v + i, "%2x", &b); d += (char)b; }
+          ms[k] = d;
+        }
+      }
       fclose(f);
     }
     return true;
@@ -345,7 +397,13 @@ struct Preferences {
     const char *yol = getenv("KART_NVS");
     FILE *f = yol ? fopen(yol, "w") : NULL;
     if (!f) return;
-    for (auto &kv : m) fprintf(f, "%s %ld\n", kv.first.c_str(), kv.second);
+    for (auto &kv : m) fprintf(f, "i %s %ld\n", kv.first.c_str(), kv.second);
+    for (auto &kv : ms) {
+      fprintf(f, "s %s ", kv.first.c_str());
+      if (kv.second.empty()) fputc('-', f);
+      for (unsigned char c : kv.second) fprintf(f, "%02x", c);
+      fputc('\n', f);
+    }
     fclose(f);
   }
   long al(const char *k, long v) { auto i = m.find(k); return i == m.end() ? v : i->second; }
@@ -353,7 +411,11 @@ struct Preferences {
   uint8_t getUChar(const char *k, uint8_t v) { return (uint8_t)al(k, v); }
   int8_t getChar(const char *k, int8_t v) { return (int8_t)al(k, v); }
   bool getBool(const char *k, bool v) { return al(k, v) != 0; }
+  uint32_t getUInt(const char *k, uint32_t v) { return (uint32_t)al(k, v); }
+  String getString(const char *k, const String &v) { auto i = ms.find(k); return i == ms.end() ? v : String(i->second); }
   size_t putUChar(const char *k, uint8_t v) { koy(k, v); return 1; }
   size_t putChar(const char *k, int8_t v) { koy(k, v); return 1; }
   size_t putBool(const char *k, bool v) { koy(k, v); return 1; }
+  size_t putUInt(const char *k, uint32_t v) { koy(k, (long)v); return 4; }
+  size_t putString(const char *k, const char *v) { ms[k] = v; kaydet(); return strlen(v); }
 };

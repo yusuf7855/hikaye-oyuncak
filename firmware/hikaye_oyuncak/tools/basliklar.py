@@ -13,13 +13,16 @@ istemler.h: ürün kurulumu, degerlendirme/urun_uret.py ile birebir:
             - seçici (secici.h secici_urun_puanla = urun_uret.puanla) tabloları: kadro, izinli adlar, bütün ürün
               adları, ISIM_KELIME, takıntı önekleri ve TAKINTI_HARIC
             Kartta seçim yalnız bu tablolardan okunur; tokenizer kartta çalışmaz.
+figur_donanim.h: data/figur_donanim.json (NFC numarası, halka rengi, mod) + her donanım figürünün modeldeki figür
+            numarası (DONANIM_MODEL: urun_uret.FIGURLER'deki yeri; -1 = model bu figürü bilmiyor, kart yerleşik metin
+            okur). Model "gece" figürünü öğrenince yalnız bu tablo değişir (kod değişmez).
+            Yalnız bu başlık: --donanim (tokenizer gerekmez).
 """
 import argparse
 import os
 import shutil
 import sys
 
-from tokenizers import Tokenizer
 
 SKETCH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(os.path.dirname(SKETCH))
@@ -91,10 +94,51 @@ def figur_listesi(ad, listeler, f):
     f.write(c_dizi(ad + "_OFF", off, "uint16_t"))
 
 
+def donanim_basligi():
+    """generated/figur_donanim.h: donanım figürleri (etiket numarası, renk, mod) ve modeldeki karşılıkları."""
+    import json
+    with open(os.path.join(ROOT, "data", "figur_donanim.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    fig = d["figurler"]
+    model = list(U.FIGURLER)
+    nolar = [x["nfc_no"] for x in fig] + [x["nfc_no"] for x in d.get("ozel_kartlar", [])]
+    assert len(set(nolar)) == len(nolar), "nfc_no tekrar ediyor"
+    modlar = {"hikaye": 0, "uyku": 1}
+
+    def rgb(h):
+        h = h.lstrip("#")
+        return [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+    ayar = [x for x in d.get("ozel_kartlar", []) if x["kimlik"] == "ayar"][0]
+    out = os.path.join(SKETCH, "generated", "figur_donanim.h")
+    with open(out, "w") as f:
+        f.write(f"// Üretildi: tools/basliklar.py (data/figur_donanim.json, sürüm {d['surum']}). Donanım figürü d "
+                "(0..DONANIM_N-1):\n// etiketteki nfc_no, halka rengi, mod (hikâye / uyku = ninni) ve modeldeki "
+                "figür numarası\n// (istemler.h FIGUR_*; -1: model bu figürü bilmiyor, yerleşik metin okunur).\n")
+        f.write("#pragma once\n#include <stdint.h>\n")
+        f.write(f"#define DONANIM_N {len(fig)}\n#define DONANIM_SURUM {d['surum']}\n"
+                f"#define AYAR_KARTI_NFC {ayar['nfc_no']}\n")
+        f.write("enum { MOD_HIKAYE = 0, MOD_UYKU = 1 };\n")
+        f.write(c_dizgeler("DONANIM_KIMLIK", [x["kimlik"] for x in fig]))
+        f.write(c_dizgeler("DONANIM_AD", [x["ad"] for x in fig]))
+        f.write(c_dizi("DONANIM_NFC", [x["nfc_no"] for x in fig], "uint16_t"))
+        f.write(c_dizi("DONANIM_RENK", sum((rgb(x["renk"]) for x in fig), []), "uint8_t"))
+        f.write(c_dizi("DONANIM_MOD", [modlar[x.get("mod", "hikaye")] for x in fig], "uint8_t"))
+        f.write(c_dizi("DONANIM_MODEL", [model.index(x["kimlik"]) if x["kimlik"] in model else -1 for x in fig],
+                       "int8_t"))
+        f.write(c_dizi("AYAR_KARTI_RENK", rgb(ayar["renk"]), "uint8_t"))
+    print(f"figur_donanim.h: {len(fig)} donanım figürü, modelde {sum(x['kimlik'] in model for x in fig)}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tokenizer", default=os.path.join(ROOT, "hf_c3ft_karma", "tokenizer.json"))
+    ap.add_argument("--donanim", action="store_true", help="yalnız generated/figur_donanim.h")
     a = ap.parse_args()
+    if a.donanim:
+        donanim_basligi()
+        return
+    donanim_basligi()
+    from tokenizers import Tokenizer
     tok = Tokenizer.from_file(a.tokenizer)
     V = tok.get_vocab_size()
     ozel = {tok.token_to_id(s) for s in ["<|endoftext|>"] if tok.token_to_id(s) is not None}

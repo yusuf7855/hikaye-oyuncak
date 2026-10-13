@@ -55,8 +55,10 @@ TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 
 ### 3.3 Kartı derle ve yükle (ESP32-S3 N16R8 USB ile bağlıysa)
 - Arduino IDE 2 ya da `arduino-cli` (esp32 by Espressif 3.x). Ayarlar `firmware/hikaye_oyuncak/README.md`:
   ESP32S3 Dev Module, 16MB, **OPI PSRAM**, Partition **Custom** (`partitions.csv`), USB CDC On Boot.
-- Model ve ses: `python -m esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x110000
-  modeller\c3ft_karma\model.bin 0xBB0000 ses.bin` (adresleri README'den doğrula; değişmiş olabilir).
+- Model ve ses: `python -m esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x1D0000
+  modeller\c3ft_karma\model.bin 0xBB0000 ses.bin` (Ekim 2026'dan beri model 0x1D0000'de; adresleri README'den doğrula).
+- Ürün davranışı (Merhaba Eko, yalnız standdaki oyuncak, Ay Dede ninni modu, halka, ayar kartı, pinler): `docs/URUN_TANIMI.md`;
+  donanım ve 3B tasarım: `docs/DONANIM.md`, `cad/`.
 - Seri monitör 115200: açılışta model parmak izi `fp=00ea3e55`; `?` figür listesi, `1 1` hikâye, `b` hız testi.
   Çıktıyı (hız, profil satırı, birkaç hikâye) kaydet ve ürün sahibine özetle.
 
