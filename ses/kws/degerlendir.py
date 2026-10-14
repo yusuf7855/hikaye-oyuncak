@@ -121,14 +121,19 @@ def olumlu_akis(h, kosul, n_deneme, tohum, sizinti_kaynagi):
 
 
 def olumsuz_akis(h, tur, tohum, sure_s=None):
+    """tur: dogal (karışan olmayan sözler + çocuk sesli cümleler), karisan (yalnız karışan ifadeler, aralıklı),
+    karisik (dogal + hoparlörden hikâye), hikaye (yalnız hoparlörden hikâye), gurultu."""
     rng = np.random.default_rng(tohum)
     olaylar = []
-    if tur in ("konusma", "karisik"):
-        kl = list(h["neg"]) + [k for k in h["cumle"] if k.tur == "cocuk"]
+    if tur in ("dogal", "karisik", "karisan"):
+        if tur == "karisan":
+            kl = [k for k in h["neg"] if IF.karisan_mi(k.metin)]
+        else:
+            kl = [k for k in h["neg"] if not IF.karisan_mi(k.metin)] + [k for k in h["cumle"] if k.tur == "cocuk"]
         rng.shuffle(kl)
         parcalar, t = [], 0
         for k in kl:
-            bos = int(rng.uniform(0.3, 2.0) * SR)
+            bos = int((rng.uniform(1.5, 3.0) if tur == "karisan" else rng.uniform(0.3, 2.0)) * SR)
             x = klip(k, rng, rng.uniform(-35, -15))
             parcalar += [np.zeros(bos, np.float32), x]
             olaylar.append(((t + bos + k.bas) / SR, (t + bos + k.son) / SR, k.metin))
@@ -153,9 +158,30 @@ def olumsuz_akis(h, tur, tohum, sure_s=None):
     return bitir(rng, y), olaylar
 
 
-def olasiliklar(tm, pcm):
-    q = O.oznitelik_np(pcm)
-    lg = O.tamsayi_ileri(tm, q).numpy().astype(np.float64) * np.float32(tm["cikis"]["olcek"])
+def karisan_olc(olaylar_kare, ifadeler):
+    """Her karışan söyleyiş için: [bas-0.2, son+0.8] içinde uyanma oldu mu -> (oran, {ifade: [uyandı, toplam]})."""
+    ts = np.array([(t * O.ADIM + O.PENCERE) / SR for t, o in olaylar_kare if o == 1])
+    tablo = {}
+    for a, b, m in ifadeler:
+        u = bool(len(ts) and np.any((ts >= a - 0.2) & (ts <= b + 0.8)))
+        n = IF._norm(m)
+        tablo.setdefault(n, [0, 0])
+        tablo[n][0] += u
+        tablo[n][1] += 1
+    top = sum(v[0] for v in tablo.values()) / max(1, sum(v[1] for v in tablo.values()))
+    return top, tablo
+
+
+def olasiliklar(tm, pcm, parca=20000, baglam=200):
+    """Uzun akış: parça parça (bellek). Nedensel ve alıcı alanı 135 kare: 200 karelik ön bağlamla sonuç tam aynı."""
+    q = np.concatenate([O.oznitelik_np(pcm[a * O.ADIM: (a + parca) * O.ADIM + O.PENCERE - O.ADIM])
+                        for a in range(0, max(1, 1 + (len(pcm) - O.PENCERE) // O.ADIM), parca)])
+    out = []
+    for a in range(0, len(q), parca):
+        b0 = max(0, a - baglam)
+        lg = O.tamsayi_ileri(tm, q[b0: a + parca]).numpy()[a - b0:]
+        out.append(lg.astype(np.float64) * np.float32(tm["cikis"]["olcek"]))
+    lg = np.concatenate(out)
     p = np.exp(lg - lg.max(1, keepdims=True))
     return p / p.sum(1, keepdims=True)
 
@@ -200,7 +226,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=os.path.join(CALISMA, "qat.pt"))
     ap.add_argument("--yaz", action="store_true", help="dev'de seçilen eşikleri kayda yaz")
-    ap.add_argument("--hedef-yu", type=float, default=0.5, help="dev'de saatte en çok yanlış uyanma")
+    ap.add_argument("--hedef-yu", type=float, default=0.5, help="dev'de (doğal konuşma + hikâye sesi) saatte en çok yanlış uyanma")
+    ap.add_argument("--hedef-karisan", type=float, default=0.05, help="dev'de karışan ifadelerde en çok uyanma oranı")
     ap.add_argument("--deneme", type=int, default=160, help="koşul başına olumlu deneme")
     ap.add_argument("--parcacik", type=int, default=2)
     ap.add_argument("--cikti", default=os.path.join(CALISMA, "sonuc.json"))
@@ -226,26 +253,32 @@ def main():
         dev_poz.append((olasiliklar(tm, pcm), dg))
     dev_neg = []
     dn = dict(neg=dev["neg"], cumle=dev["cumle"] + egit_cumle[:300], poz=dev["poz"])
-    for i, tur in enumerate(["konusma", "hikaye", "karisik"]):
+    for i, tur in enumerate(["dogal", "hikaye", "karisik"]):
         pcm, _ = olumsuz_akis(dn, tur, 600 + i, sure_s=1200 if tur == "hikaye" else None)
         dev_neg.append((olasiliklar(tm, pcm), len(pcm) / SR))
+    pcm, dev_kar_ol = olumsuz_akis(dn, "karisan", 610)
+    dev_kar = olasiliklar(tm, pcm)
     dev_sure = sum(s for _, s in dev_neg)
-    print(f"dev: olumsuz {dev_sure / 3600:.2f} saat ({time.time() - t0:.0f} sn)", flush=True)
+    print(f"dev: olumsuz {dev_sure / 3600:.2f} saat + {len(dev_kar_ol)} karışan söyleyiş ({time.time() - t0:.0f} sn)",
+          flush=True)
     secim, en = None, None
     for y in yumusat:
         for eu in izgara_u:
             yu = sum(len([1 for _, o in O.SonIslem(eu, 0.5, y).olaylar(p) if o == 1]) for p, _ in dev_neg)
             yu_h = yu / (dev_sure / 3600)
+            kr, _ = karisan_olc(O.SonIslem(eu, 0.5, y).olaylar(dev_kar), dev_kar_ol)
             for ek in izgara_k:
                 ss = []
                 for p, dg in dev_poz:
                     ss += olumlu_olc(O.SonIslem(eu, ek, y).olaylar(p), dg)
                 oz = ozet_olumlu(ss)
                 puan = np.nan_to_num(oz["uctan_uca"]) - 0.5 * np.nan_to_num(oz["bos_pencerede_komut"])
-                if yu_h <= a.hedef_yu and (en is None or puan > en):
-                    en, secim = puan, dict(esik_uyan=eu, esik_komut=ek, yumusat=y, dev_yu_saat=yu_h, dev=oz)
+                if yu_h <= a.hedef_yu and kr <= a.hedef_karisan and (en is None or puan > en):
+                    en, secim = puan, dict(esik_uyan=eu, esik_komut=ek, yumusat=y, dev_yu_saat=yu_h, dev_karisan=kr,
+                                           dev=oz)
     if secim is None:
         secim = dict(esik_uyan=0.95, esik_komut=0.6, yumusat=5, dev_yu_saat=None, dev=None)
+        print("UYARI: dev hedefleri hiçbir eşikte tutmadı; en yüksek eşik kullanılıyor")
     print("dev'de seçilen:", json.dumps(secim, ensure_ascii=False, default=float), flush=True)
 
     # ---------------- sınama
@@ -256,7 +289,7 @@ def main():
         pcm, dg = olumlu_akis(sinama, kosul, a.deneme, 100 + i, sizinti_kaynagi)
         poz_p[kosul] = (olasiliklar(tm, pcm), dg)
     neg_p = {}
-    for i, tur in enumerate(["hikaye", "konusma", "gurultu", "karisik"]):
+    for i, tur in enumerate(["hikaye", "dogal", "gurultu", "karisik"]):
         pcm, ol = olumsuz_akis(sinama, tur, 200 + i, sure_s=1800 if tur == "gurultu" else None)
         neg_p[tur] = (olasiliklar(tm, pcm), len(pcm) / SR, ol)
     print(f"sınama akışları hazır ({time.time() - t0:.0f} sn)", flush=True)
@@ -309,6 +342,14 @@ def main():
                 m = [x for a_, b_, x in ol if a_ - 0.2 <= ts <= b_ + 0.8]
                 if m:
                     tetik[m[0]] = tetik.get(m[0], 0) + 1
+    pcm, kar_ol = olumsuz_akis(sinama, "karisan", 210)
+    kr, tablo = karisan_olc(si.olaylar(olasiliklar(tm, pcm)), kar_ol)
+    print(f"\nkarışan ifadeler (\"Merhaba\", \"Eko\", \"Merhaba Ece\" ...): {sum(v[1] for v in tablo.values())} söyleyişin "
+          f"%{100 * kr:.1f}'i uyandırdı")
+    kotu = sorted(((v[0] / v[1], k, v) for k, v in tablo.items() if v[0]), reverse=True)[:15]
+    if kotu:
+        print("en çok uyandıranlar: " + ", ".join(f"{k} {v[0]}/{v[1]}" for _, k, v in kotu))
+    sonuc["karisan"] = dict(oran=kr, tablo=tablo)
     if tetik:
         print("yanlış uyandıran ifadeler:", ", ".join(f"{k} x{v}" for k, v in sorted(tetik.items(), key=lambda x: -x[1])[:20]))
     sonuc["yanlis_uyandiran"] = tetik

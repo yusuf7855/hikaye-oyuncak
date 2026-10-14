@@ -6,7 +6,7 @@ konuşması) + %50 hoparlörden gelen hikâye sesi (küçük hoparlör benzetimi
 kırpılma, int16'ya yuvarlama.
 
 Kare etiketleri (saniyede 50 kare, kare zamanı = pencerenin SONU):
-  anahtar ifade [bas, son]: [bas, son-0.05) yok sayılır (-100), [son-0.05, son+0.30] sınıf, (son+0.30, son+0.60]
+  anahtar ifade [bas, son]: [bas, son-0.05) yok sayılır (-100; "Merhaba Eko"nun ilk %45'i KONUSMA), [son-0.05, son+0.30] sınıf, (son+0.30, son+0.60]
   yok sayılır; olumsuz konuşma: [bas, son+0.40] KONUSMA (komut sözcüğüyle başlıyorsa içi yok sayılır);
   geri kalan ARKA. Sonraki olay öncekinin kuyruğunu ezer ("Merhaba Eko" + "dur" -> önce UYANDIRMA, sonra DUR).
 """
@@ -182,6 +182,8 @@ class Sahne:
         w = np.array([0.30] + [0.70 / nk] * nk)
         self.sinif_w = w / w.sum()
         self.kare_t = (np.arange(self.T) * O.ADIM + O.PENCERE) / SR
+        self.karisan = [k for k in havuz["neg"] if IF.karisan_mi(k.metin)]
+        self.diger = [k for k in havuz["neg"] if not IF.karisan_mi(k.metin)] or havuz["neg"]
 
     # -- olay seçimi
     def _poz(self, rng, sinif):
@@ -192,9 +194,12 @@ class Sahne:
         return k
 
     def _neg(self, rng):
+        """Olumsuz olay: %40 karışan ifade ("Merhaba", "Eko", "Merhaba Ece" ...), %35 başka kısa söz, %25 cümle."""
         r = rng.random()
-        if r < 0.7 or not self.h["cumle"]:
-            return self.h["neg"][rng.integers(len(self.h["neg"]))]
+        if r < 0.4 and self.karisan:
+            return self.karisan[rng.integers(len(self.karisan))]
+        if r < 0.75 or not self.h["cumle"]:
+            return self.diger[rng.integers(len(self.diger))]
         return self.h["cumle"][rng.integers(len(self.h["cumle"]))]
 
     def _klip_ses(self, rng, k):
@@ -313,6 +318,8 @@ class Sahne:
         for bas, son, sn, ic_yok in olaylar:
             if sn >= 2:
                 lab[(kt >= bas) & (kt < son - 0.05)] = YOK
+                if sn == 2:  # "Merhaba Eko"nun ilk ~%45'i ("Merhaba") tek başına uyandırmamalı
+                    lab[(kt >= bas) & (kt < bas + 0.45 * (son - bas))] = 1
                 lab[(kt >= son - 0.05) & (kt <= son + 0.30)] = sn
                 lab[(kt > son + 0.30) & (kt <= son + 0.60)] = YOK
             else:

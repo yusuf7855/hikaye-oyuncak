@@ -119,3 +119,15 @@ def komutla_baslar(metin):
     ilk = "".join(ch for ch in s.split()[0] if ch.isalpha()) if s.split() else ""
     return ilk in _KOMUT_BASLARI or ilk.startswith(("dur", "sus", "devam", "hadi", "başka", "baska", "yine", "tekrar",
                                                     "sesi", "yüksek", "duyamıyor", "uykum", "yavaş"))
+
+
+def _norm(m):
+    return " ".join("".join(ch for ch in _kucuk(m) if ch.isalpha() or ch == " ").split())
+
+
+_KARISAN_N = {_norm(m) for m in KARISAN}
+
+
+def karisan_mi(metin):
+    """Metin KARISAN listesinden mi (noktalama/büyük-küçük harf farkı gözetilmez)?"""
+    return _norm(metin) in _KARISAN_N

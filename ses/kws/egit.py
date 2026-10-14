@@ -97,6 +97,7 @@ def main():
     ap.add_argument("--devam", action="store_true")
     ap.add_argument("--yalniz-qat", action="store_true", help="float.pt'den QAT aşamasına geç")
     ap.add_argument("--tohum", type=int, default=0)
+    ap.add_argument("--baslangic", default=None, help="float ağırlıkları bu kayıttan başlat (tam çizelge yeniden)")
     a = ap.parse_args()
     torch.set_num_threads(a.parcacik)
     torch.manual_seed(a.tohum)
@@ -139,6 +140,9 @@ def main():
             opt.load_state_dict(k["opt"])
         bas = k["adim"]
         yaz(f"float kaydından devam: adım {bas}")
+    if a.baslangic:
+        net.load_state_dict(torch.load(a.baslangic, map_location="cpu", weights_only=False)["model"])
+        yaz(f"başlangıç ağırlıkları: {a.baslangic}")
     if a.yalniz_qat:
         bas = a.adim
     net.train()

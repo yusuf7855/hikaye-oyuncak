@@ -149,9 +149,9 @@ def main():
             print(f"sınama aileleri, {kosul}: " + ", ".join(f"{k}={v:.3f}" if isinstance(v, float) else f"{k}={v}"
                                                          for k, v in oz.items()))
         if h["neg"]:
-            pcm, _ = G.olumsuz_akis(h, "konusma", 901)
+            pcm, _ = G.olumsuz_akis(h, "dogal", 901)
             ev = si.olaylar(G.olasiliklar(tm, pcm))
-            print(f"sınama aileleri, karışan/serbest konuşma: {sum(1 for _, o in ev if o == 1)} yanlış uyanma "
+            print(f"sınama aileleri, KONUSMA kayıtları: {sum(1 for _, o in ev if o == 1)} yanlış uyanma "
                   f"({len(pcm) / SR / 60:.1f} dk)")
 
 
