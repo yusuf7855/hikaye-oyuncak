@@ -28,8 +28,16 @@ import sec  # noqa: E402
 GEN = os.environ.get("GEN", os.path.join(ROOT, "gen"))
 KARTLAR = {k["kimlik"]: k for k in json.load(open(os.path.join(ROOT, "data", "urun_kartlari.json"),
                                                     encoding="utf-8"))["kartlar"]}
-# ürün modelinin verisi olan figürler (data/urun_v2/<kimlik>.txt)
-FIGURLER = [k for k in KARTLAR if os.path.exists(os.path.join(ROOT, "data", "urun_v2", f"{k}.txt"))]
+# Uyku modu figürü (kimlik 'gece', ad 'Ay Dede', kart grubu 'uyku'; data/urun_v4 ninni ve uyku masalı verisi): kartı
+# var ama paketteki ürün modeli onunla eğitilmedi, bu yüzden FIGURLER'de yok (firmware DONANIM_MODEL -1). Gece verisiyle
+# (data/urun_karma2) eğitilmiş model pakete girdiği anda True yapılır: 'gece' listenin SONUNA eklenir, öteki figürlerin
+# numaraları (istemler.h FIGUR_*) değişmez. Gece istemi tür alanını plan satırının ilk kelimesiyle taşır:
+# istem(..., tur='ninni') -> '...\nSorun: ninni,' (KILAVUZ_GECE.md).
+GECE_MODELDE = False
+# ürün modelinin verisi olan figürler (data/urun_v2/<kimlik>.txt) [+ gece, GECE_MODELDE ise]
+FIGURLER = [k for k in KARTLAR if os.path.exists(os.path.join(ROOT, "data", "urun_v2", f"{k}.txt"))] + \
+    (["gece"] if GECE_MODELDE and "gece" in KARTLAR else [])
+GECE_TUR_ONEK = {"ninni": "ninni,", "uyku_masali": "masal,"}
 NL, SATIR_YASAK, EOT = 199, [199, 9491], 0
 BOZUK_LP = -99.0
 
@@ -100,8 +108,11 @@ def suzgec_dosyasi(tok, adlar, yol):
     return yol
 
 
-def istem(tok, figur_ad, yer, yan):
+def istem(tok, figur_ad, yer, yan, tur=None):
+    """tur (yalnız gece figürü): 'ninni' | 'uyku_masali' -> plan sorununun ilk kelimesi istemde verilir."""
     bas = f"Karakter: {figur_ad} | Yer: {yer}" + (f" | Yan: {yan}" if yan else "") + "\nSorun:"
+    if tur:
+        bas += " " + GECE_TUR_ONEK[tur]
     return [EOT] + tok.encode(bas).ids
 
 

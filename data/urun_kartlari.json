@@ -1,6 +1,6 @@
 {
  "surum": 1,
- "aciklama": "Ürün figürlerinin kaynaklı kartları (11 etkin figür; data/urun_figurleri.json 'cikarilanlar' listesindeki figürlerin kartları durur ama kullanılmaz) (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları'). Hello Kitty kartı kullanıcı isteğiyle eklendi ve kullanıcı yetkisiyle onaylandı.",
+ "aciklama": "Ürün figürlerinin kaynaklı kartları (11 etkin figür; data/urun_figurleri.json 'cikarilanlar' listesindeki figürlerin kartları durur ama kullanılmaz) (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları'). Hello Kitty kartı kullanıcı isteğiyle eklendi ve kullanıcı yetkisiyle onaylandı. Gece figürü Ay Dede'nin kartı (kimlik 'gece', grup 'uyku') ürün tanımındaki uyku modu için eklendi (urun_v4 ninni ve uyku masalı verisi; data/urun_figurleri.json 'uyku').",
  "sema": {
   "olgu": "{'deger': ..., 'kaynak': [kaynak kimliği, ...]} ; ek alanlar: 'onay_bekliyor', 'not_'",
   "yer.dizide_karsiligi": "dogrulandi | kismen | dogrulanmadi | yok | urun_tanimi",
@@ -687,6 +687,24 @@
     "Hello Kitty's Paradise cast: Melissa Fahn - Hello Kitty; Laura Summer - Mimmy; Jennifer Darling - Mama; Tony Pope - Papa",
     "Supercute Adventures episodes: Happy Campers; Hello Kitty's Apple Pie Surprise; Hello Kitty's Summer Camp Adventures; Hello Kitty's Picnic"
    ]
+  },
+  "urun_tanimi_uyku": {
+   "tur": "urun",
+   "baslik": "Ürün tanımı: Uyku modu, gece figürü Ay Dede (nfc_no 12; ninni ve uyku masalı)",
+   "dosya": "docs/URUN_TANIMI.md",
+   "erisim": "2026-10-14"
+  },
+  "figur_donanim": {
+   "tur": "urun",
+   "baslik": "Figür donanım listesi: gece figürü (kimlik gece, ad Ay Dede, mod uyku)",
+   "dosya": "data/figur_donanim.json",
+   "erisim": "2026-10-14"
+  },
+  "gece_kilavuzu": {
+   "tur": "urun",
+   "baslik": "Uyku modu yazım kılavuzu: ninni ve uyku masalı (Ay Dede)",
+   "dosya": "degerlendirme/KILAVUZ_GECE.md",
+   "erisim": "2026-10-14"
   }
  },
  "kartlar": [
@@ -6693,6 +6711,956 @@
    },
    "kararlar": [
     "İsimsiz yan hayvanlar konuşur (kullanıcı kararı 3)."
+   ]
+  },
+  {
+   "kimlik": "gece",
+   "grup": "uyku",
+   "onayli": true,
+   "ad": {
+    "deger": "Ay Dede",
+    "kaynak": [
+     "urun_tanimi_uyku",
+     "figur_donanim"
+    ]
+   },
+   "okunus": {
+    "deger": "ay dede",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "uyku modu figürü (gece figürü)",
+    "kaynak": [
+     "urun_tanimi_uyku",
+     "figur_donanim"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Ay Dede, gökyüzünden uyuyan çocuklara ve hayvanlara tatlı tatlı bakan, yumuşak ışıklı ve sakin bir aydır.",
+    "kaynak": [
+     "urun_tanimi_uyku",
+     "gece_kilavuzu"
+    ]
+   },
+   "tur": {
+    "deger": "ay",
+    "kaynak": [
+     "urun_tanimi_uyku",
+     "gece_kilavuzu"
+    ],
+    "lemmalar": [
+     "ay",
+     "dede"
+    ],
+    "not_": "Ay Dede gökteki aydır; 'dede' adının parçasıdır, ayrı bir dede karakteri yoktur."
+   },
+   "ozellikler": [
+    {
+     "deger": "Gece her yere yumuşak, gümüş bir ışık verir.",
+     "anahtar_kok": "ışık",
+     "anahtar_ifade": "\\bışı[kğ]\\w*|\\baydınlat\\w*",
+     "ornek_bicimler": [
+      "ışık",
+      "ışığı",
+      "ışığıyla",
+      "aydınlattı"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "deger": "Uyumak isteyenlere yavaşça ninni fısıldar.",
+     "anahtar_kok": "fısılda",
+     "anahtar_ifade": "\\bfısıld\\w*|\\bfısıltı\\w*",
+     "ornek_bicimler": [
+      "fısıldadı",
+      "fısıldıyor",
+      "fısıltıyla"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "deger": "Uyuyanlara gökten tatlı tatlı gülümser.",
+     "anahtar_kok": "gülümse",
+     "anahtar_ifade": "\\bgülüms\\w*",
+     "ornek_bicimler": [
+      "gülümsedi",
+      "gülümsüyor",
+      "gülümseyerek"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Ay Dede yalnız gökten bakar, ışık verir, fısıldar ve gülümser; yere inmez, kimseyi bir yere götürmez. Çocuk gece evden çıkmaz; yatağından ya da pencerenin içinden bakar. Kimse suya girmez, kimse yükseğe çıkmaz.",
+    "kaynak": [
+     "urun_tanimi_uyku",
+     "gece_kilavuzu"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "gökyüzü",
+     "tarif": "Ay Dede'nin bulunduğu gece göğü; yıldızlar ve yumuşak bulutlar vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi_uyku"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Köy evinin gece bahçesi; çimenler, çiçekler ve küçük yuvalar vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Gece sessiz orman; ağaçlarda yuvalar vardır, yapraklar yavaşça sallanır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Çocuğun odası; yumuşak bir yatak, yastık, battaniye ve pencere vardır. Ay ışığı pencereden içeri girer.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi_uyku"
+     ]
+    },
+    {
+     "etiket": "deniz",
+     "tarif": "Gece deniz kıyısı; kum, sakin dalgalar ve ay ışığının sudaki yolu vardır. Herkes kumda kalır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:cocuk",
+     "kisa_ad": "çocuk",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "çocuk"
+     ],
+     "iliski": {
+      "deger": "Odasında uyumaya hazırlanan küçük çocuk; Ay Dede ona pencereden bakar.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "çocuk",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:anne",
+     "kisa_ad": "annesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "anne",
+      "annesi",
+      "Anne"
+     ],
+     "iliski": {
+      "deger": "Çocuğun annesi; onu yatağına yatırır ve üstünü örter.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "eslik"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:baba",
+     "kisa_ad": "babası",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "baba",
+      "babası",
+      "Baba"
+     ],
+     "iliski": {
+      "deger": "Çocuğun babası; ona iyi geceler der ve ışığı kapatır.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "baba",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "eslik"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:kedi",
+     "kisa_ad": "kedi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kedi"
+     ],
+     "iliski": {
+      "deger": "Evde ya da bahçede uyuyan küçük, tüylü bir kedi yavrusu.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:kuzu",
+     "kisa_ad": "kuzu",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuzu"
+     ],
+     "iliski": {
+      "deger": "Bahçede çimenlerin üstünde uyuyan küçük, beyaz bir kuzu.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "kuzu",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:civciv",
+     "kisa_ad": "civciv",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "civciv"
+     ],
+     "iliski": {
+      "deger": "Bahçedeki yuvada uyuyan sarı, minik bir civciv.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "civciv",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:tavsan",
+     "kisa_ad": "tavşan",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "tavşan"
+     ],
+     "iliski": {
+      "deger": "Yuvasında uyuyan uzun kulaklı, küçük bir tavşan.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "tavşan",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe",
+       "orman"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Ağaçtaki yuvasında uyuyan küçük bir sincap.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Yaprakların altında uyuyan küçük bir kirpi.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:baykus",
+     "kisa_ad": "baykuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "baykuş"
+     ],
+     "iliski": {
+      "deger": "Gece uyanık kalan bilge baykuş; dalından uyuyanlara bakar.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "baykuş",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "eslik"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:marti",
+     "kisa_ad": "martı",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "martı"
+     ],
+     "iliski": {
+      "deger": "Kıyıdaki büyük bir taşın üstünde uyuyan küçük bir martı.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "martı",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "deniz"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:kaplumbaga",
+     "kisa_ad": "kaplumbağa",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kaplumbağa"
+     ],
+     "iliski": {
+      "deger": "Kumun üstünde uyuyan küçük bir kaplumbağa.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "kaplumbağa",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "deniz"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:yildiz",
+     "kisa_ad": "yıldız",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "yıldız"
+     ],
+     "iliski": {
+      "deger": "Ay Dede'nin yanında parlayan küçük bir yıldız; gece ilerleyince onun da uykusu gelir.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "yıldız",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "gökyüzü"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan",
+      "eslik"
+     ]
+    },
+    {
+     "yan_kimlik": "yan:bulut",
+     "kisa_ad": "bulut",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "bulut"
+     ],
+     "iliski": {
+      "deger": "Gökte yavaşça süzülen yumuşak, küçük bir bulut; yorulunca uyur.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "tur": {
+      "deger": "bulut",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "gökyüzü"
+      ],
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ],
+      "not_": "Yan yalnız bu yerlerde bulunur (tohum üretimi bu yerlerle eşler)."
+     },
+     "uyku_rolu": [
+      "uyuyan"
+     ]
+    }
+   ],
+   "isimsiz_yan_notu": "Yanlar adsızdır ve tür adıyla anılır (kuzu, tavşan, küçük yıldız). Hikayede yalnız tohumdaki yanlar tekil geçer; öteki canlılar yalnız çoğul ve arka planda (uyuyan kuşlar) geçer.",
+   "dunya_kurallari": [
+    {
+     "kural": "Ay Dede gökte kalır; yere inmez, yürümez, koşmaz ve kimseyi bir yere götürmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\bAy Dede(?:'[a-zçğıöşü]+)?\\s+(?:[a-zçğıöşü]+\\s+){0,2}(?:indi|iniyor|yürüdü|yürüyor|koştu|koşuyor|götürdü|götürüyor)\\b"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "kural": "Gece kimse dışarı çıkmaz ve tek başına dolaşmaz; çocuk yatağında ya da pencerenin içinde kalır.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Dd]ışarı|[Dd]ışarıya|[Ss]okağa|[Bb]ahçeye|[Oo]rmana)\\s+(?:çıktı|çıkıyor|çıkmış|gitti|koştu)\\w*",
+      "\\b[Tt]ek\\s+başına\\b",
+      "\\b[Pp]encereden\\s+(?:sarkt|eğild|atla|çıkt|dışarı)\\w*"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "kural": "Kimse suya girmez; deniz yalnız kıyıdan dinlenir.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Ss]uya|[Dd]enize)\\s+(?:girdi|giriyor|atladı|daldı|yüzdü)\\w*"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "kural": "Mum, ateş ve ocak yoktur; ışığı Ay Dede ve yıldızlar verir.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Mm]um(?:u|un|a|da|lar[a-zçğıöşü]*)?\\b",
+      "\\b[Aa]teş(?!böce)[a-zçğıöşü]*",
+      "\\b[Oo]cağ[a-zçğıöşü]*|\\b[Oo]cak\\b"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    },
+    {
+     "kural": "Korkutma ve tehdit yoktur: uyumayana bir şey olacağı söylenmez, kimse bir şeyle korkutulmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Uu]yumazsa[a-zçğıöşü]*",
+      "\\b[Yy]oksa\\b",
+      "\\bgelir\\s+seni\\b"
+     ],
+     "kaynak": [
+      "urun_tanimi_uyku",
+      "gece_kilavuzu"
+     ]
+    }
+   ],
+   "kural_ornekleri": [
+    [
+     "Ay Dede yere indi.",
+     "Ay Dede kuzuyu eve götürdü.",
+     "Çocuk bahçeye çıktı.",
+     "Tavşan tek başına dolaştı.",
+     "Çocuk pencereden sarktı.",
+     "Kaplumbağa denize girdi.",
+     "Martı suya daldı.",
+     "Annesi bir mum yaktı.",
+     "Ateş yandı.",
+     "Uyumazsan öcü gelir.",
+     "Uyu yoksa kurt gelir."
+    ],
+    [
+     "Ay Dede gökten baktı.",
+     "Ay Dede usulca gülümsedi.",
+     "Çocuk pencereden baktı.",
+     "Kuzu bahçede uyudu.",
+     "Tavşan yuvasına girdi.",
+     "Kaplumbağa kumda uyudu.",
+     "Dalgalar usulca kıyıya geldi.",
+     "Ay Dede ışık verdi.",
+     "Ateşböcekleri parladı.",
+     "Uyu yavrum, uyu.",
+     "Kuzu uykuya daldı."
+    ]
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": [
+     {
+      "deger": "Başka figürler, onların arkadaşları ve adlı karakterler hikayeye girmez.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     {
+      "deger": "Korku, karanlık korkusu, canavar, kaybolmak, kaza, ağlamak, fırtına ve tehdit yoktur.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     },
+     {
+      "deger": "Çocuk gece dışarı çıkmaz; kimse suya girmez, kimse yükseğe tırmanmaz, mum ya da ateş yakılmaz.",
+      "kaynak": [
+       "urun_tanimi_uyku",
+       "gece_kilavuzu"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "yavru"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Küçük çocuk",
+     "kart": [
+      "yan:cocuk"
+     ]
+    },
+    {
+     "urun": "Annesi",
+     "kart": [
+      "yan:anne"
+     ]
+    },
+    {
+     "urun": "Babası",
+     "kart": [
+      "yan:baba"
+     ]
+    },
+    {
+     "urun": "Yavru kedi",
+     "kart": [
+      "yan:kedi"
+     ]
+    },
+    {
+     "urun": "Kuzu",
+     "kart": [
+      "yan:kuzu"
+     ]
+    },
+    {
+     "urun": "Civciv",
+     "kart": [
+      "yan:civciv"
+     ]
+    },
+    {
+     "urun": "Tavşan",
+     "kart": [
+      "yan:tavsan"
+     ]
+    },
+    {
+     "urun": "Sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "Kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    },
+    {
+     "urun": "Baykuş",
+     "kart": [
+      "yan:baykus"
+     ]
+    },
+    {
+     "urun": "Martı",
+     "kart": [
+      "yan:marti"
+     ]
+    },
+    {
+     "urun": "Kaplumbağa",
+     "kart": [
+      "yan:kaplumbaga"
+     ]
+    },
+    {
+     "urun": "Küçük yıldız",
+     "kart": [
+      "yan:yildiz"
+     ]
+    },
+    {
+     "urun": "Küçük bulut",
+     "kart": [
+      "yan:bulut"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "kararlar": [
+    "Ay Dede bir mod figürüdür (hikaye karakteri değil): grup 'uyku', kimlik donanım kimliği 'gece' (urun_kayit.OZEL_KIMLIK).",
+    "Yanlar yalnız genel ve güvenli karakterlerdir: uyuyan hayvan yavruları, küçük yıldız, küçük bulut, baykuş ve evde çocuk, annesi, babası. Adlı karakter yoktur; başka figürlerin adları yasaktır (K4).",
+    "Uyku rolü: 'uyuyan' yan metnin uykuya dalan kahramanıdır; 'eslik' yan (baykuş, annesi, babası, yıldız) uyanık kalıp eşlik eder. Tohum en çok bir uyuyan ve bir eşlikçi verir.",
+    "Dinleyen çocuğa ninnide 'yavrum' diye seslenilir ('yavru' izinli dünya kökü); 'kuzum' yalnız kuzu tohumunda geçer.",
+    "Metin türleri: ninni (ritimli, tekrarlı dizeler) ve uyku masalı (çok sakin kısa masal); tür plan satırının ilk kelimesidir: 'ninni, ...' ya da 'masal, ...' (degerlendirme/KILAVUZ_GECE.md)."
    ]
   }
  ]

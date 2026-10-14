@@ -36,6 +36,21 @@ Kapılar (kod: açıklama; ayrıntı docs/KUSURSUZ_VERI.md):
   K11 kimlik/sürüm    'urun/<figür>#sha1[:10]'; beklenen sha1 tutmalı; kart onaylı olmalı (--taslak-kart ile
                       geçici izin, sonuçta 'taslak_kart': true); sözlük/tokenizer eşleşmesi; bileşen sha256'ları
   K12 kota            Aşama 1'de: KotaSayaci arayüzü
+GECE (uyku modu figürü Ay Dede; kart grubu 'uyku'; degerlendirme/KILAVUZ_GECE.md): öteki figürlerin kuralları değişmez.
+  Tür (ninni | uyku_masali) tohumun 'tur' alanından, tohum yoksa plan satırının ilk kelimesinden ('ninni,' | 'masal,').
+  K1  plan sorunu 'ninni, ' ya da 'masal, ' ile başlar ve tohum türüyle tutar; ninnide tırnak yok; 'o gece' ve
+      'sabaha kadar' zaman atlaması sayılmaz
+  K2  gövde 50–100 kelime; ninni 8–14 dize (dize = cümle; büyük harfle başlar, . ! ? ile biter)
+  K3  ninnide nadir/çok nadir kelime yalnız kökü de sık kök listesinde olmayandır (şimdiki ve dilek kipi çekimleri
+      ön eğitimde seyrek); az görülmüş token denetimi aynen
+  K4  son 2 cümlede uyku (uyu-, uyku, mışıl, rüya); son cümle tohumun gece kapanış türüne uyar (uyudu, iyi_geceler,
+      ruya, nakarat)
+  K5  ninnide zaman kuralı yok (ninni şimdiki ve dilek kipiyle söylenir); uyku masalı -dı'lı anlatılır
+  K6  not: hızlı ya da hareketli fiil (koş-, zıpla-, hızla, yarış, kahkaha)
+  K7  ek liste: korku, karanlık, kabus, kötü rüya, kaybolmak, kaza, ağlamak, bağırmak, fırtına, korkutucu varlık
+      (canavar, öcü, umacı, hayalet, cadı, kurt), düşmek, tırmanmak, kaçmak/kovalamak, yalnız kalmak
+  K8  ninni: aynı dize en çok 3 kez (nakarat), farklı dize oranı >= %60, 3-gram tekrarı <= 10, 'ninni' >= 2 kez,
+      aynı kelime art arda en çok 2 kez; X ve X ret. Uyku masalı: öteki figürlerle aynı.
 
 Kullanım: .venv/bin/python degerlendirme/kapi.py denetle <yazar dosyası> --tohum <tohum.jsonl> [--havuz <jsonl>]
                 [--taslak-kart] [--json]
@@ -141,6 +156,39 @@ K7_SAGLIK = [
     (re.compile(r"\bmide\w*\s+bulan\w*"), "midesi bulandı"),
     (re.compile(r"\bburn(?:u|um|un)\s+ak(?:ıyor|tı|ar|mış|ıyordu|mıştı)\w*"), "burnu akıyor"),
 ]
+# ---------------------------------------------------------------- GECE (uyku modu; KILAVUZ_GECE.md)
+GECE_ESIK = {"kelime": (50, 100), "ninni_dize": (8, 14), "nakarat": 3, "farkli_dize": 0.6, "ninni_uclu": 10,
+             "ninni_kelimesi": 2}
+GECE_PLAN_ONEK = {"ninni": "ninni, ", "uyku_masali": "masal, "}
+GECE_UYKU = re.compile(r"(?<![a-zçğıöşü])(?:uyu\w*|uyku\w*|mışıl|rüya\w*)")
+GECE_KAPANIS = {
+    "uyudu": (GECE_UYKU, "son cümlede uyku (uyudu, uykuya daldı, mışıl mışıl)"),
+    "iyi_geceler": (re.compile(r"iyi\s+geceler"), "son cümle 'iyi geceler' dileği"),
+    "ruya": (re.compile(r"(?<![a-zçğıöşü])rüya\w*"), "son cümlede rüya"),
+    "nakarat": (re.compile(r"(?<![a-zçğıöşü])ninni\w*"), "son dize nakarat ('ninni' geçer)"),
+}
+K7_GECE = [
+    (re.compile(r"(?<![a-zçğıöşü])kork\w*"), "korku"),
+    (re.compile(r"(?<![a-zçğıöşü])karanlı\w*"), "karanlık"),
+    (re.compile(r"(?<![a-zçğıöşü])kabus\w*|(?<![a-zçğıöşü])kötü\s+rüya\w*"), "kabus / kötü rüya"),
+    (re.compile(r"(?<![a-zçğıöşü])kaybol\w*|(?<![a-zçğıöşü])kayıp\w*"), "kaybolmak"),
+    (re.compile(r"(?<![a-zçğıöşü])kaza(?:dan|ya|da|yı|sı|lar\w*)?(?![a-zçğıöşü])"), "kaza"),
+    (re.compile(r"(?<![a-zçğıöşü])ağla\w*|(?<![a-zçğıöşü])ağlı(?:yor|yordu|yorlar)\w*"), "ağlamak"),
+    (re.compile(r"(?<![a-zçğıöşü])bağır\w*|(?<![a-zçğıöşü])çığlık\w*"), "bağırmak"),
+    (re.compile(r"(?<![a-zçğıöşü])fırtına\w*|(?<![a-zçğıöşü])gök\s+gürült\w*|(?<![a-zçğıöşü])şimşek\w*"
+                r"|(?<![a-zçğıöşü])yıldırım\w*"), "fırtına"),
+    (re.compile(r"(?<![a-zçğıöşü])(?:canavar|öcü|umacı|hayalet|cadı)\w*"
+                r"|(?<![a-zçğıöşü])kurt(?:lar|ları|lar[a-zçğıöşü]+|u|un|a|tan)?(?![a-zçğıöşü])"), "korkutucu varlık"),
+    (re.compile(r"(?<![a-zçğıöşü])düş(?:tü|tüm|tün|tük|üyor\w*|ecek\w*|me|mesin|mez|en|er|üp|müş\w*)"
+                r"(?![a-zçğıöşü])"), "düşmek"),
+    (re.compile(r"(?<![a-zçğıöşü])tırman\w*"), "tırmanmak"),
+    (re.compile(r"(?<![a-zçğıöşü])(?<!uykusu )(?<!uykum )(?<!uykun )(?:kaçt[ıi]\w*|kaçıyor\w*)"   # 'uykusu kaçtı' serbest
+                r"|(?<![a-zçğıöşü])kovala\w*"), "kaçmak / kovalamak"),
+    (re.compile(r"(?<![a-zçğıöşü])yalnız\s+kal\w*"), "yalnız kalmak"),
+]
+GECE_TEMPO = re.compile(r"(?<![a-zçğıöşü])(?:koş(?:tu|uyor|arak|tular)\w*|zıpla\w*|hızla|yarış\w*|kahkaha\w*)")
+
+
 # sec.cezalar/olay_cezalari'nın kart adlarıyla çalışan hâli (K8) için
 DIMINUTIF = re.compile(r"^(.+?)(?:c|ç)(?:ı|i|u|ü)(?:k|ğ)(?:ım|im|um|üm|ı|i|u|ü|lar|ler)?\w*$")
 GENEL_ILISKI = {"arkadaş", "dost"}        # tohumda yan varsa o yana dönük sayılır
@@ -182,6 +230,7 @@ class Baglam:
         with open(FIGUR, encoding="utf-8") as f:
             fig = json.load(f)
         self.figurler = [f["ad"] for f in fig["populer"] + fig["temel"]]
+        self.mod_figurleri = [f["ad"] for f in fig.get("uyku", [])]      # gece figürü (Ay Dede): hikâye figürü değil
         self.cikarilanlar = list(fig["cikarilanlar"])
         with open(ESKI_FIGUR, encoding="utf-8") as f:
             self.eski = [k["isim"] for k in json.load(f)["karakterler"]]
@@ -352,12 +401,31 @@ def _not(liste, kod, mercek, aciklama):
     liste.append({"kod": kod, "mercek": mercek, "aciklama": aciklama})
 
 
+# ---------------------------------------------------------------- GECE: tür
+
+def gece_mi(kayit, bg):
+    """Figür uyku modu figürü mü (kart grubu 'uyku': Ay Dede)."""
+    k = bg.kartlar.get(kayit.get("figur"))
+    return k is not None and k.get("grup") == "uyku"
+
+
+def gece_turu(kayit, tohum, bg):
+    """None (öteki figürler) ya da 'ninni' | 'uyku_masali' | '?' (tür belirlenemedi; K1 reddeder). Tohumun 'tur'
+    alanı önce gelir; tohum yoksa plan sorununun ilk kelimesi ('ninni,' | 'masal,')."""
+    if not gece_mi(kayit, bg):
+        return None
+    if tohum and tohum.get("tur") in GECE_PLAN_ONEK:
+        return tohum["tur"]
+    sorun = kucuk(kayit.get("sorun") or "")
+    return next((t for t, onek in GECE_PLAN_ONEK.items() if sorun.startswith(onek)), "?")
+
+
 # ---------------------------------------------------------------- K1
 
-def k1(blok, kayit, tohum, bg, ih):
+def k1(blok, kayit, tohum, bg, ih, gece=None):
     for h in blok.get("bicim_hatalari", []):
         _ihlal(ih, "K1.bicim", h)
-    if kayit["figur"] not in bg.figurler:
+    if kayit["figur"] not in bg.figurler and kayit["figur"] not in bg.mod_figurleri:
         _ihlal(ih, "K1.figur", f"figür etkin ürün figürlerinden biri değil: {kayit['figur']!r}")
         return
     if kayit["figur"] not in bg.kartlar:
@@ -403,21 +471,35 @@ def k1(blok, kayit, tohum, bg, ih):
         _ihlal(ih, "K1.son", f"tırnakla biten son cümle noktalamasız: {g[-15:]!r}")
     metin = kucuk(f"{kayit['sorun']} {kayit['cozum']} {g}")
     for desen, ad in ZAMAN_ATLAMA:
-        m = desen.search(metin)
-        if m:
+        for m in desen.finditer(metin):
+            if gece and (ad == "o gece" or m.group(0).startswith("sabaha")):
+                continue                # uyku modu: tek gece; 'o gece' ve 'sabaha kadar (uyudu)' atlama değil
             _ihlal(ih, "K1.zaman", f"zaman atlaması ({ad}): {m.group(0)!r}")
+            break
+    if gece:
+        sorun = kucuk(kayit["sorun"] or "")
+        if gece == "?":
+            _ihlal(ih, "K1.gece_tur", f"plan sorunu 'ninni, ' ya da 'masal, ' ile başlamalı: {sorun[:40]!r}")
+        elif not sorun.startswith(GECE_PLAN_ONEK[gece]):
+            _ihlal(ih, "K1.gece_tur", f"tür {gece}: plan sorunu {GECE_PLAN_ONEK[gece].strip()!r} ile başlamalı: "
+                                      f"{sorun[:40]!r}")
+        if gece == "ninni" and '"' in g:
+            _ihlal(ih, "K1.ninni_tirnak", "ninnide tırnak ve konuşma yok")
 
 
 # ---------------------------------------------------------------- K2
 
-def k2(kayit, bg, ih, rapor):
+def k2(kayit, bg, ih, rapor, gece=None):
     g = kayit["govde"]
     n = len(g.split())
     rapor["kelime"] = n
-    if not ESIK["kelime"][0] <= n <= ESIK["kelime"][1]:
-        _ihlal(ih, "K2.uzunluk", f"gövde {n} kelime (70–100)")
+    alt, ust = GECE_ESIK["kelime"] if gece else ESIK["kelime"]
+    if not alt <= n <= ust:
+        _ihlal(ih, "K2.uzunluk", f"gövde {n} kelime ({alt}–{ust})")
     cs = uk.cumleler(g)
     rapor["cumle"] = len(cs)
+    if gece == "ninni" and not GECE_ESIK["ninni_dize"][0] <= len(cs) <= GECE_ESIK["ninni_dize"][1]:
+        _ihlal(ih, "K2.ninni_dize", f"ninni {len(cs)} dize (8–14; her dize büyük harfle başlar, . ! ? ile biter)")
     for i, c in enumerate(cs, 1):
         nk = len([t for t in c.split() if re.search(rf"[{H}0-9]", t)])
         if nk > ESIK["cumle_kelime"]:
@@ -466,10 +548,16 @@ def az_token(bg, kayit, haric, esik):
             if say[i] < esik and i not in ad_tok and any(s < b and e > a for a, b in alanlar)]
 
 
-def k3(kayit, bg, ih, rapor):
+def k3(kayit, bg, ih, rapor, gece=None):
     haric = haric_listesi(kayit, bg)
     metin = f"{kayit['sorun']} {kayit['cozum']} {kayit['govde']}"
     o = bg.sozluk.olc(metin, haric=haric, token=False)
+    if gece == "ninni":
+        # ninni şimdiki ve dilek kipiyle söylenir ('uyutuyor', 'esniyor', 'uyusun'); bu çekimler geçmiş zamanlı
+        # ön eğitim metninde seyrektir. Ninnide nadir sayılan kelime, KÖKÜ de sık kök listesinde olmayandır (sade
+        # kelime kuralı kökte); az görülmüş token denetimi (K3.az_token) aynen uygulanır.
+        o = {**o, "nadir": [w for w in o["nadir"] if bg.kok(w) not in bg.sozluk.sik],
+             "cok_nadir": [w for w in o["cok_nadir"] if bg.kok(w) not in bg.sozluk.sik]}
     rapor.update({"nadir": o["nadir"], "cok_nadir": o["cok_nadir"], "liste_disi": o["liste_disi"]})
     if len(o["nadir"]) > ESIK["nadir"]:
         _ihlal(ih, "K3.nadir", f"tr-tinystories'te 20'den az geçen {len(o['nadir'])} kelime (<= 2): {o['nadir']}")
@@ -675,7 +763,7 @@ def _lemma_var(lemma, govde, bg):
     return False
 
 
-def k4(blok, kayit, tohum, bg, ih, nt):
+def k4(blok, kayit, tohum, bg, ih, nt, gece=None):
     if kayit["figur"] not in bg.kartlar:
         return
     d = bg.dunya(kayit["figur"])
@@ -738,6 +826,16 @@ def k4(blok, kayit, tohum, bg, ih, nt):
         _ihlal(ih, "K4.figur_bas", f"{d.ad} ilk 2 cümlede yok")
     if not ad_d.search(g[int(len(g) * 0.6):]):
         _ihlal(ih, "K4.figur_son", f"{d.ad} son %40'ta yok")
+    if gece:
+        if not GECE_UYKU.search(kucuk(" ".join(cs[-2:]))):
+            _ihlal(ih, "K4.gece_uyku", "son 2 cümlede uyku yok (uyu-, uyku, mışıl, rüya): metin herkes uyurken biter")
+        kap = (tohum or {}).get("kapanis")
+        if kap in GECE_KAPANIS:
+            desen, tarif = GECE_KAPANIS[kap]
+            son = kucuk(cs[-1]) if cs else ""
+            onceki = {re.sub(rf"[^{H} ]", "", kucuk(c)).strip() for c in cs[:-1]}
+            if not (desen.search(son) or (kap == "nakarat" and re.sub(rf"[^{H} ]", "", son).strip() in onceki)):
+                _ihlal(ih, "K4.gece_kapanis", f"kapanış {kap}: {tarif} değil: {cs[-1][:50]!r}")
     # kartın yasak düzenli ifadeleri (plan ve gövde)
     for kural, desen in d.kurallar:
         for alan in (kayit["sorun"], kayit["cozum"], g):
@@ -923,7 +1021,7 @@ def zaman_ihlalleri(govde, bg):
     return sonuc
 
 
-def k5(kayit, bg, ih, nt, atlanan, bilinmeyen):
+def k5(kayit, bg, ih, nt, atlanan, bilinmeyen, gece=None):
     g = kayit["govde"]
     d = bg.dunya(kayit["figur"]) if kayit["figur"] in bg.kartlar else None
     # (a) Zemberek çözümlemesi
@@ -954,15 +1052,22 @@ def k5(kayit, bg, ih, nt, atlanan, bilinmeyen):
     # (c) sertleşme
     for m in sertlesme_hatalari(f"{kayit['sorun']} {kayit['cozum']} {g}", bg):
         _ihlal(ih, "K5.sertlesme", f"sertleşme: {m}")
-    # (d) zaman kuralı
+    # (d) zaman kuralı (ninni şimdiki ve dilek kipiyle söylenir: 'Uyusun da büyüsün')
+    if gece == "ninni":
+        atlanan.append({"kod": "K5.zaman", "neden": "ninni (uyku modu)"})
+        return
     for w, s, c in zaman_ihlalleri(g, bg):
         _ihlal(ih, "K5.zaman", f"tırnak dışı yüklem -dı'lı değil ({s}): {w!r} — {c[:60]!r}")
 
 
 # ---------------------------------------------------------------- K6 (not)
 
-def k6(kayit, bg, nt):
+def k6(kayit, bg, nt, gece=None):
     g = kayit["govde"]
+    if gece:
+        hizli = sorted({m.group(0) for m in GECE_TEMPO.finditer(kucuk(g))})
+        if hizli:
+            _not(nt, "K6.gece_tempo", "M", f"uyku metninde hızlı ya da hareketli fiil: {hizli[:3]}")
     for m in re.finditer(rf"([{BUYUK}][{H}]+)'([dt][ae])\s+([{HARF}]+)", g):
         if bg.kok(m.group(3)).endswith("-"):
             _not(nt, "K6.bitisik_de", "D", f"bitişik de/da olabilir: {m.group(0)!r}")
@@ -1011,11 +1116,17 @@ def guvenlik_eslesmeleri(metin, d=None):
             if not any(a <= m.start() and m.end() <= b for a, b in izin)]
 
 
-def k7(kayit, bg, ih):
+def k7(kayit, bg, ih, gece=None):
     d = bg.dunya(kayit["figur"]) if kayit["figur"] in bg.kartlar else None
     for alan in (kayit["sorun"], kayit["cozum"], kayit["govde"]):
         for tur, ad, es in guvenlik_eslesmeleri(alan, d):
             _ihlal(ih, f"K7.{tur}", f"{ad}: {es!r}")
+        if gece:
+            low = kucuk(alan or "")
+            for desen, ad in K7_GECE:
+                m = desen.search(low)
+                if m:
+                    _ihlal(ih, "K7.gece", f"uyku metninde {ad}: {m.group(0)!r}")
 
 
 # ---------------------------------------------------------------- K8
@@ -1044,26 +1155,45 @@ def konusmacilar(govde, adlar):
     return out
 
 
-def k8(kayit, bg, ih):
+def k8(kayit, bg, ih, gece=None):
     g = kayit["govde"]
     cs = uk.cumleler(g)
     norm = [re.sub(rf"[^{H} ]", "", kucuk(c)).strip() for c in cs]
-    tekrar = [c for c, n in collections.Counter(norm).items() if n > 1 and c]
-    if tekrar:
-        _ihlal(ih, "K8.ayni_cumle", f"aynı cümle iki kez: {tekrar[0][:50]!r}")
+    say = collections.Counter(c for c in norm if c)
     kel = re.findall(r"[a-zçğıöşüâîû]+", kucuk(g))
     uclu = [tuple(kel[i:i + 3]) for i in range(len(kel) - 2)]
     n_tekrar = len(uclu) - len(set(uclu))
-    if n_tekrar > ESIK["uclu_tekrar"]:
-        en = collections.Counter(uclu).most_common(1)[0][0]
-        _ihlal(ih, "K8.uclu", f"3-gram tekrarı {n_tekrar} (<= 2), en sık: {' '.join(en)!r}")
+    if gece == "ninni":
+        # ninni tekrarla ilerler: nakarat dizesi en çok 3 kez, dizelerin en az %60'ı farklı, 'ninni' en az 2 kez
+        en_cok = max(say.values(), default=0)
+        if en_cok > GECE_ESIK["nakarat"]:
+            _ihlal(ih, "K8.ayni_cumle", f"aynı dize {en_cok} kez (nakarat en çok {GECE_ESIK['nakarat']}): "
+                                        f"{say.most_common(1)[0][0][:50]!r}")
+        if norm and len(set(norm)) / len(norm) < GECE_ESIK["farkli_dize"]:
+            _ihlal(ih, "K8.ninni_cesit", f"farklı dize oranı %{100 * len(set(norm)) / len(norm):.0f} (>= %60)")
+        if n_tekrar > GECE_ESIK["ninni_uclu"]:
+            en = collections.Counter(uclu).most_common(1)[0][0]
+            _ihlal(ih, "K8.uclu", f"3-gram tekrarı {n_tekrar} (ninnide <= {GECE_ESIK['ninni_uclu']}), en sık: "
+                                  f"{' '.join(en)!r}")
+        n_ninni = sum(1 for w in kel if w.startswith("ninni"))
+        if n_ninni < GECE_ESIK["ninni_kelimesi"]:
+            _ihlal(ih, "K8.ninni_nakarat", f"'ninni' {n_ninni} kez (en az {GECE_ESIK['ninni_kelimesi']}; nakarat)")
+    else:
+        tekrar = [c for c, n in say.items() if n > 1]
+        if tekrar:
+            _ihlal(ih, "K8.ayni_cumle", f"aynı cümle iki kez: {tekrar[0][:50]!r}")
+        if n_tekrar > ESIK["uclu_tekrar"]:
+            en = collections.Counter(uclu).most_common(1)[0][0]
+            _ihlal(ih, "K8.uclu", f"3-gram tekrarı {n_tekrar} (<= 2), en sık: {' '.join(en)!r}")
     kg = kucuk(g)
     m = re.search(r"(?<![a-zçğıöşü])([a-zçğıöşü]+) ve \1(?![a-zçğıöşü])", kg)
     if m:
         _ihlal(ih, "K8.x_ve_x", f"'X ve X': {m.group(0)!r}")
-    uc = [m.group(1) for m in re.finditer(r"(?<![a-zçğıöşü])([a-zçğıöşü]+) \1 \1(?![a-zçğıöşü])", kg)]
-    obek = [m.group(1) for m in re.finditer(r"(?<![a-zçğıöşü])([a-zçğıöşü]+(?: [a-zçğıöşü]+){1,3})(?:,| ve)? \1"
-                                            r"(?![a-zçğıöşü])", kg) if m.group(1).split()[0] not in sec.IKILEME]
+    ara = ",?" if gece == "ninni" else ""      # ninnide virgülle ayrılmış üçlü de kekemedir ('ninni, ninni, ninni')
+    uc = [m.group(1) for m in re.finditer(rf"(?<![a-zçğıöşü])([a-zçğıöşü]+){ara} \1{ara} \1(?![a-zçğıöşü])", kg)]
+    obek = [] if gece == "ninni" else [   # ninnide öbek yinelemesi ('uyu yavrum, uyu yavrum') türün parçasıdır
+        m.group(1) for m in re.finditer(r"(?<![a-zçğıöşü])([a-zçğıöşü]+(?: [a-zçğıöşü]+){1,3})(?:,| ve)? \1"
+                                        r"(?![a-zçğıöşü])", kg) if m.group(1).split()[0] not in sec.IKILEME]
     if uc or obek:
         _ihlal(ih, "K8.kekeme", f"kekeme tekrar: {(uc + obek)[:2]}")
     if kayit["figur"] not in bg.kartlar:
@@ -1190,14 +1320,17 @@ def denetle(girdi, tohum, bg, havuz=(), taslak_kart=False):
                 "beklenen_sha1": girdi.get("beklenen_sha1")}
     ih, nt, atlanan, bilinmeyen = [], [], [], []
     rapor = {}
-    k1(blok, kayit, tohum, bg, ih)
-    k2(kayit, bg, ih, rapor)
-    k3(kayit, bg, ih, rapor)
-    k4(blok, kayit, tohum, bg, ih, nt)
-    k5(kayit, bg, ih, nt, atlanan, bilinmeyen)
-    k6(kayit, bg, nt)
-    k7(kayit, bg, ih)
-    k8(kayit, bg, ih)
+    gece = gece_turu(kayit, tohum, bg)          # None: öteki figürler (kurallar değişmez)
+    if gece:
+        rapor["gece_tur"] = gece
+    k1(blok, kayit, tohum, bg, ih, gece)
+    k2(kayit, bg, ih, rapor, gece)
+    k3(kayit, bg, ih, rapor, gece)
+    k4(blok, kayit, tohum, bg, ih, nt, gece)
+    k5(kayit, bg, ih, nt, atlanan, bilinmeyen, gece)
+    k6(kayit, bg, nt, gece)
+    k7(kayit, bg, ih, gece)
+    k8(kayit, bg, ih, gece)
     for kod, ac in yakin_kopya(kayit["govde"], havuz):
         _ihlal(ih, kod, ac)
     if not havuz:

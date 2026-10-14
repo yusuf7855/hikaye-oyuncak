@@ -306,7 +306,7 @@ class KartKontrol(unittest.TestCase):
     def test_gercek_kartlar_temiz(self):
         h, u, s = self.denetle(self.kart)
         self.assertEqual(h, [])
-        self.assertEqual((s["kart"], s["etkin"], s["regex"], s["ornek_yakalandi"]), (15, 11, 61, 61))
+        self.assertEqual((s["kart"], s["etkin"], s["regex"], s["ornek_yakalandi"]), (16, 12, 72, 72))   # + gece (Ay Dede)
 
     def test_cikarilan_figurun_karti_etkin_sayilmaz(self):
         """Kullanıcı isteği: yalnız çizgi film karakterleri. Temel figürlerin kartları durur ama ürün listesinde

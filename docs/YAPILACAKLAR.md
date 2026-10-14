@@ -6,6 +6,13 @@ Durum (2026-10-06): 10 597 hikâyeli c3ft_karma, 1030 hikâyeli c3ft_urun1030s2'
 (genel 127–37, olay örgüsü 112–41; `degerlendirme/urun_kiyas_karma/OZET.md`). Veri artışı olay örgüsünü iyileştiren tek
 şey oldu; model boyutu aynı kalıyor (c3, 10,3 MB, ESP32-S3 N16R8'e sığar).
 
+Durum (2026-10-14): **urun_v4 hazır, toplu yazım başlamadı.** 11 figüre 775'er (8525) yeni tohum (tohum 4041, kimlik
+2001'den; urun_v3 ile kelime üçlüsü, (yer, tema, isim) hücresi ve kimlik çakışması 0) + gece figürü Ay Dede'ye 1500
+tohum (750 ninni, 750 uyku masalı; kart `gece`, kılavuz `degerlendirme/KILAVUZ_GECE.md`). 426 istem
+(`data/urun_v4/istem/`), iş listesi `data/urun_v4/isler.json` (424 iş; pilot istemleri niloya_1 ve gece_1 yazıldı).
+Toplama: `urun_hafif_topla.py topla urun_v4` + `birlestir urun_karma2 urun_v3 urun_v4` (40 gece metni
+`gece_ayri/` altında ayrı tutulur). Gece verisiyle eğitilen model pakete girince `urun_uret.GECE_MODELDE = True`.
+
 Adımlar:
 1. Yeni tohumlar: `data/urun_v3/tohum/` gibi figür başına ~950 → ~2000–2800 (farklı seed; mevcut tohumlarla çakışma
    olmasın), istemleri üret (`data/urun_v3/istem/`, scratchpad `v3_istem.py` mantığı; 24 tohum/istem).

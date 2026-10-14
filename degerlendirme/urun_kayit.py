@@ -115,8 +115,16 @@ def sha1(kayit):
     return hashlib.sha1(kanonik_json(kayit).encode("utf-8")).hexdigest()
 
 
+# Adından türetilmeyen kart kimlikleri: mod figürleri donanım kimliğini taşır (data/figur_donanim.json; gece figürü
+# 'Ay Dede' -> 'gece'). Hikâye figürlerinin kimliği hep addan türetilir.
+OZEL_KIMLIK = {"ay dede": "gece"}
+
+
 def figur_kimligi(figur):
-    """Kart kimliğiyle aynı ASCII biçim: 'Örümcek Adam' -> 'orumcek_adam', 'Maşa' -> 'masa'."""
+    """Kart kimliğiyle aynı ASCII biçim: 'Örümcek Adam' -> 'orumcek_adam', 'Maşa' -> 'masa' ('Ay Dede' -> 'gece')."""
+    ozel = OZEL_KIMLIK.get(kucuk(normallestir(figur) or ""))
+    if ozel:
+        return ozel
     return re.sub(r"[^a-z0-9]+", "_", kucuk(normallestir(figur)).translate(ASCII)).strip("_")
 
 
