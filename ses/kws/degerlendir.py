@@ -96,7 +96,7 @@ def olumlu_akis(h, kosul, n_deneme, tohum, sizinti_kaynagi):
         sev = rng.uniform(-35, -20)
         xw = klip(ku, rng, sev)
         on[t0: t0 + len(xw)] += xw
-        rec = dict(uyan_son=(t0 + ku.son) / SR, uyan_tur=ku.tur + ("/" + ku.ozel if ku.ozel else ""), metin=ku.metin)
+        rec = dict(uyan_bas=(t0 + ku.bas) / SR, uyan_son=(t0 + ku.son) / SR, uyan_tur=ku.tur + ("/" + ku.ozel if ku.ozel else ""), metin=ku.metin)
         s = KOMUTLAR[i % len(KOMUTLAR)]
         if rng.random() < 0.75 and h["poz"][s]:
             kc = h["poz"][s][rng.integers(len(h["poz"][s]))]
@@ -191,11 +191,12 @@ def kare(t):
 
 
 def olumlu_olc(olaylar, dogru):
-    """Her deneme: uyanma [uyan_son-0.3, uyan_son+1.0] içinde mi; komut doğru mu (pencerede ilk komut)."""
+    """Her deneme: uyanma [uyan_bas, uyan_son+1.0] içinde mi (erken, "Merhaba E.." sırasında uyanmak da sayılır);
+    komut doğru mu (pencerede ilk komut)."""
     sonuc = []
     ol = sorted(olaylar)
     for d in dogru:
-        a, b = kare(d["uyan_son"] - 0.3), kare(d["uyan_son"] + 1.0)
+        a, b = kare(d["uyan_bas"]), kare(d["uyan_son"] + 1.0)
         uy = [t for t, o in ol if o == 1 and a <= t <= b]
         r = dict(uyandi=bool(uy), tur=d["uyan_tur"], komut=d.get("komut"))
         if uy:
@@ -244,7 +245,7 @@ def main():
     print(f"sınama: {V.havuz_ozet(sinama)}\ndev: {V.havuz_ozet(dev)} ({time.time() - t0:.0f} sn)", flush=True)
 
     # ---------------- dev: eşik seçimi
-    izgara_u = [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
+    izgara_u = [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97]
     izgara_k = [0.4, 0.5, 0.6, 0.7, 0.8]
     yumusat = [3, 5]
     dev_poz = []

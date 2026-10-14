@@ -1,7 +1,7 @@
 """KWS eğitim sahneleri: sentezlenmiş kliplerden (sentezle.py) her adımda yeni, karışık ses + kare etiketleri.
 
 Sahne (4 sn): arka plan (beyaz/pembe/kahverengi gürültü, vantilatör uğultusu, mutfak tıkırtısı, müzik, uzak TV
-konuşması) + %50 hoparlörden gelen hikâye sesi (küçük hoparlör benzetimi, SNR -10..25 dB) + ön planda 0–3 olay
+konuşması) + %60 hoparlörden gelen hikâye sesi (küçük hoparlör benzetimi, SNR -12..20 dB) + ön planda 0–3 olay
 (anahtar ifade / "Merhaba Eko" + komut / karışan sözcük / cümle), oda yankısı, mikrofon renklendirmesi, kazanç,
 kırpılma, int16'ya yuvarlama.
 
@@ -171,7 +171,7 @@ def hiz_boz(rng, x):
 
 # ------------------------------------------------------------------ sahne
 class Sahne:
-    def __init__(self, havuz, sure_s=4.0, p_poz=0.45, p_negatif=0.33, p_uyan_neg=0.07, p_sizinti=0.5):
+    def __init__(self, havuz, sure_s=4.0, p_poz=0.45, p_negatif=0.33, p_uyan_neg=0.07, p_sizinti=0.6):
         self.h = havuz
         self.N = int(sure_s * SR)
         self.T = 1 + (self.N - O.PENCERE) // O.ADIM
@@ -302,7 +302,7 @@ class Sahne:
             s = hoparlor(rng, self._konusma_akisi(rng, N))
             if olaylar:
                 ref = max([rms(on[max(0, int(o[0] * SR)): max(0, int(o[1] * SR)) + 1]) for o in olaylar] + [1e-4])
-                s *= ref * db(-rng.uniform(-10, 25))
+                s *= ref * db(-rng.uniform(-12, 20))
             else:
                 s *= db(rng.uniform(-45, -8))
             y = y + s
