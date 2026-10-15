@@ -86,9 +86,9 @@ def adim_gorsel(n, notlar=()):
 if __name__ == "__main__":
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
-        1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka: kart zeminin altına (tavana) yaslanır,\nLED'ler (1,6 mm) ışık oyuğunun içine girer", -44, 20),
-            (19, C.Z_HALKA_UST + 1.2, "ışık oyuğu (1,8 mm derin): LED'lerin üstünde\nzemin 0,6 mm (beyaz PLA ışığı geçirir)", 16, 31),
-            (10, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(kabuğun 4 direğine M2,5 vida)", 0, 8),
-            (-10, C.Z_CANAK_TABAN, f"figürün oturduğu zemin z={C.Z_CANAK_TABAN:.0f} (kabuğun parçası, 2,4 mm)", -40, 61)],
+        1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka çukurun ÇEVRESİNDE, tavana yaslı;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
+            (19, C.Z_HALKA_UST + 1.2, "ışık oyuğu: LED'lerin üstünde 0,6 mm\n(beyaz PLA ışığı geçirir)", 16, 31),
+            (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
+            (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],
     }.get(n, [])
     print(adim_gorsel(n, notlar))

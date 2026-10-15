@@ -33,12 +33,15 @@ ZC, B, N = 21.0, 45.0, 2.8
 DUVAR = 2.4
 TABAN_KAL = 2.4
 # figür yuvası (seçenek 3)
-YUVA_R = 31.6            # figür tabanı Ø62 + pay
-CUKUR_DERIN = 6.0        # yuva tabanı = H - 6
+# Ürün sahibi (16 Ekim 2026, seçenek A): 16'lı halka çukurun DIŞINDA, üst yüzün altındaki tavanda; bunun için çukur
+# halkanın iç boşluğuna (Ø31,75) girer -> figür tabanı Ø28 (NTAG213 Ø25 sığar). Işık figür üstündeyken de görünür.
+FIGUR_TABAN_D = 28.0
+YUVA_R = FIGUR_TABAN_D / 2 + 0.3
+CUKUR_DERIN = 5.0        # figür tabanının oturduğu yüz = H - 5
 # Ürün sahibi (16 Ekim 2026): ayrı yarı saydam parça yok, her şey PLA/PETG. Figürün oturduğu zemin kabuğun parçası;
 # zeminin altında, LED'lerin tam üstünde halka biçimli oyuk: zemin orada ISIK_KAL kalır, beyaz PLA'dan ışık geçer.
-YUVA_DUVAR = 2.0         # çukurun kabuk içine sarkan duvarı
-ZEMIN_KAL = 2.4          # figür zemini kalınlığı
+YUVA_DUVAR = 1.2         # çukurun kabuk içine sarkan duvarı (halkanın iç boşluğundan geçer: r 15,5 < 15,9)
+ZEMIN_KAL = 1.6          # figür zemini kalınlığı (altında NFC okuyucu)
 ISIK_KAL = 0.6           # LED'lerin üstünde kalan zemin (0,6 mm beyaz PLA ışığı geçirir; renkli PLA'da delik açılabilir)
 ISIK_R = (16.2, 22.0)    # ışık oyuğu: LED'ler (5x5 mm, r ≈ 19) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
@@ -60,7 +63,8 @@ PARCA = {
 }
 # NFC antenin kart üzerindeki merkezi (kart merkezine göre x, y): figürün tam altına getirilir
 ANTEN_KAYMA = {"rc522": (0.0, 4.0),     # RC522: başlık (pin) kenarı arkada, anten öne kaymış (tahmin)
-               "pn5180": (15.0, 0.0)}   # PN5180: anten kartın bir ucunda (~39x39), elektronik öteki uçta
+               "pn5180": (10.0, 0.0)}   # PN5180: anten kartın bir ucunda (~39x39; merkezi kart merkezinden ~15 mm);
+                                        # kabuğun eğrisine sığsın diye 10 mm kaydırıldı: anten merkezi figürden 5 mm yanda
 
 # ---------------------------------------------------------------- yerleşim (merkez x, y; alt z)
 HOP_Y = 23.0
@@ -98,11 +102,12 @@ def profil(ofs=0.0, z0=0.0, z1=H):
 
 
 Z_CANAK_TABAN = H - CUKUR_DERIN              # figür tabanının oturduğu yüz
-Z_HALKA_UST = Z_CANAK_TABAN - ZEMIN_KAL        # halka kartı zeminin altına (tavana) yaslanır, LED'ler oyukta
+Z_HALKA_UST = H - DUVAR                      # halka kartı üst yüzün altına (tavana) yaslanır, LED'ler oyukta
 Z_HALKA_ALT = Z_HALKA_UST - PARCA["halka"][2]
 TUTUCU_KAL = 2.0
 Z_MIK = H - DUVAR - 3.0 - 1.2                # mikrofon kartı (deliğe bakar, üstte 1,2 mm conta payı)
-Z_TUTUCU_ALT = Z_HALKA_ALT - TUTUCU_KAL      # halka tutucu plakası (NFC okuyucu altına vidalı/raylı)
+Z_TUTUCU_ALT = Z_HALKA_ALT - TUTUCU_KAL      # halka tutucu plakası (halkayı tavana bastırır)
+Z_OKUYUCU_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.3   # NFC okuyucunun anten yüzü: çukur zemininin hemen altı
 
 
 def gorunmez():
@@ -140,9 +145,9 @@ def zarflar(nfc):
                            - silindir(rl - lw / 2, Z_HALKA_UST - 1, Z_HALKA_UST + lh + 1, seg=96)))
     w, d, pcb, alt = PARCA[nfc]
     cx, cy = -ANTEN_KAYMA[nfc][0], -ANTEN_KAYMA[nfc][1]
-    z[f"{nfc.upper()} okuyucu"] = (kutu(cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, Z_TUTUCU_ALT - pcb, Z_TUTUCU_ALT)
+    z[f"{nfc.upper()} okuyucu"] = (kutu(cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, Z_OKUYUCU_UST - pcb, Z_OKUYUCU_UST)
                                    + kutu(cx - w / 2 + 2.5, cx + w / 2 - 2.5, cy - d / 2 + 2.5, cy + d / 2 - 2.5,
-                                          Z_TUTUCU_ALT - pcb - alt, Z_TUTUCU_ALT - pcb))
+                                          Z_OKUYUCU_UST - pcb - alt, Z_OKUYUCU_UST - pcb))
     return z
 
 
@@ -157,8 +162,8 @@ def kabuk():
     # figür çukuru: zemin ve duvar kabuğun parçası; zeminin altında LED'lerin üstünde ışık oyuğu
     g = g + silindir(CANAK_GOVDE_R, Z_CANAK_TABAN - ZEMIN_KAL, H - DUVAR + 0.01, seg=SEG)
     g = g - silindir(YUVA_R, Z_CANAK_TABAN, H + 1, seg=SEG)
-    g = g - (silindir(ISIK_R[1], Z_CANAK_TABAN - ZEMIN_KAL - 1, Z_CANAK_TABAN - ISIK_KAL, seg=SEG)
-             - silindir(ISIK_R[0], Z_CANAK_TABAN - ZEMIN_KAL - 2, Z_CANAK_TABAN, seg=SEG))
+    g = g - (silindir(ISIK_R[1], H - DUVAR - 1, H - ISIK_KAL, seg=SEG)
+             - silindir(ISIK_R[0], H - DUVAR - 2, H, seg=SEG))   # tavandaki ışık oyuğu (çukurun çevresinde)
     g = g - (silindir(YUVA_R + 0.8, H - 0.8, H + 0.01, seg=SEG, r2=YUVA_R + 1.6) - silindir(0.1, H - 2, H + 2, seg=8))  # ağız pahı
     # tutucu direkleri (üstten iner, M2,5 pilot)
     for aci in UST_ACILAR:
@@ -185,27 +190,31 @@ def kabuk():
 
 
 def tutucu(nfc):
-    """Halka + NFC tutucu: üstünde halka cebi, altında okuyucu rayları; 4 kulakla direklere vidalanır."""
+    """Halka + NFC tutucu: halkayı tavana bastırır (ortası çukura açık), altından inen raylar okuyucuyu çukur zemininin
+    hemen altında tutar; 4 kolla kabuğun direklerine vidalanır."""
     zt = Z_TUTUCU_ALT
-    p = silindir(CANAK_GOVDE_R, zt, zt + TUTUCU_KAL, seg=SEG)
+    w, d, pcb, alt = PARCA[nfc]
+    cx, cy = -ANTEN_KAYMA[nfc][0], -ANTEN_KAYMA[nfc][1]
+    ri, rd, kal = PARCA["halka"]
+    p = silindir(rd / 2 + 2.5, zt, zt + TUTUCU_KAL, seg=SEG)
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
         kol = kutu(0, UST_DIREK_R, -4, 4, zt, zt + TUTUCU_KAL).rotate([0, 0, aci])
         p = p + kol + silindir(4.0, zt, zt + TUTUCU_KAL, x=x, y=y, seg=32)
         p = p - silindir(1.4, zt - 1, zt + 5, x=x, y=y, seg=24)
-    ri, rd, kal = PARCA["halka"]
-    # halka yuvası: halka plakanın üstüne oturur, kenarından 1,5 mm yüksek bilezikle ortalanır; kablo çentiği arkada
+    p = p - silindir(CANAK_GOVDE_R + 0.4, zt - 1, zt + 5, seg=SEG)            # çukur geçer
+    # halka bileziği (ortalar) ve kablo çentiği (arkada)
     p = p + (silindir(rd / 2 + 1.7, zt + TUTUCU_KAL, zt + TUTUCU_KAL + 1.5, seg=96) - silindir(rd / 2 + 0.3, zt, zt + 9, seg=96))
     p = p - kutu(-3, 3, -rd / 2 - 3, -rd / 2 + 2, zt + TUTUCU_KAL - 0.01, zt + TUTUCU_KAL + 2)
-    # okuyucu rayları (altta, uzun kenarlar boyunca; kart kayarak girer)
-    w, d, pcb, alt = PARCA[nfc]
-    cx, cy = -ANTEN_KAYMA[nfc][0], -ANTEN_KAYMA[nfc][1]
+    # okuyucu rayları: plakanın altından iner, kart uzun kenarlarından kayarak girer
+    z_alt = Z_OKUYUCU_UST - pcb - 1.6
     for s in (-1, 1):
-        ray = kutu(cx - w / 2 + 6, cx + w / 2 - 6, cy + s * (d / 2 + 0.3) + (0 if s > 0 else -2.0),
-                   cy + s * (d / 2 + 0.3) + (2.0 if s > 0 else 0), zt - pcb - 1.6, zt)
-        dudak = kutu(cx - w / 2 + 6, cx + w / 2 - 6, cy + s * (d / 2 - 1.2) + (0 if s > 0 else -1.5),
-                     cy + s * (d / 2 - 1.2) + (1.5 if s > 0 else 0), zt - pcb - 1.6, zt - pcb - 0.2)
-        p = p + ray + dudak
+        y_ic = cy + s * (d / 2 + 0.3)
+        ray = kutu(cx - w / 2 + 6, cx + w / 2 - 6, min(y_ic, y_ic + s * 2.0), max(y_ic, y_ic + s * 2.0), z_alt, zt + 0.01)
+        y_d = cy + s * (d / 2 - 1.2)
+        dudak = kutu(cx - w / 2 + 6, cx + w / 2 - 6, min(y_d, y_ic), max(y_d, y_ic), z_alt, Z_OKUYUCU_UST - pcb - 0.2)
+        ust = kutu(cx - w / 2 + 6, cx + w / 2 - 6, min(y_d, y_ic + s * 2.0), max(y_d, y_ic + s * 2.0), Z_OKUYUCU_UST + 0.2, zt + 0.01)
+        p = p + ray + dudak + (ust - silindir(CANAK_GOVDE_R + 0.4, zt - 9, zt + 5, seg=SEG))
     return p
 
 
@@ -276,7 +285,8 @@ def raf():
 # ---------------------------------------------------------------- denetim
 def denetle(nfc):
     z = zarflar(nfc)
-    bosluk = dondur(profil(-DUVAR, TABAN_KAL, H - DUVAR), SEG)
+    bosluk = dondur(profil(-DUVAR, TABAN_KAL, H - DUVAR), SEG) + (
+        silindir(ISIK_R[1], H - DUVAR - 0.5, H - ISIK_KAL, seg=SEG) - silindir(ISIK_R[0], H - DUVAR - 1, H, seg=SEG))  # ışık oyuğu
     yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(), "raf": raf()}
     sorun = []
     for ad, e in z.items():
@@ -299,7 +309,7 @@ def denetle(nfc):
             if v > 1.0:
                 sorun.append(f"{ad} ile {yad} çakışıyor ({v:.0f} mm³)")
     # NFC: etiket ile anten arası
-    mesafe = (Z_CANAK_TABAN + 0.4) - Z_TUTUCU_ALT
+    mesafe = (Z_CANAK_TABAN + 0.4) - Z_OKUYUCU_UST
     return z, yapi, sorun, mesafe
 
 
