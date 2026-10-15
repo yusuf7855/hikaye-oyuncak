@@ -1,13 +1,46 @@
-# Çakıl stand — basılacak parçalar (ölçüler TAHMİN, parçalar gelince `cad/cakil_ic.py` PARCA sözlüğünden düzeltilir)
+# Çakıl stand — baskıya hazır STL'ler
 
-Üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma denetimi yazar; "0 sorun" olmalı).
-`rc522/` ve `pn5180/` klasörleri yalnız **halka_nfc_tutucu.stl**'de farklı (okuyucu rayları); öteki parçalar aynı.
+Hangi NFC okuyucuyu kullanacaksan o klasörü bas: `rc522/` ya da `pn5180/`. İki klasör yalnız `3_halka_nfc_tutucu.stl`'de
+farklı (okuyucunun rayları); öteki parçalar aynı. Her parça **baskı yönünde, tablanın ortasında** kaydedildi: slicer'a
+at, döndürme. Birim mm.
 
-| Dosya | Malzeme / renk | Baskı notu |
-|---|---|---|
-| kabuk.stl | PLA/PETG; figür zemininin altındaki ışık oyuğunda zemin 0,6 mm: **beyaz** basılırsa LED ışığı geçer (renkli basılacaksa oyuk delik yapılabilir); "eco ai" için logo katmanında filament değiştir | Ters (üst yüz tabla üstünde) çevrilmiş kaydedildi; çanak deliği, iç direkler ve TP4056 kızakları için destek gerekebilir |
-| halka_nfc_tutucu.stl | PLA, herhangi bir renk | Halka üstte, okuyucu altta raylara kayar; kabuğun 4 direğine M2,5 vida |
-| taban_plakasi.stl | PLA/PETG | Düz yüzü tablada, destek gerekmez (TP4056 üstündeki 23 mm köprü dahil); 4 x M3 vida + kabukta ısıl gömme somun (M3 x 5,7). ESP32 yuvası bunun üstünde: kart TERS (bileşenler aşağı) önce USB-C ucuyla iki köşe kancasının altına kaydırılır, sonra anten ucu bastırılır, esnek tırnak oturur. Jumper'lar kabuk takılmadan yukarıdan takılır |
+Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma denetimi; "0 sorun" yazmalı).
+Ölçülerin bir kısmı TAHMİN (pil yatağı, hoparlör derinliği, KCD11, PN5180, MAX98357A); parça elinde olunca ölç,
+`cad/cakil_ic.py` PARCA sözlüğünde düzelt, yeniden üret. TP4056 ve ESP32-S3 ölçüleri ürün sahibinin modellerinden.
 
-Ek: 3 silikon ayak (Ø10 x 1 mm yuva), M3 x 8 vida (4), M3 ısıl gömme somun (4), M2,5 x 6 vida (4).
-Hoparlör öne bakar: ses logonun altındaki ızgaradan çıkar.
+| Dosya | Adet | Baskı yönü | Malzeme / ayar |
+|---|---|---|---|
+| `0_tum_stand_*_montajli.stl` | — | BASILMAZ: tüm stand monte hâlde (bakmak için) | |
+| `0_tum_stand_*_elektronikli_GORSEL.stl` | — | BASILMAZ: elektronik parçalar dahil (ESP32 ve TP4056 gerçek model, ötekiler kutu) | |
+| `1_kabuk.stl` | 1 | ters: üst yüz (figür çukuru) tablada | **beyaz** PLA/PETG (LED ışığı figür zemininden ve çukur duvarındaki yarıklardan geçer). 0,2 mm katman, 3 duvar, %15 doluluk. **Destek: ağaç (tree), yalnız iç kısım** (vida kolonları, TP4056 kızakları, ses yakası). "eco ai" logosu için logonun başladığı katmanda filament değiştirilebilir |
+| `2_taban_plakasi.stl` | 1 | düz alt yüz tablada | PLA/PETG, destek GEREKMEZ (TP4056 üstündeki 23 mm köprü dahil) |
+| `3_halka_nfc_tutucu.stl` | 1 | ters: halkanın bastığı düz yüz tablada, raylar yukarı | PLA, destek gerekmez |
+| `4_figur_taban.stl` | 11 | ters: düz yüz tablada, etiket cebi yukarı | figür renginde; 0,12–0,16 mm katman |
+| `5_ayar_karti.stl` | 1 | etiket cebi tablada, topuz yukarı | kenar (brim) önerilir |
+
+## Ek malzeme
+
+- M3 x 8 vida (4) + M3 ısıl gömme somun (4): taban plakası → kabuk (somunlar kabuğun 4 kolonuna havyayla gömülür)
+- M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği
+- Kablo bağı 2,5 mm (3): pil yatağı (2), hoparlör (1)
+- Silikon ayak Ø10 x 1 mm (3–6)
+- NTAG213 Ø25 yuvarlak NFC etiket (12): her figür tabanının altındaki cebe + ayar kartı
+- Dişi-dişi jumper kablolar (ESP32 ters yatar, pinler yukarıda)
+
+## Montaj sırası
+
+Üst modül (kabuk ters dururken):
+1. Isıl gömme somunları 4 kolona göm.
+2. NeoPixel halkayı LED'ler tavandaki ışık oyuğuna girecek biçimde koy (kablosu arkada).
+3. NFC okuyucuyu tutucunun raylarına kaydır; tutucuyu halkanın üstüne koy, 4 M2,5 vidayla direklere vidala.
+4. KCD11 anahtarı sol yandaki deliğe dışarıdan bastır (tırnaklar içte oturur).
+5. TP4056'yı içeriden arka duvardaki kızaklara kaydır; USB-C dışarıdaki deliğe girer.
+
+Alt modül (taban plakası):
+1. Ayakları yapıştır; pil yatağını cebine koy, 2 kablo bağıyla sık.
+2. Hoparlörü öndeki beşiğe oturt, kablo bağıyla sık; MAX98357A'yı sağ öndeki cebine koy.
+3. ESP32-S3'ü TERS tut (bileşenler aşağı): USB-C ucunu iki köşe kancasının altına kaydır, anten ucunu bastır, tırnak oturur.
+4. Jumper'ları yukarıdan pinlere tak, kabloları bağla (lehim / jumper).
+
+Birleştir: kabuğu alt modülün üstüne indir (TP4056 kartı tabandaki kaidenin üstüne, arka dayanağın önüne gelir),
+alttan 4 M3 vidayla sık. Kod yüklemek için kabuk açılır (ESP32'nin USB-C uçları sol tarafta açıkta).

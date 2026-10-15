@@ -265,7 +265,8 @@ def kabuk():
     # tutucu direkleri (üstten iner, M2,5 pilot)
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
-        g = g + (silindir(3.5, Z_TUTUCU_ALT, H - DUVAR + 0.5, x=x, y=y, seg=32) - silindir(1.05, Z_TUTUCU_ALT - 1, Z_TUTUCU_ALT + 7, x=x, y=y, seg=24))
+        z0 = Z_TUTUCU_ALT + TUTUCU_KAL   # direk tutucu plakanın üstünde biter (plaka altından vidalanır)
+        g = g + (silindir(3.5, z0, H - DUVAR + 0.5, x=x, y=y, seg=32) - silindir(1.05, z0 - 1, z0 + 7, x=x, y=y, seg=24))
     # taban vida kolonları (duvara yapışık, alttan M3 ısıl gömme somun)
     for aci in VIDA_ACILAR:
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
@@ -331,9 +332,9 @@ def tutucu(nfc):
         p = p + kol + silindir(4.0, zt, zt + TUTUCU_KAL, x=x, y=y, seg=32)
         p = p - silindir(1.4, zt - 1, zt + 5, x=x, y=y, seg=24)
     p = p - silindir(CANAK_GOVDE_R + 0.4, zt - 1, zt + 5, seg=SEG)            # çukur geçer
-    # halka bileziği (ortalar) ve kablo çentiği (arkada)
-    p = p + (silindir(rd / 2 + 1.7, zt + TUTUCU_KAL, zt + TUTUCU_KAL + 1.5, seg=96) - silindir(rd / 2 + 0.3, zt, zt + 9, seg=96))
-    p = p - kutu(-3, 3, -rd / 2 - 3, -rd / 2 + 2, zt + TUTUCU_KAL - 0.01, zt + TUTUCU_KAL + 2)
+    # halkayı tavandaki ışık oyuğuna giren LED'ler ortalar (bilezik gerekmez: plakanın üst yüzü düz, ters basılır);
+    # arkada halkanın kablo lehimleri için plakadan geçen çentik
+    p = p - kutu(-3.5, 3.5, -rd / 2 - 5, -rd / 2 + 4.5, zt - 1, zt + TUTUCU_KAL + 1)
     # okuyucu rayları: plakanın altından iner, kart uzun kenarlarından kayarak girer
     z_alt = Z_OKUYUCU_UST - pcb - 1.6
     for s in (-1, 1):
@@ -426,6 +427,17 @@ def taban(oz=TABAN_OZ):
     return t
 
 
+def figur_taban(topuz=False):
+    """Figür tabanı (jeton) Ø28: figür üstüne yapıştırılır; altta NTAG213 Ø25 etiket cebi (etiket çukur zeminine değer).
+    topuz=True: ayar kartı (üstte tutma topuzu)."""
+    r, h = FIGUR_TABAN_D / 2, CUKUR_DERIN
+    b = dondur([(0, 0), (r - 0.3, 0), (r, 0.3), (r, h - 1.0), (r - 1.0, h), (0, h)], SEG)
+    b = b - silindir(12.8, -1, 0.4, seg=SEG)                       # etiket cebi (alt yüz, 0,4 mm)
+    if topuz:
+        b = b + dondur([(0, h - 0.5), (10.0, h - 0.5), (10.0, h + 9.0), (8.5, h + 11.0), (6.0, h + 12.0), (0, h + 12.0)], SEG)
+    return b
+
+
 # ---------------------------------------------------------------- denetim
 def denetle(nfc):
     z = zarflar(nfc)
@@ -437,7 +449,7 @@ def denetle(nfc):
     fd = PARCA["kcd11"][2]
     bosluk = bosluk + silindir(fd / 2 + 0.3, anahtar_yer()[1] - 6, 80, seg=96).rotate([0, 90, 0]).translate(
         [0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])   # anahtarın deliği; flanş ve tuş dışta
-    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban()}
+    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(), "figur": figur_taban().translate([0, 0, Z_CANAK_TABAN])}
     sorun = []
     for ad, e in z.items():
         disari = (e - bosluk).volume()
@@ -456,19 +468,56 @@ def denetle(nfc):
             v = (e ^ y).volume()
             if v > 1.0:
                 sorun.append(f"{ad} ile {yad} çakışıyor ({v:.0f} mm³)")
+    ys = list(yapi)
+    for i in range(len(ys)):
+        for j in range(i + 1, len(ys)):
+            v = (yapi[ys[i]] ^ yapi[ys[j]]).volume()
+            if v > 0.5:
+                sorun.append(f"{ys[i]} ile {ys[j]} (basılan parçalar) çakışıyor ({v:.0f} mm³)")
     # NFC: etiket ile anten arası
     mesafe = (Z_CANAK_TABAN + 0.4) - Z_OKUYUCU_UST
     return z, yapi, sorun, mesafe
 
 
+def _tm(m):
+    mg = m.to_mesh()
+    return trimesh.Trimesh(np.asarray(mg.vert_properties)[:, :3], np.asarray(mg.tri_verts), process=False)
+
+
+def _tablaya(m):
+    """Baskı tablasına: x-y ortada, en alt z = 0."""
+    b = m.bounding_box()
+    return m.translate([-(b[0] + b[3]) / 2, -(b[1] + b[4]) / 2, -b[2]])
+
+
+BASKI = (  # (dosya, parça, baskı yönü açıklaması)
+    ("1_kabuk", "kabuk", "ters: üst yüz (figür çukuru) tablada"),
+    ("2_taban_plakasi", "taban", "düz alt yüz tablada"),
+    ("3_halka_nfc_tutucu", "tutucu", "ters: halkanın bastığı düz yüz tablada, raylar yukarı"),
+    ("4_figur_taban", "figur", "ters: düz üst yüz tablada, etiket cebi yukarı; 11 figür için 11 adet"),
+    ("5_ayar_karti", "ayar", "alt yüz tablada, topuz yukarı (kenar/brim önerilir); 1 adet"),
+)
+
+
 def stl_yaz(nfc, yapi):
+    """Baskıya hazır STL'ler (her parça baskı yönünde, tablada) + montajlı tüm model."""
     d = os.path.join(KOK, "stl_cakil", nfc)
     os.makedirs(d, exist_ok=True)
-    for ad, m in (("kabuk", yapi["kabuk"].rotate([180, 0, 0])),
-                  ("halka_nfc_tutucu", yapi["tutucu"]), ("taban_plakasi", yapi["taban"])):
-        dosya = os.path.join(d, f"{ad}.stl".replace("ı", "i"))
-        mg = m.to_mesh()
-        trimesh.Trimesh(np.asarray(mg.vert_properties)[:, :3], np.asarray(mg.tri_verts), process=False).export(dosya)
+    for eski in os.listdir(d):
+        if eski.endswith(".stl"):
+            os.remove(os.path.join(d, eski))
+    baski = {"kabuk": yapi["kabuk"].rotate([180, 0, 0]), "taban": yapi["taban"],
+             "tutucu": yapi["tutucu"].rotate([180, 0, 0]), "figur": figur_taban().rotate([180, 0, 0]), "ayar": figur_taban(topuz=True)}
+    for dosya, ad, _ in BASKI:
+        _tm(_tablaya(baski[ad])).export(os.path.join(d, f"{dosya}.stl"))
+    # tüm hali: basılan parçalar yerinde (tek dosya, ayrı gövdeler)
+    tum = [yapi["kabuk"], yapi["tutucu"], yapi["taban"], yapi["figur"]]
+    trimesh.util.concatenate([_tm(m) for m in tum]).export(os.path.join(d, f"0_tum_stand_{nfc}_montajli.stl"))
+    # elektronikle birlikte (yalnız bakmak için): ESP32 ve TP4056 gerçek modelleri, ötekiler kutu zarf
+    z = zarflar(nfc)
+    el = [_tm(m) for m in tum] + [tp_stl(), esp_stl()]
+    el += [_tm(e) for ad, e in z.items() if ad not in ("TP4056 Type-C", "ESP32-S3", "jumper payı")]
+    trimesh.util.concatenate(el).export(os.path.join(d, f"0_tum_stand_{nfc}_elektronikli_GORSEL.stl"))
     return d
 
 
