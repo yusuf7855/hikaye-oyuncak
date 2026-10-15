@@ -84,35 +84,42 @@ def adim_gorsel(n, notlar=()):
 
 
 def ust_gorunus():
-    """Üstten bakış: gündüz (yarıklar) ve gece (halka yanıyor: yarıklardan ışık)."""
-    from matplotlib.path import Path
-    from matplotlib.patches import PathPatch
-    k = C.kabuk()
-    cs = k.slice(C.H - 0.2)
-    fig, axs = plt.subplots(1, 2, figsize=(14, 7), dpi=110)
-    for ax, gece in zip(axs, (False, True)):
-        ax.set_facecolor("#0E1430" if gece else "white")
-        if gece:
-            th = np.linspace(0, 2 * np.pi, 200)
-            for r, a in ((C.ISIK_R[1] + 2, .25), (C.ISIK_R[1], .6)):
-                ax.fill(r * np.cos(th), r * np.sin(th), color="#ff4fa3", alpha=a, lw=0)
-        verts, codes = [], []
+    """Çukur yakından: (1) bir pencereden geçen yan kesit, ışık yolu; (2) çukurun iç duvarı açılmış (gündüz / gece)."""
+    from matplotlib.patches import Rectangle, FancyArrowPatch
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    n, gen = C.ISIK_YARIK
+    aci = 360.0 / n * 0.5
+    fig, axs = plt.subplots(1, 2, figsize=(16, 6.4), dpi=110, gridspec_kw={"width_ratios": [1, 1.5]})
+    ax = axs[0]
+    for man, fc, ec in ((yapi["kabuk"], C.RENK_YAPI["kabuk"], "#8a7a66"), (yapi["tutucu"], "#ffd27a", "#b08a30"),
+                        (z["NeoPixel 16"], "#ff4fa3", "k")):
+        cs = man.rotate([0, 0, -aci]).rotate([90, 0, 0]).slice(0.0)   # pencerenin ortasından geçen düşey kesit (x, z)
         for poly in cs.to_polygons():
-            p = np.asarray(poly)
-            verts += list(p) + [p[0]]
-            codes += [Path.MOVETO] + [Path.LINETO] * (len(p) - 1) + [Path.CLOSEPOLY]
-        ax.add_patch(PathPatch(Path(verts, codes), fc="#3a3530" if gece else "#F6E7D2", ec="#8a7a66", lw=0.6))
-        ax.add_patch(plt.Circle((0, 0), C.YUVA_R + 1.7, fc="#3a3530" if gece else "#F6E7D2", ec="none"))  # ağız pahı
-        ax.add_patch(plt.Circle((0, 0), C.YUVA_R, fc="#2a2622" if gece else "#e9dcc6", ec="#8a7a66"))
-        ax.set_xlim(-48, 48); ax.set_ylim(-48, 48); ax.set_aspect("equal"); ax.axis("off")
-        ax.set_title("Gece: halka yanıyor (örnek: Niloya pembesi)" if gece else "Gündüz: figür çukuru ve ışık yarıkları",
-                     color="black", fontsize=13)
-    fig.patch.set_facecolor("white")
-    fig.suptitle(f"Üstten: {C.ISIK_YARIK[0]} ışınsal yarık ({C.ISIK_YARIK[1]} mm), LED'lerin tam üstünde; ortada figür çukuru Ø{2 * C.YUVA_R:.1f}",
-                 fontsize=12)
-    plt.tight_layout(rect=(0, 0, 1, 0.94))
+            pp = np.asarray(poly)
+            ax.add_patch(Polygon(np.c_[pp[:, 0], -pp[:, 1]], closed=True, fc=fc, ec=ec, lw=1))
+    for y0 in (C.H - 1.2, C.H - 1.9):
+        ax.add_patch(FancyArrowPatch((18.5, y0), (5, y0 - 2.5), arrowstyle="-|>", mutation_scale=14, color="#ff4fa3", lw=1.6))
+    ax.text(2, C.H + 1.2, "figür çukuru", fontsize=10)
+    ax.text(16, C.H - 7.5, "16'lı halka\n(LED'ler oyukta)", fontsize=9, color="#b0306f")
+    ax.annotate("dikey pencere", xy=(15.0, C.H - 1.6), xytext=(4, C.H - 9), fontsize=10, arrowprops=dict(arrowstyle="->"))
+    ax.set_xlim(0, 30); ax.set_ylim(C.H - 12, C.H + 3); ax.set_aspect("equal"); ax.grid(alpha=.25)
+    ax.set_title("Bir pencereden geçen kesit (mm): ışık yandan çukura", fontsize=12)
+    ax = axs[1]
+    cevre = 2 * math.pi * C.YUVA_R
+    z0, z1 = C.Z_CANAK_TABAN, C.H
+    for gece, yoff in ((False, 0.0), (True, -(z1 - z0) - 2.5)):
+        ax.add_patch(Rectangle((0, z0 + yoff), cevre, z1 - z0, fc="#3a3530" if gece else "#F6E7D2", ec="#8a7a66"))
+        for i in range(n):
+            x = cevre * (i + 0.5) / n
+            ax.add_patch(Rectangle((x - gen / 2, C.H - C.DUVAR - 0.2 + yoff), gen, C.DUVAR + 0.2 - C.ISIK_KAL,
+                                   fc="#ff4fa3" if gece else "#6b5f52", ec="none"))
+        ax.text(cevre + 1.5, z0 + yoff + 1.5, "gece" if gece else "gündüz", fontsize=11)
+    ax.set_xlim(-2, cevre + 14); ax.set_ylim(z0 - (z1 - z0) - 4, z1 + 1.5); ax.set_aspect("equal")
+    ax.set_yticks([]); ax.set_xlabel("çukurun iç duvarı boyunca (mm, açılmış)")
+    ax.set_title(f"Çukurun iç duvarı açılmış: {n} dikey pencere ({gen} mm), üstte 0,6 mm dudak", fontsize=12)
+    plt.tight_layout()
     yol = os.path.join(C.KOK, "onizleme", "adim_1_ust.png")
-    fig.savefig(yol, facecolor="white")
+    fig.savefig(yol)
     plt.close(fig)
     return yol
 
@@ -121,7 +128,7 @@ if __name__ == "__main__":
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
         1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka çukurun ÇEVRESİNDE, tavana yaslı;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
-            (19, C.Z_HALKA_UST + 1.2, "LED'lerin üstü şerit şerit açık:\n32 ışınsal yarık (1,2 mm)", 16, 31),
+            (-15.4, C.H - 1.6, "çukurun dikey duvarı şerit şerit açık:\nLED ışığı yandan çukura girer", 16, 31),
             (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
             (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],
     }.get(n, [])
