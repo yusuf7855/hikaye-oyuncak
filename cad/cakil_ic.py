@@ -47,11 +47,11 @@ ISIK_YARIK = (24, 1.6)   # ürün sahibi: çukurun LED şeridine bakan DİKEY i�
                          # 1,6 mm geniş; ışık yandan çukurun içine vurur (üst yüz kapalı kalır)
 ISIK_R = (16.2, 22.0)    # ışık oyuğu: LED'ler (5x5 mm, r ≈ 19) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
-YAZI, YAZI_BOY, YAZI_Z = "eco ai", 15.0, 37.0
+YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının üstünde
 
 # ---------------------------------------------------------------- parçalar (TAHMİN; ölçülünce düzelt)
 PARCA = {
-    "hoparlor": (50.0, 50.0, 20.0),      # 4 Ω 3 W, 50x50, derinlik tahmin
+    "hoparlor": (50.0, 22.0),            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
     "pil_yatagi": (77.0, 21.0, 19.0),    # 18650 tekli yatak
     "tp4056": (17.0, 26.0, 1.6),         # Type-C, korumalı; USB-C 9 x 3,2 (y- ucunda)
     "max98357": (19.0, 18.0, 10.0),      # vida klemensi lehimliyse ~10 mm
@@ -71,7 +71,16 @@ ANTEN_KAYMA = {"rc522": (-5.0, 0.0),    # RC522: 8'li pin sırası kısa kenarda
                                         # kabuğun eğrisine sığsın diye 10 mm kaydırıldı: anten merkezi figürden 5 mm yanda
 
 # ---------------------------------------------------------------- yerleşim (merkez x, y; alt z)
-HOP_Y = 23.0
+# Hoparlör (yuvarlak Ø50) önde DİK durur, çocuğa bakar: ses ön duvardaki ızgaradan çıkar. Taban plakasındaki beşiğe oturur,
+# kabuğun içinden inen bir "ses yakası" ızgaraya yönlendirir.
+HOP_ZC = TABAN_KAL + PARCA["hoparlor"][0] / 2 + 0.6   # merkez yüksekliği
+
+
+def _hop_on_y():
+    """Hoparlörün ön yüzü: Ø50 çember her noktasında kabuğun içinde kalacak en ön y."""
+    r = PARCA["hoparlor"][0] / 2
+    return min(math.sqrt(max(0.0, (ic_r(HOP_ZC + r * math.sin(t)) - 0.6) ** 2 - (r * math.cos(t)) ** 2))
+               for t in np.linspace(0, 2 * math.pi, 120, endpoint=False))
 PIL_Y = -15.0
 TP_X = -4.0
 AMP_XY = (17.0, -36.0)
@@ -107,6 +116,7 @@ def profil(ofs=0.0, z0=0.0, z1=H):
     return pts
 
 
+HOP_YF = _hop_on_y()                         # hoparlörün ön yüzü (y)
 Z_CANAK_TABAN = H - CUKUR_DERIN              # figür tabanının oturduğu yüz
 Z_HALKA_UST = H - DUVAR                      # halka kartı üst yüzün altına (tavana) yaslanır, LED'ler oyukta
 Z_HALKA_ALT = Z_HALKA_UST - PARCA["halka"][2]
@@ -123,8 +133,12 @@ def gorunmez():
 # ---------------------------------------------------------------- zarflar (çarpışma denetimi için)
 def zarflar(nfc):
     z = {}
-    w, d, h = PARCA["hoparlor"]
-    z["hoparlör (aşağı bakar)"] = kutu(-w / 2, w / 2, HOP_Y - d / 2, HOP_Y + d / 2, TABAN_KAL, TABAN_KAL + h)
+    hd, hdr = PARCA["hoparlor"]
+    yf = HOP_YF
+    # ön çerçeve Ø50 (5 mm) + sepet Ø50 -> Ø32 (8 mm) + mıknatıs Ø32 (kalan); hepsi tahmin
+    hop = (silindir(hd / 2, hdr - 5, hdr, seg=96) + silindir(16.0, hdr - 13, hdr - 5, seg=96, r2=hd / 2)
+           + silindir(16.0, 0, hdr - 13, seg=64))
+    z["hoparlör (önden)"] = hop.rotate([-90, 0, 0]).translate([0, yf - hdr, HOP_ZC])
     w, d, h = PARCA["pil_yatagi"]
     z["18650 yatağı"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, TABAN_KAL, TABAN_KAL + h)
     w, d, t = PARCA["tp4056"]
@@ -183,6 +197,17 @@ def kabuk():
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
         kol = silindir(4.5, TABAN_KAL, 14.0, x=x, y=y, seg=32) + kutu(-2.2, 2.2, 0, 8, TABAN_KAL, 14.0).rotate([0, 0, aci - 90]).translate([x, y, 0])
         g = g + ((kol ^ dondur(profil(-0.5), SEG)) - silindir(2.0, TABAN_KAL - 1, TABAN_KAL + 6.5, x=x, y=y, seg=24))
+    # ön: hoparlör ızgarası (logonun altında, Ø2,4 delikler) + içte ses yakası (hoparlörün önünden duvara boru)
+    hd, hdr = PARCA["hoparlor"]
+    izgara = CS()
+    for i in range(-6, 7):
+        for j in range(-6, 7):
+            x, zz = i * 4.4 + (2.2 if j % 2 else 0.0), j * 3.8
+            if x * x + zz * zz < (hd / 2 - 5) ** 2 and HOP_ZC + zz < YAZI_Z - YAZI_BOY / 2 - 1.5 and HOP_ZC + zz > TABAN_KAL + 5:
+                izgara = izgara + CS.circle(1.2, 20).translate([x, zz])
+    g = g - xz_den_y_ye(izgara, 40, 75, x=0, z=HOP_ZC)
+    yaka = (silindir(hd / 2 - 1.0, 0, 30, seg=96) - silindir(hd / 2 - 3.0, -1, 31, seg=96)).rotate([-90, 0, 0]).translate([0, HOP_YF + 2.0, HOP_ZC])
+    g = g + (yaka ^ dondur(profil(-1.0), SEG) ^ kutu(-40, 40, -70, 70, TABAN_KAL + 1.0, H))
     # arka: USB-C (fiş gövdesi için 12,5 x 7,5) ve anahtar (Ø15)
     usb_z = USB_Z_ALT + PARCA["tp4056"][2] + 1.6
     g = g - xz_den_y_ye(yuvarlak_dikdortgen(12.5, 7.5, 3.0), -70, -40, x=TP_X, z=usb_z)
@@ -239,19 +264,18 @@ def taban(oz=TABAN_OZ):
     for aci in VIDA_ACILAR:
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
         t = t - silindir(1.7, -1, 5, x=x, y=y, seg=24) - silindir(3.3, -1, 0.0, x=x, y=y, seg=24, r2=1.7).translate([0, 0, 1.6])
-    # hoparlör ızgarası (yıldızlar) ve köşe tutucular
-    for i in (range(-3, 4) if "hoparlor" in oz else ()):
-        for j in range(-3, 4):
-            x, y = i * 6.0, HOP_Y + j * 6.0 + (3.0 if i % 2 else 0.0)
-            if x * x + (y - HOP_Y) ** 2 < 19.5 ** 2:
-                t = t - silindir(1.4, -1, 5, x=x, y=y, seg=16)
-    w, d, h = PARCA["hoparlor"]
-    for sx in ((-1, 1) if "hoparlor" in oz else ()):
-        for sy in (-1, 1):
-            x0, y0 = sx * (w / 2 + 0.3), HOP_Y + sy * (d / 2 + 0.3)
-            l = kutu(min(x0, x0 + sx * 2), max(x0, x0 + sx * 2), min(y0 - sy * 6, y0 + sy * 2), max(y0 - sy * 6, y0 + sy * 2), TABAN_KAL, TABAN_KAL + 6)
-            l = l + kutu(min(x0 - sx * 6, x0 + sx * 2), max(x0 - sx * 6, x0 + sx * 2), min(y0, y0 + sy * 2), max(y0, y0 + sy * 2), TABAN_KAL, TABAN_KAL + 6)
-            t = t + l
+    # hoparlör beşiği: önde alt yarım çember (Ø50 kenarı oturur) + önünde dudak (öne kaymaz), arkada eyer; kablo bağı yarığı
+    if "hoparlor" in oz:
+        hd, hdr = PARCA["hoparlor"]
+        yf = HOP_YF
+        for y0, y1, ric in ((yf - 4.6, yf + 0.01, hd / 2 + 0.3), (yf + 0.01, yf + 1.6, hd / 2 - 2.5)):
+            besik = kutu(-hd / 2 - 3, hd / 2 + 3, y0, y1, TABAN_KAL - 0.01, HOP_ZC - 6)
+            besik = besik - silindir(ric, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC])
+            t = t + besik
+        eyer = kutu(-14, 14, yf - hdr + 3, yf - hdr + 7, TABAN_KAL - 0.01, HOP_ZC - 9)
+        t = t + (eyer - silindir(16.3, -5, 80, seg=64).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
+        for x in (-hd / 2 - 1.5, hd / 2 - 1.0):
+            t = t - kutu(x, x + 2.5, yf - 10, yf - 6, -1, TABAN_KAL + 1)
     # pil yatağı cebi (1,5 mm duvar, 3 mm yüksek) + iki kablo bağı yarığı (yatak cırt/kablo bağıyla tabana sıkılır)
     w, d, h = PARCA["pil_yatagi"]
     if "pil" in oz:
@@ -282,8 +306,6 @@ def taban(oz=TABAN_OZ):
     # ayak yuvaları
     for aci in ((90.0, 210.0, 330.0) if "ayak" in oz else ()):
         x, y = AYAK[2] * math.cos(math.radians(aci)), AYAK[2] * math.sin(math.radians(aci))
-        if abs(x) < 26 and abs(y - HOP_Y) < 26:
-            continue
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
     for x, y in (((0, -42), (-44, 14), (44, 14)) if "ayak" in oz else ()):
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
@@ -357,7 +379,7 @@ if __name__ == "__main__":
 
 
 # ---------------------------------------------------------------- önizleme
-RENK_PARCA = {"hoparlör (aşağı bakar)": "#555b66", "18650 yatağı": "#2f2f33", "TP4056 Type-C": "#2d6cdf",
+RENK_PARCA = {"hoparlör (önden)": "#555b66", "18650 yatağı": "#2f2f33", "TP4056 Type-C": "#2d6cdf",
               "MAX98357A": "#7b3fbf", "KCD11 anahtar": "#111111", "ESP32-S3 (rafta)": "#1d1d1d",
               "INMP441 mikrofon": "#3a7d44", "NeoPixel 16": "#ff4fa3", "RC522 okuyucu": "#1f6f3f",
               "PN5180 okuyucu": "#1f4f8f"}
@@ -388,13 +410,13 @@ def onizle():
         ax.set_xlim(-55, 55); ax.set_ylim(-55, 55); ax.set_zlim(-20, 75)
         ax.view_init(elev=elev, azim=azim)
         ax.set_title(f"{nfc.upper()} — iç yerleşim (sağ yarı kesik)", fontsize=14)
-    fig.suptitle("Çakıl stand, iç yerleşim: alt katta hoparlör (aşağı bakar), 18650, TP4056, MAX98357A; rafta ESP32-S3; "
+    fig.suptitle("Çakıl stand, iç yerleşim: alt katta hoparlör (önden), 18650, TP4056, MAX98357A; rafta ESP32-S3; "
                  "üstte NFC okuyucu, 16'lı halka, figür zemini (ışık oyuğu)", fontsize=11)
     plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0)
     fig.savefig(os.path.join(cikti, "cakil_ic_kesit3b.png")); plt.close(fig)
     # 2) üstten yerleşim planı (katlar)
     fig, axs = plt.subplots(1, 3, figsize=(19, 6.6), dpi=110)
-    katlar = [("Alt kat (taban plakası, z 2–22)", ["hoparlör (aşağı bakar)", "18650 yatağı", "TP4056 Type-C", "MAX98357A", "KCD11 anahtar"]),
+    katlar = [("Alt kat (taban plakası, z 2–22)", ["hoparlör (önden)", "18650 yatağı", "TP4056 Type-C", "MAX98357A", "KCD11 anahtar"]),
               ("Orta kat (raf, z 23–34)", ["ESP32-S3 (rafta)"]),
               ("Üst kat (z 37–54): RC522 / PN5180", ["RC522 okuyucu", "PN5180 okuyucu", "NeoPixel 16", "INMP441 mikrofon"])]
     th = np.linspace(0, 2 * np.pi, 200)
@@ -446,7 +468,7 @@ def onizle():
           (yapi["raf"].translate([0, 0, 14]), RENK_YAPI["raf"], False),
           (z["ESP32-S3 (rafta)"].translate([0, 0, 18]), RENK_PARCA["ESP32-S3 (rafta)"], False),
           (yapi["taban"].translate([0, 0, -40]), RENK_YAPI["taban"], False)]
-    for ad in ("hoparlör (aşağı bakar)", "18650 yatağı", "TP4056 Type-C", "MAX98357A"):
+    for ad in ("hoparlör (önden)", "18650 yatağı", "TP4056 Type-C", "MAX98357A"):
         ls.append((z[ad].translate([0, 0, -20]), RENK_PARCA[ad], False))
     elev, azim = 16, 60
     e, a = math.radians(elev), math.radians(azim)

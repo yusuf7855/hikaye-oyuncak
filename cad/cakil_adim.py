@@ -23,7 +23,7 @@ ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular
     ("halka", "16'lı NeoPixel halka", ["NeoPixel 16"], ["tutucu"], ()),
     ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], [], ()),
     ("pil", "18650 pil yatağı", ["18650 yatağı"], ["taban"], ("vida", "ayak", "pil")),
-    ("hoparlor", "Hoparlör 50x50", ["hoparlör (aşağı bakar)"], [], ("hoparlor",)),
+    ("hoparlor", "Hoparlör Ø50 (önden)", ["hoparlör (önden)"], [], ("hoparlor",)),
     ("esp32", "ESP32-S3", ["ESP32-S3 (rafta)"], ["raf"], ("raf",)),
     ("tp4056", "TP4056 + USB-C", ["TP4056 Type-C"], [], ("tp4056",)),
     ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], [], ()),
@@ -146,7 +146,7 @@ def taban_plan(n):
     for poly in ust.to_polygons():
         pp = np.asarray(poly)
         ax.add_patch(Polygon(pp, closed=True, fc="#c9b89c", ec="#7a6a55", lw=0.8))
-    parca = [p for a in ADIMLAR[:n] for p in a[2] if p in ("18650 yatağı", "hoparlör (aşağı bakar)", "TP4056 Type-C", "MAX98357A")]
+    parca = [p for a in ADIMLAR[:n] for p in a[2] if p in ("18650 yatağı", "hoparlör (önden)", "TP4056 Type-C", "MAX98357A")]
     for p in parca:
         b = z[p].bounding_box()
         ax.add_patch(Rectangle((b[0], b[1]), b[3] - b[0], b[4] - b[1], fc=C.RENK_PARCA[p] + "88", ec=C.RENK_PARCA[p], lw=2))
@@ -178,9 +178,9 @@ def montaj_gorsel():
           (z["NeoPixel 16"].translate([0, 0, yuk]), "#ff4fa3", True),
           (z["RC522 okuyucu"].translate([0, 0, yuk]), C.RENK_PARCA["RC522 okuyucu"], False),
           (C.taban(), "#E8DCCB", False), (yapi["raf"], "#c9c2b8", False)]
-    for p in ("18650 yatağı", "hoparlör (aşağı bakar)", "ESP32-S3 (rafta)", "TP4056 Type-C", "MAX98357A"):
+    for p in ("18650 yatağı", "hoparlör (önden)", "ESP32-S3 (rafta)", "TP4056 Type-C", "MAX98357A"):
         ls.append((z[p], C.RENK_PARCA[p], False))
-    etiket = {"18650 yatağı": "18650 pil yatağı", "hoparlör (aşağı bakar)": "HOPARLÖR 50x50\n(aşağı bakar)",
+    etiket = {"18650 yatağı": "18650 pil yatağı", "hoparlör (önden)": "HOPARLÖR Ø50\n(önden)",
               "ESP32-S3 (rafta)": "ESP32-S3 (rafta)"}
     for p, yazi in etiket.items():
         b = z[p].bounding_box()
@@ -198,11 +198,29 @@ def montaj_gorsel():
     ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• 16'lı halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
               "• açma-kapama anahtarı (arka duvarda)", transform=ax.transAxes, fontsize=10,
               bbox=dict(fc="white", ec="#b08a30"))
-    ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör (aşağı bakar)\n• ESP32-S3 (rafta)\n"
+    ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör Ø50 (önde, dik)\n• ESP32-S3 (rafta)\n"
               "• TP4056 (USB-C arka delikte)\n• MAX98357A", transform=ax.transAxes, fontsize=10, bbox=dict(fc="white", ec="#8a7a66"))
     ax.text2D(0.62, 0.10, "4 x M3 vida alttan\n(kabukta ısıl gömme somun)", transform=ax.transAxes, fontsize=10)
     ax.set_title("Montaj: iki modül ayrı kurulur, kablolar soketle takılır, kabuk alt kapağın üstüne iner", fontsize=11)
     yol = os.path.join(C.KOK, "onizleme", "montaj_iki_modul.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
+def dis_on():
+    """Dışarıdan önden ve yandan: logo, hoparlör ızgarası."""
+    k = C.kabuk()
+    fig = plt.figure(figsize=(15, 7), dpi=110)
+    for i, (elev, azim, bas) in enumerate(((12, 90, "Önden: logo ve hoparlör ızgarası"), (22, 50, "Önden-yandan"))):
+        ax = fig.add_subplot(1, 2, i + 1, projection="3d")
+        e, a = math.radians(elev), math.radians(azim)
+        K.ciz(ax, [(k, C.RENK_YAPI["kabuk"], False)], [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+        ax.set_xlim(-55, 55); ax.set_ylim(-55, 55); ax.set_zlim(-20, 70)
+        ax.view_init(elev=elev, azim=azim)
+        ax.set_title(bas, fontsize=13)
+    plt.subplots_adjust(left=0, right=1, top=0.92, bottom=0, wspace=0)
+    yol = os.path.join(C.KOK, "onizleme", "adim_4_dis_on.png")
     fig.savefig(yol)
     plt.close(fig)
     return yol
@@ -268,6 +286,10 @@ if __name__ == "__main__":
         3: [(0, C.TABAN_KAL + 10, "18650 pil yatağı (77x21x19, tahmin), x boyunca", -62, 40),
             (-17.5, C.TABAN_KAL + 1.5, "taban plakasında 3 mm cep duvarı", -62, 24),
             (0, 1.0, "taban plakası (alttan 4 x M3 vida)", 10, 14)],
+        4: [(0, C.HOP_ZC + 12, "hoparlör Ø50, dik, öne bakar\n(ön çerçeve + mıknatıs, tahmin)", -62, 44),
+            (C.HOP_YF + 6, C.HOP_ZC + 20, "ses yakası: hoparlörden ızgaraya boru", 2, 60),
+            (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
+            (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
     }.get(n, [])
     if n == 2:
         for nfc in ("rc522", "pn5180"):
@@ -279,3 +301,5 @@ if __name__ == "__main__":
         print(ust_gorunus())
     if n >= 3:
         print(taban_plan(n))
+    if n == 4:
+        print(dis_on())
