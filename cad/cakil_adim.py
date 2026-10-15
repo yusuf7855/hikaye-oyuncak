@@ -167,6 +167,43 @@ def taban_plan(n):
     return yol
 
 
+def montaj_gorsel():
+    """İki modül: üst (kabuk + halka + tutucu + NFC + mikrofon + anahtar) ve alt kapak (pil, hoparlör, ESP32, TP4056, amfi)."""
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    fig = plt.figure(figsize=(10, 12), dpi=110)
+    ax = fig.add_subplot(1, 1, 1, projection="3d")
+    yuk = 55.0
+    yarim = kutu(-80, 0, -80, 80, -5, 80)
+    ls = [((yapi["kabuk"] ^ yarim).translate([0, 0, yuk]), C.RENK_YAPI["kabuk"], False),
+          (yapi["tutucu"].translate([0, 0, yuk]), "#ffd27a", False),
+          (z["NeoPixel 16"].translate([0, 0, yuk]), "#ff4fa3", True),
+          (z["RC522 okuyucu"].translate([0, 0, yuk]), C.RENK_PARCA["RC522 okuyucu"], False),
+          (z["INMP441 mikrofon"].translate([0, 0, yuk]), C.RENK_PARCA["INMP441 mikrofon"], False),
+          (C.taban(), "#E8DCCB", False), (yapi["raf"], "#c9c2b8", False)]
+    for p in ("18650 yatağı", "hoparlör (aşağı bakar)", "ESP32-S3 (rafta)", "TP4056 Type-C", "MAX98357A"):
+        ls.append((z[p], C.RENK_PARCA[p], False))
+    for aci in C.VIDA_ACILAR:
+        x, y = C.VIDA_R * math.cos(math.radians(aci)), C.VIDA_R * math.sin(math.radians(aci))
+        ls.append((C.silindir(1.5, -14, -4, x=x, y=y, seg=16) + C.silindir(2.8, -16, -14, x=x, y=y, seg=16), "#555", False))
+    elev, azim = 14, 30
+    e, a = math.radians(elev), math.radians(azim)
+    K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+    ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_zlim(-20, 115)
+    ax.set_box_aspect((1, 1, 1.15))
+    ax.view_init(elev=elev, azim=azim)
+    ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• 16'lı halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
+              "• mikrofon (üstte)\n• açma-kapama anahtarı (arka duvarda)", transform=ax.transAxes, fontsize=10,
+              bbox=dict(fc="white", ec="#b08a30"))
+    ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör (aşağı bakar)\n• ESP32-S3 (rafta)\n"
+              "• TP4056 (USB-C arka delikte)\n• MAX98357A", transform=ax.transAxes, fontsize=10, bbox=dict(fc="white", ec="#8a7a66"))
+    ax.text2D(0.62, 0.10, "4 x M3 vida alttan\n(kabukta ısıl gömme somun)", transform=ax.transAxes, fontsize=10)
+    ax.set_title("Montaj: iki modül ayrı kurulur, kablolar soketle takılır, kabuk alt kapağın üstüne iner", fontsize=11)
+    yol = os.path.join(C.KOK, "onizleme", "montaj_iki_modul.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 def nfc_plan():
     """Üstten: iki okuyucunun yeri, anten bölgesi, figür etiketi (Ø25), çukur, halka, direkler, raylar."""
     from matplotlib.patches import Rectangle, Circle
@@ -212,6 +249,9 @@ def nfc_plan():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "montaj":
+        print(montaj_gorsel())
+        sys.exit(0)
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
         1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka çukurun ÇEVRESİNDE, tavana yaslı;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
