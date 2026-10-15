@@ -35,6 +35,8 @@ YUVA_DERIN = 2.2
 BILEZIK_R = (33.0, 36.0)
 BILEZIK_H = 8.0
 YUZEN_BOSLUK = 6.0
+CUKUR_DERIN = 6.0    # "cukur": figür tabanının oturduğu derinlik
+CUKUR_KENAR_R = 38.0 # çanağın üstteki ışık kenarı (r 31,6..38)
 AYAK_R = 13.5        # gizli ayak halkanın iç boşluğundan (r 15,9) geçer
 HALKA = (31.75 / 2, 44.5 / 2, 3.5)   # NeoPixel 16'lı: iç r, dış r, kalınlık
 
@@ -68,6 +70,13 @@ def govde_parcalari(yol):
     govde = govde - xz_den_y_ye(yuvarlak_dikdortgen(9.6, 3.8, 1.6), -70, -40, x=14, z=9)
     govde = govde - silindir(0.9, H_GOVDE - 15, H_GOVDE + 5, x=0, y=-41.5, seg=16)
     z0 = H_GOVDE
+    if yol == "cukur":
+        # figür yuvası gövdeye gömülü; yuvayı yarı saydam beyaz bir çanak oluşturur, üstte geniş ışık kenarı
+        cz = z0 - CUKUR_DERIN
+        govde = govde - silindir(CUKUR_KENAR_R + 0.2, cz - 2.5, z0 + 1, seg=SEG)
+        isik = (silindir(CUKUR_KENAR_R, cz - 2.0, z0, seg=SEG) - silindir(YUVA_R, cz, z0 + 1, seg=SEG))
+        pz = cz - PLATFORM_KAL + YUVA_DERIN   # figur_taban() tabanı çanağın tabanına oturtsun
+        return govde, yazi, isik, None, None, pz
     if yol == "bilezik":
         govde = govde - silindir(BILEZIK_R[1] + 0.2, z0 - 1.5, z0 + 1, seg=SEG)  # bilezik 1,5 mm gömülür
         isik = (silindir(BILEZIK_R[1], z0 - 1.5, z0 + BILEZIK_H, seg=SEG)
@@ -98,10 +107,10 @@ def figur_taban(pz):
 
 def gorsel():
     os.makedirs(CIKTI, exist_ok=True)
-    yollar = (("1 — Işık bileziği", "bilezik"), ("2 — Yüzen platform", "yuzen"))
+    yollar = (("1 — Işık bileziği", "bilezik"), ("2 — Yüzen platform", "yuzen"), ("3 — Çukur + ışık kenarı", "cukur"))
     parcalar = {ad: govde_parcalari(ad) for _, ad in yollar}
     for mod in ("gunduz", "gece", "figurlu"):
-        fig = plt.figure(figsize=(13, 6.6), dpi=110,
+        fig = plt.figure(figsize=(19, 6.6), dpi=110,
                          facecolor="#0E1430" if mod == "gece" else "white")
         for i, (baslik, ad) in enumerate(yollar):
             govde, yazi, isik, platform, ayak, pz = parcalar[ad]
@@ -115,7 +124,7 @@ def gorsel():
             if mod == "figurlu":
                 t, g = figur_taban(pz)
                 ls += [(t, "#FF6FA8", False), (g, "#FF9CC4", False)]
-            ax = fig.add_subplot(1, 2, i + 1, projection="3d")
+            ax = fig.add_subplot(1, 3, i + 1, projection="3d")
             ax.set_facecolor(fig.get_facecolor())
             elev, azim = 22, 90
             e, a = math.radians(elev), math.radians(azim)
@@ -137,14 +146,42 @@ def gorsel():
 
 def kesit():
     """Yan kesit (x = 0 düzlemi, sağ yarı): ışık yolu, halka, NFC okuyucu, etiket mesafesi."""
-    fig, axs = plt.subplots(1, 2, figsize=(14, 6.2), dpi=110)
+    fig, axs = plt.subplots(1, 3, figsize=(20, 6.2), dpi=110)
     pf = profil_govde()
-    for ax, ad, baslik in ((axs[0], "bilezik", "1 — Işık bileziği"), (axs[1], "yuzen", "2 — Yüzen platform")):
+    for ax, ad, baslik in ((axs[0], "bilezik", "1 — Işık bileziği"), (axs[1], "yuzen", "2 — Yüzen platform"),
+                           (axs[2], "cukur", "3 — Çukur + ışık kenarı")):
         z0 = H_GOVDE
         dis = [(r, z) for r, z in pf]
         ax.add_patch(Polygon(dis, closed=True, fc="#F6E7D2", ec="#8a7a66", lw=1.2))
         ax.add_patch(Polygon([(r - 2.4, z) for r, z in dis if r > 3 and 2 < z < z0 - 2.4] + [(0, z0 - 2.4), (0, 2.4)],
                              closed=True, fc="white", ec="#c8b9a5", lw=0.8))
+        if ad == "cukur":
+            cz = z0 - CUKUR_DERIN
+            ax.add_patch(Rectangle((0, z0 - 2.4), CUKUR_KENAR_R + 0.2, 2.4, fc="white", ec="none"))
+            ax.add_patch(Polygon([(0, cz - 2), (CUKUR_KENAR_R, cz - 2), (CUKUR_KENAR_R, z0), (YUVA_R, z0),
+                                  (YUVA_R, cz), (0, cz)], closed=True, fc="#FFE3F1", ec="#e080b0", lw=1.2))
+            halka_z = cz - 2 - 3.6
+            ax.add_patch(Rectangle((HALKA[0], halka_z), HALKA[1] - HALKA[0], 1.6, fc="#333", ec="k"))
+            ax.add_patch(Rectangle((HALKA[0] + 1, halka_z + 1.6), 5, 1.2, fc="#ff4fa3", ec="none"))
+            for x2, y2 in ((10, cz + 6), (34, z0 + 6), (44, z0 + 4)):
+                ax.add_patch(FancyArrowPatch((19, halka_z + 2.6), (x2, y2), arrowstyle="-|>", mutation_scale=12,
+                                             color="#ff4fa3", lw=1.3))
+            ax.text(39, z0 + 2.5, "ışık kenarı (r 31,6–38)", fontsize=9, color="#b0306f")
+            ax.text(33, cz - 6, "yarı saydam çanak\n(beyaz PETG)", fontsize=9, color="#b0306f")
+            tz = cz
+            ax.add_patch(Rectangle((0, tz), 31.0, 6, fc="#FF9CC4", ec="#c0507c", lw=1))
+            ax.add_patch(Rectangle((0, tz + 0.4), 12.5, 0.4, fc="#2060ff", ec="none"))
+            ax.text(1, tz + 7.2, "figür tabanı (Ø62); NFC etiketi altta", fontsize=9)
+            nfc_z = halka_z - 4.0
+            ax.add_patch(Rectangle((0, nfc_z), 30, 1.6, fc="#1f6f3f", ec="k"))
+            ax.text(1, nfc_z - 3.2, "NFC okuyucu (RC522 / PN5180)", fontsize=9, color="#1f6f3f")
+            mes = tz + 0.4 - (nfc_z + 1.6)
+            ax.annotate("", xy=(5, nfc_z + 1.6), xytext=(5, tz + 0.4), arrowprops=dict(arrowstyle="<->", color="#2060ff"))
+            ax.text(6, (nfc_z + tz) / 2, f"etiket–anten ≈ {mes:.0f} mm", fontsize=9, color="#2060ff")
+            ax.set_xlim(0, 66); ax.set_ylim(-2, z0 + 16)
+            ax.set_aspect("equal"); ax.grid(alpha=.25)
+            ax.set_title(baslik + " — yan kesit (sağ yarı, mm)", fontsize=12)
+            continue
         if ad == "bilezik":
             pz = z0 + BILEZIK_H
             ax.add_patch(Rectangle((BILEZIK_R[0], z0 - 1.5), BILEZIK_R[1] - BILEZIK_R[0], BILEZIK_H + 1.5,
