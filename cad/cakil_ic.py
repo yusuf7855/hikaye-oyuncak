@@ -53,7 +53,8 @@ YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının 
 PARCA = {
     "hoparlor": (50.0, 22.0),            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
     "pil_yatagi": (77.0, 21.0, 19.0),    # 18650 tekli yatak
-    "tp4056": (17.0, 26.0, 1.6),         # Type-C, korumalı; USB-C 9 x 3,2 (y- ucunda)
+    "tp4056": (17.5, 28.0, 1.6),         # TP4056 Type-C 1S, korumalı (DW01+8205): en, boy, kart kalınlığı (tahmin)
+    "tp4056_usb": (9.0, 3.2, 7.4, 0.6),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma
     "max98357": (19.0, 18.0, 10.0),      # vida klemensi lehimliyse ~10 mm
     "esp32": (69.0, 25.5, 9.0),          # DevKitC-1 N16R8 (başlıksız: alt + üst bileşenler)
     "kcd11": (15.0, 20.0),               # Ø15 panel deliği, arkada ~20 mm derinlik
@@ -81,11 +82,14 @@ def _hop_on_y():
     r = PARCA["hoparlor"][0] / 2
     return min(math.sqrt(max(0.0, (ic_r(HOP_ZC + r * math.sin(t)) - 0.6) ** 2 - (r * math.cos(t)) ** 2))
                for t in np.linspace(0, 2 * math.pi, 120, endpoint=False))
-PIL_Y = -15.0
+PIL_Y = -10.0                        # pil yatağı (hoparlör öne dik geçince 5 mm öne alındı: TP4056'ya yer)
 TP_X = -4.0
-AMP_XY = (17.0, -36.0)
+AMP_XY = (18.0, -36.0)
 ANAHTAR_ACI, ANAHTAR_Z = 250.0, 17.0
-USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 1 mm destek üstünde
+USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 kartının alt yüzü (1 mm destek)
+USB_ZC = USB_Z_ALT + 1.6 + 1.6       # USB-C dişinin ekseni
+USB_DELIK = (11.0, 6.6, 3.0)         # fiş gövdesi için delik (en, yükseklik, köşe yarıçapı)
+USB_DUVAR = 1.4                      # deliğin çevresinde duvar dıştan oyulup bu kalınlığa iner (fiş tam oturur)
 RAF_Z = 22.8                         # ESP32 rafı (hoparlörün üstü 22,4, pil yatağının 21,4)
 RAF_KAL = 1.6
 PIL_BAG_X = 22.0                     # pil yatağını tabana sıkan iki kablo bağının yeri (x = ±22)
@@ -126,6 +130,16 @@ Z_TUTUCU_ALT = Z_HALKA_ALT - TUTUCU_KAL      # halka tutucu plakası (halkayı t
 Z_OKUYUCU_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.3   # NFC okuyucunun anten yüzü: çukur zemininin hemen altı
 
 
+def tp_konum():
+    """TP4056: (iç düz yüz y, USB-C dişinin ön yüzü y, kartın ön kenarı y). İç duvar USB-C'nin önünde düz bir yüz
+    olur (eğri duvar burada doldurulur); dişi bu yüze 0,3 mm kalır."""
+    uw = PARCA["tp4056_usb"][0]
+    y_ic = -math.sqrt(ic_r(USB_ZC) ** 2 - (abs(TP_X) + uw / 2 + 2.0) ** 2)   # deliğin kenarında iç duvar
+    y_plaka = y_ic + 0.4
+    y_usb = y_plaka + 0.3
+    return y_plaka, y_usb, y_usb + PARCA["tp4056_usb"][3]
+
+
 def gorunmez():
     return M()
 
@@ -142,8 +156,11 @@ def zarflar(nfc):
     w, d, h = PARCA["pil_yatagi"]
     z["18650 yatağı"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, TABAN_KAL, TABAN_KAL + h)
     w, d, t = PARCA["tp4056"]
-    y_uc = -(math.sqrt(max(0.0, ic_r(USB_Z_ALT) ** 2 - (abs(TP_X) + w / 2) ** 2))) + 0.6
-    z["TP4056 Type-C"] = kutu(TP_X - w / 2, TP_X + w / 2, y_uc, y_uc + d, USB_Z_ALT, USB_Z_ALT + t + 3.4)
+    uw, uh, ul, ut = PARCA["tp4056_usb"]
+    y_plaka, y_usb, y_kart = tp_konum()
+    z["TP4056 Type-C"] = (kutu(TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d, USB_Z_ALT, USB_Z_ALT + t)
+                          + kutu(TP_X - w / 2 + 1.0, TP_X + w / 2 - 1.0, y_kart + 1.0, y_kart + d - 1.0, USB_Z_ALT + t, USB_Z_ALT + t + 1.8)
+                          + kutu(TP_X - uw / 2, TP_X + uw / 2, y_usb, y_usb + ul, USB_Z_ALT + t, USB_Z_ALT + t + uh))
     w, d, h = PARCA["max98357"]
     z["MAX98357A"] = kutu(AMP_XY[0] - w / 2, AMP_XY[0] + w / 2, AMP_XY[1] - d / 2, AMP_XY[1] + d / 2,
                           TABAN_KAL + 1, TABAN_KAL + 1 + h)
@@ -209,8 +226,13 @@ def kabuk():
     yaka = (silindir(hd / 2 - 1.0, 0, 30, seg=96) - silindir(hd / 2 - 3.0, -1, 31, seg=96)).rotate([-90, 0, 0]).translate([0, HOP_YF + 2.0, HOP_ZC])
     g = g + (yaka ^ dondur(profil(-1.0), SEG) ^ kutu(-40, 40, -70, 70, TABAN_KAL + 1.0, H))
     # arka: USB-C (fiş gövdesi için 12,5 x 7,5) ve anahtar (Ø15)
-    usb_z = USB_Z_ALT + PARCA["tp4056"][2] + 1.6
-    g = g - xz_den_y_ye(yuvarlak_dikdortgen(12.5, 7.5, 3.0), -70, -40, x=TP_X, z=usb_z)
+    # USB-C: içte düz oturma yüzü (eğri duvar doldurulur), dışta fiş için oyuk (duvar USB_DUVAR'a iner), delik
+    y_plaka, y_usb, y_kart = tp_konum()
+    dw, dh, dr = USB_DELIK
+    ped = kutu(TP_X - 9, TP_X + 9, -70, y_plaka, USB_ZC - 6, USB_ZC + 6) ^ dondur(profil(), SEG)
+    g = g + ped
+    g = g - xz_den_y_ye(yuvarlak_dikdortgen(dw + 4, dh + 4, dr + 2), -70, y_plaka - USB_DUVAR, x=TP_X, z=USB_ZC)
+    g = g - xz_den_y_ye(yuvarlak_dikdortgen(dw, dh, dr), -70, y_plaka + 1, x=TP_X, z=USB_ZC)
     a = ANAHTAR_ACI
     g = g - silindir(PARCA["kcd11"][0] / 2 + 0.1, 0, 30, seg=48).rotate([0, 90, 0]).translate([45, 0, ANAHTAR_Z]).rotate([0, 0, a])
     # mikrofon deliği ve cebi (MIKROFON açılınca)
@@ -284,13 +306,17 @@ def taban(oz=TABAN_OZ):
         for x in (-PIL_BAG_X, PIL_BAG_X):
             for y in (PIL_Y - d / 2 - 3.2, PIL_Y + d / 2 + 0.6):
                 t = t - kutu(x - 2.0, x + 2.0, y, y + 2.6, -1, TABAN_KAL + 4)
-    zf = zarflar("rc522")
-    b = zf["TP4056 Type-C"].bounding_box()
-    tp = M()
-    tp = tp + kutu(b[0] - 1.6, b[0] - 0.2, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
-    tp = tp + kutu(b[3] + 0.2, b[3] + 1.6, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
-    # iç uçta ayrı dayanak yok: pil yatağı cebinin arka duvarı dayanak (fiş takılırken kart içeri itilir)
-    tp = tp + kutu(b[0] + 3, b[3] - 3, b[1] + 6, b[4] - 4, TABAN_KAL, USB_Z_ALT)
+    # TP4056 yuvası: 1 mm destekler, iki yanda duvar (kart üst kenarına 0,4 mm tırnak: bastırınca yerine oturur),
+    # arkada dayanak (fiş takılırken kart içeri kaçmaz); ön ucu USB-C ile kabuğun düz yüzüne dayanır
+    w, d, tk = PARCA["tp4056"]
+    y_plaka, y_usb, y_kart = tp_konum()
+    x0, x1, y0, y1 = TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d
+    zu = USB_Z_ALT + tk
+    tp = kutu(x0 + 2, x1 - 2, y0 + 3, y1 - 3, TABAN_KAL - 0.01, USB_Z_ALT)
+    for xa, xb, xt0, xt1 in ((x0 - 1.4, x0 - 0.15, x0 - 0.15, x0 + 0.4), (x1 + 0.15, x1 + 1.4, x1 - 0.4, x1 + 0.15)):
+        tp = tp + kutu(xa, xb, y0 + 6, y1 - 2, TABAN_KAL - 0.01, zu + 1.2)
+        tp = tp + kutu(xt0, xt1, y0 + 10, y0 + 16, zu + 0.15, zu + 1.2)
+    tp = tp + kutu(x0 + 1, x1 - 1, y1 + 0.2, y1 + 1.6, TABAN_KAL - 0.01, zu + 1.0)
     if "tp4056" in oz:
         t = t + tp
     w, d, h = PARCA["max98357"]

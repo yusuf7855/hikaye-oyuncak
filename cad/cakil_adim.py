@@ -24,8 +24,8 @@ ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular
     ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], [], ()),
     ("pil", "18650 pil yatağı", ["18650 yatağı"], ["taban"], ("vida", "ayak", "pil")),
     ("hoparlor", "Hoparlör Ø50 (önden)", ["hoparlör (önden)"], [], ("hoparlor",)),
+    ("tp4056", "TP4056 Type-C şarj devresi", ["TP4056 Type-C"], [], ("tp4056",)),
     ("esp32", "ESP32-S3", ["ESP32-S3 (rafta)"], ["raf"], ("raf",)),
-    ("tp4056", "TP4056 + USB-C", ["TP4056 Type-C"], [], ("tp4056",)),
     ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], [], ()),
     ("amfi", "MAX98357A", ["MAX98357A"], [], ("amfi",)),
 ]
@@ -226,6 +226,42 @@ def dis_on():
     return yol
 
 
+def usb_yakin():
+    """USB-C yakından: arkadan dış görünüş ve kartın ortasından yan kesit."""
+    from matplotlib.patches import Rectangle
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    k = yapi["kabuk"]
+    tb = C.taban(("vida", "pil", "tp4056"))
+    fig = plt.figure(figsize=(16, 7), dpi=110)
+    ax = fig.add_subplot(1, 2, 1, projection="3d")
+    kirp = kutu(-30, 22, -70, -30, -2, 30)
+    ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (tb ^ kirp, "#E8DCCB", False), (z["TP4056 Type-C"], "#2d6cdf", False)]
+    elev, azim = 10, -90
+    e, a = math.radians(elev), math.radians(azim)
+    K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+    ax.set_xlim(-26, 18); ax.set_ylim(-70, -26); ax.set_zlim(-4, 26)
+    ax.view_init(elev=elev, azim=azim)
+    ax.set_title("Arkadan: USB-C girişi (fiş oyuğu + delik)", fontsize=12)
+    ax2 = fig.add_subplot(1, 2, 2)
+    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
+        cs = man.translate([-C.TP_X, 0, 0]).rotate([0, -90, 0]).slice(0.0)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax2.add_patch(Polygon(np.c_[pp[:, 1], -pp[:, 0]], closed=True, fc=fc, ec=ec, lw=1))
+    ax2.annotate("USB-C dişi (kartın ucunda)", xy=(C.tp_konum()[1] + 2, C.USB_ZC), xytext=(-48, 18), fontsize=10,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.annotate("fiş buradan girer", xy=(C.tp_konum()[0] - 2, C.USB_ZC), xytext=(-68, 15), fontsize=10,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.set_xlim(-68, -18); ax2.set_ylim(-2, 24); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
+    ax2.set_xlabel("y (mm)  ← ARKA"); ax2.set_title("Kartın ortasından yan kesit", fontsize=12)
+    fig.suptitle("Adım 5: TP4056 Type-C — şarj girişi arka duvarda", fontsize=14)
+    plt.tight_layout()
+    yol = os.path.join(C.KOK, "onizleme", "adim_5_usb_yakin.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 def nfc_plan():
     """Üstten: iki okuyucunun yeri, anten bölgesi, figür etiketi (Ø25), çukur, halka, direkler, raylar."""
     from matplotlib.patches import Rectangle, Circle
@@ -290,6 +326,9 @@ if __name__ == "__main__":
             (C.HOP_YF + 6, C.HOP_ZC + 20, "ses yakası: hoparlörden ızgaraya boru", 2, 60),
             (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
             (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
+        5: [(C.tp_konum()[0] - 1, C.USB_ZC, "USB-C: dıştan oyuk, duvar 1,4 mm;\niçte düz oturma yüzü", -62, 34),
+            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı: 1 mm desteklerde,\nyanlarda tırnaklı duvar, arkada dayanak", -30, 22),
+            (C.PIL_Y, C.TABAN_KAL + 12, "pil yatağı (5 mm öne alındı)", 10, 30)],
     }.get(n, [])
     if n == 2:
         for nfc in ("rc522", "pn5180"):
@@ -303,3 +342,5 @@ if __name__ == "__main__":
         print(taban_plan(n))
     if n == 4:
         print(dis_on())
+    if n == 5:
+        print(usb_yakin())
