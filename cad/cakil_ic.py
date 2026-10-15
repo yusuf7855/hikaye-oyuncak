@@ -38,9 +38,9 @@ CUKUR_DERIN = 6.0        # yuva tabanı = H - 6
 # Ürün sahibi (16 Ekim 2026): ayrı yarı saydam parça yok, her şey PLA/PETG. Figürün oturduğu zemin kabuğun parçası;
 # zeminin altında, LED'lerin tam üstünde halka biçimli oyuk: zemin orada ISIK_KAL kalır, beyaz PLA'dan ışık geçer.
 YUVA_DUVAR = 2.0         # çukurun kabuk içine sarkan duvarı
-ZEMIN_KAL = 2.0          # figür zemini kalınlığı
+ZEMIN_KAL = 2.4          # figür zemini kalınlığı
 ISIK_KAL = 0.6           # LED'lerin üstünde kalan zemin (0,6 mm beyaz PLA ışığı geçirir; renkli PLA'da delik açılabilir)
-ISIK_R = (16.4, 22.6)    # ışık oyuğu (16'lı halkanın LED'leri r ≈ 19'da)
+ISIK_R = (16.2, 22.0)    # ışık oyuğu: LED'ler (5x5 mm, r ≈ 19) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
 YAZI, YAZI_BOY, YAZI_Z = "eco ai", 15.0, 37.0
 
@@ -53,7 +53,8 @@ PARCA = {
     "esp32": (69.0, 25.5, 9.0),          # DevKitC-1 N16R8 (başlıksız: alt + üst bileşenler)
     "kcd11": (15.0, 20.0),               # Ø15 panel deliği, arkada ~20 mm derinlik
     "inmp441": (14.0, 14.0, 3.0),
-    "halka": (31.75, 44.5, 3.5),         # NeoPixel 16'lı: iç Ø, dış Ø, kalınlık (LED dahil)
+    "halka": (31.75, 44.5, 1.6),         # NeoPixel 16'lı: iç Ø, dış Ø, kart kalınlığı
+    "halka_led": (5.0, 1.6),             # WS2812B 5050: en, yükseklik (kartın üstünde, r ≈ 19)
     "rc522": (60.0, 40.0, 1.6, 3.0),     # en, boy, PCB, alt bileşen yüksekliği
     "pn5180": (70.0, 39.0, 1.6, 3.0),
 }
@@ -97,7 +98,7 @@ def profil(ofs=0.0, z0=0.0, z1=H):
 
 
 Z_CANAK_TABAN = H - CUKUR_DERIN              # figür tabanının oturduğu yüz
-Z_HALKA_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.5
+Z_HALKA_UST = Z_CANAK_TABAN - ZEMIN_KAL        # halka kartı zeminin altına (tavana) yaslanır, LED'ler oyukta
 Z_HALKA_ALT = Z_HALKA_UST - PARCA["halka"][2]
 TUTUCU_KAL = 2.0
 Z_MIK = H - DUVAR - 3.0 - 1.2                # mikrofon kartı (deliğe bakar, üstte 1,2 mm conta payı)
@@ -132,7 +133,11 @@ def zarflar(nfc):
     w, d, h = PARCA["inmp441"]
     z["INMP441 mikrofon"] = silindir(w / 2, Z_MIK, Z_MIK + h, x=MIK_XY[0], y=MIK_XY[1], seg=32)
     ri, rd, kal = PARCA["halka"]
-    z["NeoPixel 16"] = silindir(rd / 2, Z_HALKA_ALT, Z_HALKA_UST, seg=96) - silindir(ri / 2, Z_HALKA_ALT - 1, Z_HALKA_UST + 1, seg=96)
+    lw, lh = PARCA["halka_led"]
+    rl = (ri + rd) / 4
+    z["NeoPixel 16"] = (silindir(rd / 2, Z_HALKA_ALT, Z_HALKA_UST, seg=96) - silindir(ri / 2, Z_HALKA_ALT - 1, Z_HALKA_UST + 1, seg=96)
+                        + (silindir(rl + lw / 2, Z_HALKA_UST, Z_HALKA_UST + lh, seg=96)
+                           - silindir(rl - lw / 2, Z_HALKA_UST - 1, Z_HALKA_UST + lh + 1, seg=96)))
     w, d, pcb, alt = PARCA[nfc]
     cx, cy = -ANTEN_KAYMA[nfc][0], -ANTEN_KAYMA[nfc][1]
     z[f"{nfc.upper()} okuyucu"] = (kutu(cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, Z_TUTUCU_ALT - pcb, Z_TUTUCU_ALT)
