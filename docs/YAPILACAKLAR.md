@@ -13,6 +13,10 @@ tohum (750 ninni, 750 uyku masalı; kart `gece`, kılavuz `degerlendirme/KILAVUZ
 Toplama: `urun_hafif_topla.py topla urun_v4` + `birlestir urun_karma2 urun_v3 urun_v4` (40 gece metni
 `gece_ayri/` altında ayrı tutulur). Gece verisiyle eğitilen model pakete girince `urun_uret.GECE_MODELDE = True`.
 
+Karar (2026-10-15): **ninniler sabit** — kartta 15 geleneksel tarz ninni (`firmware/hikaye_oyuncak/ninniler.txt`),
+gece figürü modeli hiç çalıştırmaz. urun_v4'teki gece (ninni/uyku masalı) verisi ürün modeline gerekmez; bir sonraki
+eğitimde `birlestir` gece metinlerini dışarıda bırakabilir.
+
 Adımlar:
 1. Yeni tohumlar: `data/urun_v3/tohum/` gibi figür başına ~950 → ~2000–2800 (farklı seed; mevcut tohumlarla çakışma
    olmasın), istemleri üret (`data/urun_v3/istem/`, scratchpad `v3_istem.py` mantığı; 24 tohum/istem).

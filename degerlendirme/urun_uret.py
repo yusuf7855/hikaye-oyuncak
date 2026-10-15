@@ -33,6 +33,8 @@ KARTLAR = {k["kimlik"]: k for k in json.load(open(os.path.join(ROOT, "data", "ur
 # (data/urun_karma2) eğitilmiş model pakete girdiği anda True yapılır: 'gece' listenin SONUNA eklenir, öteki figürlerin
 # numaraları (istemler.h FIGUR_*) değişmez. Gece istemi tür alanını plan satırının ilk kelimesiyle taşır:
 # istem(..., tur='ninni') -> '...\nSorun: ninni,' (KILAVUZ_GECE.md).
+# 15 Ekim 2026: ninniler kartta sabit (firmware/hikaye_oyuncak/ninniler.txt, 15 ninni); kart gece figüründe modeli
+# hiç çalıştırmaz, bu bayrak yalnız web/deney içindir.
 GECE_MODELDE = False
 # ürün modelinin verisi olan figürler (data/urun_v2/<kimlik>.txt) [+ gece, GECE_MODELDE ise]
 FIGURLER = [k for k in KARTLAR if os.path.exists(os.path.join(ROOT, "data", "urun_v2", f"{k}.txt"))] + \

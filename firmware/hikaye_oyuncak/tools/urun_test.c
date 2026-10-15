@@ -319,8 +319,8 @@ static void donanim_denemesi(void) {
   DENE(gece == 11 && !strcmp(DONANIM_KIMLIK[gece], "gece") && DONANIM_NFC[gece] == 12, "gece figürü");
   int yerlesik_var = 0;
   for (size_t i = 0; i < sizeof YERLESIK / sizeof YERLESIK[0]; i++)
-    if (!strcmp(YERLESIK[i].kimlik, "gece") && YERLESIK[i].n >= 5) yerlesik_var = 1;
-  DENE(DONANIM_MODEL[gece] >= 0 || yerlesik_var, "gece figürünün ne modeli ne yerleşik metni var");
+    if (!strcmp(YERLESIK[i].kimlik, "gece") && YERLESIK[i].n == 15) yerlesik_var = 1;
+  DENE(DONANIM_MODEL[gece] < 0 && yerlesik_var, "gece figürü 15 sabit ninniyi okumalı (model değil)");
   for (int d = 0; d < DONANIM_N; d++) DENE(DONANIM_NFC[d] != AYAR_KARTI_NFC, "ayar kartı numarası çakışıyor");
 }
 

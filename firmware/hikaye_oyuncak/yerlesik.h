@@ -1,32 +1,55 @@
-// Yerleşik metinler: hikâye modelinin henüz bilmediği donanım figürleri için flash'ta duran kısa metinler.
-//
-// Kart bir donanım figürünün içeriğini şöyle seçer (hikaye_oyuncak.ino icerik_hazirla):
-//   DONANIM_MODEL[d] >= 0  -> model figürü: kuyruk / arka plan üretimi / canlı üretim (her figürde olduğu gibi)
-//   değilse                -> YERLESIK tablosunda kimliğin listesi sırayla döner
-// Gece figürü ("gece", Ay Dede) bugün modelde yok: ninniler buradan okunur. Model "gece" figürüyle eğitilip
-// tools/basliklar.py yeniden çalıştırılınca DONANIM_MODEL tablosu değişir ve aynı figür kendiliğinden kuyruk yoluna
-// geçer; bu dosyaya ve koda dokunmak gerekmez.
-// Metinler geleneksel ninni tarzında, bu proje için yazıldı (anonim halk ninnilerinin kalıp dizeleri: "uyusun da
-// büyüsün", "dandini"); her biri ninni modunda yavaş, alçak ve kısık okunur.
+// Üretildi: tools/ninniler.py (ninniler.txt). Elle değiştirme; ninniler.txt'yi düzenleyip aracı çalıştır.
+// Yerleşik metinler: kartta sabit duran, modelin yazmadığı içerik. Gece figürü (Ay Dede, mod "uyku") yalnız
+// bu ninnileri okur (ürün sahibinin kararı, 15 Ekim 2026: ninniler sabit, 15 tane); liste sırayla döner, aynı
+// ninni art arda gelmez. Ninni modunda yavaş, alçak, kısık okunur; her iki dize bir cümle (arada uzun durak).
 #pragma once
 
 static const char *const NINNILER[] = {
-    "Uyusun da büyüsün, ninni. Tıpış tıpış yürüsün, ninni. Ay doğdu, yıldızlar uyandı, ninni. "
-    "Gözlerin kapansın, tatlı rüyalar gelsin, ninni.",
-    "Dandini dandini, uyu yavrum uyu. Kuzular ahırda, kuşlar yuvasında uyudu. Rüzgâr yavaşça esti, "
-    "yapraklar ninni söyledi. Sen de uyu, yavrum, sen de uyu.",
-    "Ay Dede gökyüzünden baktı. Bütün çocuklar yatağında mı, diye sordu. Yıldızlar göz kırptı, evet dediler. "
-    "Ay Dede gülümsedi ve herkese iyi geceler dedi.",
-    "Küçük bir kedi yumak gibi kıvrıldı. Kuyruğunu burnuna sardı. Yavaşça esnedi, gözleri kapandı. "
-    "Mırr, mırr, dedi ve uykuya daldı.",
-    "Ninni, ninni, ninni. Bulutlar pamuk gibi yumuşacık. Bir bulut gelip seni sarsın, ninni. "
-    "Uyusun da büyüsün yavrum, ninni.",
-    "Ormanda akşam oldu. Tavşan yuvasına girdi, sincap ağaç kovuğuna sokuldu. Baykuş yumuşak bir sesle "
-    "huu huu dedi. Orman sessizleşti, herkes uyudu.",
-    "Deniz kıyıda dalgalarını sallar, hış hış, hış hış. Küçük bir balık yosunların arasında uyur. "
-    "Sen de dalgaları dinle, gözlerini yum, uyu.",
-    "Yıldızlar birer birer yandı. Biri sana göz kırptı. Ay ışığı pencereden süzüldü, yorganına kondu. "
-    "İyi geceler küçüğüm, tatlı rüyalar.",
+    // Dandini
+    "Dandini dandini dastana, danalar girmiş bostana. Kov bostancı danayı, yemesin lahanayı. Dandini "
+    "dandini dastana, Ay Dede gelmiş bostana. Yıldız doldurmuş sepete, getirmiş bizim bebeğe.",
+    // Uyusun da büyüsün
+    "Uyusun da büyüsün, tıpış tıpış yürüsün. Sabah olup kalkınca, güneş gibi gülüşsün. Ninni ninni, eee "
+    "ninni, uyku gelsin gözüne. Ay Dede'nin ışığı, konsun tatlı yüzüne.",
+    // Ninni ninni ninnisi
+    "Ninni ninni ninnisi, kuzucuğun annesi. Ay Dede bekçi olmuş, uyusun gül goncası. Yıldızlar göz "
+    "kırpıyor, rüzgâr ninni söylüyor. Uyu yavrum, uyu sen, gece seni sarıyor.",
+    // Yumuk yumuk gözleri
+    "Yumuk yumuk gözleri, tatlı tatlı sözleri. Ay Dede'den selam var, yıldız olsun düşleri. Pamuk gibi "
+    "elleri, gül kokulu telleri. Uyusun da büyüsün, ninni söylesin yeller.",
+    // Kuzu yatmış ağılda
+    "Kuzu yatmış ağılda, kuşcağız da yuvada. Balık uyur suyunda, yavrum uyur kucakta. Baykuş öter "
+    "dalında, kedi mırlar yanında. Uyusun da büyüsün, bu ninninin sonunda.",
+    // Eee ninni
+    "Eee ninni, eee ninni, gül dalında bülbül ninni. Bülbül uyur, gül uyur, yavrum da uyur ninni. Ay "
+    "doğmuş tepelere, ışık sermiş her yere. Yavrum uyusun artık, ninni gelsin her gece.",
+    // Kedicik
+    "Mırnav mırnav kedicik, kıvrılmış da minicik. Kuyruğunu dolamış, uyumuş bir tanecik. Sen de uyu "
+    "yavrucuk, yorganın da sıcacık. Uyusun da büyüsün, ninni ninni küçücük.",
+    // Pamuk bulutlar
+    "Pamuk pamuk bulutlar, gökyüzünde uyurlar. Yavrum gözün yumunca, rüyasına konarlar. Tıpır tıpır "
+    "yağmur da, ninni söyler camlarda. Uyu yavrum, uyu sen, güneş doğar sabahta.",
+    // Ay Dede
+    "Ay Dede, Ay Dede, gökyüzünün dedesi. Yavrumu sen kolla, tatlı olsun gecesi. Yıldızlar, yıldızlar, Ay "
+    "Dede'nin torunu. Göz kırpın yavruma, bulsun tatlı uykuyu.",
+    // Uyu yavrum uyu da
+    "Uyu yavrum, uyu da, kuşlar döndü yuvaya. Ay ışığı yorgandır, örter seni, uyu da. Uyu yavrum, uyu da, "
+    "rüzgâr esti yavaşça. Ağaçlar da uyudu, uyu sen de rahatça.",
+    // Yıldızları toplarım
+    "Beşiğini sallarım, yıldızları toplarım. Uyusun da büyüsün, yastığına koyarım. Buluttandır yastığı, "
+    "ay ışığı yorganı. Rüyasında görsün de, renk renk gökkuşağını.",
+    // Tavşan yuvasına
+    "Tavşan girmiş yuvasına, sincap ağaç kovuğuna. Ayıcık gitmiş inine, yavrum yatsın yatağına. Ninni "
+    "ninni, eee ninni, ay doğdu usul usul. Yavrum yumdu gözünü, uyusun mışıl mışıl.",
+    // Papatya
+    "Papatya yumdu gözünü, lale de örttü yüzünü. Arılar döndü kovana, yavrum da yumsun gözünü. Kelebek "
+    "kondu dala, kanatlarını yumdu. Yavrum uyusun ninni, gece masmavi oldu.",
+    // Hu hu baykuş
+    "Hu hu der baykuş dalda, ay ışığı yaprakta. Herkes uyur bu gece, yavrum tatlı uykuda. Hu hu ninni, hu "
+    "ninni, yıldızlar parlar ninni. Uyusun da büyüsün, yavrum gülsün sabah ninni.",
+    // Yorgan
+    "Yorganı yumuşacık, yastığı da sıcacık. Ay Dede bakar ona, uyur yavrum tatlıcık. Ninni ninni, eee "
+    "ninni, uyusun da büyüsün. Tıpış tıpış yarın da, sevinçle de yürüsün.",
 };
 
 typedef struct {

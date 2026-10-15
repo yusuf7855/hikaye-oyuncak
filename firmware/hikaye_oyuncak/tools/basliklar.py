@@ -15,7 +15,7 @@ istemler.h: ürün kurulumu, degerlendirme/urun_uret.py ile birebir:
             Kartta seçim yalnız bu tablolardan okunur; tokenizer kartta çalışmaz.
 figur_donanim.h: data/figur_donanim.json (NFC numarası, halka rengi, mod) + her donanım figürünün modeldeki figür
             numarası (DONANIM_MODEL: urun_uret.FIGURLER'deki yeri; -1 = model bu figürü bilmiyor, kart yerleşik metin
-            okur). Model "gece" figürünü öğrenince yalnız bu tablo değişir (kod değişmez).
+            okur). Uyku modu figürü (Ay Dede) hep -1: yalnız sabit ninnileri okur (yerlesik.h).
             Yalnız bu başlık: --donanim (tokenizer gerekmez).
 """
 import argparse
@@ -123,7 +123,9 @@ def donanim_basligi():
         f.write(c_dizi("DONANIM_NFC", [x["nfc_no"] for x in fig], "uint16_t"))
         f.write(c_dizi("DONANIM_RENK", sum((rgb(x["renk"]) for x in fig), []), "uint8_t"))
         f.write(c_dizi("DONANIM_MOD", [modlar[x.get("mod", "hikaye")] for x in fig], "uint8_t"))
-        f.write(c_dizi("DONANIM_MODEL", [model.index(x["kimlik"]) if x["kimlik"] in model else -1 for x in fig],
+        # uyku modu figürü (Ay Dede) modelden okumaz: 15 sabit ninni (yerlesik.h, ninniler.txt)
+        f.write(c_dizi("DONANIM_MODEL", [model.index(x["kimlik"]) if x["kimlik"] in model and x.get("mod") != "uyku"
+                                         else -1 for x in fig],
                        "int8_t"))
         f.write(c_dizi("AYAR_KARTI_RENK", rgb(ayar["renk"]), "uint8_t"))
     print(f"figur_donanim.h: {len(fig)} donanım figürü, modelde {sum(x['kimlik'] in model for x in fig)}")

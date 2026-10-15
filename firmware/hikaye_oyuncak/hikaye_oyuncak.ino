@@ -31,8 +31,8 @@
 //   (ayar). nfc_no 200 = ayar kartı: Wi-Fi erişim noktası + ayar sayfası (ayar_sayfa.h, ayarlar.h).
 // - Gece figürü (Ay Dede, mod "uyku"): ninni modu: yavaş, alçak, kısık okuma (ses.h hiz/perde_kaydir/kazanc), uzun
 //   cümle araları, isteğe bağlı müzik kutusu (muzik_kutusu.h), gece mavisi yıldızlı halka; uyku zamanlayıcısı dolunca
-//   halka 60 sn'de söner, mikrofon/yükselteç/halka kapanır. Model gece figürünü bilmiyorsa yerleşik ninniler
-//   (yerlesik.h); biliyorsa (generated/figur_donanim.h DONANIM_MODEL) kuyruk yolu.
+//   halka 60 sn'de söner, mikrofon/yükselteç/halka kapanır. Metin: 15 sabit ninni (yerlesik.h, ninniler.txt),
+//   sırayla; model bu figürde hiç çalışmaz.
 // - Sesli komut (INMP441 I2S1 -> kws.h): "Merhaba Eko" + dur / devam / başka / bir daha / sesini aç / sesini kıs.
 //   Hiçbir komut figür seçmez.
 // - Halka (halka.h; NeoPixel GPIO18, RMT): bütün durumlar; ayrı düşük öncelikli görev.
