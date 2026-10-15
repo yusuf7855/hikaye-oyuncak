@@ -1,4 +1,4 @@
-"""Ay Dede'nin 15 sabit ninnisi: biçim (dörtlük, hece) ve yerlesik.h'nin ninniler.txt ile eşitliği."""
+"""Ay Dede'nin 15 sabit halk ninnisi: biçim (kıta, hece) ve yerlesik.h'nin ninniler.txt ile eşitliği."""
 import os
 import subprocess
 import sys
@@ -13,7 +13,7 @@ def test_ninniler_bicim():
     ninniler = N.oku()
     assert len(ninniler) == 15
     assert N.denetle(ninniler) == []
-    assert ninniler[0][1][0][0].startswith("Dandini dandini dastana")
+    assert ninniler[0][0] == "Dandini dandini dastana"
 
 
 def test_yerlesik_guncel():

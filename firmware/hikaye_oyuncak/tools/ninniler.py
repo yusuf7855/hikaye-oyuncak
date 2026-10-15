@@ -7,6 +7,7 @@ Her dörtlüğün iki dizesi bir cümle olur (ses okurken cümle aralarında nin
 dize sonlarındaki virgül kısa duraktır.
 """
 import os
+import re
 import sys
 
 SKETCH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,11 +19,11 @@ ADET = 15
 
 def hece(dize):
     """Kaba hece sayısı (ünlü sayısı); uzatılmış "eee" tek hece sayılır."""
-    return sum(c in SESLI for c in dize.replace("Eee", "E").replace("eee", "e"))
+    return sum(c in SESLI for c in re.sub(r"([eE])e+", r"\1", dize))
 
 
 def oku(yol=KAYNAK):
-    """[(ad, [[dize, ...], ...]), ...]: ninni adı ve dörtlükleri."""
+    """[(ad, [[dize, ...], ...]), ...]: ninni adı ve kıtaları."""
     ninniler = []
     for satir in open(yol, encoding="utf-8").read().split("\n"):
         s = satir.strip()
@@ -39,22 +40,24 @@ def oku(yol=KAYNAK):
 
 
 def denetle(ninniler):
+    """Halk ninnileri serbest kalıplıdır: kıta 1-6 dize, dize 3-13 hece; dize virgülle, kıta noktayla biter."""
     hatalar = []
     if len(ninniler) != ADET:
         hatalar.append(f"{len(ninniler)} ninni var, {ADET} olmalı")
-    for ad, dortlukler in ninniler:
-        if len(dortlukler) < 2:
-            hatalar.append(f"{ad}: en az iki dörtlük olmalı")
-        for d in dortlukler:
-            if len(d) != 4:
-                hatalar.append(f"{ad}: dörtlük {len(d)} dize: {d[0]}")
+    for ad, kitalar in ninniler:
+        if not kitalar:
+            hatalar.append(f"{ad}: boş")
+        for d in kitalar:
+            if not 1 <= len(d) <= 6:
+                hatalar.append(f"{ad}: kıta {len(d)} dize: {d[0]}")
+            for dize in d[:-1]:
+                if not dize.endswith(","):
+                    hatalar.append(f"{ad}: dize virgülle bitmeli: {dize}")
             for dize in d:
-                if not 6 <= hece(dize) <= 9:
+                if not 3 <= hece(dize) <= 13:
                     hatalar.append(f"{ad}: {hece(dize)} hece: {dize}")
-                if dize[-1] not in ",.":
-                    hatalar.append(f"{ad}: dize virgül ya da noktayla bitmeli: {dize}")
             if not d[-1].endswith("."):
-                hatalar.append(f"{ad}: dörtlük noktayla bitmeli: {d[-1]}")
+                hatalar.append(f"{ad}: kıta noktayla bitmeli: {d[-1]}")
     return hatalar
 
 
@@ -66,7 +69,7 @@ def kucuk(c):
 
 
 def metin(dortlukler):
-    """Dörtlükleri kartın okuyacağı tek metne çevirir: her iki dize bir cümle."""
+    """Kıtaları kartın okuyacağı tek metne çevirir: her iki dize bir cümle."""
     cumleler = []
     for d in dortlukler:
         for i in range(0, len(d), 2):
@@ -85,7 +88,7 @@ def baslik(ninniler):
     out = [
         "// Üretildi: tools/ninniler.py (ninniler.txt). Elle değiştirme; ninniler.txt'yi düzenleyip aracı çalıştır.",
         "// Yerleşik metinler: kartta sabit duran, modelin yazmadığı içerik. Gece figürü (Ay Dede, mod \"uyku\") yalnız",
-        "// bu ninnileri okur (ürün sahibinin kararı, 15 Ekim 2026: ninniler sabit, 15 tane); liste sırayla döner, aynı",
+        "// bu ninnileri okur (ürün sahibinin kararı, 15 Ekim 2026: 15 sabit, bilinen anonim halk ninnisi); sırayla döner, aynı",
         "// ninni art arda gelmez. Ninni modunda yavaş, alçak, kısık okunur; her iki dize bir cümle (arada uzun durak).",
         "#pragma once",
         "",
