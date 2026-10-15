@@ -241,16 +241,16 @@ def usb_yakin():
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
     ax.set_xlim(-26, 18); ax.set_ylim(-70, -26); ax.set_zlim(-4, 26)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Arkadan: USB-C girişi (fiş oyuğu + delik)", fontsize=12)
+    ax.set_title("Arkadan: USB-C dış yüzle aynı hizada; altındaki dil taban plakasından", fontsize=12)
     ax2 = fig.add_subplot(1, 2, 2)
     for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
         cs = man.translate([-C.TP_X, 0, 0]).rotate([0, -90, 0]).slice(0.0)
         for poly in cs.to_polygons():
             pp = np.asarray(poly)
             ax2.add_patch(Polygon(np.c_[pp[:, 1], -pp[:, 0]], closed=True, fc=fc, ec=ec, lw=1))
-    ax2.annotate("USB-C dişi (kartın ucunda)", xy=(C.tp_konum()[1] + 2, C.USB_ZC), xytext=(-48, 18), fontsize=10,
+    ax2.annotate("kart kenarı duvarın iç yüzüne dayanır", xy=(C.tp_konum()[2] + 0.5, C.USB_Z_ALT + 0.5), xytext=(-50, 18), fontsize=10,
                  arrowprops=dict(arrowstyle="->"))
-    ax2.annotate("fiş buradan girer", xy=(C.tp_konum()[0] - 2, C.USB_ZC), xytext=(-68, 15), fontsize=10,
+    ax2.annotate("USB-C ön yüzü = dış yüz (0 a 0)", xy=(C.tp_konum()[1], C.USB_ZC + 1), xytext=(-67, 15), fontsize=10,
                  arrowprops=dict(arrowstyle="->"))
     ax2.set_xlim(-68, -18); ax2.set_ylim(-2, 24); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
     ax2.set_xlabel("y (mm)  ← ARKA"); ax2.set_title("Kartın ortasından yan kesit", fontsize=12)
@@ -326,7 +326,7 @@ if __name__ == "__main__":
             (C.HOP_YF + 6, C.HOP_ZC + 20, "ses yakası: hoparlörden ızgaraya boru", 2, 60),
             (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
             (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
-        5: [(C.tp_konum()[0] - 1, C.USB_ZC, "USB-C: dıştan oyuk, duvar 1,4 mm;\niçte düz oturma yüzü", -62, 34),
+        5: [(C.tp_konum()[1], C.USB_ZC, "USB-C ön yüzü dış yüzle aynı hizada;\nduvar içten 1,5 mm'ye inceltildi", -62, 34),
             (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı: 1 mm desteklerde,\nyanlarda tırnaklı duvar, arkada dayanak", -30, 22),
             (C.PIL_Y, C.TABAN_KAL + 12, "pil yatağı (5 mm öne alındı)", 10, 30)],
     }.get(n, [])
