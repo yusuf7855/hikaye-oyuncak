@@ -1,4 +1,4 @@
-"""Çakıl stand: dış kabuk (seçenek 3: çukurda figür yuvası + yarı saydam çanak) ve iç yerleşim, iki NFC seçeneği.
+"""Çakıl stand: dış kabuk (seçenek 3: çukurda figür yuvası, zemin kabuğun kendisi) ve iç yerleşim, iki NFC seçeneği.
 
     python cad/cakil_ic.py            # RC522 ve PN5180: çarpışma denetimi, önizleme PNG, STL (cad/stl_cakil/<nfc>/)
 
@@ -9,7 +9,7 @@ Yerleşim (alttan üste):
   taban plakası (vidalı, 4 ayak, hoparlör ızgarası) | hoparlör 50x50 AŞAĞI bakar (önde; ses tabandan ve ayak
   boşluğundan çıkar: 55 mm yükseklikte dik 50x50 hoparlör sığmıyor) | 18650 yatağı (ortada, x boyunca) |
   TP4056 (arka orta, USB-C arka duvarda) | MAX98357A (arka sağ) | açma-kapama (arka sol duvar) |
-  ESP32-S3 rafı (pilin üstünde) | NFC okuyucu (anten figürün tam altında) | 16'lı halka | yarı saydam çanak |
+  ESP32-S3 rafı (pilin üstünde) | NFC okuyucu (anten figürün tam altında) | 16'lı halka | figür zemini (kabuk) |
   mikrofon (üstte, arkada delik).
 """
 import math
@@ -35,9 +35,13 @@ TABAN_KAL = 2.4
 # figür yuvası (seçenek 3)
 YUVA_R = 31.6            # figür tabanı Ø62 + pay
 CUKUR_DERIN = 6.0        # yuva tabanı = H - 6
-CANAK_KENAR_R = 38.0     # ışık kenarı (üstte r 31,6..38)
-CANAK_GOVDE_R = 33.5     # çanağın kabuk içine giren gövdesi
-CANAK_TABAN = 2.0
+# Ürün sahibi (16 Ekim 2026): ayrı yarı saydam parça yok, her şey PLA/PETG. Figürün oturduğu zemin kabuğun parçası;
+# zeminin altında, LED'lerin tam üstünde halka biçimli oyuk: zemin orada ISIK_KAL kalır, beyaz PLA'dan ışık geçer.
+YUVA_DUVAR = 2.0         # çukurun kabuk içine sarkan duvarı
+ZEMIN_KAL = 2.0          # figür zemini kalınlığı
+ISIK_KAL = 0.6           # LED'lerin üstünde kalan zemin (0,6 mm beyaz PLA ışığı geçirir; renkli PLA'da delik açılabilir)
+ISIK_R = (16.4, 22.6)    # ışık oyuğu (16'lı halkanın LED'leri r ≈ 19'da)
+CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
 YAZI, YAZI_BOY, YAZI_Z = "eco ai", 15.0, 37.0
 
 # ---------------------------------------------------------------- parçalar (TAHMİN; ölçülünce düzelt)
@@ -67,7 +71,7 @@ USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 1 mm destek üstünde
 RAF_Z = 22.8                         # ESP32 rafı (hoparlörün üstü 22,4, pil yatağının 21,4)
 RAF_KAL = 1.6
 RAF_BACAK_X = 42.5                   # raf bacakları pil yatağının (x ±38,5) dışında
-MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), çanakla kabuk kenarı arasında
+MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), figür çukuru ile kabuk kenarı arasında
 UST_ACILAR = (45.0, 135.0, 225.0, 315.0)    # halka/NFC tutucu direkleri
 VIDA_ACILAR = (0.0, 180.0, 230.0, 315.0)    # taban vidaları (hoparlör, pil, TP4056, anahtar arasında)
 VIDA_R = 50.0
@@ -93,7 +97,7 @@ def profil(ofs=0.0, z0=0.0, z1=H):
 
 
 Z_CANAK_TABAN = H - CUKUR_DERIN              # figür tabanının oturduğu yüz
-Z_HALKA_UST = Z_CANAK_TABAN - CANAK_TABAN - 0.5
+Z_HALKA_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.5
 Z_HALKA_ALT = Z_HALKA_UST - PARCA["halka"][2]
 TUTUCU_KAL = 2.0
 Z_MIK = H - DUVAR - 3.0 - 1.2                # mikrofon kartı (deliğe bakar, üstte 1,2 mm conta payı)
@@ -145,12 +149,12 @@ def kabuk():
     # logo (kabarık)
     dis12 = dondur(profil(1.2), SEG)
     g = g + ((xz_den_y_ye(yazi_duz(YAZI, YAZI_BOY, FONT, ayna=True), 0, 80, x=0, z=YAZI_Z) ^ dis12) - dondur(profil(-0.8), SEG))
-    # çanak yuvası: üstte r 38,2 havşa (2,4), altında çanağın oturduğu bilezik (kabuktan sarkar)
-    bilezik = silindir(CANAK_KENAR_R + 1.5, H - 6.0, H - DUVAR + 0.01, seg=SEG) - silindir(CANAK_GOVDE_R + 0.2, 0, H + 1, seg=SEG)
-    bilezik = bilezik - silindir(PARCA["inmp441"][0] / 2 + 2.0, 0, H, x=MIK_XY[0], y=MIK_XY[1], seg=32)
-    g = g + bilezik
-    g = g - silindir(CANAK_GOVDE_R + 0.2, H - 10, H + 1, seg=SEG)
-    g = g - silindir(CANAK_KENAR_R + 0.2, H - DUVAR, H + 1, seg=SEG)
+    # figür çukuru: zemin ve duvar kabuğun parçası; zeminin altında LED'lerin üstünde ışık oyuğu
+    g = g + silindir(CANAK_GOVDE_R, Z_CANAK_TABAN - ZEMIN_KAL, H - DUVAR + 0.01, seg=SEG)
+    g = g - silindir(YUVA_R, Z_CANAK_TABAN, H + 1, seg=SEG)
+    g = g - (silindir(ISIK_R[1], Z_CANAK_TABAN - ZEMIN_KAL - 1, Z_CANAK_TABAN - ISIK_KAL, seg=SEG)
+             - silindir(ISIK_R[0], Z_CANAK_TABAN - ZEMIN_KAL - 2, Z_CANAK_TABAN, seg=SEG))
+    g = g - (silindir(YUVA_R + 0.8, H - 0.8, H + 0.01, seg=SEG, r2=YUVA_R + 1.6) - silindir(0.1, H - 2, H + 2, seg=8))  # ağız pahı
     # tutucu direkleri (üstten iner, M2,5 pilot)
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
@@ -173,12 +177,6 @@ def kabuk():
     # kabuğun alt kenarında taban plakası için 1,2 mm oturma basamağı
     g = g - silindir(ic_r(1.0) + 0.6, -1, 1.2, seg=SEG)
     return g
-
-
-def canak():
-    zt = Z_CANAK_TABAN
-    c = (silindir(CANAK_GOVDE_R, zt - CANAK_TABAN, H - DUVAR, seg=SEG) + silindir(CANAK_KENAR_R, H - DUVAR, H, seg=SEG))
-    return c - silindir(YUVA_R, zt, H + 1, seg=SEG)
 
 
 def tutucu(nfc):
@@ -274,7 +272,7 @@ def raf():
 def denetle(nfc):
     z = zarflar(nfc)
     bosluk = dondur(profil(-DUVAR, TABAN_KAL, H - DUVAR), SEG)
-    yapi = {"kabuk": kabuk(), "çanak": canak(), "tutucu": tutucu(nfc), "taban": taban(), "raf": raf()}
+    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(), "raf": raf()}
     sorun = []
     for ad, e in z.items():
         if ad == "KCD11 anahtar":
@@ -303,7 +301,7 @@ def denetle(nfc):
 def stl_yaz(nfc, yapi):
     d = os.path.join(KOK, "stl_cakil", nfc)
     os.makedirs(d, exist_ok=True)
-    for ad, m in (("kabuk", yapi["kabuk"].rotate([180, 0, 0])), ("canak_yarisaydam", yapi["çanak"]),
+    for ad, m in (("kabuk", yapi["kabuk"].rotate([180, 0, 0])),
                   ("halka_nfc_tutucu", yapi["tutucu"]), ("taban_plakasi", yapi["taban"]), ("esp32_rafi", yapi["raf"])):
         dosya = os.path.join(d, f"{ad}.stl".replace("ı", "i"))
         mg = m.to_mesh()
@@ -326,7 +324,7 @@ RENK_PARCA = {"hoparlör (aşağı bakar)": "#555b66", "18650 yatağı": "#2f2f3
               "MAX98357A": "#7b3fbf", "KCD11 anahtar": "#111111", "ESP32-S3 (rafta)": "#1d1d1d",
               "INMP441 mikrofon": "#3a7d44", "NeoPixel 16": "#ff4fa3", "RC522 okuyucu": "#1f6f3f",
               "PN5180 okuyucu": "#1f4f8f"}
-RENK_YAPI = {"kabuk": "#F6E7D2", "çanak": "#FFF3FA", "tutucu": "#c9c2b8", "taban": "#E8DCCB", "raf": "#c9c2b8"}
+RENK_YAPI = {"kabuk": "#F6E7D2", "tutucu": "#c9c2b8", "taban": "#E8DCCB", "raf": "#c9c2b8"}
 
 
 def onizle():
@@ -342,7 +340,7 @@ def onizle():
     for i, nfc in enumerate(("rc522", "pn5180")):
         z, yapi, sorun, mesafe = sonuc[nfc]
         yarim = kutu(-80, 0, -80, 80, -5, 80)
-        ls = [(yapi["kabuk"] ^ yarim, RENK_YAPI["kabuk"], False), (yapi["çanak"] ^ yarim, RENK_YAPI["çanak"], True),
+        ls = [(yapi["kabuk"] ^ yarim, RENK_YAPI["kabuk"], False),
               (yapi["taban"], RENK_YAPI["taban"], False), (yapi["raf"], RENK_YAPI["raf"], False),
               (yapi["tutucu"], RENK_YAPI["tutucu"], False)]
         ls += [(e, RENK_PARCA.get(ad, "#444"), ad == "NeoPixel 16") for ad, e in z.items()]
@@ -354,7 +352,7 @@ def onizle():
         ax.view_init(elev=elev, azim=azim)
         ax.set_title(f"{nfc.upper()} — iç yerleşim (sağ yarı kesik)", fontsize=14)
     fig.suptitle("Çakıl stand, iç yerleşim: alt katta hoparlör (aşağı bakar), 18650, TP4056, MAX98357A; rafta ESP32-S3; "
-                 "üstte NFC okuyucu, 16'lı halka, yarı saydam çanak", fontsize=11)
+                 "üstte NFC okuyucu, 16'lı halka, figür zemini (ışık oyuğu)", fontsize=11)
     plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0)
     fig.savefig(os.path.join(cikti, "cakil_ic_kesit3b.png")); plt.close(fig)
     # 2) üstten yerleşim planı (katlar)
@@ -405,7 +403,6 @@ def onizle():
     fig = plt.figure(figsize=(8, 14), dpi=110)
     ax = fig.add_subplot(1, 1, 1, projection="3d")
     ls = [(yapi["kabuk"].translate([0, 0, 135]), RENK_YAPI["kabuk"], False),
-          (yapi["çanak"].translate([0, 0, 192]), RENK_YAPI["çanak"], True),
           (yapi["tutucu"].translate([0, 0, 50]), RENK_YAPI["tutucu"], False),
           (z["NeoPixel 16"].translate([0, 0, 64]), RENK_PARCA["NeoPixel 16"], True),
           (z["RC522 okuyucu"].translate([0, 0, 36]), RENK_PARCA["RC522 okuyucu"], False),
@@ -420,7 +417,7 @@ def onizle():
     ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_zlim(-45, 250)
     ax.set_box_aspect((1, 1, 2.3))
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Patlatılmış görünüş (RC522): çanak, kabuk, halka, tutucu, okuyucu, ESP32 rafı, alt kat, taban", fontsize=10)
+    ax.set_title("Patlatılmış görünüş (RC522): kabuk, halka, tutucu, okuyucu, ESP32 rafı, alt kat, taban", fontsize=10)
     fig.savefig(os.path.join(cikti, "cakil_ic_patlatilmis.png")); plt.close(fig)
     print("önizleme:", cikti)
 
