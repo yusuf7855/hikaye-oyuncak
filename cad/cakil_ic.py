@@ -64,7 +64,9 @@ PARCA = {
     "pn5180": (70.0, 39.0, 1.6, 3.0),
 }
 # NFC antenin kart üzerindeki merkezi (kart merkezine göre x, y): figürün tam altına getirilir
-ANTEN_KAYMA = {"rc522": (0.0, 4.0),     # RC522: başlık (pin) kenarı arkada, anten öne kaymış (tahmin)
+ANTEN_GERCEK = {"rc522": ((-5.0, 0.0), (38.0, 34.0)), "pn5180": ((15.0, 0.0), (37.0, 37.0))}  # (merkez, en x boy), tahmin
+ANTEN_KAYMA = {"rc522": (-5.0, 0.0),    # RC522: 8'li pin sırası kısa kenarda (+x, kartın raylara girdiği uç: kablo
+                                        # erişimi kolay); anten öteki yana ~5 mm kaymış (tahmin)
                "pn5180": (10.0, 0.0)}   # PN5180: anten kartın bir ucunda (~39x39; merkezi kart merkezinden ~15 mm);
                                         # kabuğun eğrisine sığsın diye 10 mm kaydırıldı: anten merkezi figürden 5 mm yanda
 

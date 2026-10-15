@@ -41,10 +41,12 @@ def kesit_ciz(ax, man, renk, ec, alfa=1.0):
         ax.add_patch(Polygon(np.c_[p[:, 1], -p[:, 0]], closed=True, fc=renk, ec=ec, lw=1.0, alpha=alfa))
 
 
-def adim_gorsel(n, notlar=()):
+def adim_gorsel(n, notlar=(), nfc="rc522"):
     ad, baslik, parcalar, yapilar = ADIMLAR[n - 1]
-    z, yapi, sorun, mesafe = C.denetle("rc522")
-    onceki_p = [p for a in ADIMLAR[:n - 1] for p in a[2]]
+    oku = f"{nfc.upper()} okuyucu"
+    parcalar = [oku if p == "RC522 okuyucu" else p for p in parcalar]
+    z, yapi, sorun, mesafe = C.denetle(nfc)
+    onceki_p = [oku if p == "RC522 okuyucu" else p for a in ADIMLAR[:n - 1] for p in a[2]]
     onceki_y = [y for a in ADIMLAR[:n - 1] for y in a[3]]
     fig = plt.figure(figsize=(17, 7.6), dpi=110)
     ax = fig.add_subplot(1, 2, 1, projection="3d")
@@ -75,9 +77,9 @@ def adim_gorsel(n, notlar=()):
     ax2.set_xlim(-66, 66); ax2.set_ylim(-4, 64); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
     ax2.set_xlabel("y (mm)   ← ARKA (USB-C)                 ÖN (logo) →"); ax2.set_ylabel("z (mm)")
     ax2.set_title("Ortadan yan kesit (x = 0)", fontsize=12)
-    fig.suptitle(f"Adım {n}/{len(ADIMLAR)}: {baslik}", fontsize=15)
+    fig.suptitle(f"Adım {n}/{len(ADIMLAR)}: {baslik}" + (f" — {nfc.upper()}" if n >= 2 else ""), fontsize=15)
     plt.tight_layout()
-    yol = os.path.join(C.KOK, "onizleme", f"adim_{n}_{ad}.png")
+    yol = os.path.join(C.KOK, "onizleme", f"adim_{n}_{ad}" + (f"_{nfc}" if n == 2 else "") + ".png")
     fig.savefig(yol)
     plt.close(fig)
     return yol
@@ -124,6 +126,50 @@ def ust_gorunus():
     return yol
 
 
+def nfc_plan():
+    """Üstten: iki okuyucunun yeri, anten bölgesi, figür etiketi (Ø25), çukur, halka, direkler, raylar."""
+    from matplotlib.patches import Rectangle, Circle
+    fig, axs = plt.subplots(1, 2, figsize=(15, 7.4), dpi=110)
+    th = np.linspace(0, 2 * np.pi, 200)
+    for ax, nfc in zip(axs, ("rc522", "pn5180")):
+        w, d, pcb, alt = C.PARCA[nfc]
+        cx, cy = -C.ANTEN_KAYMA[nfc][0], -C.ANTEN_KAYMA[nfc][1]
+        r_ic = C.ic_r(C.Z_OKUYUCU_UST)
+        ax.plot(r_ic * np.cos(th), r_ic * np.sin(th), color="#8a7a66", lw=1.5, label="gövde iç duvarı (bu yükseklikte)")
+        ax.add_patch(Rectangle((cx - w / 2, cy - d / 2), w, d, fc="#1f6f3f33" if nfc == "rc522" else "#1f4f8f33",
+                               ec="#1f6f3f" if nfc == "rc522" else "#1f4f8f", lw=2))
+        (ax_, ay_), (aw, ah) = C.ANTEN_GERCEK[nfc]
+        ax.add_patch(Rectangle((cx + ax_ - aw / 2, cy + ay_ - ah / 2), aw, ah, fc="none", ec="#d08000", lw=1.5, ls="--"))
+        ax.text(cx + ax_ - aw / 2 + 1, cy + ay_ + ah / 2 - 3, "anten bölgesi (tahmin)", fontsize=8, color="#d08000")
+        ax.text(cx + w / 2 - 2, cy, "pinler", rotation=90, va="center", ha="right", fontsize=8) if nfc == "rc522" else \
+            ax.text(cx - w / 2 + 2, cy, "pinler / elektronik", rotation=90, va="center", ha="left", fontsize=8)
+        ri, rd, k = C.PARCA["halka"]
+        for r in (ri / 2, rd / 2):
+            ax.plot(r * np.cos(th), r * np.sin(th), color="#ff4fa3", lw=1.5)
+        ax.add_patch(Circle((0, 0), C.YUVA_R, fc="none", ec="#8a7a66", lw=1.2, ls=":"))
+        ax.add_patch(Circle((0, 0), 12.5, fc="#2060ff33", ec="#2060ff", lw=1.5))
+        ax.text(0, 0, "etiket\nØ25", ha="center", va="center", fontsize=9, color="#2060ff")
+        for aci in C.UST_ACILAR:
+            x, y = C.UST_DIREK_R * math.cos(math.radians(aci)), C.UST_DIREK_R * math.sin(math.radians(aci))
+            ax.add_patch(Circle((x, y), 3.5, fc="#ffd27a", ec="#b08a30"))
+        for s in (-1, 1):
+            y_ic = cy + s * (d / 2 + 0.3)
+            ax.add_patch(Rectangle((cx - w / 2 + 6, min(y_ic, y_ic + s * 2)), w - 12, 2, fc="#ffd27a", ec="#b08a30"))
+        ax.annotate("kart bu yönden\nraylara kayar", xy=(cx + w / 2, cy), xytext=(cx + w / 2 + 3, cy + 22), fontsize=9,
+                    arrowprops=dict(arrowstyle="<-", lw=1.5))
+        ax.text(cx, cy - d / 2 - 4, f"{nfc.upper()} {w:.0f} x {d:.0f} mm", ha="center", fontsize=10)
+        ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_aspect("equal"); ax.grid(alpha=.25)
+        ax.set_title(f"{nfc.upper()}: anten figür etiketinin altında, etiket–anten ≈ {C.denetle(nfc)[3]:.1f} mm", fontsize=12)
+        ax.text(0, 56, "ÖN", ha="center"); ax.text(0, -59, "ARKA", ha="center")
+    fig.suptitle("Adım 2/9: NFC okuyucu — üstten (sarı: tutucu direkleri ve raylar, pembe: halka, mavi: figürdeki etiket)",
+                 fontsize=12)
+    plt.tight_layout(rect=(0, 0, 1, 0.95))
+    yol = os.path.join(C.KOK, "onizleme", "adim_2_nfc_ustten.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 if __name__ == "__main__":
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
@@ -131,7 +177,15 @@ if __name__ == "__main__":
             (-15.4, C.H - 1.6, "çukurun dikey duvarı şerit şerit açık:\nLED ışığı yandan çukura girer", 16, 31),
             (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
             (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],
+        2: [(0, C.Z_OKUYUCU_UST - 0.8, "NFC okuyucu: anten yüzü çukur zemininin 0,3 mm altında", -60, 30),
+            (0, C.Z_CANAK_TABAN + 0.4, f"figür etiketi -> anten ≈ {(C.Z_CANAK_TABAN + 0.4) - C.Z_OKUYUCU_UST:.1f} mm", 8, 62),
+            (-21, C.Z_OKUYUCU_UST - 2.5, "tutucunun rayları (kart kayarak girer)", -62, 18)],
     }.get(n, [])
-    print(adim_gorsel(n, notlar))
+    if n == 2:
+        for nfc in ("rc522", "pn5180"):
+            print(adim_gorsel(n, notlar, nfc))
+        print(nfc_plan())
+    else:
+        print(adim_gorsel(n, notlar))
     if n == 1:
         print(ust_gorunus())
