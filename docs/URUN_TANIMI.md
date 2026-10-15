@@ -30,7 +30,7 @@ Yalnız Türkçe. İnternetsiz. Düğme YOK.
 - Selamlama: "İyi geceler Emre, şimdi sana bir ninni söyleyeceğim." (ad yoksa "İyi geceler, ...").
 
 ## Halka (NeoPixel, WS2812B uyumlu) — standın üstünde, figürün çevresinde
-- Ölçü: dış Ø104 mm, iç Ø90 mm, kalınlık 3,5 mm. LED sayısı ürün sahibince doğrulanacak; yazılımda tek sabit `HALKA_LED_SAYISI` (varsayılan 35), tasarımda LED sayısından bağımsız.
+- Ölçü (16 Ekim 2026, ürün sahibi): **NeoPixel 16'lı halka, dış Ø44,5 mm, iç Ø31,75 mm**, figürün hemen altında (ışık figürün altından yansır). Yazılımda `HALKA_LED_SAYISI 16`. (Önceki taslak: Ø104/Ø90 mm büyük halka.)
 - 5 V beslenir; veri hattı 3,3 V → 5 V seviye çevirici (74AHCT1G125) + 330 Ω seri direnç; halka girişinde 1000 µF kondansatör. Yazılımda parlaklık üst sınırı (varsayılan %25) ve toplam akım sınırı (≤ 600 mA).
 - Davranışlar:
   | Durum | Halka |

@@ -109,7 +109,7 @@ PSRAM toplam (LLM): 7.25 MB
 model.bin: 10331252 B, parmak izi fp=00ea3e55
 ...
 kuyruk: 32 yuva (0x20000 @ 0xFE0000), hazır 0 hikâye | figür başına 2 (en çok 6), K=5 | arka plan açık
-stand NFC: RC522 | mikrofon: açık (Merhaba Eko) | halka: 35 LED, GPIO 18 | ses seviyesi 5/7 (en çok 7) | bekçi 30 s
+stand NFC: RC522 | mikrofon: açık (Merhaba Eko) | halka: 16 LED, GPIO 18 | ses seviyesi 5/7 (en çok 7) | bekçi 30 s
 ayarlar: ad "", uyku 20 dk, parlaklık 60, çekilince cümle sonunda dur, müzik kutusu açık
 tanınmış oyuncaklar: (yok: standa konan oyuncak tanınır)
 ```
@@ -295,7 +295,7 @@ Mikrofon INMP441, I2S1 16 kHz; tanıma `kws.h` (ayrı geliştirme, `tools/kws_te
 | Ayar modu | Turkuaz nefes |
 | Hata (model yok, Wi-Fi açılamadı) | Kırmızı yanıp sönme |
 
-LED sayısı `HALKA_LED_SAYISI` (varsayılan 35; ürün sahibi doğrulayacak). Parlaklık tavanı `HALKA_PARLAKLIK_SINIR`
+LED sayısı `HALKA_LED_SAYISI` (16: NeoPixel 16'lı halka, Ø44,5 / Ø31,75 mm). Parlaklık tavanı `HALKA_PARLAKLIK_SINIR`
 (%25), ayardaki parlaklık bu tavanın yüzdesidir; kare başına akım tahmini (kanal başına 20 mA × değer/255)
 `HALKA_AKIM_SINIR_MA`'yı (600 mA) aşarsa kare kısılır (%25'te 35 beyaz LED ≈ 527 mA). Kareler ayrı, düşük
 öncelikli bir görevde 30 kare/s hesaplanır ve RMT ile (10 MHz, GRB) yollanır: LLM ve ses beklemez.

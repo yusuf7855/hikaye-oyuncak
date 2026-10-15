@@ -36,7 +36,7 @@
 // ---- NeoPixel halka (WS2812B uyumlu; 74AHCT1G125 seviye çevirici + 330 Ω, girişte 1000 µF) ----
 #define HALKA_PIN 18
 #ifndef HALKA_LED_SAYISI
-#define HALKA_LED_SAYISI 35    // ürün sahibince doğrulanacak; yazılım bu sayıdan bağımsız
+#define HALKA_LED_SAYISI 16    // NeoPixel 16'lı halka (Ø44,5 / Ø31,75 mm; ürün sahibi, 16 Ekim 2026)
 #endif
 #ifndef HALKA_PARLAKLIK_SINIR
 #define HALKA_PARLAKLIK_SINIR 25   // % (yazılımdaki tavan; ayardaki parlaklık bunun yüzdesidir)

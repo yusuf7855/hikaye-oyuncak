@@ -37,6 +37,7 @@ MODEL = os.path.join(ROOT, "hf_c3ft_karma", "model.bin")
 with open(os.path.join(ROOT, "data", "figur_donanim.json"), encoding="utf-8") as _f:
     DONANIM = json.load(_f)
 TAVAN, PARLAK = 25, 60  # HALKA_PARLAKLIK_SINIR, varsayılan ayar
+N_LED = 16  # donanim.h HALKA_LED_SAYISI
 
 hatalar = []
 
@@ -157,7 +158,8 @@ def tanima(k):
     ok = okumalar(out)
     dene(ok and ok[-1][0] == ok[-1][1] and not ok[-1][2], f"hikâye sonuna kadar okunmadı: {ok}")
     hd = halka_d(err)
-    sira = ["dolma -", "okuma 0/35 -", "hazirlik -", "okuma 0/35 -", "okuma 35/35 -", "oyuncak -", "bosta -"]
+    sira = ["dolma -", f"okuma 0/{N_LED} -", "hazirlik -", f"okuma 0/{N_LED} -", f"okuma {N_LED}/{N_LED} -", "oyuncak -",
+            "bosta -"]
     i = 0
     for h in hd:
         if i < len(sira) and h == sira[i]:
@@ -169,7 +171,7 @@ def tanima(k):
     if dene(kare, "dolma karesi yok"):
         lr = [list(map(int, x.split(","))) for x in kare[0].split("|")[3].split()]
         yanan = [c for c in lr if any(c)]
-        dene(0 < len(yanan) < 35 and all(c == kisik(renk(7)) for c in yanan), f"dolma: Elsa rengi değil {lr[:3]}")
+        dene(0 < len(yanan) < N_LED and all(c == kisik(renk(7)) for c in yanan), f"dolma: Elsa rengi değil {lr[:3]}")
         dene("0 hata" in kare[0], "RMT bit zamanlaması")
     dene(durum(err)[-1][5] == 1 << 7, f"sahip maskesi {durum(err)}")
     out, err = k.kos(["#bosta", "#durum"])
