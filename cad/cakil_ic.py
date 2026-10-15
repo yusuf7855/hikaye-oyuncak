@@ -79,6 +79,7 @@ ANAHTAR_ACI, ANAHTAR_Z = 250.0, 17.0
 USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 1 mm destek üstünde
 RAF_Z = 22.8                         # ESP32 rafı (hoparlörün üstü 22,4, pil yatağının 21,4)
 RAF_KAL = 1.6
+PIL_BAG_X = 22.0                     # pil yatağını tabana sıkan iki kablo bağının yeri (x = ±22)
 RAF_BACAK_X = 42.5                   # raf bacakları pil yatağının (x ±38,5) dışında
 MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), figür çukuru ile kabuk kenarı arasında
 UST_ACILAR = (45.0, 135.0, 225.0, 315.0)    # halka/NFC tutucu direkleri
@@ -224,7 +225,11 @@ def tutucu(nfc):
     return p
 
 
-def taban():
+TABAN_OZ = ("vida", "ayak", "pil", "hoparlor", "tp4056", "amfi", "raf")
+
+
+def taban(oz=TABAN_OZ):
+    """Taban plakası; oz: eklenecek tutucular (adım adım gösterim için alt küme verilebilir)."""
     r = ic_r(1.0) + 0.4
     t = silindir(r, 0, 1.2, seg=SEG) + silindir(ic_r(TABAN_KAL) - 0.3, 1.2, TABAN_KAL, seg=SEG)
     # vida delikleri (M3 havşa)
@@ -232,44 +237,52 @@ def taban():
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
         t = t - silindir(1.7, -1, 5, x=x, y=y, seg=24) - silindir(3.3, -1, 0.0, x=x, y=y, seg=24, r2=1.7).translate([0, 0, 1.6])
     # hoparlör ızgarası (yıldızlar) ve köşe tutucular
-    for i in range(-3, 4):
+    for i in (range(-3, 4) if "hoparlor" in oz else ()):
         for j in range(-3, 4):
             x, y = i * 6.0, HOP_Y + j * 6.0 + (3.0 if i % 2 else 0.0)
             if x * x + (y - HOP_Y) ** 2 < 19.5 ** 2:
                 t = t - silindir(1.4, -1, 5, x=x, y=y, seg=16)
     w, d, h = PARCA["hoparlor"]
-    for sx in (-1, 1):
+    for sx in ((-1, 1) if "hoparlor" in oz else ()):
         for sy in (-1, 1):
             x0, y0 = sx * (w / 2 + 0.3), HOP_Y + sy * (d / 2 + 0.3)
             l = kutu(min(x0, x0 + sx * 2), max(x0, x0 + sx * 2), min(y0 - sy * 6, y0 + sy * 2), max(y0 - sy * 6, y0 + sy * 2), TABAN_KAL, TABAN_KAL + 6)
             l = l + kutu(min(x0 - sx * 6, x0 + sx * 2), max(x0 - sx * 6, x0 + sx * 2), min(y0, y0 + sy * 2), max(y0, y0 + sy * 2), TABAN_KAL, TABAN_KAL + 6)
             t = t + l
-    # pil yatağı cebi (1,5 mm duvar), TP4056 kızağı, amfi tablası
+    # pil yatağı cebi (1,5 mm duvar, 3 mm yüksek) + iki kablo bağı yarığı (yatak cırt/kablo bağıyla tabana sıkılır)
     w, d, h = PARCA["pil_yatagi"]
-    t = t + (kutu(-w / 2 - 1.5, w / 2 + 1.5, PIL_Y - d / 2 - 1.5, PIL_Y + d / 2 + 1.5, TABAN_KAL, TABAN_KAL + 3)
-             - kutu(-w / 2 - 0.3, w / 2 + 0.3, PIL_Y - d / 2 - 0.3, PIL_Y + d / 2 + 0.3, TABAN_KAL - 1, TABAN_KAL + 4))
+    if "pil" in oz:
+        t = t + (kutu(-w / 2 - 1.5, w / 2 + 1.5, PIL_Y - d / 2 - 1.5, PIL_Y + d / 2 + 1.5, TABAN_KAL, TABAN_KAL + 3)
+                 - kutu(-w / 2 - 0.3, w / 2 + 0.3, PIL_Y - d / 2 - 0.3, PIL_Y + d / 2 + 0.3, TABAN_KAL - 1, TABAN_KAL + 4))
+        for x in (-PIL_BAG_X, PIL_BAG_X):
+            for y in (PIL_Y - d / 2 - 3.2, PIL_Y + d / 2 + 0.6):
+                t = t - kutu(x - 2.0, x + 2.0, y, y + 2.6, -1, TABAN_KAL + 4)
     zf = zarflar("rc522")
     b = zf["TP4056 Type-C"].bounding_box()
-    t = t + kutu(b[0] - 1.6, b[0] - 0.2, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
-    t = t + kutu(b[3] + 0.2, b[3] + 1.6, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
+    tp = M()
+    tp = tp + kutu(b[0] - 1.6, b[0] - 0.2, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
+    tp = tp + kutu(b[3] + 0.2, b[3] + 1.6, b[1] + 4, b[4] - 2, TABAN_KAL, USB_Z_ALT + 2.4)
     # iç uçta ayrı dayanak yok: pil yatağı cebinin arka duvarı dayanak (fiş takılırken kart içeri itilir)
-    t = t + kutu(b[0] + 3, b[3] - 3, b[1] + 6, b[4] - 4, TABAN_KAL, USB_Z_ALT)
+    tp = tp + kutu(b[0] + 3, b[3] - 3, b[1] + 6, b[4] - 4, TABAN_KAL, USB_Z_ALT)
+    if "tp4056" in oz:
+        t = t + tp
     w, d, h = PARCA["max98357"]
-    t = t + (kutu(AMP_XY[0] - w / 2 - 1.2, AMP_XY[0] + w / 2 + 1.2, AMP_XY[1] - d / 2 - 1.2, AMP_XY[1] + d / 2 + 1.2, TABAN_KAL, TABAN_KAL + 2.5)
-             - kutu(AMP_XY[0] - w / 2 - 0.2, AMP_XY[0] + w / 2 + 0.2, AMP_XY[1] - d / 2 - 0.2, AMP_XY[1] + d / 2 + 0.2, TABAN_KAL - 1, TABAN_KAL + 4))
+    if "amfi" in oz:
+        t = t + (kutu(AMP_XY[0] - w / 2 - 1.2, AMP_XY[0] + w / 2 + 1.2, AMP_XY[1] - d / 2 - 1.2, AMP_XY[1] + d / 2 + 1.2, TABAN_KAL, TABAN_KAL + 2.5)
+                 - kutu(AMP_XY[0] - w / 2 - 0.2, AMP_XY[0] + w / 2 + 0.2, AMP_XY[1] - d / 2 - 0.2, AMP_XY[1] + d / 2 + 0.2, TABAN_KAL - 1, TABAN_KAL + 4))
     # ESP32 rafının bacakları (pil yatağının iki ucunda)
     w, d, h = PARCA["esp32"]
-    for sx in (-1, 1):
+    for sx in ((-1, 1) if "raf" in oz else ()):
         for sy in (-1, 1):
             x, y = sx * RAF_BACAK_X, PIL_Y + sy * (d / 2 - 1)
             t = t + silindir(2.6, TABAN_KAL, RAF_Z, x=x, y=y, seg=24) - silindir(1.05, RAF_Z - 6, RAF_Z + 1, x=x, y=y, seg=16)
     # ayak yuvaları
-    for aci in (90.0, 210.0, 330.0):
+    for aci in ((90.0, 210.0, 330.0) if "ayak" in oz else ()):
         x, y = AYAK[2] * math.cos(math.radians(aci)), AYAK[2] * math.sin(math.radians(aci))
         if abs(x) < 26 and abs(y - HOP_Y) < 26:
             continue
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
-    for x, y in ((0, -42), (-44, 14), (44, 14)):
+    for x, y in (((0, -42), (-44, 14), (44, 14)) if "ayak" in oz else ()):
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
     ic = dondur(profil(-DUVAR - 0.3, 1.0, H - DUVAR), SEG)
     return (t ^ kutu(-70, 70, -70, 70, -1, 1.2)) + (t ^ ic)

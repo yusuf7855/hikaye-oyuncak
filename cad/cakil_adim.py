@@ -19,16 +19,16 @@ import cakil_ic as C  # noqa: E402
 import dis_konsept as K  # noqa: E402
 from geometri import kutu  # noqa: E402
 
-ADIMLAR = [
-    ("halka", "16'lı NeoPixel halka", ["NeoPixel 16"], ["tutucu"]),
-    ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], []),
-    ("hoparlor", "Hoparlör 50x50", ["hoparlör (aşağı bakar)"], ["taban"]),
-    ("pil", "18650 pil yatağı", ["18650 yatağı"], []),
-    ("esp32", "ESP32-S3", ["ESP32-S3 (rafta)"], ["raf"]),
-    ("tp4056", "TP4056 + USB-C", ["TP4056 Type-C"], []),
-    ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], []),
-    ("amfi", "MAX98357A", ["MAX98357A"], []),
-    ("mikrofon", "INMP441 mikrofon", ["INMP441 mikrofon"], []),
+ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular)
+    ("halka", "16'lı NeoPixel halka", ["NeoPixel 16"], ["tutucu"], ()),
+    ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], [], ()),
+    ("pil", "18650 pil yatağı", ["18650 yatağı"], ["taban"], ("vida", "ayak", "pil")),
+    ("hoparlor", "Hoparlör 50x50", ["hoparlör (aşağı bakar)"], [], ("hoparlor",)),
+    ("esp32", "ESP32-S3", ["ESP32-S3 (rafta)"], ["raf"], ("raf",)),
+    ("tp4056", "TP4056 + USB-C", ["TP4056 Type-C"], [], ("tp4056",)),
+    ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], [], ()),
+    ("amfi", "MAX98357A", ["MAX98357A"], [], ("amfi",)),
+    ("mikrofon", "INMP441 mikrofon", ["INMP441 mikrofon"], [], ()),
 ]
 
 
@@ -42,10 +42,11 @@ def kesit_ciz(ax, man, renk, ec, alfa=1.0):
 
 
 def adim_gorsel(n, notlar=(), nfc="rc522"):
-    ad, baslik, parcalar, yapilar = ADIMLAR[n - 1]
+    ad, baslik, parcalar, yapilar, _ = ADIMLAR[n - 1]
     oku = f"{nfc.upper()} okuyucu"
     parcalar = [oku if p == "RC522 okuyucu" else p for p in parcalar]
     z, yapi, sorun, mesafe = C.denetle(nfc)
+    yapi = dict(yapi, taban=C.taban(tuple(o for a in ADIMLAR[:n] for o in a[4])))
     onceki_p = [oku if p == "RC522 okuyucu" else p for a in ADIMLAR[:n - 1] for p in a[2]]
     onceki_y = [y for a in ADIMLAR[:n - 1] for y in a[3]]
     fig = plt.figure(figsize=(17, 7.6), dpi=110)
@@ -126,6 +127,46 @@ def ust_gorunus():
     return yol
 
 
+def taban_plan(n):
+    """Taban plakası üstten: bu adıma kadar konan parçalar, boş kalan alan."""
+    from matplotlib.patches import Rectangle
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    oz = tuple(o for a in ADIMLAR[:n] for o in a[4])
+    tb = C.taban(oz)
+    fig, ax = plt.subplots(figsize=(8.6, 8.6), dpi=110)
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
+    cs = tb.slice(1.8)
+    verts, codes = [], []
+    for poly in cs.to_polygons():
+        pp = np.asarray(poly)
+        verts += list(pp) + [pp[0]]
+        codes += [Path.MOVETO] + [Path.LINETO] * (len(pp) - 1) + [Path.CLOSEPOLY]
+    ax.add_patch(PathPatch(Path(verts, codes), fc="#E8DCCB", ec="#8a7a66", lw=0.8))
+    ust = tb.slice(C.TABAN_KAL + 1.5)
+    for poly in ust.to_polygons():
+        pp = np.asarray(poly)
+        ax.add_patch(Polygon(pp, closed=True, fc="#c9b89c", ec="#7a6a55", lw=0.8))
+    parca = [p for a in ADIMLAR[:n] for p in a[2] if p in ("18650 yatağı", "hoparlör (aşağı bakar)", "TP4056 Type-C", "MAX98357A")]
+    for p in parca:
+        b = z[p].bounding_box()
+        ax.add_patch(Rectangle((b[0], b[1]), b[3] - b[0], b[4] - b[1], fc=C.RENK_PARCA[p] + "88", ec=C.RENK_PARCA[p], lw=2))
+        ax.text((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, p, ha="center", va="center", fontsize=10, color="white")
+    for x in (-C.PIL_BAG_X, C.PIL_BAG_X):
+        ax.annotate("kablo bağı yarıkları", xy=(x, C.PIL_Y - 12), xytext=(x - 18, C.PIL_Y - 30), fontsize=8,
+                    arrowprops=dict(arrowstyle="->"))
+    ax.text(0, 40, "ön yarı: hoparlör (sonraki adım)", ha="center", fontsize=10, color="#777")
+    ax.text(0, -46, "arka: TP4056, amfi, anahtar\n(sonraki adımlar)", ha="center", fontsize=9, color="#777")
+    ax.text(0, 57, "ÖN (logo)", ha="center"); ax.text(0, -60, "ARKA (USB-C)", ha="center")
+    ax.set_xlim(-62, 62); ax.set_ylim(-63, 62); ax.set_aspect("equal"); ax.grid(alpha=.25)
+    ax.set_title(f"Adım {n}: taban plakası üstten (koyu: tutucu duvarlar)", fontsize=12)
+    plt.tight_layout()
+    yol = os.path.join(C.KOK, "onizleme", f"adim_{n}_taban_plan.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 def nfc_plan():
     """Üstten: iki okuyucunun yeri, anten bölgesi, figür etiketi (Ø25), çukur, halka, direkler, raylar."""
     from matplotlib.patches import Rectangle, Circle
@@ -180,6 +221,9 @@ if __name__ == "__main__":
         2: [(0, C.Z_OKUYUCU_UST - 0.8, "NFC okuyucu: anten yüzü çukur zemininin 0,3 mm altında", -60, 30),
             (0, C.Z_CANAK_TABAN + 0.4, f"figür etiketi -> anten ≈ {(C.Z_CANAK_TABAN + 0.4) - C.Z_OKUYUCU_UST:.1f} mm", 8, 62),
             (-21, C.Z_OKUYUCU_UST - 2.5, "tutucunun rayları (kart kayarak girer)", -62, 18)],
+        3: [(0, C.TABAN_KAL + 10, "18650 pil yatağı (77x21x19, tahmin), x boyunca", -62, 40),
+            (-17.5, C.TABAN_KAL + 1.5, "taban plakasında 3 mm cep duvarı", -62, 24),
+            (0, 1.0, "taban plakası (alttan 4 x M3 vida)", 10, 14)],
     }.get(n, [])
     if n == 2:
         for nfc in ("rc522", "pn5180"):
@@ -189,3 +233,5 @@ if __name__ == "__main__":
         print(adim_gorsel(n, notlar))
     if n == 1:
         print(ust_gorunus())
+    if n >= 3:
+        print(taban_plan(n))
