@@ -232,8 +232,8 @@ def usb_yakin():
     z, yapi, sorun, mesafe = C.denetle("rc522")
     k = yapi["kabuk"]
     tb = C.taban(("vida", "pil", "tp4056"))
-    fig = plt.figure(figsize=(16, 7), dpi=110)
-    ax = fig.add_subplot(1, 2, 1, projection="3d")
+    fig = plt.figure(figsize=(21, 7), dpi=110)
+    ax = fig.add_subplot(1, 3, 1, projection="3d")
     kirp = kutu(-30, 22, -70, -30, -2, 30)
     ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (tb ^ kirp, "#E8DCCB", False), (C.tp_stl(), "#2d6cdf", False)]
     elev, azim = 10, -90
@@ -241,8 +241,8 @@ def usb_yakin():
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
     ax.set_xlim(-26, 18); ax.set_ylim(-70, -26); ax.set_zlim(-4, 26)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Arkadan: gövde eğrisi aynen, USB-C yüzeyle aynı hizada; altındaki dil taban plakasından", fontsize=11)
-    ax2 = fig.add_subplot(1, 2, 2)
+    ax.set_title("Arkadan: gövde eğrisi aynen, yüzeyde yalnız USB-C deliği var (altı kapalı)", fontsize=11)
+    ax2 = fig.add_subplot(1, 3, 2)
     for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
         cs = man.translate([-C.TP_X, 0, 0]).rotate([0, -90, 0]).slice(0.0)
         for poly in cs.to_polygons():
@@ -254,6 +254,19 @@ def usb_yakin():
                  arrowprops=dict(arrowstyle="->"))
     ax2.set_xlim(-68, -18); ax2.set_ylim(-2, 24); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
     ax2.set_xlabel("y (mm)  ← ARKA"); ax2.set_title("Kartın ortasından yan kesit", fontsize=12)
+    ax3 = fig.add_subplot(1, 3, 3)
+    yk = C.tp_konum()[2] + 8.0
+    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
+        cs = man.translate([0, -yk, 0]).rotate([-90, 0, 0]).slice(0.0)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax3.add_patch(Polygon(pp, closed=True, fc=fc, ec=ec, lw=1))
+    ax3.annotate("kabuktaki kızaklar:\nkart kenarları alt ve üst dudak arasında", xy=(C.TP_X + C.PARCA["tp4056"][0] / 2 + 0.8, C.USB_Z_ALT + 2.2),
+                 xytext=(C.TP_X + 2, 18), fontsize=10, arrowprops=dict(arrowstyle="->"))
+    ax3.annotate("taban plakasındaki kaide", xy=(C.TP_X - 4, C.USB_Z_ALT - 2), xytext=(C.TP_X - 22, 1.0), fontsize=10,
+                 arrowprops=dict(arrowstyle="->"))
+    ax3.set_xlim(C.TP_X - 22, C.TP_X + 22); ax3.set_ylim(-2, 24); ax3.set_aspect("equal"); ax3.grid(alpha=.25)
+    ax3.set_xlabel("x (mm)"); ax3.set_title(f"Önden kesit (USB-C'den {yk - C.tp_konum()[1]:.0f} mm içeride)", fontsize=12)
     fig.suptitle("Adım 5: TP4056 Type-C — şarj girişi arka duvarda", fontsize=14)
     plt.tight_layout()
     yol = os.path.join(C.KOK, "onizleme", "adim_5_usb_yakin.png")
@@ -327,7 +340,7 @@ if __name__ == "__main__":
             (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
             (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
         5: [(C.tp_konum()[1], C.USB_ZC, "USB-C arkanın ortasında, gövdenin dik yerinde:\nkenarlar dış yüzle aynı hizada, dış gövde hiç bozulmadı", -62, 34),
-            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı: 6,5 mm kaidede,\nyanlarda tırnaklı duvar, arkada dayanak", -30, 22),
+            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı kabuktaki iki kızağa içeriden kayar;\ntaban kapanınca alttaki kaide ve arkadaki dayanak kilitler", -30, 22),
             (C.PIL_Y, C.TABAN_KAL + 12, "pil yatağı (5 mm öne alındı)", 10, 30)],
     }.get(n, [])
     if n == 2:

@@ -178,7 +178,7 @@ def zarflar(nfc):
     y_plaka, y_usb, y_kart = tp_konum()
     z["TP4056 Type-C"] = (kutu(TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d, USB_Z_ALT, USB_Z_ALT + t)
                           + kutu(TP_X - w / 2 + 1.0, TP_X + w / 2 - 1.0, y_kart + 1.0, y_kart + d - 1.0, USB_Z_ALT + t, USB_Z_ALT + t + 1.3)
-                          + kutu(TP_X - uw / 2, TP_X + uw / 2, y_usb, y_usb + ul, USB_Z_ALT + t, USB_Z_ALT + t + uh))
+                          + xz_den_y_ye(yuvarlak_dikdortgen(uw, uh, 1.3), y_usb, y_usb + ul, x=TP_X, z=USB_ZC))   # USB-C dişi (köşeleri yuvarlak)
     w, d, h = PARCA["max98357"]
     z["MAX98357A"] = kutu(AMP_XY[0] - w / 2, AMP_XY[0] + w / 2, AMP_XY[1] - d / 2, AMP_XY[1] + d / 2,
                           TABAN_KAL + 1, TABAN_KAL + 1 + h)
@@ -244,14 +244,23 @@ def kabuk():
     yaka = (silindir(hd / 2 - 1.0, 0, 30, seg=96) - silindir(hd / 2 - 3.0, -1, 31, seg=96)).rotate([-90, 0, 0]).translate([0, HOP_YF + 2.0, HOP_ZC])
     g = g + (yaka ^ dondur(profil(-1.0), SEG) ^ kutu(-40, 40, -70, 70, TABAN_KAL + 1.0, H))
     # arka: USB-C (fiş gövdesi için 12,5 x 7,5) ve anahtar (Ø15)
-    # USB-C 0'a 0 (dış gövde aynen kalır): içte duvar inceltilir, delik tam USB-C biçiminde ve altı açık (kabuk alttan
-    # takılırken USB-C deliğe girer); açık kalan alt kısmı taban plakasının dili kapatır
+    # USB-C 0'a 0 (dış gövde aynen kalır; deliğin çevresi kapalı, dışta yalnız USB-C deliği görünür): içte duvar
+    # inceltilir; kart kabuğa bağlı iki yan kızağa içeriden kayarak takılır (USB-C deliğe girer), taban plakası kapanınca
+    # altındaki kaide ve arkadaki dayanak kartı yerinde kilitler
     y_ic, y_usb, y_kart = tp_konum()
     uw, uh, ul, ut = PARCA["tp4056_usb"]
-    w_k = PARCA["tp4056"][0]
-    g = g - kutu(TP_X - w_k / 2 - 0.6, TP_X + w_k / 2 + 0.6, y_ic, y_usb + 9, -1, USB_ZC + uh / 2 + 1.2)   # iç cep
+    w_k, d_k, t_k = PARCA["tp4056"]
+    g = g - kutu(TP_X - w_k / 2 - 0.6, TP_X + w_k / 2 + 0.6, y_ic, y_usb + 9, USB_Z_ALT - 0.6, USB_ZC + uh / 2 + 1.2)   # iç cep
     g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + 0.3, uh + 0.3, 1.5), -80, y_usb + 9, x=TP_X, z=USB_ZC)
-    g = g - kutu(TP_X - (uw + 0.3) / 2, TP_X + (uw + 0.3) / 2, -80, y_usb + 9, -1, USB_ZC)
+    x0, x1, zu = TP_X - w_k / 2, TP_X + w_k / 2, USB_Z_ALT + t_k
+    kz = None
+    for s, xk in ((-1, x0), (1, x1)):
+        dis_x, ic_x = xk + s * 1.6, xk - s * 0.8     # kızak duvarı kartın 0,15 mm dışında; dudaklar kart kenarına 0,8 mm biner
+        f = kutu(min(xk + s * 0.15, dis_x), max(xk + s * 0.15, dis_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.4, zu + 1.4)
+        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.4, USB_Z_ALT - 0.15)   # alt dudak
+        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, zu + 0.15, zu + 1.4)                 # üst dudak
+        kz = f if kz is None else kz + f
+    g = g + (kz ^ dondur(profil(-0.5), SEG))
     a = ANAHTAR_ACI
     g = g - silindir(PARCA["kcd11"][0] / 2 + 0.1, 0, 30, seg=48).rotate([0, 90, 0]).translate([45, 0, ANAHTAR_Z]).rotate([0, 0, a])
     # mikrofon deliği ve cebi (MIKROFON açılınca)
@@ -325,16 +334,13 @@ def taban(oz=TABAN_OZ):
         for x in (-PIL_BAG_X, PIL_BAG_X):
             for y in (PIL_Y - d / 2 - 3.2, PIL_Y + d / 2 + 0.6):
                 t = t - kutu(x - 2.0, x + 2.0, y, y + 2.6, -1, TABAN_KAL + 4)
-    # TP4056 yuvası: 1 mm destekler, iki yanda duvar (kart üst kenarına 0,4 mm tırnak: bastırınca yerine oturur),
-    # arkada dayanak (fiş takılırken kart içeri kaçmaz); ön ucu USB-C ile kabuğun düz yüzüne dayanır
+    # TP4056: kart kabuktaki kızaklarda durur; tabanda altında kaide (kartı kızağın ortasında tutar) ve arkada dayanak
+    # (fiş takılırken kart içeri kaçmaz)
     w, d, tk = PARCA["tp4056"]
     y_plaka, y_usb, y_kart = tp_konum()
     x0, x1, y0, y1 = TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d
     zu = USB_Z_ALT + tk
-    tp = kutu(x0 + 2, x1 - 2, y0 + 3, y1 - 3, TABAN_KAL - 0.01, USB_Z_ALT)
-    for xa, xb, xt0, xt1 in ((x0 - 1.4, x0 - 0.15, x0 - 0.15, x0 + 0.4), (x1 + 0.15, x1 + 1.4, x1 - 0.4, x1 + 0.15)):
-        tp = tp + kutu(xa, xb, y0 + 6, y1 - 2, TABAN_KAL - 0.01, zu + 1.2)
-        tp = tp + kutu(xt0, xt1, y0 + 10, y0 + 16, zu + 0.15, zu + 1.2)
+    tp = kutu(x0 + 1.2, x1 - 1.2, y0 - 3, y1 - 3, TABAN_KAL - 0.01, USB_Z_ALT)
     tp = tp + kutu(x0 + 1, x1 - 1, y1 + 0.2, y1 + 1.6, TABAN_KAL - 0.01, zu + 1.0)
     if "tp4056" in oz:
         t = t + tp
@@ -356,12 +362,6 @@ def taban(oz=TABAN_OZ):
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
     ic = dondur(profil(-DUVAR - 0.3, 1.0, H - DUVAR), SEG)
     t = (t ^ kutu(-70, 70, -70, 70, -1, 1.2)) + (t ^ ic)
-    if "tp4056" in oz:   # USB-C deliğinin altını kapatan dil (dış yüzle aynı hizada)
-        y_ic, y_usb, y_kart = tp_konum()
-        uw, uh, ul, ut = PARCA["tp4056_usb"]
-        dil = kutu(TP_X - (uw + 0.1) / 2, TP_X + (uw + 0.1) / 2, y_usb - 3, y_ic - 0.05, 0, USB_ZC - uh / 2 - 0.25)
-        t = t + (dil ^ dondur(profil(), SEG))   # dış yüzü gövdenin eğrisini izler
-        t = t + kutu(TP_X - (uw + 0.1) / 2, TP_X + (uw + 0.1) / 2, y_ic - 0.1, y_kart + 4.0, 0, USB_Z_ALT - 0.1)
     return t
 
 
