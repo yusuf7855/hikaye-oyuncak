@@ -1,4 +1,4 @@
-"""Ay Dede'nin 15 sabit halk ninnisi: biçim (kıta, hece) ve yerlesik.h'nin ninniler.txt ile eşitliği."""
+"""Ay Dede'nin 100 sabit halk ninnisi: biçim (kıta, hece) ve yerlesik.h'nin ninniler.txt ile eşitliği."""
 import os
 import subprocess
 import sys
@@ -11,7 +11,7 @@ import ninniler as N  # noqa: E402
 
 def test_ninniler_bicim():
     ninniler = N.oku()
-    assert len(ninniler) == 15
+    assert len(ninniler) == N.ADET == 100
     assert N.denetle(ninniler) == []
     assert ninniler[0][0] == "Dandini dandini dastana"
 

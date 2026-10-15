@@ -14,7 +14,7 @@ SKETCH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KAYNAK = os.path.join(SKETCH, "ninniler.txt")
 HEDEF = os.path.join(SKETCH, "yerlesik.h")
 SESLI = set("aeıioöuüâîûAEIİOÖUÜÂÎÛ")
-ADET = 15
+ADET = 100
 
 
 def hece(dize):
@@ -88,7 +88,7 @@ def baslik(ninniler):
     out = [
         "// Üretildi: tools/ninniler.py (ninniler.txt). Elle değiştirme; ninniler.txt'yi düzenleyip aracı çalıştır.",
         "// Yerleşik metinler: kartta sabit duran, modelin yazmadığı içerik. Gece figürü (Ay Dede, mod \"uyku\") yalnız",
-        "// bu ninnileri okur (ürün sahibinin kararı, 15 Ekim 2026: 15 sabit, bilinen anonim halk ninnisi); sırayla döner, aynı",
+        "// bu ninnileri okur (ürün sahibinin kararı, 15 Ekim 2026: 100 sabit, bilinen anonim halk ninnisi); sırayla döner, aynı",
         "// ninni art arda gelmez. Ninni modunda yavaş, alçak, kısık okunur; her iki dize bir cümle (arada uzun durak).",
         "#pragma once",
         "",
