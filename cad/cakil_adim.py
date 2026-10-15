@@ -83,12 +83,48 @@ def adim_gorsel(n, notlar=()):
     return yol
 
 
+def ust_gorunus():
+    """Üstten bakış: gündüz (yarıklar) ve gece (halka yanıyor: yarıklardan ışık)."""
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
+    k = C.kabuk()
+    cs = k.slice(C.H - 0.2)
+    fig, axs = plt.subplots(1, 2, figsize=(14, 7), dpi=110)
+    for ax, gece in zip(axs, (False, True)):
+        ax.set_facecolor("#0E1430" if gece else "white")
+        if gece:
+            th = np.linspace(0, 2 * np.pi, 200)
+            for r, a in ((C.ISIK_R[1] + 2, .25), (C.ISIK_R[1], .6)):
+                ax.fill(r * np.cos(th), r * np.sin(th), color="#ff4fa3", alpha=a, lw=0)
+        verts, codes = [], []
+        for poly in cs.to_polygons():
+            p = np.asarray(poly)
+            verts += list(p) + [p[0]]
+            codes += [Path.MOVETO] + [Path.LINETO] * (len(p) - 1) + [Path.CLOSEPOLY]
+        ax.add_patch(PathPatch(Path(verts, codes), fc="#3a3530" if gece else "#F6E7D2", ec="#8a7a66", lw=0.6))
+        ax.add_patch(plt.Circle((0, 0), C.YUVA_R + 1.7, fc="#3a3530" if gece else "#F6E7D2", ec="none"))  # ağız pahı
+        ax.add_patch(plt.Circle((0, 0), C.YUVA_R, fc="#2a2622" if gece else "#e9dcc6", ec="#8a7a66"))
+        ax.set_xlim(-48, 48); ax.set_ylim(-48, 48); ax.set_aspect("equal"); ax.axis("off")
+        ax.set_title("Gece: halka yanıyor (örnek: Niloya pembesi)" if gece else "Gündüz: figür çukuru ve ışık yarıkları",
+                     color="black", fontsize=13)
+    fig.patch.set_facecolor("white")
+    fig.suptitle(f"Üstten: {C.ISIK_YARIK[0]} ışınsal yarık ({C.ISIK_YARIK[1]} mm), LED'lerin tam üstünde; ortada figür çukuru Ø{2 * C.YUVA_R:.1f}",
+                 fontsize=12)
+    plt.tight_layout(rect=(0, 0, 1, 0.94))
+    yol = os.path.join(C.KOK, "onizleme", "adim_1_ust.png")
+    fig.savefig(yol, facecolor="white")
+    plt.close(fig)
+    return yol
+
+
 if __name__ == "__main__":
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
         1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka çukurun ÇEVRESİNDE, tavana yaslı;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
-            (19, C.Z_HALKA_UST + 1.2, "ışık oyuğu: LED'lerin üstünde 0,6 mm\n(beyaz PLA ışığı geçirir)", 16, 31),
+            (19, C.Z_HALKA_UST + 1.2, "LED'lerin üstü şerit şerit açık:\n32 ışınsal yarık (1,2 mm)", 16, 31),
             (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
             (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],
     }.get(n, [])
     print(adim_gorsel(n, notlar))
+    if n == 1:
+        print(ust_gorunus())

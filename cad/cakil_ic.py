@@ -43,6 +43,7 @@ CUKUR_DERIN = 5.0        # figür tabanının oturduğu yüz = H - 5
 YUVA_DUVAR = 1.2         # çukurun kabuk içine sarkan duvarı (halkanın iç boşluğundan geçer: r 15,5 < 15,9)
 ZEMIN_KAL = 1.6          # figür zemini kalınlığı (altında NFC okuyucu)
 ISIK_KAL = 0.6           # LED'lerin üstünde kalan zemin (0,6 mm beyaz PLA ışığı geçirir; renkli PLA'da delik açılabilir)
+ISIK_YARIK = (32, 1.2)   # ürün sahibi: LED'lerin üstü şerit şerit açık -> 32 ışınsal yarık, 1,2 mm (her LED'e 2)
 ISIK_R = (16.2, 22.0)    # ışık oyuğu: LED'ler (5x5 mm, r ≈ 19) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
 YAZI, YAZI_BOY, YAZI_Z = "eco ai", 15.0, 37.0
@@ -164,6 +165,10 @@ def kabuk():
     g = g - silindir(YUVA_R, Z_CANAK_TABAN, H + 1, seg=SEG)
     g = g - (silindir(ISIK_R[1], H - DUVAR - 1, H - ISIK_KAL, seg=SEG)
              - silindir(ISIK_R[0], H - DUVAR - 2, H, seg=SEG))   # tavandaki ışık oyuğu (çukurun çevresinde)
+    n, gen = ISIK_YARIK   # oyuğun üstündeki 0,6 mm yüzey şerit şerit açılır: ışık doğrudan geçer (renkli PLA'da da)
+    r0, r1 = ISIK_R[0] + 0.5, ISIK_R[1] - 0.5
+    for i in range(n):
+        g = g - kutu(r0, r1, -gen / 2, gen / 2, H - ISIK_KAL - 0.2, H + 1).rotate([0, 0, 360.0 * (i + 0.5) / n])
     g = g - (silindir(YUVA_R + 0.8, H - 0.8, H + 0.01, seg=SEG, r2=YUVA_R + 1.6) - silindir(0.1, H - 2, H + 2, seg=8))  # ağız pahı
     # tutucu direkleri (üstten iner, M2,5 pilot)
     for aci in UST_ACILAR:
