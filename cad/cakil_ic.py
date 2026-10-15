@@ -80,6 +80,7 @@ USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 1 mm destek üstünde
 RAF_Z = 22.8                         # ESP32 rafı (hoparlörün üstü 22,4, pil yatağının 21,4)
 RAF_KAL = 1.6
 PIL_BAG_X = 22.0                     # pil yatağını tabana sıkan iki kablo bağının yeri (x = ±22)
+MIKROFON = False                     # ürün sahibi (16 Ekim 2026): mikrofon şimdilik yok (sonra eklenecek; yeri ayrılı)
 RAF_BACAK_X = 42.5                   # raf bacakları pil yatağının (x ±38,5) dışında
 MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), figür çukuru ile kabuk kenarı arasında
 UST_ACILAR = (45.0, 135.0, 225.0, 315.0)    # halka/NFC tutucu direkleri
@@ -141,7 +142,8 @@ def zarflar(nfc):
     w, d, h = PARCA["esp32"]
     z["ESP32-S3 (rafta)"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, RAF_Z + RAF_KAL, RAF_Z + RAF_KAL + h)
     w, d, h = PARCA["inmp441"]
-    z["INMP441 mikrofon"] = silindir(w / 2, Z_MIK, Z_MIK + h, x=MIK_XY[0], y=MIK_XY[1], seg=32)
+    if MIKROFON:
+        z["INMP441 mikrofon"] = silindir(w / 2, Z_MIK, Z_MIK + h, x=MIK_XY[0], y=MIK_XY[1], seg=32)
     ri, rd, kal = PARCA["halka"]
     lw, lh = PARCA["halka_led"]
     rl = (ri + rd) / 4
@@ -186,11 +188,12 @@ def kabuk():
     g = g - xz_den_y_ye(yuvarlak_dikdortgen(12.5, 7.5, 3.0), -70, -40, x=TP_X, z=usb_z)
     a = ANAHTAR_ACI
     g = g - silindir(PARCA["kcd11"][0] / 2 + 0.1, 0, 30, seg=48).rotate([0, 90, 0]).translate([45, 0, ANAHTAR_Z]).rotate([0, 0, a])
-    # mikrofon deliği ve cebi
-    g = g - silindir(0.8, H - 6, H + 1, x=MIK_XY[0], y=MIK_XY[1], seg=16)
-    r = PARCA["inmp441"][0] / 2 + 0.3
-    cep = (silindir(r + 1.2, Z_MIK + 1.5, H - DUVAR + 0.01, seg=32) - silindir(r, Z_MIK, H, seg=32)).translate([MIK_XY[0], MIK_XY[1], 0])
-    g = g + (cep ^ dondur(profil(-0.6), SEG))
+    # mikrofon deliği ve cebi (MIKROFON açılınca)
+    if MIKROFON:
+        g = g - silindir(0.8, H - 6, H + 1, x=MIK_XY[0], y=MIK_XY[1], seg=16)
+        r = PARCA["inmp441"][0] / 2 + 0.3
+        cep = (silindir(r + 1.2, Z_MIK + 1.5, H - DUVAR + 0.01, seg=32) - silindir(r, Z_MIK, H, seg=32)).translate([MIK_XY[0], MIK_XY[1], 0])
+        g = g + (cep ^ dondur(profil(-0.6), SEG))
     # kabuğun alt kenarında taban plakası için 1,2 mm oturma basamağı
     g = g - silindir(ic_r(1.0) + 0.6, -1, 1.2, seg=SEG)
     return g

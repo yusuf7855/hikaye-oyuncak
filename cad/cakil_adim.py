@@ -28,7 +28,6 @@ ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular
     ("tp4056", "TP4056 + USB-C", ["TP4056 Type-C"], [], ("tp4056",)),
     ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], [], ()),
     ("amfi", "MAX98357A", ["MAX98357A"], [], ("amfi",)),
-    ("mikrofon", "INMP441 mikrofon", ["INMP441 mikrofon"], [], ()),
 ]
 
 
@@ -178,10 +177,15 @@ def montaj_gorsel():
           (yapi["tutucu"].translate([0, 0, yuk]), "#ffd27a", False),
           (z["NeoPixel 16"].translate([0, 0, yuk]), "#ff4fa3", True),
           (z["RC522 okuyucu"].translate([0, 0, yuk]), C.RENK_PARCA["RC522 okuyucu"], False),
-          (z["INMP441 mikrofon"].translate([0, 0, yuk]), C.RENK_PARCA["INMP441 mikrofon"], False),
           (C.taban(), "#E8DCCB", False), (yapi["raf"], "#c9c2b8", False)]
     for p in ("18650 yatağı", "hoparlör (aşağı bakar)", "ESP32-S3 (rafta)", "TP4056 Type-C", "MAX98357A"):
         ls.append((z[p], C.RENK_PARCA[p], False))
+    etiket = {"18650 yatağı": "18650 pil yatağı", "hoparlör (aşağı bakar)": "HOPARLÖR 50x50\n(aşağı bakar)",
+              "ESP32-S3 (rafta)": "ESP32-S3 (rafta)"}
+    for p, yazi in etiket.items():
+        b = z[p].bounding_box()
+        ax.text((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, b[5] + 3, yazi, fontsize=9, ha="center", color="#222",
+                bbox=dict(fc="white", ec="none", alpha=.75))
     for aci in C.VIDA_ACILAR:
         x, y = C.VIDA_R * math.cos(math.radians(aci)), C.VIDA_R * math.sin(math.radians(aci))
         ls.append((C.silindir(1.5, -14, -4, x=x, y=y, seg=16) + C.silindir(2.8, -16, -14, x=x, y=y, seg=16), "#555", False))
@@ -192,7 +196,7 @@ def montaj_gorsel():
     ax.set_box_aspect((1, 1, 1.15))
     ax.view_init(elev=elev, azim=azim)
     ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• 16'lı halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
-              "• mikrofon (üstte)\n• açma-kapama anahtarı (arka duvarda)", transform=ax.transAxes, fontsize=10,
+              "• açma-kapama anahtarı (arka duvarda)", transform=ax.transAxes, fontsize=10,
               bbox=dict(fc="white", ec="#b08a30"))
     ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör (aşağı bakar)\n• ESP32-S3 (rafta)\n"
               "• TP4056 (USB-C arka delikte)\n• MAX98357A", transform=ax.transAxes, fontsize=10, bbox=dict(fc="white", ec="#8a7a66"))
