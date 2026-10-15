@@ -241,7 +241,7 @@ def usb_yakin():
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
     ax.set_xlim(-26, 18); ax.set_ylim(-70, -26); ax.set_zlim(-4, 26)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Arkadan: USB-C dış yüzle aynı hizada; altındaki dil taban plakasından", fontsize=12)
+    ax.set_title("Arkadan: gövde eğrisi aynen, USB-C yüzeyle aynı hizada; altındaki dil taban plakasından", fontsize=11)
     ax2 = fig.add_subplot(1, 2, 2)
     for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
         cs = man.translate([-C.TP_X, 0, 0]).rotate([0, -90, 0]).slice(0.0)
@@ -326,8 +326,8 @@ if __name__ == "__main__":
             (C.HOP_YF + 6, C.HOP_ZC + 20, "ses yakası: hoparlörden ızgaraya boru", 2, 60),
             (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
             (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
-        5: [(C.tp_konum()[1], C.USB_ZC, "USB-C ön yüzü dış yüzle aynı hizada;\nduvar içten 1,5 mm'ye inceltildi", -62, 34),
-            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı: 1 mm desteklerde,\nyanlarda tırnaklı duvar, arkada dayanak", -30, 22),
+        5: [(C.tp_konum()[1], C.USB_ZC, "USB-C arkanın ortasında, gövdenin dik yerinde:\nkenarlar dış yüzle aynı hizada, dış gövde hiç bozulmadı", -62, 34),
+            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056 kartı: 6,5 mm kaidede,\nyanlarda tırnaklı duvar, arkada dayanak", -30, 22),
             (C.PIL_Y, C.TABAN_KAL + 12, "pil yatağı (5 mm öne alındı)", 10, 30)],
     }.get(n, [])
     if n == 2:
