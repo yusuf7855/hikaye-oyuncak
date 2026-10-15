@@ -57,7 +57,8 @@ PARCA = {
     "tp4056_usb": (9.8, 3.0, 6.9, 1.5),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma (STL'den)
     "max98357": (19.0, 18.0, 10.0),      # vida klemensi lehimliyse ~10 mm
     "esp32": (57.2, 28.5, 1.6),          # ESP32-S3 DevKit (ürün sahibinin STEP'i, cad/parca_stl/): kart en, boy, kalınlık
-    "kcd11": (15.0, 20.0),               # Ø15 panel deliği, arkada ~20 mm derinlik
+    "kcd11": (15.0, 20.0, 18.5, 2.0, 1.6),   # yuvarlak: panel deliği Ø, arkadaki gövde+uçlar derinliği, flanş Ø, flanş
+                                             # kalınlığı, panel kalınlığı (tırnaklar ~1-2 mm panele oturur); TAHMİN, ölç
     "inmp441": (14.0, 14.0, 3.0),
     "halka": (31.75, 44.5, 1.6),         # NeoPixel 16'lı: iç Ø, dış Ø, kart kalınlığı
     "halka_led": (5.0, 1.6),             # WS2812B 5050: en, yükseklik (kartın üstünde, r ≈ 19)
@@ -157,6 +158,17 @@ def esp_stl():
     return m
 
 
+def anahtar_yer():
+    """KCD11 (anahtar ekseni yerel +x, z = ANAHTAR_Z): (flanş oturma düzlemi x, panelin iç yüzü x).
+    Dış gövde eğri; flanş düz oturmalı: flanşın değdiği dairenin gövdeye en içte değdiği yerden düz bir oturma yüzü
+    açılır (gövdeye en fazla birkaç onda mm gömülür, dışa hiçbir şey eklenmez). Panel içten düz ve PARCA kalınlığında."""
+    dd, derin, fd, fk, pk = PARCA["kcd11"]
+    r = fd / 2 + 0.3
+    x_otur = min(math.sqrt(dis_r(ANAHTAR_Z + r * math.sin(u)) ** 2 - (r * math.cos(u)) ** 2)
+                 for u in np.linspace(0, 2 * math.pi, 72, endpoint=False))
+    return x_otur, x_otur - pk
+
+
 def tp_konum():
     """TP4056: (duvarın inceltilmiş iç yüzü y, USB-C ön yüzü y, kartın ön kenarı y).
     Ürün sahibi: USB-C dış yüzle 0'a 0, ama DIŞ GÖVDE BOZULMAZ. USB-C'nin düz ön yüzü, dört köşesinin hiçbiri eğri
@@ -198,11 +210,12 @@ def zarflar(nfc):
     w, d, h = PARCA["max98357"]
     z["MAX98357A"] = kutu(AMP_XY[0] - w / 2, AMP_XY[0] + w / 2, AMP_XY[1] - d / 2, AMP_XY[1] + d / 2,
                           TABAN_KAL + 1, TABAN_KAL + 1 + h)
-    dd, derin = PARCA["kcd11"]
-    a = math.radians(ANAHTAR_ACI)
-    r_duvar = ic_r(ANAHTAR_Z)
-    k = silindir(dd / 2 - 0.5, 0, derin, seg=48).rotate([0, 90, 0])   # +x boyunca
-    k = k.translate([r_duvar - derin, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])
+    dd, derin, fd, fk, pk = PARCA["kcd11"]
+    x_otur, x_ic = anahtar_yer()
+    k = (silindir(dd / 2 - 0.3, x_ic - derin, x_otur, seg=48)                  # gövde + uçlar (delikten geçer)
+         + silindir(fd / 2, x_otur, x_otur + fk, seg=48)                       # flanş (dışta, oturma yüzünde)
+         + silindir(dd / 2 - 1.5, x_otur + fk, x_otur + fk + 3.0, seg=48))     # basma tuşu
+    k = k.rotate([0, 90, 0]).translate([0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])
     z["KCD11 anahtar"] = k
     # ESP32 (STEP ölçüleri): kart, üst bileşenler (USB-C'ler dahil), modülün kart dışına taşan anten ucu, pin lehimleri,
     # başlık plastiği; pinler jumper payının içinde
@@ -287,8 +300,12 @@ def kabuk():
         f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, zu + 0.15, zu + 1.4)                 # üst dudak
         kz = f if kz is None else kz + f
     g = g + (kz ^ dondur(profil(-0.5), SEG))
-    a = ANAHTAR_ACI
-    g = g - silindir(PARCA["kcd11"][0] / 2 + 0.1, 0, 30, seg=48).rotate([0, 90, 0]).translate([45, 0, ANAHTAR_Z]).rotate([0, 0, a])
+    # anahtar: Ø delik + flanşın düz oturma yüzü (dışta, gövdeye gömülü) + içte düz panel (tırnaklar için)
+    dd, derin, fd, fk, pk = PARCA["kcd11"]
+    x_otur, x_ic = anahtar_yer()
+    oyuk = (silindir(dd / 2 + 0.1, x_ic - 5, 80, seg=64) + silindir(fd / 2 + 0.3, x_otur, 80, seg=96)
+            + silindir(fd / 2 + 1.5, x_ic - 6, x_ic, seg=96))
+    g = g - oyuk.rotate([0, 90, 0]).translate([0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])
     # mikrofon deliği ve cebi (MIKROFON açılınca)
     if MIKROFON:
         g = g - silindir(0.8, H - 6, H + 1, x=MIK_XY[0], y=MIK_XY[1], seg=16)
@@ -417,11 +434,12 @@ def denetle(nfc):
         kutu(TP_X - 6, TP_X + 6, tp_konum()[1] - 0.01, tp_konum()[2] + 1, USB_Z_ALT, USB_ZC + 2)) + (
         kutu(TP_X - PARCA["tp4056"][0] / 2 - 0.6, TP_X + PARCA["tp4056"][0] / 2 + 0.6, tp_konum()[0], tp_konum()[1] + 9,
              TABAN_KAL, USB_ZC + 3))  # ışık oyuğu, USB-C deliği ve duvardaki kart cebi
+    fd = PARCA["kcd11"][2]
+    bosluk = bosluk + silindir(fd / 2 + 0.3, anahtar_yer()[1] - 6, 80, seg=96).rotate([0, 90, 0]).translate(
+        [0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])   # anahtarın deliği; flanş ve tuş dışta
     yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban()}
     sorun = []
     for ad, e in z.items():
-        if ad == "KCD11 anahtar":
-            continue  # kabuğun duvarından geçer
         disari = (e - bosluk).volume()
         if disari > 1.0:
             sorun.append(f"{ad}: gövdenin dışına taşıyor ({disari:.0f} mm³)")
@@ -435,8 +453,6 @@ def denetle(nfc):
                 sorun.append(f"{adlar[i]} ile {adlar[j]} çakışıyor ({v:.0f} mm³)")
     for ad, e in z.items():
         for yad, y in yapi.items():
-            if ad == "KCD11 anahtar" and yad == "kabuk":
-                continue
             v = (e ^ y).volume()
             if v > 1.0:
                 sorun.append(f"{ad} ile {yad} çakışıyor ({v:.0f} mm³)")

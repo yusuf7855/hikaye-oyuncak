@@ -325,6 +325,49 @@ def esp_yakin():
     return yol
 
 
+def anahtar_yakin():
+    """Açma-kapama: dışarıdan görünüş ve anahtar ekseninden kesit (flanş oturma yüzü, içte düz panel)."""
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    k = yapi["kabuk"]
+    a = C.ANAHTAR_ACI
+    dd, derin, fd, fk, pk = C.PARCA["kcd11"]
+    x_otur, x_ic = C.anahtar_yer()
+    fig = plt.figure(figsize=(18, 7.4), dpi=110)
+    ax = fig.add_subplot(1, 2, 1, projection="3d")
+    ar = math.radians(a)
+    kirp = kutu(-90, 90, -90, 90, -2, 60).rotate([0, 0, 0])
+    ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (z["KCD11 anahtar"], "#111111", False)]
+    elev, azim = 8, a
+    e, aa = math.radians(elev), math.radians(azim)
+    K.ciz(ax, ls, [math.cos(e) * math.cos(aa), math.cos(e) * math.sin(aa), math.sin(e)])
+    cx, cy = 58 * math.cos(ar), 58 * math.sin(ar)
+    ax.set_xlim(cx - 32, cx + 32); ax.set_ylim(cy - 32, cy + 32); ax.set_zlim(-14, 50)
+    ax.view_init(elev=elev, azim=azim)
+    ax.set_title("Sol yandan: anahtar gövdenin dik yerinde (yerden 17 mm)", fontsize=12)
+    ax2 = fig.add_subplot(1, 2, 2)
+    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (C.taban(), "#E8DCCB", "#8a7a66"), (z["KCD11 anahtar"], "#3a3a3a", "k")):
+        cs = man.rotate([0, 0, -a]).rotate([-90, 0, 0]).slice(0.0)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax2.add_patch(Polygon(pp, closed=True, fc=fc, ec=ec, lw=1))
+    ax2.annotate(f"flanş (Ø{fd:.1f}) düz oturma yüzünde;\nyüzey ortada {C.dis_r(C.ANAHTAR_Z) - x_otur:.1f} mm gömülü, dışa ek yok",
+                 xy=(x_otur + fk / 2, C.ANAHTAR_Z + fd / 2 - 0.5), xytext=(x_otur - 14, C.ANAHTAR_Z + 20), fontsize=9,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.annotate(f"içte düz panel {pk:.1f} mm:\nyan tırnaklar buraya kenetlenir", xy=(x_ic, C.ANAHTAR_Z - dd / 2 - 1),
+                 xytext=(x_ic - 26, C.ANAHTAR_Z - 18), fontsize=9, arrowprops=dict(arrowstyle="->"))
+    ax2.annotate(f"gövde + uçlar (~{derin:.0f} mm, tahmin)", xy=(x_ic - derin / 2, C.ANAHTAR_Z), xytext=(x_ic - 30, C.ANAHTAR_Z + 9),
+                 fontsize=9, arrowprops=dict(arrowstyle="->"))
+    ax2.set_xlim(x_otur - 34, x_otur + 10); ax2.set_ylim(-2, 42); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
+    ax2.set_xlabel("anahtar ekseni boyunca (mm, merkezden)  → DIŞ"); ax2.set_ylabel("z (mm)")
+    ax2.set_title("Anahtarın ekseninden kesit", fontsize=12)
+    fig.suptitle(f"Adım 7: KCD11 açma-kapama — sol yan duvar ({a:.0f}°), Ø{dd:.0f} delik; ölçüler tahmin, anahtar gelince ölçülecek", fontsize=14)
+    plt.tight_layout()
+    yol = os.path.join(C.KOK, "onizleme", "adim_7_anahtar_yakin.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 def nfc_plan():
     """Üstten: iki okuyucunun yeri, anten bölgesi, figür etiketi (Ø25), çukur, halka, direkler, raylar."""
     from matplotlib.patches import Rectangle, Circle
@@ -413,3 +456,5 @@ if __name__ == "__main__":
         print(usb_yakin())
     if n == 6:
         print(esp_yakin())
+    if n == 7:
+        print(anahtar_yakin())
