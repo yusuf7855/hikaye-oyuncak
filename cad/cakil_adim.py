@@ -55,7 +55,7 @@ def adim_gorsel(n, notlar=(), nfc="rc522"):
     ls += [(yapi[y], "#d8d2c8", False) for y in onceki_y]
     ls += [(z[p], "#9a9a9a", False) for p in onceki_p]
     ls += [(yapi[y], "#ffd27a", False) for y in yapilar]
-    ls += [(z[p], C.RENK_PARCA.get(p, "#e33"), p == "NeoPixel 16") for p in parcalar]
+    ls += [(C.tp_stl() if p == "TP4056 Type-C" else z[p], C.RENK_PARCA.get(p, "#e33"), p == "NeoPixel 16") for p in parcalar]
     elev, azim = 22, 25
     e, a = math.radians(elev), math.radians(azim)
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
@@ -235,7 +235,7 @@ def usb_yakin():
     fig = plt.figure(figsize=(16, 7), dpi=110)
     ax = fig.add_subplot(1, 2, 1, projection="3d")
     kirp = kutu(-30, 22, -70, -30, -2, 30)
-    ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (tb ^ kirp, "#E8DCCB", False), (z["TP4056 Type-C"], "#2d6cdf", False)]
+    ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (tb ^ kirp, "#E8DCCB", False), (C.tp_stl(), "#2d6cdf", False)]
     elev, azim = 10, -90
     e, a = math.radians(elev), math.radians(azim)
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])

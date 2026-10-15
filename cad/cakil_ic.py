@@ -53,8 +53,8 @@ YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının 
 PARCA = {
     "hoparlor": (50.0, 22.0),            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
     "pil_yatagi": (77.0, 21.0, 19.0),    # 18650 tekli yatak
-    "tp4056": (17.5, 28.0, 1.6),         # TP4056 Type-C 1S, korumalı (DW01+8205): en, boy, kart kalınlığı (tahmin)
-    "tp4056_usb": (9.0, 3.2, 7.4, 0.6),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma
+    "tp4056": (17.3, 28.0, 1.0),         # TP4056 Type-C HW-373 (ürün sahibinin STL'si, cad/parca_stl/): en, boy, kart
+    "tp4056_usb": (9.8, 3.0, 6.9, 1.5),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma (STL'den)
     "max98357": (19.0, 18.0, 10.0),      # vida klemensi lehimliyse ~10 mm
     "esp32": (69.0, 25.5, 9.0),          # DevKitC-1 N16R8 (başlıksız: alt + üst bileşenler)
     "kcd11": (15.0, 20.0),               # Ø15 panel deliği, arkada ~20 mm derinlik
@@ -87,7 +87,7 @@ TP_X = -4.0
 AMP_XY = (18.0, -36.0)
 ANAHTAR_ACI, ANAHTAR_Z = 250.0, 17.0
 USB_Z_ALT = TABAN_KAL + 1.0          # TP4056 kartının alt yüzü (1 mm destek)
-USB_ZC = USB_Z_ALT + 1.6 + 1.6       # USB-C dişinin ekseni
+USB_ZC = USB_Z_ALT + 1.0 + 1.5       # USB-C dişinin ekseni (kart 1,0 + dişi 3,0 / 2)
 USB_DELIK = (11.0, 6.6, 3.0)         # fiş gövdesi için delik (en, yükseklik, köşe yarıçapı)
 USB_DUVAR = 1.4                      # deliğin çevresinde duvar dıştan oyulup bu kalınlığa iner (fiş tam oturur)
 RAF_Z = 22.8                         # ESP32 rafı (hoparlörün üstü 22,4, pil yatağının 21,4)
@@ -130,6 +130,19 @@ Z_TUTUCU_ALT = Z_HALKA_ALT - TUTUCU_KAL      # halka tutucu plakası (halkayı t
 Z_OKUYUCU_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.3   # NFC okuyucunun anten yüzü: çukur zemininin hemen altı
 
 
+TP_STL = os.path.join(KOK, "parca_stl", "tp4056_hw373_usbc.stl")   # STL: kart x -20..8 (USB-C x-), y -5,3..12, z 0..1
+
+
+def tp_stl():
+    """Ürün sahibinin TP4056 STL'si standdaki yerinde (yalnız görsel; denetim kutu zarflarla)."""
+    m = trimesh.load(TP_STL)
+    m.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 0, 1]))   # (x, y) -> (-y, x): USB-C y-
+    b = m.bounds
+    y_plaka, y_usb, y_kart = tp_konum()
+    m.apply_translation([TP_X - (b[0][0] + b[1][0]) / 2, y_usb - b[0][1], USB_Z_ALT - b[0][2]])
+    return m
+
+
 def tp_konum():
     """TP4056: (iç düz yüz y, USB-C dişinin ön yüzü y, kartın ön kenarı y). İç duvar USB-C'nin önünde düz bir yüz
     olur (eğri duvar burada doldurulur); dişi bu yüze 0,3 mm kalır."""
@@ -159,7 +172,7 @@ def zarflar(nfc):
     uw, uh, ul, ut = PARCA["tp4056_usb"]
     y_plaka, y_usb, y_kart = tp_konum()
     z["TP4056 Type-C"] = (kutu(TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d, USB_Z_ALT, USB_Z_ALT + t)
-                          + kutu(TP_X - w / 2 + 1.0, TP_X + w / 2 - 1.0, y_kart + 1.0, y_kart + d - 1.0, USB_Z_ALT + t, USB_Z_ALT + t + 1.8)
+                          + kutu(TP_X - w / 2 + 1.0, TP_X + w / 2 - 1.0, y_kart + 1.0, y_kart + d - 1.0, USB_Z_ALT + t, USB_Z_ALT + t + 1.3)
                           + kutu(TP_X - uw / 2, TP_X + uw / 2, y_usb, y_usb + ul, USB_Z_ALT + t, USB_Z_ALT + t + uh))
     w, d, h = PARCA["max98357"]
     z["MAX98357A"] = kutu(AMP_XY[0] - w / 2, AMP_XY[0] + w / 2, AMP_XY[1] - d / 2, AMP_XY[1] + d / 2,

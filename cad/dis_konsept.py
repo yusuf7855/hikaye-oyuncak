@@ -135,9 +135,14 @@ def ciz(ax, parcalar, kamera):
     isik = np.array([0.3, 0.55, 0.78]); isik /= np.linalg.norm(isik)
     hepsi_v, hepsi_c = [], []
     for man, renk, parla in parcalar:
-        if man is None or man.is_empty():
+        if man is None:
             continue
-        m = trimesh_e(man)
+        if hasattr(man, "faces"):   # hazır trimesh (ör. ürün sahibinin parça STL'si)
+            m = man
+        elif man.is_empty():
+            continue
+        else:
+            m = trimesh_e(man)
         v = m.vertices[m.faces]
         n = m.face_normals
         on = n @ kam > -0.05
