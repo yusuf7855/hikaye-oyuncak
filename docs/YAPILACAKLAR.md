@@ -32,4 +32,4 @@ Adımlar:
 
 ## Sonra
 - ESP32 yazılımını ürün figürlerine (11 figür, kart kataloğu) uyarla ve c3ft_karma'yı cihaza koy; cihaz hâlâ eski hayvan
-  kataloğunu kullanıyor. Cihazda K=16 aday kuyruğu, web'de K=4.
+  kataloğunu kullanıyor. Cihazda K=5 aday kuyruğu (hazır yoksa yazdıkça okuma), web'de K=4.

@@ -6,12 +6,12 @@ sayfası istekleri, form doğrulaması, oyuncak tanıt, hikâyeleri sil, kalıc�
 Saat taklittir (KART_SAAT=sahte): okuma süresi harf başına 40 ms, üretim her saat okumasında 50 µs; aynı girdi her
 seferinde aynı çıktıyı verir. Kuyruk K=2 aday, figür başına en çok 2 hikâye (hızlı).
 
-  1. tanınma:   tanınmış figür yokken arka plan hiçbir şey üretmez; Elsa konunca halka dolar, selamlanır, canlı
-                yazılır, okunur (halka ilerlemesi); tanınır (NVS) ve arka plan yalnız Elsa'yı hazırlar; yeniden
-                başlatınca hazır hikâye üretmeden okunur.
+  1. tanınma:   oyuncak yokken de arka plan yazar; hazır yokken Elsa konunca halka dolar, selamlanır, canlı
+                okunur (yazdıkça, halka ilerlemesi); tanınır (NVS); arka plan ilk açılıştan bütün figürlere yazar,
+                tanınan Elsa önce; yeniden başlatınca hazır hikâye üretmeden okunur.
   2. çekilince: aynı hikâye "cümle sonunda dur" / "hemen dur" / "hikâyeyi bitir" ayarlarıyla.
   3. sesli:     uyandırma (dinle), dur (kaldığı cümle), devam, bir daha, başka, sesi aç/kıs (okurken), oyuncak yokken,
-                komutsuz uyandırma (anlaşılmadı), canlı üretim sırasında dur.
+                komutsuz uyandırma (anlaşılmadı), canlı okurken dur (sessiz tamamlama) / devam / başka.
   4. etiket:    UID tablosuna düşme, bilinmeyen etiket, halka karesinin RMT bitlerinden çözümü (renk, tavan).
   5. gece:      Ay Dede: ninni selamı, yerleşik ninniler art arda, zamanlayıcı -> sönme -> kapanma (hafif uyku),
                 başka oyuncakla uyanma; gece figürü için arka planda üretim yok.
@@ -144,19 +144,20 @@ def crc16(b):
 
 
 def tanima(k):
-    print("1. tanınma, selamlama, okuma, arka plan yalnız tanınmış figürler için")
+    print("1. ilk açılış: canlı okuma (yazdıkça), tanınma, arka plan bütün figürler için (tanınmışlar önce)")
     k.sifirla()
-    out, err = k.kos(["#durum", "#bosta", "#durum"])
-    dene("BOSTA 0" in err and not isler(err) and not any(s.startswith("ADAY") for s in err),
-         "tanınmış figür yokken arka plan üretti")
+    out, err = k.kos(["#durum", "#bosta 1", "#durum"])
+    dene(len(isler(err)) == 1 and durum(err)[-1][0] == 1, "ilk açılışta (oyuncak yokken) arka plan üretmedi")
+    k.sifirla()
     out, err = k.kos(["#etiket koy 8", "#sonra 400 #halka", "#bekle 60000", "#etiket kaldir", "#bekle 4000", "#durum"])
     ii = isler(err)  # boşta (5 s sonra) arka plan başlar
     dene("[Merhaba, şimdi sana Elsa'nın hikâyesini okuyacağım.]" in out, "Elsa selamı yok")
+    dene("canlı okuma (yazdıkça)" in out and "biraz bekler" not in out, "hazır yokken canlı okuma olmadı")
     dene("(yeni oyuncak tanındı: Elsa" in out, "Elsa tanınmadı")
     ok = okumalar(out)
     dene(ok and ok[-1][0] == ok[-1][1] and not ok[-1][2], f"hikâye sonuna kadar okunmadı: {ok}")
     hd = halka_d(err)
-    sira = ["dolma -", "okuma 0/35 -", "hazirlik -", "okuma 35/35 -", "oyuncak -", "bosta -"]
+    sira = ["dolma -", "okuma 0/35 -", "hazirlik -", "okuma 0/35 -", "okuma 35/35 -", "oyuncak -", "bosta -"]
     i = 0
     for h in hd:
         if i < len(sira) and h == sira[i]:
@@ -173,16 +174,17 @@ def tanima(k):
     dene(durum(err)[-1][5] == 1 << 7, f"sahip maskesi {durum(err)}")
     out, err = k.kos(["#bosta", "#durum"])
     ii += isler(err)
-    dene(len(ii) == 2 and all(x[2] == "7" for x in ii), f"arka plan: {[(x[2], x[3]) for x in ii]} (yalnız Elsa, 2)")
-    dene(durum(err)[-1][0] == 2, "hazır 2 değil")
+    dene(len(ii) == 22 and [x[2] for x in ii[:2]] == ["7", "7"], f"arka plan: {[(x[2], x[3]) for x in ii]} (önce Elsa 2, sonra 11 figüre 2'şer)")
+    dene(durum(err)[-1][0] == 22, "hazır 22 değil")
     k.sakla("elsa2")
     out, err = k.kos(["#etiket koy 8", "#bekle 60000"])
     cal = [i for i, s in enumerate(err) if s.startswith("CALINDI 7")]
     aday = [i for i, s in enumerate(err) if s.startswith("ADAY")]
     dene(cal and (not aday or cal[0] < aday[0]), "yeniden başlatınca hazır hikâye okunmadı")
-    dene("Senin için yeni bir hikâye" not in out, "hazır varken canlı yazıldı")
+    dene("canlı okuma (yazdıkça)" not in out, "hazır varken canlı yazıldı")
     dene(okumalar(out) and okumalar(out)[-1][0] == okumalar(out)[-1][1], "hazır hikâye okunmadı")
-    print("  Elsa tanındı, okundu; arka plan yalnız Elsa için 2 hikâye; hazır hikâye beklemeden okundu")
+    print("  oyuncak yokken de arka plan yazar; Elsa canlı okundu (yazdıkça), tanındı; arka plan önce Elsa, sonra"
+          " hepsine 2'şer; hazır hikâye beklemeden okundu")
 
 
 def cekilince(k):
@@ -228,10 +230,16 @@ def sesli(k):
     dene(ok[2][0] == ok[2][1], "ses aç/kıs okumayı kesti")
     dene("[Önce bir oyuncağını standa koy.]" in out, "oyuncak yokken başka")
     dene(out.count("(sesli komut: anlaşılmadı)") == 1 and any("anlasilmadi" in h for h in hd), "komutsuz uyandırma")
-    # canlı üretim sırasında dur: üretim durur, hikâye okunmaz
+    # canlı okurken dur: anlatım susar, hikâye sessizce tamamlanır; devam kaldığı cümleden; başka: üretim bırakılır
     k.sifirla()
-    out, err = k.kos(["#etiket koy 6", "#sonra 5600 #w dur", "#bekle 20000"])
-    dene("(durduruldu)" in out and not okumalar(out)[1:], f"canlı üretim durmadı {okumalar(out)}")
+    out, err = k.kos(["#etiket koy 6", "#sonra 9000 #w dur", "#bekle 30000", "#w devam", "#bekle 60000"])
+    ok = okumalar(out)
+    dene("sustu; hikâye sessizce tamamlanıyor" in out and "(durduruldu)" not in out and len(ok) == 2 and ok[0][2]
+         and f"(devam: {ok[0][0] + 1}. cümleden)" in out and ok[1][0] == ok[1][1] == ok[0][1],
+         f"canlı okurken dur / devam {ok}")
+    k.sifirla()
+    out, err = k.kos(["#etiket koy 6", "#sonra 9000 #w baska", "#bekle 60000"])
+    dene("(durduruldu)" in out and out.count("canlı okuma (yazdıkça)") == 2, "canlı okurken başka: yeni hikâye başlamadı")
     print("  dur/devam/bir daha/başka, ses aç/kıs, oyuncaksız komut, anlaşılmadı, üretim sırasında dur tamam")
 
 
@@ -289,7 +297,7 @@ def ayar(k):
         sozcuk = ["sıfır", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"]
         dene(", ".join(sozcuk[int(c)] for c in sifre) in out, "şifre sesli söylenmedi")
     dene("HALKA_D ayar -" in err, "turkuaz halka")
-    dene("BOSTA 0" in err and len(isler(err)) == 2, "ayar modunda arka plan üretti (ya da önce üretmedi)")
+    dene("BOSTA 0" in err and len(isler(err)) == 22, "ayar modunda arka plan üretti (ya da önce üretmedi)")
     h = http(err)
     dene(h[0][0] == 200 and h[0][1].startswith("<html"), f"sayfa {h[0]}")
     dene(h[1][0] == 302 and h[1][2] == "http://192.168.4.1/" and h[2][0] == 302, "captive yönlendirme")

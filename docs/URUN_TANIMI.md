@@ -14,7 +14,10 @@ Yalnız Türkçe. İnternetsiz. Düğme YOK.
   | SESI_AC | "Sesini aç", "Yüksek", "Duyamıyorum" |
   | SESI_KIS | "Sesini kıs", "Çok yüksek", "Yavaş konuş" |
 - Uyku sesli komutla DEĞİL, gece figürüyle açılır (aşağıda "Uyku modu").
-- Hiçbir komut karakter SEÇEMEZ. Hikâye yalnız standa konan oyuncağın hikâyesidir. Standda oyuncak yoksa hikâye okunmaz. Standa hiç konmamış oyuncağın hikâyesi hiç yazılmaz ve okunmaz (kart yalnız "tanınmış" oyuncaklar için arka planda hikâye hazırlar).
+- Hiçbir komut karakter SEÇEMEZ. Hikâye yalnız standa konan oyuncağın hikâyesidir. Standda oyuncak yoksa hikâye okunmaz.
+- **Hikâyeler her zaman özgün, kartın kendi yazdığı hikâyelerdir; kartta sabit hikâye yoktur** (ürün sahibinin kararı, 15 Ekim 2026):
+  - İlk açılıştan itibaren kart boştayken bütün figürler için hikâye yazar: her hikâye için **5 aday**, seçici en iyisini saklar (standa konmuş oyuncaklar önce). Oyuncak konunca hazır hikâye hemen okunur.
+  - Hazır hikâye yoksa (ör. Elsa için henüz yazılmamış): oyuncak konunca kart **hemen yazmaya başlar ve yazdıkça okur** (selam çalarken plan yazılır; her cümle biter bitmez okunur; bitmesi beklenmez, aday seçimi yok). "Dur" denirse anlatım susar, hikâye sessizce tamamlanır; "Devam" kaldığı cümleden sürer.
 - Selamlama: "Merhaba Emre, şimdi sana Pamuk'un hikâyesini okuyacağım." (ad yoksa "Merhaba, şimdi sana ..."). Ek uyumu doğru olmalı (Niloya'nın, Maşa'nın, Keloğlan'ın, Örümcek Adam'ın, Hello Kitty'nin, Chase'in ...).
 - Ayarlar: "Ayar kartı" (NFC, nfc_no 200) standa konunca kart kendi Wi-Fi erişim noktasını açar; telefonda ayar sayfası kendiliğinden açılır (captive portal). Ayarlar: çocuğun adı, en yüksek ses, uyku zamanlayıcısı (10/20/30 dk), halka parlaklığı, oyuncak çekilince ne olsun, oyuncak tanıt (NFC etiketine figür yazma), hikâyeleri sil. Wi-Fi yalnız ayar modunda açık; internet hiç kullanılmaz.
 - Figür listesi ve halka renkleri: `data/figur_donanim.json` (nfc_no + renk). NFC etiketine figür numarası yazılır (NTAG213 kullanıcı belleği, sayfa 4+: sihir + sürüm + nfc_no + CRC).

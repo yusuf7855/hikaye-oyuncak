@@ -15,7 +15,7 @@
 // Seri monitör (115200): "3 1" = 3. figür, kendi 1. yeri | "r" = rastgele | "?" = liste |
 // "b" = hız testi (head'in üç yolu, token başına ms dökümü).
 // Sona aday sayısı: "3 1 4" = 4 aday üret, seçiciyle en iyisini yaz. Aday sayısı yoksa (1) canlı yazar.
-// Ürün önerisi: kuyruğa önceden hazırlanan hikâyede K=16, canlı beklenen hikâyede K=4-8.
+// Ürün: kuyruğa önceden hazırlanan hikâyede K=5 (KUYRUK_K); hazır yoksa canlı okuma (yazdıkça okur, seçici yok).
 // Kart her hikâyeden sonra token/s ve süreyi yazar.
 //
 // Ses (ses.h): flash'taki "ses" bölümünde ses.bin varsa hikâye kartta seslendirilir; MAX98357A'ya I2S (BCLK 4,
@@ -27,17 +27,18 @@
 // - Stand (NFC, nfc.h; RC522): hikâye yalnız standdaki oyuncağın hikâyesidir. Oyuncak etiketi kayıtlıdır (etiket.h:
 //   sihir + sürüm + nfc_no + CRC, NTAG sayfa 4-5); kayıt yoksa UID tablosu. İlk kez konan oyuncak "tanınır" (NVS).
 //   Kondu -> halka figür renginde dolar -> selamlama ("Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım.",
-//   selam.h) -> en eski hazır hikâye (yoksa canlı K=1; yerler kendiliğinden döner). Çekilince cümle sonunda durur
+//   selam.h) -> en eski hazır hikâye; hazır yoksa canlı okuma (canli_oku: selam çalarken model yazmaya başlar, her
+//   cümle biter bitmez okunur; yerler kendiliğinden döner). Çekilince cümle sonunda durur
 //   (ayar). nfc_no 200 = ayar kartı: Wi-Fi erişim noktası + ayar sayfası (ayar_sayfa.h, ayarlar.h).
 // - Gece figürü (Ay Dede, mod "uyku"): ninni modu: yavaş, alçak, kısık okuma (ses.h hiz/perde_kaydir/kazanc), uzun
 //   cümle araları, isteğe bağlı müzik kutusu (muzik_kutusu.h), gece mavisi yıldızlı halka; uyku zamanlayıcısı dolunca
-//   halka 60 sn'de söner, mikrofon/yükselteç/halka kapanır. Metin: 15 sabit ninni (yerlesik.h, ninniler.txt),
+//   halka 60 sn'de söner, mikrofon/yükselteç/halka kapanır. Metin: 100 sabit ninni (yerlesik.h, ninniler.txt),
 //   sırayla; model bu figürde hiç çalışmaz.
 // - Sesli komut (INMP441 I2S1 -> kws.h): "Merhaba Eko" + dur / devam / başka / bir daha / sesini aç / sesini kıs.
 //   Hiçbir komut figür seçmez.
 // - Halka (halka.h; NeoPixel GPIO18, RMT): bütün durumlar; ayrı düşük öncelikli görev.
-// - Hikâye kuyruğu (kuyruk.h, flash'ta "kuyruk" bölümü): boştayken yalnız tanınmış figürler için K=16 aday + seçici,
-//   yuvalar tanınmış figürlere bölünür. Açılıştan açılışa kalır.
+// - Hikâye kuyruğu (kuyruk.h, flash'ta "kuyruk" bölümü): ilk açılıştan boştayken bütün figürler için (standa konmuş
+//   olanlar önce; ARKA_HEPSI) K=5 aday + seçici, en iyisi saklanır; yuvalar figürlere bölünür. Açılıştan açılışa kalır.
 // - Güç: uyku modunda hafif uyku; yazılımla ses seviyesi; görev bekçisi her token'da beslenir.
 // Seri komutlar (geliştirme): "8" = Elsa (standı atlar) | "8 4" | "8 4 K" = her zaman K adayla üret (test) | "k" kuyruk,
 // "k+"/"k-", "k sil" | "v+"/"v-"/"v N" ses | "w dur" sesli komut taklidi | "n" stand, "n koy 3" / "n kaldir" taslak
@@ -327,7 +328,7 @@ static void liste() {
   Serial.println("Ürün: oyuncağı standa koyun (taslak okuyucuda \"n koy 8\" = Elsa, \"n koy 12\" = Ay Dede, \"n kaldir\").");
   Serial.println("Geliştirme: \"8 4\" (Elsa, şato) | \"8\" (Elsa, sürpriz yer): hazır varsa hemen, yoksa canlı.");
   Serial.println("Sona aday sayısı (en çok 16) eklenirse her zaman üretilir, en iyisi seçilir: \"8 4 8\" (8 aday).");
-  Serial.println("(ürün önerisi: kuyrukta önceden hazırlanan hikâye K=16, beklenen hikâye K=4-8)");
+  Serial.println("(ürün: kuyrukta önceden hazırlanan hikâye K=5; hazır yoksa canlı okuma: yazdıkça okur)");
   Serial.printf("Ses: \"s <metin>\" metni okur | \"o\" hikâyeyi okuma %s (şu an %s) | \"v+\" \"v-\" \"v N\" ses seviyesi\n",
                 ses_var ? "aç/kapa" : "(ses modeli yok)", ses_var && ses_oku ? "açık" : "kapalı");
   Serial.println("Kuyruk: \"k\" durum | \"k+\" \"k-\" arka plan üretimi aç/kapa | \"k sil\" hazırları sil");
@@ -362,6 +363,7 @@ struct PyToplam {
 // yarıda bırakılır (Aday.iptal; KV'de istem dışında bir şey saklanmadığından sonraki aday baştan başlar).
 static int64_t ornek_us = 0;  // örnekleme (top-k, ceza, süzgeç) süresi
 static bool (*uretim_kes)() = NULL;
+static void (*govde_tok)(int tok) = NULL;  // canlı okuma: gövde token'ı üretildikçe (EOT hariç)
 
 static Aday aday_uret(int f, int j, bool canli) {
   govde_yasak[0] = GOVDE_YASAK[0]; govde_yasak[1] = GOVDE_YASAK[1];
@@ -405,6 +407,7 @@ static Aday aday_uret(int f, int j, bool canli) {
     aday_tok[a.n++] = tok;
     if (!govdede) a.n_plan = a.n;
     if (canli) yaz(tok);
+    if (govdede && govde_tok) govde_tok(tok);
     if (st.plan_bozuk) break;
     llm_forward(&model, tok, pos++, &s);
     bekci_besle();
@@ -757,7 +760,11 @@ static bool durdur_istendi() { return olay_var() || Serial.available() > 0; }
 
 // ---- ses: metinden konuşma (ses.h), I2S0 hoparlör, ses seviyesi, müzik kutusu ----
 static const int I2S_BCLK = I2S_BCLK_PIN, I2S_LRC = I2S_LRC_PIN, I2S_DIN = I2S_DIN_PIN;
-static const int CAL_BAYT = 32000;      // çalma tamponu: 1 s ses (16 kHz x 2 B)
+// Çalma tamponu: canlı okumada CANLI_TAMPON_SN saniye (PSRAM'de yer varsa; model sonraki cümleyi yazarken önceki
+// çalar), öteki okumalarda cal_sinir = 1 s doldurulur ("Dur" denince kalınan cümle çalınan cümle olsun).
+static int cal_bayt = 32000, cal_sinir = 32000, cal_sinir_1sn = 32000;
+static volatile uint32_t cal_alinan = 0;  // çalıcının tampondan aldığı bayt (atılanlar dahil)
+static uint32_t cal_gonderilen = 0;       // pcm_yaz'ın tampona yazdığı bayt
 static const int SES_SR = 16000;        // ses.bin yoksa da (bip için) I2S bu hızda
 static Ses ses;
 static I2SClass i2s;
@@ -825,6 +832,7 @@ static void calici(void *) {
   static int16_t buf[256];
   for (;;) {
     size_t n = xStreamBufferReceive(cal_akim, buf, sizeof buf, muzik_acik ? 0 : portMAX_DELAY);
+    cal_alinan += (uint32_t)n;
     int k = cal_sustur ? 0 : (int)(n / 2);
     if (!k) {
       if (!muzik_acik) continue;
@@ -866,8 +874,10 @@ static void pcm_yaz(void *, const int16_t *pcm, int n) {
   const uint8_t *p = (const uint8_t *)pcm;
   size_t kalan = (size_t)n * 2;
   while (kalan) {
-    size_t y = xStreamBufferSend(cal_akim, p, kalan, portMAX_DELAY);
-    p += y; kalan -= y;
+    size_t dolu = xStreamBufferBytesAvailable(cal_akim), bos = dolu < (size_t)cal_sinir ? cal_sinir - dolu : 0;
+    if (!bos) { delay(5); continue; }  // sınır kadar dolu: çalınmayı bekle
+    size_t y = xStreamBufferSend(cal_akim, p, kalan < bos ? kalan : bos, portMAX_DELAY);
+    p += y; kalan -= y; cal_gonderilen += (uint32_t)y;
   }
   cal_bekleme_us += esp_timer_get_time() - t0;
   bekci_besle();
@@ -984,10 +994,16 @@ static void bip(int hz, int ms) {
 
 // I2S0, çalma tamponu ve çalma görevi (ses.bin olmasa da: bip)
 static void hoparlor_kur(int sr) {
-  uint8_t *depo = (uint8_t *)ps(CAL_BAYT + 1);
-  if (!depo) depo = (uint8_t *)heap_caps_malloc(CAL_BAYT + 1, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  cal_sinir_1sn = cal_sinir = sr * 2;
+  uint8_t *depo = NULL;
+  size_t buyuk = (size_t)sr * 2 * CANLI_TAMPON_SN, pay = 256 * 1024;  // LLM ve ses kurulduktan sonra: kalan PSRAM
+  if (heap_caps_get_free_size(MALLOC_CAP_SPIRAM) > buyuk + pay && (depo = (uint8_t *)ps(buyuk + 1))) cal_bayt = (int)buyuk;
+  if (!depo) { cal_bayt = cal_sinir; depo = (uint8_t *)ps(cal_bayt + 1); }
+  if (!depo) depo = (uint8_t *)heap_caps_malloc(cal_bayt + 1, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
   if (!depo) { Serial.println("ses: çalma tamponu ayrılamadı: konuşma kapalı"); return; }
-  cal_akim = xStreamBufferCreateStatic(CAL_BAYT, 1, depo, &cal_yapi);
+  cal_akim = xStreamBufferCreateStatic(cal_bayt, 1, depo, &cal_yapi);
+  Serial.printf("ses: çalma tamponu %.1f s%s\n", cal_bayt / (2.f * sr),
+                cal_bayt > cal_sinir ? " (canlı okuma: yazarken okur)" : " (PSRAM az: canlı okumada cümle araları uzar)");
   i2s.setPins(I2S_BCLK, I2S_LRC, I2S_DIN);
   if (!i2s.begin(I2S_MODE_STD, sr, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO, I2S_STD_SLOT_BOTH)) {
     Serial.println("ses: I2S başlatılamadı: konuşma kapalı"); return;
@@ -1195,8 +1211,10 @@ static int kf_yaz(void *kul, uint32_t ofs, const void *b, uint32_t n) {
 static int kf_sil(void *kul, uint32_t ofs, uint32_t n) {
   return esp_partition_erase_range((const esp_partition_t *)kul, ofs, n) != ESP_OK;
 }
-// Tanınmış figür başına hedef hazır hikâye (yuvalar tanınmış model figürlerine bölünür)
-static int arka_hedef() { return kuyruk_hedef(&kq, model_maske(), N_FIGUR, KUYRUK_FIGUR_MAKS, KUYRUK_PAY); }
+// Arka planın yazdığı model figürleri: ARKA_HEPSI ise ilk açılıştan bütün figürler (tanınmışlar önce), değilse yalnız
+// tanınmışlar. Figür başına hedef hazır hikâye: yuvalar bu figürlere bölünür.
+static uint32_t arka_maske() { return ARKA_HEPSI ? (N_FIGUR >= 32 ? 0xFFFFFFFFu : (1u << N_FIGUR) - 1) : model_maske(); }
+static int arka_hedef() { return kuyruk_hedef(&kq, arka_maske(), N_FIGUR, KUYRUK_FIGUR_MAKS, KUYRUK_PAY); }
 
 // Açılışta: bölümü tarar. İmza = model parmak izi + istem ve yer tabloları: model ya da kartlar değişince eski
 // hikâyeler geçersiz sayılır (yuvaları yeniden kullanılır).
@@ -1211,7 +1229,7 @@ static void kuyruk_hazirla() {
   int n = kuyruk_kur(&kq, &fl, imza);
   if (n < 0) { Serial.println("kuyruk bölümü çok küçük: hazır hikâye yok"); return; }
   kuyruk_var = true;
-  Serial.printf("kuyruk: %d yuva (0x%X @ 0x%X), hazır %d hikâye | tanınmış figür başına %d (en çok %d), K=%d | "
+  Serial.printf("kuyruk: %d yuva (0x%X @ 0x%X), hazır %d hikâye | figür başına %d (en çok %d), K=%d | "
                 "arka plan %s\n", kq.n_yuva, (unsigned)part->size, (unsigned)part->address, n, arka_hedef(),
                 KUYRUK_FIGUR_MAKS, KUYRUK_K, arka_acik ? "açık" : "kapalı");
 }
@@ -1227,7 +1245,7 @@ static void sahip_yaz() {
 static void kuyruk_durum() {
   sahip_yaz();
   if (!kuyruk_var) { Serial.println("kuyruk yok (bölüm ya da model yok)"); return; }
-  Serial.printf("kuyruk: hazır %d / %d yuva (tanınmış figür başına %d, K=%d) | arka plan %s | bu açılışta %d yazıldı\n",
+  Serial.printf("kuyruk: hazır %d / %d yuva (figür başına %d, K=%d) | arka plan %s | bu açılışta %d yazıldı\n",
                 kuyruk_say(&kq, -1, -1), kq.n_yuva, arka_hedef(), KUYRUK_K, arka_acik ? "açık" : "kapalı",
                 arka_yazilan);
   for (int f = 0; f < N_FIGUR; f++) {
@@ -1240,7 +1258,7 @@ static void kuyruk_durum() {
   }
 }
 
-// ---- arka plan üretimi: boşta, yalnız tanınmış figürler için eksik (figür, yer): K aday + seçici, en iyisi flash'a ----
+// ---- arka plan üretimi: boşta, eksik (figür, yer) (tanınmışlar önce; arka_maske): K aday + seçici, en iyisi flash'a ----
 // İş aday aday ilerler: bir olay (oyuncak kondu, sesli komut) ya da seri komut gelirse o aday bırakılır (biten adaylar
 // ve en iyisi RAM'de kalır), çocuk hikâyesini dinledikten sonra iş kaldığı adaydan sürer.
 static struct {
@@ -1257,12 +1275,16 @@ static bool arka_kes() { return durdur_istendi(); }
 // Döner: bir aday üretildi (ya da yarıda kesildi); false: yapılacak iş yok
 static bool arka_adim() {
   if (!llm_var || !kuyruk_var || !arka_acik || ayr.acik) return false;
-  uint32_t mm = model_maske();
+  uint32_t mm = arka_maske();
   int hedef = arka_hedef();
   if (arka.aktif && !((mm >> arka.f) & 1)) arka.aktif = false;  // figür unutuldu (ayar sayfası)
   if (!arka.aktif) {
     int f, j;
-    if (!kuyruk_sonraki_sahip(&kq, hedef, N_FIGUR, FIGUR_YER_N, mm, &f, &j)) return false;
+    // önce tanınmış (standa konmuş) figürler, boş yuva varken; sonra ötekiler
+    bool bos = kuyruk_say(&kq, -1, -1) < kq.n_yuva;
+    if (!(bos && model_maske() != mm && kuyruk_sonraki_sahip(&kq, hedef, N_FIGUR, FIGUR_YER_N, model_maske(), &f, &j)) &&
+        !kuyruk_sonraki_sahip(&kq, hedef, N_FIGUR, FIGUR_YER_N, mm, &f, &j))
+      return false;
     arka.aktif = true; arka.f = f; arka.j = j; arka.K = KUYRUK_K; arka.sonraki = 0; arka.toplam = 0;
     arka.en_p = -1e30; arka.en_n = arka.en_plan = 0; arka.us = 0;
     Serial.printf("[kuyruk] %s | %s: %d aday üretiliyor (olay ya da seri komut keser)\n", FIGUR_AD[f],
@@ -1313,7 +1335,7 @@ static bool arka_adim() {
 static bool arka_is_var() {
   int f, j;
   return llm_var && kuyruk_var && arka_acik && !ayr.acik &&
-         (arka.aktif || kuyruk_sonraki_sahip(&kq, arka_hedef(), N_FIGUR, FIGUR_YER_N, model_maske(), &f, &j));
+         (arka.aktif || kuyruk_sonraki_sahip(&kq, arka_hedef(), N_FIGUR, FIGUR_YER_N, arka_maske(), &f, &j));
 }
 
 // ---- içerik: donanım figürünün okunacak metni ----
@@ -1330,18 +1352,21 @@ static void hikaye_yaz(int f, int j, const char *kaynak) {
 }
 
 // d figürü için içerik: model figürüyse hazır (kuyruk; j >= 0 ise o yerin) > yarım arka plan işinin en iyisi >
-// canlı (K=1, yer sırayla döner); modelde yoksa yerleşik metin (yerlesik.h, sırayla). Döner: içerik hazır.
-static bool icerik_hazirla(int d, int j) {
+// canlı okuma (canli_oku: yazdıkça okur; yer sırayla döner); modelde yoksa yerleşik metin (yerlesik.h, sırayla).
+// Döner: ICERIK_HAZIR (son_* ya da yerleşik metin dolu), ICERIK_CANLI (canli_f / canli_j), ICERIK_YOK.
+enum { ICERIK_YOK, ICERIK_HAZIR, ICERIK_CANLI };
+static int canli_f = -1, canli_j = -1;
+static int icerik_hazirla(int d, int j) {
   char kaynak[96];
   int f = DONANIM_MODEL[d];
   if (f < 0) {
     const YerlesikListe *L = yerlesik_liste(d);
-    if (!L || L->n <= 0) { Serial.printf("%s için içerik yok (model bilmiyor, yerleşik metin yok)\n", DONANIM_AD[d]); return false; }
+    if (!L || L->n <= 0) { Serial.printf("%s için içerik yok (model bilmiyor, yerleşik metin yok)\n", DONANIM_AD[d]); return ICERIK_YOK; }
     son_yerlesik = yerlesik_sira[d] % L->n;
     yerlesik_sira[d]++;
     son_d = d;
     Serial.printf("\n=== %s | yerleşik metin %d/%d ===\n%s\n\n", DONANIM_AD[d], son_yerlesik + 1, L->n, L->metin[son_yerlesik]);
-    return true;
+    return ICERIK_HAZIR;
   }
   for (int y; kuyruk_var && (y = kuyruk_bul(&kq, f, j)) >= 0;) {
     KuyrukBaslik b;
@@ -1353,7 +1378,7 @@ static bool icerik_hazirla(int d, int j) {
              FIGUR_AD[f], kuyruk_say(&kq, f, -1));
     HAZIR_CALINDI(f, son_j, son_tok, son_n);
     hikaye_yaz(f, son_j, kaynak);
-    return true;
+    return ICERIK_HAZIR;
   }
   if (arka.aktif && arka.f == f && (j < 0 || arka.j == j) && arka.sonraki > 0 && arka.en_p > -99) {
     son_hikaye_sakla(arka_tok, arka.en_n, arka.en_plan, f, arka.j);
@@ -1362,16 +1387,12 @@ static bool icerik_hazirla(int d, int j) {
     arka.aktif = false;  // bu (figür, yer) için iş baştan
     HAZIR_CALINDI(f, son_j, son_tok, son_n);
     hikaye_yaz(f, son_j, kaynak);
-    return true;
+    return ICERIK_HAZIR;
   }
-  if (!llm_var) { Serial.println("LLM modeli yok: hikâye üretilemiyor."); halka_durum(HT_HATA); return false; }
-  if (j < 0) j = canli_yer[f]++ % FIGUR_YER_N[f];
-  if (!konus("Senin için yeni bir hikâye yazıyorum, biraz bekler misin?") && !uretim_serbest) return false;  // kesildi
-  halka_figur(d);
-  halka_durum(HT_HAZIRLA);
-  if (!hikaye(f, j, 1)) return false;
-  son_d = d;
-  return true;
+  if (!llm_var) { Serial.println("LLM modeli yok: hikâye üretilemiyor."); halka_durum(HT_HATA); return ICERIK_YOK; }
+  canli_f = f;
+  canli_j = j < 0 ? canli_yer[f]++ % FIGUR_YER_N[f] : j;
+  return ICERIK_CANLI;
 }
 
 // Son içeriğin okunacak metni oku_buf'a (model hikâyesinde plan hariç gövde)
@@ -1446,17 +1467,211 @@ static void halka_bosta() {
   else halka_durum(HT_BOSTA);
 }
 
-// ---- okuma: oyuncağın içeriği (yeni / son içerik baştan / duran okuma kaldığı cümleden) ----
-enum { OYNA_YENI, OYNA_TEKRAR, OYNA_DEVAM };
-static void oyna_(int d, int mod, int j) {
+// ---- canlı okuma: hazır hikâye yokken model yazdıkça cümle cümle okunur (bitmesi beklenmez, seçici yok) ----
+// Selam büyük çalma tamponuna yazılır, model planı yazarken çalar. Gövdenin her cümlesi biter bitmez seslendirilip
+// tampona eklenir; model sonraki cümleyi yazarken önceki çalar. "Dur": anlatım susar, hikâye sessizce tamamlanır
+// (sonra "Devam" kaldığı cümleden sürer); "Devam" susmuşken gelirse anlatım hemen kaldığı cümleden sürer. Oyuncak
+// kalkar, başka oyuncak konur ya da "Başka" / "Bir daha" denirse üretim bırakılır (olay ana döngüde işlenir).
+#define CANLI_TAHMIN 16  // halka ilerlemesi için tahmini cümle sayısı (gerçeği hikâye bitince belli olur)
+static bool sesli_yerinde_mi(int e);
+static void sesli_yerinde(int e);
+static struct {
+  bool sesli, okunur, sustu, iptal;
+  int n, yazilan, okunan, dur, bas, len;  // n: bulunan cümle; yazilan: tampona yazılan; dur: susulan cümle
+  int cb[CUMLE_MAKS], ce[CUMLE_MAKS];     // cümlelerin oku_buf'taki başı / sonu
+  uint32_t son[CUMLE_MAKS];               // cümlenin çalma tamponunda bittiği bayt (cal_gonderilen)
+} cn;
+
+static int canli_calan() {  // çalınmakta olan cümle (hepsi çalındıysa sıradaki)
+  if (!cn.sesli) return cn.okunan;
+  uint32_t a = cal_alinan;
+  for (int i = 0; i < cn.yazilan; i++)
+    if ((int32_t)(cn.son[i] - a) > 0) return i;
+  return cn.yazilan;
+}
+static void canli_sustur() {
+  cn.dur = canli_calan();
+  cn.sustu = true; konusma_kesildi = true; cal_sustur = true;
+  Serial.printf("\n(dur: %d. cümlede sustu; hikâye sessizce tamamlanıyor)\n", cn.dur + 1);
+}
+// Okuma bir olayla kesildi: "Dur" ise sus ve sessizce tamamla (false); değilse üretimi bırak (true)
+static bool canli_kesinti() {
+  Olay o;
+  if (olay_bak_(&o) && o.tur == OLAY_SESLI && o.deger == KWS_DUR) {
+    olay_al_(&o);
+    Serial.println("(sesli komut: dur)");
+    dinle_bitir(true);
+    canli_sustur();
+    return false;
+  }
+  cn.iptal = true; konusma_kesildi = true; cal_sustur = true;
+  return true;
+}
+static void canli_cumle_oku(int i, int b, int e) {
+  cn.okunan = i;
+  if (i == 0 || i == cn.dur) halka_durum(HT_OKUMA);
+  halka_ilerle(i, i + 2 > CANLI_TAHMIN ? i + 2 : CANLI_TAHMIN);
+  if (cn.sesli) {
+    if (i > 0) ses_sessizlik(&ses, stil_ara_ms, pcm_yaz, NULL);
+    if (!konusma_kesildi) {
+      long r = ses_cumle_n(&ses, oku_buf + b, (size_t)(e - b), pcm_yaz, NULL);
+      if (r < 0) Serial.printf("ses hatası: %s\n", ses_hata);
+    }
+  } else if (SESSIZ_MS_HARF > 0) {
+    if (i > 0) sessiz_bekle(stil_ara_ms);
+    if (!konusma_kesildi) sessiz_bekle((e - b) * SESSIZ_MS_HARF);
+  }
+  if (!konusma_kesildi) { cn.son[i] = cal_gonderilen; if (cn.yazilan < i + 1) cn.yazilan = i + 1; }
+  else if (!cn.sustu && !cn.iptal) canli_kesinti();
+}
+// oku_buf'ta biten cümleleri ayırıp okur (metin_oku ile aynı bölme: ses_cumle_sonu, ses_harfli). son: metin bitti
+static void canli_bol(bool son) {
   for (;;) {
-    int bas = 0;
+    const char *p = oku_buf + cn.bas;
+    if (!*p) return;
+    const char *s = ses_cumle_sonu(p);
+    if (!*s && !son) return;  // cümle sonu henüz belli değil (sonraki token kapanış tırnağı olabilir)
+    if (ses_harfli(p, s)) {
+      int i;
+      if (cn.n < CUMLE_MAKS) { i = cn.n++; cn.cb[i] = (int)(p - oku_buf); }
+      else i = CUMLE_MAKS - 1;  // sığmayanlar sonuncuya eklenir (metin_oku gibi)
+      cn.ce[i] = (int)(s - oku_buf);
+      if (cn.okunur && !cn.sustu && !cn.iptal) canli_cumle_oku(i, (int)(p - oku_buf), (int)(s - oku_buf));
+    }
+    cn.bas = (int)(s - oku_buf);
+  }
+}
+static void canli_govde(int tok) {
+  if (tok < 0 || tok >= VOCAB_N) return;
+  int b = VOCAB_OFF[tok], e = VOCAB_OFF[tok + 1];
+  if (cn.len + (e - b) >= (int)sizeof oku_buf) return;
+  memcpy(oku_buf + cn.len, VOCAB_BLOB + b, e - b);
+  cn.len += e - b;
+  oku_buf[cn.len] = 0;
+  canli_bol(false);
+}
+static void canli_devam() {  // susmuşken "Devam": kalınan cümleden yeniden
+  Serial.printf("\n(devam: %d. cümleden)\n", cn.dur + 1);
+  while (!xStreamBufferIsEmpty(cal_akim)) delay(10);
+  cal_sustur = false; konusma_kesildi = false; cn.sustu = false;
+  int m = cn.n < CUMLE_MAKS ? cn.n : CUMLE_MAKS;
+  for (int i = cn.dur; i < m && !konusma_kesildi && !cn.iptal; i++) canli_cumle_oku(i, cn.cb[i], cn.ce[i]);
+}
+// Üretim sırasında (her token'dan önce) olaylar
+static bool canli_okuma_kes() {
+  if (cn.iptal) return true;
+  if (!cn.sustu) return okuma_denetle_(true) != KES_YOK && canli_kesinti();
+  olaylari_topla();  // susmuş: hikâye sessizce tamamlanıyor
+  Olay o;
+  while (olay_bak_(&o)) {
+    if (o.tur == OLAY_SESLI && o.deger == KWS_DEVAM) {
+      olay_al_(&o);
+      Serial.println("(sesli komut: devam)");
+      dinle_bitir(true);
+      canli_devam();
+      return cn.iptal;
+    }
+    if (o.tur == OLAY_SESLI && (o.deger == KWS_DUR || sesli_yerinde_mi(o.deger))) {
+      olay_al_(&o);
+      Serial.printf("(sesli komut: %s)\n", kws_ad(o.deger));
+      if (o.deger == KWS_DUR) dinle_bitir(true);
+      else sesli_yerinde(o.deger);
+      continue;
+    }
+    if (o.tur == OLAY_STAND_BILINMEYEN) { olay_al_(&o); continue; }
+    cn.iptal = true;  // başka / bir daha, oyuncak kalktı ya da değişti
+    return true;
+  }
+  return false;
+}
+
+// d donanım figürü, f model figürü, j yer; onsoz: önce okunacak selam (NULL olabilir). Döner: kesildiği cümle (hepsi
+// okunduysa okuma_n); -1: üretim bırakıldı (hikâye yok, olay ana döngüde).
+static int canli_oku(int d, int f, int j, const char *onsoz) {
+  memset(&cn, 0, sizeof cn);
+  cn.sesli = ses_var && ses_oku;
+  cn.okunur = hoparlor_var || SESSIZ_MS_HARF > 0;
+  oku_buf[0] = 0;
+  halka_figur(d);
+  ses_stili(MOD_HIKAYE);
+  cal_sinir = cal_bayt;  // büyük tampon: yazarken çalsın
+  if (cn.okunur) {
+    amp(true);
+    cal_bekleme_us = 0; konusma_kesildi = false; konusma_kesilebilir = true; cal_sustur = false;
+  }
+  if (onsoz) {  // selam: tampona; model planı yazarken çalar
+    halka_ilerle(0, 1);
+    halka_durum(HT_OKUMA);
+    for (const char *p = onsoz; *p && cn.okunur && !konusma_kesildi;) {
+      const char *q = ses_cumle_sonu(p);
+      if (ses_harfli(p, q)) {
+        if (cn.sesli) ses_cumle_n(&ses, p, (size_t)(q - p), pcm_yaz, NULL);
+        else sessiz_bekle((int)(q - p) * SESSIZ_MS_HARF);
+      }
+      p = q;
+    }
+    if (konusma_kesildi) cn.iptal = true;  // selam kesildi: olay ana döngüde
+  }
+  Aday a = {0, 0, 0.0, false, false, true};
+  if (!cn.iptal) {
+    halka_durum(HT_HAZIRLA);
+    Serial.printf("\n=== %s | %s | canlı okuma (yazdıkça) ===\n", FIGUR_AD[f], YER_AD[FIGUR_YER[f * YER_MAKS + j]]);
+    int64_t t0 = esp_timer_get_time();
+    llm_profile_reset(&s); ornek_us = 0;
+    ADAY_BASI(0);
+    for (int tekrar = 0;; tekrar++) {
+      uretim_kes = canli_okuma_kes; govde_tok = canli_govde;
+      a = aday_uret(f, j, true);
+      uretim_kes = NULL; govde_tok = NULL;
+      if (a.iptal || cn.iptal || !a.plan_bozuk || tekrar == 2) break;
+      Serial.println("\n(plan bozuk, yeniden deniyorum)");  // gövde hiç başlamadı: okunan bir şey yok
+    }
+    if (!a.iptal && !cn.iptal) {
+      canli_bol(true);  // son cümle
+      float sn = (esp_timer_get_time() - t0) / 1e6f;
+      Serial.printf("\n\n--- canlı: %d token %.1f s = %.2f token/s ---\n", a.n, sn, sn > 0 ? a.n / sn : 0.f);
+    }
+  }
+  bool iptal = a.iptal || cn.iptal || a.plan_bozuk;
+  if (!iptal) {
+    son_hikaye_sakla(aday_tok, a.n, a.n_plan, f, j);
+    son_d = d;
+    while (cn.okunur && !konusma_kesildi && !xStreamBufferIsEmpty(cal_akim)) {  // kalan cümleler çalarken olaylar
+      if (okuma_denetle_(true) != KES_YOK && canli_kesinti()) break;
+      delay(20);
+    }
+  } else {
+    Serial.println("\n(durduruldu)");
+  }
+  int m = cn.n < CUMLE_MAKS ? cn.n : CUMLE_MAKS;
+  int k = iptal ? -1 : cn.sustu ? cn.dur : konusma_kesildi ? canli_calan() : m;
+  if (k >= 0 && k >= m) halka_ilerle(m, m);
+  okuma_n = m;
+  okuma_ortada = k >= 0 && k < m;
+  if (cn.okunur) {
+    if (cn.sesli && !konusma_kesildi) ses_sessizlik(&ses, 150, pcm_yaz, NULL);
+    cal_bitir();
+    konusma_kesildi = false;
+    konusma_kesilebilir = false;
+    konusma_seviye = 0;
+    if (!muzik_acik) amp(false);
+  }
+  cal_sinir = cal_sinir_1sn;
+  return k;
+}
+
+// ---- okuma: oyuncağın içeriği (yeni / son içerik baştan / duran okuma kaldığı cümleden) ----
+// onsoz: içerikten önce okunacak selam (NULL olabilir). Hazır içerik yoksa canlı okuma (selam da onun içinde).
+enum { OYNA_YENI, OYNA_TEKRAR, OYNA_DEVAM };
+static void oyna_(int d, int mod, int j, const char *onsoz) {
+  for (;;) {
+    int bas = 0, r = ICERIK_HAZIR;
     if (mod == OYNA_DEVAM && durak.var && durak.d == d && son_d == d) {
       bas = durak.cumle;
       Serial.printf("(devam: %d. cümleden)\n", bas + 1);
     } else if (mod == OYNA_TEKRAR && son_d == d && (son_yerlesik >= 0 || son_n > 0)) {
       Serial.println("(bir daha: baştan)");
-    } else if (!icerik_hazirla(d, j)) {
+    } else if ((r = icerik_hazirla(d, j)) == ICERIK_YOK) {
       halka_ustte(HU_ANLASILMADI, HALKA_ONAY_MS);
       halka_bosta();
       return;
@@ -1464,12 +1679,28 @@ static void oyna_(int d, int mod, int j) {
     durak.var = false;
     bool gece = DONANIM_MOD[d] == MOD_UYKU;
     halka_figur(d);
-    halka_ilerle(bas, 1);
-    halka_durum(gece ? HT_GECE : HT_OKUMA);
-    icerik_metni();
-    ses_stili(DONANIM_MOD[d]);
-    int k = metin_oku(oku_buf, bas, !gece, stil_ara_ms);
-    ses_stili(MOD_HIKAYE);
+    int k;
+    if (r == ICERIK_CANLI) {
+      k = canli_oku(d, canli_f, canli_j, onsoz);
+      onsoz = NULL;
+      if (k < 0) { halka_bosta(); return; }  // üretim bırakıldı: sebebi (kalktı, komut) ana döngüde
+    } else {
+      halka_ilerle(bas, 1);
+      halka_durum(gece ? HT_GECE : HT_OKUMA);
+      ses_stili(DONANIM_MOD[d]);
+      if (onsoz) {
+        bool tamam = metin_oku(onsoz, 0, false, stil_ara_ms) >= okuma_n;
+        onsoz = NULL;
+        if (!tamam) {  // selam kesildi: hazır içerik kaybolmasın ("Devam" ya da "Bir daha" okur)
+          ses_stili(MOD_HIKAYE);
+          durak.var = son_d == d; durak.d = d; durak.cumle = 0;
+          return;
+        }
+      }
+      icerik_metni();
+      k = metin_oku(oku_buf, bas, !gece, stil_ara_ms);
+      ses_stili(MOD_HIKAYE);
+    }
     int n = okuma_n;
     Serial.printf("(okuma: %d/%d cümle%s)\n", k, n, k < n ? (okuma_ortada ? ", durdu, cümle ortasında" : ", durdu") : "");
     if (k < n) {  // durdu: sebebi (dur, başka, oyuncak kalktı ...) ana döngü işler
@@ -1486,7 +1717,7 @@ static void oyna_(int d, int mod, int j) {
     return;
   }
 }
-static void oyna(int d, int mod) { oyna_(d, mod, -1); }
+static void oyna(int d, int mod) { oyna_(d, mod, -1, NULL); }
 
 // ---- ayarlar (NVS, Preferences) ----
 static Preferences prefs;
@@ -1834,16 +2065,11 @@ static void stand_kondu(int no) {
   if (!stand.dolu || stand.no != no) return;  // dolarken kalktı
   bool gece = DONANIM_MOD[d] == MOD_UYKU;
   if (gece) uyku_baslat();
-  char s[256];
+  static char s[256];
   if (gece) ninni_selam_metni(ay.ad, s, sizeof s);
   else selam_metni(ay.ad, DONANIM_AD[d], s, sizeof s);
   Serial.printf("[%s]\n", s);
-  halka_ilerle(0, 1);
-  halka_durum(gece ? HT_GECE : HT_OKUMA);
-  ses_stili(DONANIM_MOD[d]);
-  bool tamam = metin_oku(s, 0, false, stil_ara_ms) >= okuma_n;
-  ses_stili(MOD_HIKAYE);
-  if (tamam) oyna(d, OYNA_YENI);  // kesildiyse sebebi (kalktı, komut) ana döngüde
+  oyna_(d, OYNA_YENI, -1, s);  // selam + içerik (hazır yoksa selam çalarken model yazmaya başlar)
 }
 
 static void stand_kalkti() {
@@ -1900,7 +2126,7 @@ static void olay_isle(const Olay &o) {
       secili_j = o.tur == OLAY_YER_UZUN || secili_j + 1 >= FIGUR_YER_N[secili_f] ? -1 : secili_j + 1;
       Serial.printf("(düğme) yer: %s\n", secili_j < 0 ? "sürpriz" : YER_AD[FIGUR_YER[secili_f * YER_MAKS + secili_j]]);
       break;
-    case OLAY_OYNAT: { int d = model_donanim(secili_f); if (d >= 0) oyna_(d, OYNA_YENI, secili_j); break; }
+    case OLAY_OYNAT: { int d = model_donanim(secili_f); if (d >= 0) oyna_(d, OYNA_YENI, secili_j, NULL); break; }
     case OLAY_OYNAT_UZUN: if (son_d >= 0) oyna(son_d, OYNA_TEKRAR); break;
     case OLAY_SES_ARTI: ses_degistir(1); break;
     case OLAY_SES_EKSI: ses_degistir(-1); break;
@@ -2098,7 +2324,7 @@ static void seri_komut(String g) {
     if (hikaye(f, j, k < 1 ? 1 : k > 16 ? 16 : k) && d >= 0) { son_d = d; oyna(d, OYNA_TEKRAR); }
     Serial.println("Yeni hikâye için figür ve yer yazın (\"?\" liste).");
   } else if (d >= 0) {
-    oyna_(d, OYNA_YENI, j);  // hazır varsa hemen
+    oyna_(d, OYNA_YENI, j, NULL);  // hazır varsa hemen
   }
   uretim_serbest = false;
 }

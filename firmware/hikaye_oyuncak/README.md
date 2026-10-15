@@ -108,7 +108,7 @@ head: 4-bit hızlı yol, kodlar flash'ta (1.50 MB)
 PSRAM toplam (LLM): 7.25 MB
 model.bin: 10331252 B, parmak izi fp=00ea3e55
 ...
-kuyruk: 32 yuva (0x20000 @ 0xFE0000), hazır 0 hikâye | tanınmış figür başına 0 (en çok 6), K=16 | arka plan açık
+kuyruk: 32 yuva (0x20000 @ 0xFE0000), hazır 0 hikâye | figür başına 2 (en çok 6), K=5 | arka plan açık
 stand NFC: RC522 | mikrofon: açık (Merhaba Eko) | halka: 35 LED, GPIO 18 | ses seviyesi 5/7 (en çok 7) | bekçi 30 s
 ayarlar: ad "", uyku 20 dk, parlaklık 60, çekilince cümle sonunda dur, müzik kutusu açık
 tanınmış oyuncaklar: (yok: standa konan oyuncak tanınır)
@@ -154,11 +154,12 @@ Yer numarası figürün kendi listesindendir (her figür yalnız kartındaki yer
 | `s Merhaba` / `o` | metni oku / hikâyeyi sesli okumayı aç-kapa |
 | `u` | 10 s hafif uyku denemesi (akım ölçmek için; USB seri bağlantısı kopabilir) |
 
-Aday sayısı yazılmazsa kuyruk önce denenir, hazır yoksa 1 aday (canlı). Boşta (son komuttan 5 s sonra) kart kuyruğu
-doldurmaya başlar ve seri porta `[kuyruk] Elsa | şato: 16 aday, puan -2.13 -> yuva 5 ...` gibi satırlar yazar; seri
-monitöre bir şey yazınca o aday bırakılır ve komutunuz hemen çalışır (iş sonra kaldığı adaydan sürer). Testte bunu
-istemezseniz `k-`. Ürün önerisi: oyuncak hikâyeleri boşta kuyruğa hazırlarken **K=16**, çocuk
-beklerken üretiliyorsa **K=4–8** (`degerlendirme/urun_secim`). Figürün hikâyesinde başka figürlerin ve onların
+Aday sayısı yazılmazsa kuyruk önce denenir, hazır yoksa **canlı okuma**: model yazdıkça her cümle biter bitmez okunur
+(seçici yok, bitmesi beklenmez). Boşta (son komuttan 5 s sonra; ilk açılıştan itibaren) kart kuyruğu bütün figürler
+için doldurmaya başlar (standa konmuş olanlar önce) ve seri porta `[kuyruk] Elsa | şato: 5 aday, puan -2.13 -> yuva 5
+...` gibi satırlar yazar; seri monitöre bir şey yazınca o aday bırakılır ve komutunuz hemen çalışır (iş sonra kaldığı
+adaydan sürer). Testte bunu istemezseniz `k-`. Ürün: kuyruğa hazırlarken **K=5** aday, en iyisi (ürün sahibinin
+kararı, 15 Ekim 2026). Figürün hikâyesinde başka figürlerin ve onların
 yanlarının adları (ör. Elsa'da "Niloya", "Şila") isim süzgeciyle hiç yazılamaz; figürün kendi kadrosu (Elsa için
 Anna, Olaf, Kristoff, Sven) serbesttir.
 
@@ -254,8 +255,9 @@ kütüphane yok (çekirdeğin `rmtInit`/`rmtWrite`'ı; Adafruit_NeoPixel gerekme
 
 | Ne olur | Oyuncak ne yapar |
 |---|---|
-| Oyuncak standa kondu | Halka figürün renginde dolar (0,6 sn) → "Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım." → en eski hazır hikâye hemen okunur (hazır yoksa "Senin için yeni bir hikâye yazıyorum..." ve canlı yazılır, ~1 dk). Figürün yerleri kendiliğinden döner. |
-| Oyuncak ilk kez kondu | "Tanınır" (kalıcı). Kart boştayken **yalnız tanınmış** oyuncaklar için hikâye hazırlar; hiç konmamış oyuncağın hikâyesi yazılmaz, okunmaz. |
+| Oyuncak standa kondu | Halka figürün renginde dolar (0,6 sn) → "Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım." → en eski hazır hikâye hemen okunur. Hazır yoksa **canlı okuma**: selam çalarken model yazmaya başlar, her cümle biter bitmez okunur (beklemek yok, aday seçimi yok). Figürün yerleri kendiliğinden döner. |
+| İlk açılış / boşta | Kart boştayken bütün figürler için hikâye hazırlar (her biri 5 aday, en iyisi; standa konmuş oyuncaklar önce). Okunan hikâye her zaman standdaki oyuncağınkidir. |
+| Canlı okurken "Dur" | Anlatım susar, hikâye sessizce tamamlanır; "Devam" kaldığı cümleden sürer. |
 | Oyuncak standdan alındı | Ayara göre: cümle bitince durur (varsayılan) / hemen durur / hikâyeyi bitirir. |
 | Standda oyuncak yok | Hikâye okunmaz; "başka", "bir daha", "devam" denirse "Önce bir oyuncağını standa koy." |
 | Ay Dede (gece figürü) kondu | Ninni modu (aşağıda). |

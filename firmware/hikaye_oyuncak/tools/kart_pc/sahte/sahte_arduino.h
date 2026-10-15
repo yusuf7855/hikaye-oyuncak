@@ -186,6 +186,7 @@ static inline StreamBufferHandle_t xStreamBufferCreateStatic(size_t, size_t, uin
 static inline size_t xStreamBufferReceive(StreamBufferHandle_t, void *, size_t, uint32_t) { return 0; }
 static inline size_t xStreamBufferSend(StreamBufferHandle_t, const void *, size_t n, uint32_t) { return n; }
 static inline int xStreamBufferIsEmpty(StreamBufferHandle_t) { return 1; }
+static inline size_t xStreamBufferBytesAvailable(StreamBufferHandle_t) { return 0; }
 #define pdMS_TO_TICKS(ms) (ms)
 typedef int portMUX_TYPE;
 #define portMUX_INITIALIZER_UNLOCKED 0

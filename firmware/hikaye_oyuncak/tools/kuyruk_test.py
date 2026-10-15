@@ -202,7 +202,7 @@ def main():
         dene(len(cal) == 2 and cal[1][2] == 0 and cal[1][3] == yer0[0]["tok"], "\"8 1\": Elsa dağ hazırı çalınmadı")
         tuketilen = 2
     else:
-        dene(len(cal) == 1 and any(o[0] == "ADAY" for o in olay), "\"8 1\": hazır yokken canlı üretilmedi")
+        dene(len(cal) == 1 and "canlı okuma (yazdıkça)" in out, "\"8 1\": hazır yokken canlı okunmadı")
     dene(durum(olay) == [toplam, toplam - tuketilen], f"hazır sayısı {durum(olay)}")
     print(f"  {tuketilen} hazır hikâye çalındı (üretim beklemeden)")
 

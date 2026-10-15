@@ -57,13 +57,19 @@
 
 // ---- hikâye kuyruğu (kuyruk.h) ----
 #ifndef KUYRUK_K
-#define KUYRUK_K 16            // kuyruğa hazırlanan hikâyede aday sayısı (ürün önerisi, degerlendirme/urun_secim)
+#define KUYRUK_K 5             // kuyruğa hazırlanan hikâyede aday sayısı (ürün sahibi, 15 Ekim 2026: 5 aday, en iyisi)
 #endif
 #if defined(KUYRUK_FIGUR_BASI) && !defined(KUYRUK_FIGUR_MAKS)
 #define KUYRUK_FIGUR_MAKS KUYRUK_FIGUR_BASI   // eski ad
 #endif
 #ifndef KUYRUK_FIGUR_MAKS
 #define KUYRUK_FIGUR_MAKS 6    // tanınmış figür başına en çok hazır hikâye (yuvalar tanınmış figürlere bölünür)
+#endif
+#ifndef ARKA_HEPSI
+#define ARKA_HEPSI 1           // 1: arka plan ilk açılıştan bütün figürlere yazar (tanınmışlar önce); 0: yalnız tanınmışlar
+#endif
+#ifndef CANLI_TAMPON_SN
+#define CANLI_TAMPON_SN 12     // canlı okumada çalma tamponu (s, PSRAM): model sonraki cümleyi yazarken önceki çalar
 #endif
 #ifndef KUYRUK_PAY
 #define KUYRUK_PAY 2           // yuva payı: hedef = min(MAKS, (yuva - PAY) / tanınmış figür)
