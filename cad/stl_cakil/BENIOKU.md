@@ -45,21 +45,24 @@ Alt modül (taban plakası):
 Birleştir: kabuğu alt modülün üstüne indir (TP4056 kartı tabandaki kaidenin üstüne, arka dayanağın önüne gelir),
 alttan 4 M3 vidayla sık. Kod yüklemek için kabuk açılır (ESP32'nin USB-C uçları sol tarafta açıkta).
 
-## Renkli kabuk (Bambu Lab P2S Combo / AMS) — `renkli_bambu/`
+## Renkli baskı (Bambu Lab P2S Combo / AMS, 4 renk) — `renkli_bambu/`
 
-`kabuk_renkli_bambu.3mf`'yi Bambu Studio'da aç: tek nesne, 4 parça; parçalar filament 1–4'e atanmış gelir. AMS'te:
+Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya yerleşmiş gelir. AMS'e şu sırayla tak:
 
-| AMS | Renk | Nerede |
+| AMS | Renk |
+|---|---|
+| 1 | **beyaz** |
+| 2 | turkuaz |
+| 3 | sarı |
+| 4 | mor |
+
+| Dosya | Renkler | Not |
 |---|---|---|
-| 1 | **beyaz** | gövde; LED'lerin üstündeki ışık halkası beyaz kalmalı (ışık geçer) |
-| 2 | turkuaz | "eco ai" logosu, çukurun zemini |
-| 3 | sarı | çukurun kenarı ve ışık halkasının dışındaki "güneş" halkası |
-| 4 | mor | üst yüzde 6 yıldız |
+| `1_kabuk.3mf` | beyaz gövde, turkuaz "eco ai" ve çukur zemini, sarı çukur kenarı + güneş halkası, 6 mor yıldız | LED'lerin üstündeki ışık halkası beyaz kalmalı. Destek: ağaç (tree), yalnız iç kısım. Logo dikey duvarda: logo boyunca her katmanda renk değişir (en çok atık burada) |
+| `2_taban_plakasi.3mf` | beyaz plaka; alt yüzde turkuaz "eco ai", sarı halka, 4 mor yıldız | renkler ilk 3 katmanda, alttan okunur; destek yok |
+| `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
+| `4_figur_tabanlari_ve_ayar_karti.3mf` | 11 turkuaz figür tabanı (üstte sarı halka) + mor ayar kartı (topuzda beyaz çark, sarı halka) | tek tablada 12 parça |
 
-Ayarlar: ters (üst yüz tablada) zaten yerleştirilmiş; destek: ağaç (tree), yalnız iç kısım; atık kulesi (prime tower)
-açık. Üstteki kakmalar ilk 3 katmanda, çukur zemini birkaç katmanda biter; logo dikey duvarda olduğu için logo
-boyunca her katmanda renk değişir (en çok atık oradan; istenirse logo da beyaz bırakılabilir).
-
-3MF açılmazsa ya da renkler gelmezse: 4 STL'yi (`kabuk_1_beyaz` … `kabuk_4_mor`) birlikte seçip Bambu Studio'ya
-sürükle, "tek nesne, çok parça olarak yükle?" sorusuna **Evet** de, sonra her parçaya sağ tık → filament seç.
-Öteki parçalar tek renk: taban plakası ve tutucu görünmez (herhangi), figür tabanları figür renginde, ayar kartı mor.
+Atık kulesi (prime tower) açık kalsın. 3MF açılmazsa ya da renkler gelmezse: aynı parçanın renk STL'lerini
+(ör. `1_kabuk_1_beyaz.stl` … `1_kabuk_4_mor.stl`) birlikte seçip Bambu Studio'ya sürükle, "tek nesne, çok parça
+olarak yükle?" sorusuna **Evet** de, sonra her parçaya sağ tık → filament seç. Dosya adının sonundaki numara AMS yuvasıdır.
