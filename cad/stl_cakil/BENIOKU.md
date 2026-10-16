@@ -20,8 +20,8 @@ Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma den
 
 ## Ek malzeme
 
-- M3 x 8 vida (4) + M3 ısıl gömme somun (4): taban plakası → kabuk (somunlar kabuğun 4 kolonuna havyayla gömülür)
-- M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği
+- M3 x 8 HAVŞA BAŞLI vida (4) + M3 ısıl gömme somun (4, Ø4,6 x 5,7; delik Ø4,0 x 6,5): taban plakası → kabuk (somunlar kabuğun 4 kolonuna havyayla gömülür)
+- M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği (tutucuda 3,5 mm vida tablası, direkte 3 mm kılavuz delik)
 - Kablo bağı 2,5 mm (3): pil yatağı (2), hoparlör (1)
 - Silikon ayak Ø10 x 1 mm (3–6)
 - NTAG213 Ø25 yuvarlak NFC etiket (12): her figür tabanının altındaki cebe + ayar kartı

@@ -266,7 +266,10 @@ def kabuk():
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
         z0 = Z_TUTUCU_ALT + TUTUCU_KAL   # direk tutucu plakanın üstünde biter (plaka altından vidalanır)
-        g = g + (silindir(3.5, z0, H - DUVAR + 0.5, x=x, y=y, seg=32) - silindir(1.05, z0 - 1, z0 + 7, x=x, y=y, seg=24))
+        g = g + silindir(3.5, z0, H - DUVAR + 0.5, x=x, y=y, seg=32)
+    for aci in UST_ACILAR:   # M2,5 sac vidası kılavuz deliği: tavanın içine 3 mm (üst yüzde 1 mm et kalır)
+        x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
+        g = g - silindir(1.05, Z_TUTUCU_ALT + TUTUCU_KAL - 1, H - 1.0, x=x, y=y, seg=24)
     # taban vida kolonları (duvara yapışık, alttan M3 ısıl gömme somun)
     for aci in VIDA_ACILAR:
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
@@ -329,8 +332,8 @@ def tutucu(nfc):
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
         kol = kutu(0, UST_DIREK_R, -4, 4, zt, zt + TUTUCU_KAL).rotate([0, 0, aci])
-        p = p + kol + silindir(4.0, zt, zt + TUTUCU_KAL, x=x, y=y, seg=32)
-        p = p - silindir(1.4, zt - 1, zt + 5, x=x, y=y, seg=24)
+        p = p + kol + silindir(4.0, zt - 1.5, zt + TUTUCU_KAL, x=x, y=y, seg=32)   # vida tablası 3,5 mm (M2,5 x 6)
+        p = p - silindir(1.4, zt - 3, zt + 5, x=x, y=y, seg=24)
     p = p - silindir(CANAK_GOVDE_R + 0.4, zt - 1, zt + 5, seg=SEG)            # çukur geçer
     # halkayı tavandaki ışık oyuğuna giren LED'ler ortalar (bilezik gerekmez: plakanın üst yüzü düz, ters basılır);
     # arkada halkanın kablo lehimleri için plakadan geçen çentik
@@ -357,7 +360,9 @@ def taban(oz=TABAN_OZ):
     # vida delikleri (M3 havşa)
     for aci in VIDA_ACILAR:
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
-        t = t - silindir(1.7, -1, 5, x=x, y=y, seg=24) - silindir(3.3, -1, 0.0, x=x, y=y, seg=24, r2=1.7).translate([0, 0, 1.6])
+        # M3 havşa başlı vida: Ø6 baş alt yüzden başlayan 90° koniye gömülür (yüzle aynı hizada)
+        t = t - silindir(1.7, -1, 5, x=x, y=y, seg=24) - silindir(3.3, -0.01, 1.6, x=x, y=y, seg=32, r2=1.7) \
+            - silindir(3.3, -1, 0.0, x=x, y=y, seg=32)
     # hoparlör beşiği: önde alt yarım çember (Ø50 kenarı oturur) + önünde dudak (öne kaymaz), arkada eyer; kablo bağı yarığı
     if "hoparlor" in oz:
         hd, hdr = PARCA["hoparlor"]
