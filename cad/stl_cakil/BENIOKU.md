@@ -12,7 +12,7 @@ Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma den
 |---|---|---|---|
 | `0_tum_stand_*_montajli.stl` | — | BASILMAZ: tüm stand monte hâlde (bakmak için) | |
 | `0_tum_stand_*_elektronikli_GORSEL.stl` | — | BASILMAZ: elektronik parçalar dahil (ESP32 ve TP4056 gerçek model, ötekiler kutu) | |
-| `1_kabuk.stl` | 1 | ters: üst yüz (figür çukuru) tablada | **beyaz** PLA/PETG (LED ışığı figür zemininden ve çukur duvarındaki yarıklardan geçer). 0,2 mm katman, 3 duvar, %15 doluluk. **Destek: ağaç (tree), yalnız iç kısım** (vida kolonları, TP4056 kızakları, ses yakası). "eco ai" logosu için logonun başladığı katmanda filament değiştirilebilir |
+| `1_kabuk.stl` | 1 | ters: üst yüz (figür çukuru) tablada | (renkli için `renkli_bambu/` bölümüne bak) **beyaz** PLA/PETG (LED ışığı figür zemininden ve çukur duvarındaki yarıklardan geçer). 0,2 mm katman, 3 duvar, %15 doluluk. **Destek: ağaç (tree), yalnız iç kısım** (vida kolonları, TP4056 kızakları, ses yakası). "eco ai" logosu için logonun başladığı katmanda filament değiştirilebilir |
 | `2_taban_plakasi.stl` | 1 | düz alt yüz tablada | PLA/PETG, destek GEREKMEZ (TP4056 üstündeki 23 mm köprü dahil) |
 | `3_halka_nfc_tutucu.stl` | 1 | ters: halkanın bastığı düz yüz tablada, raylar yukarı | PLA, destek gerekmez |
 | `4_figur_taban.stl` | 11 | ters: düz yüz tablada, etiket cebi yukarı | figür renginde; 0,12–0,16 mm katman |
@@ -44,3 +44,22 @@ Alt modül (taban plakası):
 
 Birleştir: kabuğu alt modülün üstüne indir (TP4056 kartı tabandaki kaidenin üstüne, arka dayanağın önüne gelir),
 alttan 4 M3 vidayla sık. Kod yüklemek için kabuk açılır (ESP32'nin USB-C uçları sol tarafta açıkta).
+
+## Renkli kabuk (Bambu Lab P2S Combo / AMS) — `renkli_bambu/`
+
+`kabuk_renkli_bambu.3mf`'yi Bambu Studio'da aç: tek nesne, 4 parça; parçalar filament 1–4'e atanmış gelir. AMS'te:
+
+| AMS | Renk | Nerede |
+|---|---|---|
+| 1 | **beyaz** | gövde; LED'lerin üstündeki ışık halkası beyaz kalmalı (ışık geçer) |
+| 2 | turkuaz | "eco ai" logosu, çukurun zemini |
+| 3 | sarı | çukurun kenarı ve ışık halkasının dışındaki "güneş" halkası |
+| 4 | mor | üst yüzde 6 yıldız |
+
+Ayarlar: ters (üst yüz tablada) zaten yerleştirilmiş; destek: ağaç (tree), yalnız iç kısım; atık kulesi (prime tower)
+açık. Üstteki kakmalar ilk 3 katmanda, çukur zemini birkaç katmanda biter; logo dikey duvarda olduğu için logo
+boyunca her katmanda renk değişir (en çok atık oradan; istenirse logo da beyaz bırakılabilir).
+
+3MF açılmazsa ya da renkler gelmezse: 4 STL'yi (`kabuk_1_beyaz` … `kabuk_4_mor`) birlikte seçip Bambu Studio'ya
+sürükle, "tek nesne, çok parça olarak yükle?" sorusuna **Evet** de, sonra her parçaya sağ tık → filament seç.
+Öteki parçalar tek renk: taban plakası ve tutucu görünmez (herhangi), figür tabanları figür renginde, ayar kartı mor.
