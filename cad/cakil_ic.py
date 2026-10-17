@@ -51,7 +51,8 @@ YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının 
 
 # ---------------------------------------------------------------- parçalar (TAHMİN; ölçülünce düzelt)
 PARCA = {
-    "hoparlor": (50.0, 22.0),            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
+    "hoparlor": (50.0, 22.0),
+    "hoparlor_miknatis_r": 20.7,         # arkadaki mıknatıs yarıçapı (ürün sahibi: eyer yarıçapı 21 = 20,7 + 0,3 pay)            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
     "pil_yatagi": (77.0, 21.0, 19.0),    # 18650 tekli yatak
     "tp4056": (17.3, 28.0, 1.0),         # TP4056 Type-C HW-373 (ürün sahibinin STL'si, cad/parca_stl/): en, boy, kart
     "tp4056_usb": (9.8, 3.0, 6.9, 1.5),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma (STL'den)
@@ -196,8 +197,9 @@ def zarflar(nfc):
     hd, hdr = PARCA["hoparlor"]
     yf = HOP_YF
     # ön çerçeve Ø50 (5 mm) + sepet Ø50 -> Ø32 (8 mm) + mıknatıs Ø32 (kalan); hepsi tahmin
-    hop = (silindir(hd / 2, hdr - 5, hdr, seg=96) + silindir(16.0, hdr - 13, hdr - 5, seg=96, r2=hd / 2)
-           + silindir(16.0, 0, hdr - 13, seg=64))
+    mr = PARCA["hoparlor_miknatis_r"]
+    hop = (silindir(hd / 2, hdr - 5, hdr, seg=96) + silindir(mr, hdr - 13, hdr - 5, seg=96, r2=hd / 2)
+           + silindir(mr, 0, hdr - 13, seg=64))
     z["hoparlör (önden)"] = hop.rotate([-90, 0, 0]).translate([0, yf - hdr, HOP_ZC])
     w, d, h = PARCA["pil_yatagi"]
     z["18650 yatağı"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, TABAN_KAL, TABAN_KAL + h)
@@ -371,8 +373,8 @@ def taban(oz=TABAN_OZ):
             besik = kutu(-hd / 2 - 3, hd / 2 + 3, y0, y1, TABAN_KAL - 0.01, HOP_ZC - 6)
             besik = besik - silindir(ric, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC])
             t = t + besik
-        eyer = kutu(-14, 14, yf - hdr + 3, yf - hdr + 7, TABAN_KAL - 0.01, HOP_ZC - 9)
-        t = t + (eyer - silindir(16.3, -5, 80, seg=64).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
+        eyer = kutu(-18, 18, yf - hdr + 3, yf - hdr + 7, TABAN_KAL - 0.01, HOP_ZC - 9)
+        t = t + (eyer - silindir(PARCA["hoparlor_miknatis_r"] + 0.3, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
         for x in (-hd / 2 - 1.5, hd / 2 - 1.0):
             t = t - kutu(x, x + 2.5, yf - 10, yf - 6, -1, TABAN_KAL + 1)
     # pil yatağı cebi (1,5 mm duvar, 3 mm yüksek) + iki kablo bağı yarığı (yatak cırt/kablo bağıyla tabana sıkılır)
