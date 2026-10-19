@@ -166,7 +166,7 @@ def hilal(cx, cy, r, kayma, r2=None, aci=0.0):
 
 
 # ---------------------------------------------------------------- vida dişi
-def vida_cubugu(r_kok, derinlik, adim, ust_gen, alt_gen, z0, z1, n_aci=180):
+def vida_cubugu(r_kok, derinlik, adim, ust_gen, alt_gen, z0, z1, n_aci=96):
     """Dişli çubuk (tek ağızlı, sağ el): eksene dik kesit r(φ) = kök + yamuk diş profili, adım başına 360° burularak
     z0..z1 uzatılır; sarmal, z0'dan bağımsız olarak hep aynıdır (aynı adımla üretilen dişi/erkek parçalar eşleşir).
     Kesit: kök yarıçapı r_kok, tepe r_kok + derinlik; diş tepede ust_gen, kökte alt_gen geniş (eksen yönünde)."""
