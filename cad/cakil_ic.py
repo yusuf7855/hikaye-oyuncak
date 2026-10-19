@@ -21,7 +21,7 @@ import trimesh
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import manifold3d as m3  # noqa: E402
-from geometri import M, CS, kutu, silindir, dondur, xz_den_y_ye, yazi_duz, yuvarlak_dikdortgen, trimesh_e  # noqa: E402
+from geometri import M, CS, kutu, silindir, dondur, xz_den_y_ye, yazi_duz, yuvarlak_dikdortgen, trimesh_e, vida_cubugu  # noqa: E402
 
 KOK = os.path.dirname(os.path.abspath(__file__))
 FONT = os.path.join(KOK, "font", "Fredoka.ttf")
@@ -434,15 +434,69 @@ def taban(oz=TABAN_OZ):
     return t
 
 
+# ---------------------------------------------------------------- figür tabanı + vidalı NFC kapağı
+# Ürün sahibi (19 Ekim 2026): figürün altında şişe kapağı gibi dönerek takılan, içinde NFC etiketi olan kapak.
+# Taban Ø28 x 8 (5 mm çukurda, 3 mm üstte); altta M24 x 2 benzeri yamuk diş, 1,5 tur. Kapak bir fincan: Ø20 NTAG213
+# yapışkan etiket fincanın tabanına yapışır (zeminden 1 mm yukarıda), alt yüzde bozuk para yarığı ve figür adı.
+FIGUR_BOY = 8.0
+VIDA_ADIM, VIDA_KOK_R, VIDA_DERIN = 2.0, 11.0, 1.0     # erkek diş: kök Ø22, tepe Ø24
+VIDA_UST, VIDA_ALT = 0.3, 1.45                         # diş kesiti: tepe ve kök genişliği (60° yanak)
+VIDA_PAY = 0.35                                        # yarıçapta ve yanakta boşluk (FDM)
+KAPAK_BOY, KAPAK_TABAN = 5.0, 1.0
+ETIKET_CAP = 20.0                                      # NTAG213 Ø20 (Ø25 tabana sığmaz)
+
+
 def figur_taban(topuz=False):
-    """Figür tabanı (jeton) Ø28: figür üstüne yapıştırılır; altta NTAG213 Ø25 etiket cebi (etiket çukur zeminine değer).
+    """Figür tabanı Ø28 x 8: üst yüz düz (figür yapıştırılır), altta kapağın vidalandığı dişli oyuk.
     topuz=True: ayar kartı (üstte tutma topuzu)."""
-    r, h = FIGUR_TABAN_D / 2, CUKUR_DERIN
-    b = dondur([(0, 0), (r - 0.3, 0), (r, 0.3), (r, h - 1.0), (r - 1.0, h), (0, h)], SEG)
-    b = b - silindir(12.8, -1, 0.4, seg=SEG)                       # etiket cebi (alt yüz, 0,4 mm)
+    r, h = FIGUR_TABAN_D / 2, FIGUR_BOY
+    b = dondur([(0, 0), (r - 0.3, 0), (r, 0.3), (r, h - 0.8), (r - 0.8, h), (0, h)], SEG)
+    rb = VIDA_KOK_R + VIDA_PAY
+    ust = VIDA_UST + 0.5                                # yanakta 0,25 boşluk; yanak açısı erkek dişle aynı
+    oyuk = vida_cubugu(rb, VIDA_DERIN, VIDA_ADIM, ust, ust + (VIDA_ALT - VIDA_UST), -1.0, KAPAK_BOY + 0.2)
+    oyuk = oyuk + dondur([(0, -1), (rb + 1.3, -1), (rb + 1.3, 0), (rb, 1.3), (0, 1.3)], SEG)        # giriş pahı
+    b = b - oyuk
     if topuz:
         b = b + dondur([(0, h - 0.5), (10.0, h - 0.5), (10.0, h + 9.0), (8.5, h + 11.0), (6.0, h + 12.0), (0, h + 12.0)], SEG)
     return b
+
+
+def figur_kapak(ad=None, no=None):
+    """Vidalı NFC kapağı (fincan): dış diş, içte Ø20 etiket yeri; alt yüzde bozuk para yarığı, ad ve numara (ayna:
+    alttan okunur). Fincanın tabanı tablada basılır."""
+    g = vida_cubugu(VIDA_KOK_R, VIDA_DERIN, VIDA_ADIM, VIDA_UST, VIDA_ALT, 0.0, KAPAK_BOY)
+    g = g - (silindir(15, -1, 0.6, seg=SEG) - silindir(VIDA_KOK_R + VIDA_DERIN, -1, 0.6, seg=SEG, r2=VIDA_KOK_R + VIDA_DERIN - 0.6))  # alt pah
+    g = g - silindir(ETIKET_CAP / 2 + 0.2, KAPAK_TABAN, KAPAK_BOY + 1, seg=SEG)
+    g = g - kutu(-6.5, 6.5, -0.75, 0.75, -1, 0.5)                                # bozuk para / tornavida yarığı
+    for metin, yy, boy in ((ad, -5.6, 2.6), (f"No {no}" if no is not None else None, 5.4, 2.4)):
+        if not metin:
+            continue
+        cs = yazi_duz(metin, boy, FONT, ayna=True)
+        b = cs.bounds()
+        en = b[2] - b[0]
+        if en > 15.0:
+            cs = cs.scale([15.0 / en, 15.0 / en])
+        g = g - cs.translate([0, yy]).extrude(1.4).translate([0, 0, -1])        # 0,4 mm kazıma
+    return g
+
+
+def ay_dede():
+    """Ay Dede (gece figürü, telifsiz halk figürü): taban + üstünde uyuyan hilal ay."""
+    z0 = FIGUR_BOY - 0.5
+    ay = (CS.circle(15.0, 96).translate([0, 15.0]) - CS.circle(12.6, 96).translate([6.2, 17.2]))
+    ay = ay + CS.square([10.0, 3.0]).translate([-6.0, 0.0])                     # tabana oturan ayak
+    govde = xz_den_y_ye(ay, -3.5, 3.5, x=0.0, z=z0)
+    # kapalı (uyuyan) göz ve gülümseme: hilalin iki yüzüne 0,6 mm kazıma
+    import numpy as np
+    def yay_seridi(cx, cz, r, a0, a1, kal=0.8):
+        dis = [(cx + (r + kal / 2) * math.cos(a), cz + (r + kal / 2) * math.sin(a)) for a in np.linspace(a0, a1, 16)]
+        ic = [(cx + (r - kal / 2) * math.cos(a), cz + (r - kal / 2) * math.sin(a)) for a in np.linspace(a1, a0, 16)]
+        return CS([np.asarray(dis + ic)])
+    yuz = yay_seridi(-4.5, 21.0, 2.2, math.radians(200), math.radians(340)) + \
+          yay_seridi(-3.0, 11.5, 3.0, math.radians(200), math.radians(320))
+    for y0 in (-3.6, 2.9):
+        govde = govde - xz_den_y_ye(yuz, y0, y0 + 0.7, x=0.0, z=z0)
+    return figur_taban() + govde
 
 
 # ---------------------------------------------------------------- denetim
@@ -456,7 +510,8 @@ def denetle(nfc):
     fd = PARCA["kcd11"][2]
     bosluk = bosluk + silindir(fd / 2 + 0.3, anahtar_yer()[1] - 6, 80, seg=96).rotate([0, 90, 0]).translate(
         [0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])   # anahtarın deliği; flanş ve tuş dışta
-    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(), "figur": figur_taban().translate([0, 0, Z_CANAK_TABAN])}
+    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(),
+            "figur": (figur_taban() + figur_kapak()).translate([0, 0, Z_CANAK_TABAN])}
     sorun = []
     for ad, e in z.items():
         disari = (e - bosluk).volume()
@@ -482,7 +537,7 @@ def denetle(nfc):
             if v > 0.5:
                 sorun.append(f"{ys[i]} ile {ys[j]} (basılan parçalar) çakışıyor ({v:.0f} mm³)")
     # NFC: etiket ile anten arası
-    mesafe = (Z_CANAK_TABAN + 0.4) - Z_OKUYUCU_UST
+    mesafe = (Z_CANAK_TABAN + KAPAK_TABAN) - Z_OKUYUCU_UST     # etiket kapağın tabanında
     return z, yapi, sorun, mesafe
 
 
@@ -501,8 +556,9 @@ BASKI = (  # (dosya, parça, baskı yönü açıklaması)
     ("1_kabuk", "kabuk", "ters: üst yüz (figür çukuru) tablada"),
     ("2_taban_plakasi", "taban", "düz alt yüz tablada"),
     ("3_halka_nfc_tutucu", "tutucu", "ters: halkanın bastığı düz yüz tablada, raylar yukarı"),
-    ("4_figur_taban", "figur", "ters: düz üst yüz tablada, etiket cebi yukarı; 11 figür için 11 adet"),
-    ("5_ayar_karti", "ayar", "alt yüz tablada, topuz yukarı (kenar/brim önerilir); 1 adet"),
+    ("4_figur_taban", "figur", "ters: düz üst yüz tablada, dişli oyuk yukarı; figür başına 1 (adlı kapaklarla figurler/ klasöründe)"),
+    ("4b_figur_kapagi", "kapak", "alt yüz tablada; Ø20 NFC etiketi içine yapışır, tabana vidalanır"),
+    ("5_ayar_karti", "ayar", "alt yüz tablada, topuz yukarı; 1 adet (+ 1 kapak)"),
 )
 
 
@@ -514,7 +570,7 @@ def stl_yaz(nfc, yapi):
         if eski.endswith(".stl"):
             os.remove(os.path.join(d, eski))
     baski = {"kabuk": yapi["kabuk"].rotate([180, 0, 0]), "taban": yapi["taban"],
-             "tutucu": yapi["tutucu"].rotate([180, 0, 0]), "figur": figur_taban().rotate([180, 0, 0]), "ayar": figur_taban(topuz=True)}
+             "tutucu": yapi["tutucu"].rotate([180, 0, 0]), "figur": figur_taban().rotate([180, 0, 0]), "kapak": figur_kapak(), "ayar": figur_taban(topuz=True)}
     for dosya, ad, _ in BASKI:
         _tm(_tablaya(baski[ad])).export(os.path.join(d, f"{dosya}.stl"))
     # tüm hali: basılan parçalar yerinde (tek dosya, ayrı gövdeler)

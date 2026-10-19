@@ -163,3 +163,26 @@ def hilal(cx, cy, r, kayma, r2=None, aci=0.0):
     c1 = CS.circle(r, 64).translate([cx, cy])
     c2 = CS.circle(r2, 64).translate([cx + kayma * math.cos(a), cy + kayma * math.sin(a)])
     return c1 - c2
+
+
+# ---------------------------------------------------------------- vida dişi
+def vida_cubugu(r_kok, derinlik, adim, ust_gen, alt_gen, z0, z1, n_aci=180):
+    """Dişli çubuk (tek ağızlı, sağ el): eksene dik kesit r(φ) = kök + yamuk diş profili, adım başına 360° burularak
+    z0..z1 uzatılır; sarmal, z0'dan bağımsız olarak hep aynıdır (aynı adımla üretilen dişi/erkek parçalar eşleşir).
+    Kesit: kök yarıçapı r_kok, tepe r_kok + derinlik; diş tepede ust_gen, kökte alt_gen geniş (eksen yönünde)."""
+    def r_a(a):
+        da = abs(a - adim / 2)
+        if da <= ust_gen / 2:
+            return r_kok + derinlik
+        if da <= alt_gen / 2:
+            return r_kok + derinlik * (alt_gen / 2 - da) / ((alt_gen - ust_gen) / 2)
+        return r_kok
+    pts = []
+    for k in range(n_aci):
+        fi = 2 * math.pi * k / n_aci
+        a = (z0 - adim * fi / (2 * math.pi)) % adim       # z0 yüksekliğindeki kesit
+        r = r_a(a)
+        pts.append((r * math.cos(fi), r * math.sin(fi)))
+    h = z1 - z0
+    kat = max(4, int(math.ceil(h / adim * n_aci / 2)))
+    return CS([np.asarray(pts)]).extrude(h, kat, 360.0 * h / adim).translate([0, 0, z0])

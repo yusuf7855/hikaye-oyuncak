@@ -91,13 +91,20 @@ def tutucu_renk(nfc):
 
 def figur_renk():
     g = C.figur_taban()
-    h = C.CUKUR_DERIN
+    h = C.FIGUR_BOY
     return _bol(g, {"3_sari": _halka(10.8, 12.9, h - KAKMA, h + 1)}, taban_renk="2_turkuaz")
+
+
+def ay_renk():
+    """Ay Dede: turkuaz taban, sarı hilal ay."""
+    from geometri import kutu
+    g = C.ay_dede()
+    return _bol(g, {"3_sari": kutu(-40, 40, -40, 40, C.FIGUR_BOY, 90)}, taban_renk="2_turkuaz")
 
 
 def ayar_renk():
     g = C.figur_taban(topuz=True)
-    h = C.CUKUR_DERIN
+    h = C.FIGUR_BOY
     tepe = h + 12.0
     dis = []
     for i in range(16):   # 8 dişli çark
@@ -257,15 +264,25 @@ def main():
                 hata += 1
                 print("  AÇIK:", ad, k)
         parcalar = [(f"{ad}_{k}", RENK_NO[k], tm[k]) for k in RENK_NO if k in tm]
-        if ad == "4_figur_taban":   # 11 figür tabanı + ayar kartı aynı tablada
-            ab = baski_konumu(ayar, False)
-            at = {k: temiz(m) for k, m in ab.items()}
-            ap = [(f"5_ayar_karti_{k}", RENK_NO[k], at[k]) for k in RENK_NO if k in at]
+        if ad == "4_figur_taban":   # tüm figür tabanları, Ay Dede, ayar kartı ve adlı kapaklar aynı tablada
+            import figurler as F
+            def renkli_parca(b, ters, ad_):
+                bk_ = baski_konumu(b, ters)
+                return [(f"{ad_}_{k}", RENK_NO[k], temiz(bk_[k])) for k in RENK_NO if k in bk_]
+            figs, ozel = F.figur_listesi()
+            ap = renkli_parca(ayar, False, "ayar_karti")
+            ay = renkli_parca(ay_renk(), False, "ay_dede")
             nes = []
-            for i in range(12):
-                x, y = TABLA / 2 + (i % 4 - 1.5) * 36, TABLA / 2 + (i // 4 - 1) * 36
-                nes.append((f"ayar_karti" if i == 11 else f"figur_taban_{i + 1}", ap if i == 11 else parcalar, (x, y)))
-            print(yaz_3mf(os.path.join(d, "4_figur_tabanlari_ve_ayar_karti.3mf"), nes))
+            for f in figs:
+                nes.append((f"{f['nfc_no']:02d}_{f['kimlik']}", ay if f.get("mod") == "uyku" else parcalar))
+            nes.append(("200_ayar_karti", ap))
+            for f in figs + [o for o in ozel if o["kimlik"] == "ayar"]:
+                ad_k = "AYAR" if f["kimlik"] == "ayar" else f["ad"].replace("i", "İ").replace("ı", "I").upper()
+                kp = baski_konumu({"3_sari": C.figur_kapak(ad_k, f["nfc_no"])}, False)
+                nes.append((f"kapak_{f['nfc_no']:02d}_{f['kimlik']}", [(f"kapak_{f['kimlik']}", 3, temiz(kp["3_sari"]))]))
+            yer = [(TABLA / 2 + (i % 6 - 2.5) * 36, TABLA / 2 + (2 - i // 6) * 36) for i in range(len(nes))]
+            print(yaz_3mf(os.path.join(d, "4_figur_tabanlari_kapaklar_ayar_karti.3mf"),
+                          [(a, p, xy) for (a, p), xy in zip(nes, yer)]))
         elif ad != "5_ayar_karti":
             print(yaz_3mf(os.path.join(d, f"{ad}.3mf"), [(ad, parcalar, (TABLA / 2, TABLA / 2))]))
         print(f"  {ad}: hacim {hacim:.0f} mm³;", {k: round(m.volume()) for k, m in b.items()})

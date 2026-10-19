@@ -15,8 +15,8 @@ Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma den
 | `1_kabuk.stl` | 1 | ters: üst yüz (figür çukuru) tablada | (renkli için `renkli_bambu/` bölümüne bak) **beyaz** PLA/PETG (LED ışığı figür zemininden ve çukur duvarındaki yarıklardan geçer). 0,2 mm katman, 3 duvar, %15 doluluk. **Destek: ağaç (tree), yalnız iç kısım** (vida kolonları, TP4056 kızakları, ses yakası). "eco ai" logosu için logonun başladığı katmanda filament değiştirilebilir |
 | `2_taban_plakasi.stl` | 1 | düz alt yüz tablada | PLA/PETG, destek GEREKMEZ (TP4056 üstündeki 23 mm köprü dahil) |
 | `3_halka_nfc_tutucu.stl` | 1 | ters: halkanın bastığı düz yüz tablada, raylar yukarı | PLA, destek gerekmez |
-| `4_figur_taban.stl` | 11 | ters: düz yüz tablada, etiket cebi yukarı | figür renginde; 0,12–0,16 mm katman |
-| `5_ayar_karti.stl` | 1 | etiket cebi tablada, topuz yukarı | kenar (brim) önerilir |
+| `4_figur_taban.stl` + `4b_figur_kapagi.stl` | figür başına 1 + 1 | taban ters (düz üst yüz tablada), kapak alt yüzü tablada | figür adı ve numarası kazılı kapaklar `figurler/` klasöründe (figür başına tek dosya) |
+| `5_ayar_karti.stl` | 1 | dik, topuz yukarı | + 1 kapak (`figurler/200_ayar_karti.stl`) |
 
 ## Ek malzeme
 
@@ -24,7 +24,7 @@ Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma den
 - M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği (tutucuda 3,5 mm vida tablası, direkte 3 mm kılavuz delik)
 - Kablo bağı 2,5 mm (3): pil yatağı (2), hoparlör (1)
 - Silikon ayak Ø10 x 1 mm (3–6)
-- NTAG213 Ø25 yuvarlak NFC etiket (12): her figür tabanının altındaki cebe + ayar kartı
+- NTAG213 **Ø20** yuvarlak yapışkan NFC etiket (13): her figürün vidalı kapağının içine (12 figür + ayar kartı)
 - Dişi-dişi jumper kablolar (ESP32 ters yatar, pinler yukarıda)
 
 ## Montaj sırası
@@ -61,8 +61,35 @@ Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya
 | `1_kabuk.3mf` | beyaz gövde, turkuaz "eco ai" ve çukur zemini, sarı çukur kenarı + güneş halkası, 6 mor yıldız | LED'lerin üstündeki ışık halkası beyaz kalmalı. Destek: ağaç (tree), yalnız iç kısım. Logo dikey duvarda: logo boyunca her katmanda renk değişir (en çok atık burada) |
 | `2_taban_plakasi.3mf` | beyaz plaka; alt yüzde turkuaz "eco ai", sarı halka, 4 mor yıldız | renkler ilk 3 katmanda, alttan okunur; destek yok |
 | `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
-| `4_figur_tabanlari_ve_ayar_karti.3mf` | 11 turkuaz figür tabanı (üstte sarı halka) + mor ayar kartı (topuzda beyaz çark, sarı halka) | tek tablada 12 parça |
+| `4_figur_tabanlari_kapaklar_ayar_karti.3mf` | 11 turkuaz figür tabanı (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark), 13 sarı adlı kapak | tek tablada 26 parça |
 
 Atık kulesi (prime tower) açık kalsın. 3MF açılmazsa ya da renkler gelmezse: aynı parçanın renk STL'lerini
 (ör. `1_kabuk_1_beyaz.stl` … `1_kabuk_4_mor.stl`) birlikte seçip Bambu Studio'ya sürükle, "tek nesne, çok parça
 olarak yükle?" sorusuna **Evet** de, sonra her parçaya sağ tık → filament seç. Dosya adının sonundaki numara AMS yuvasıdır.
+
+## Figür tabanları ve vidalı NFC kapağı — `figurler/`
+
+Her figür için tek dosya (iki parça yan yana, baskı yönünde): **taban** Ø28 x 8 (5 mm standın çukurunda, 3 mm üstte;
+düz üst yüzüne oyuncak figür yapıştırılır) + **kapak** (şişe kapağı gibi tabanın altına vidalanır, 1,5 tur).
+Kapağın içine Ø20 NTAG213 yapışkan etiket yapıştırılır; etiket antene ≈ 2,9 mm. Kapağın alt yüzünde bozuk para
+yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı. Ay Dede tabanla tek parça hilal ay (dik basılır).
+
+| No | Figür | Dosya |
+|---|---|---|
+| 1 | Niloya | `figurler/01_niloya.stl` |
+| 2 | Maşa | `figurler/02_masa.stl` |
+| 3 | Pepee | `figurler/03_pepee.stl` |
+| 4 | Keloğlan | `figurler/04_keloglan.stl` |
+| 5 | Doru | `figurler/05_doru.stl` |
+| 6 | Hayri | `figurler/06_hayri.stl` |
+| 7 | Şakir | `figurler/07_sakir.stl` |
+| 8 | Elsa | `figurler/08_elsa.stl` |
+| 9 | Chase | `figurler/09_chase.stl` |
+| 10 | Örümcek Adam | `figurler/10_orumcek_adam.stl` |
+| 11 | Hello Kitty | `figurler/11_hello_kitty.stl` |
+| 12 | Ay Dede | `figurler/12_gece.stl` |
+| 200 | Ayar kartı | `figurler/200_ayar_karti.stl` |
+
+Diş: adım 2 mm, erkek Ø24/Ø22, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
+%100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
+`bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.

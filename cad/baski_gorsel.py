@@ -18,12 +18,12 @@ import dis_konsept as K  # noqa: E402
 
 def main(nfc="rc522"):
     d = os.path.join(C.KOK, "stl_cakil", nfc)
-    fig = plt.figure(figsize=(18, 11), dpi=100)
+    fig = plt.figure(figsize=(22, 11), dpi=100)
     kutular = [("0_tum_stand_%s_montajli" % nfc, "TÜM STAND (montajlı)", 30, 35)] + [
         (dosya, f"{dosya[0]}) {dosya[2:].replace('_', ' ')}\n{yon}", 28, 35) for dosya, _, yon in C.BASKI]
     for i, (dosya, baslik, elev, azim) in enumerate(kutular):
         m = trimesh.load(os.path.join(d, dosya + ".stl"))
-        ax = fig.add_subplot(2, 3, i + 1, projection="3d")
+        ax = fig.add_subplot(2, 4, i + 1, projection="3d")
         e, a = math.radians(elev), math.radians(azim)
         K.ciz(ax, [(m, "#E8DCCB" if i else "#F6E7D2", False)], [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
         b = m.bounds

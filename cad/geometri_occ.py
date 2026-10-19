@@ -26,7 +26,7 @@ from OCP.BRepGProp import BRepGProp
 from OCP.Bnd import Bnd_Box
 from OCP.BRepBndLib import BRepBndLib
 from OCP.TopExp import TopExp_Explorer
-from OCP.TopAbs import TopAbs_SOLID
+from OCP.TopAbs import TopAbs_SOLID, TopAbs_SHELL
 
 
 class O:
@@ -178,3 +178,35 @@ def kesisim_hacmi(a, b):
 
 
 __all__ = [n for n in dir(_g) if not n.startswith("_")]
+
+
+def vida_cubugu(*args, **kw):
+    """Dişli çubuk: manifold3d ile üretilen ağ (çok küçük düz yüzlü) OCC katısına çevrilir; diş sarmalı için OCC'de
+    düzgün yüzey kurmak yerine ağ yeterli (STEP'te dişler ince yüzlü görünür, ölçüler aynıdır)."""
+    import os
+    import tempfile
+    from OCP.StlAPI import StlAPI_Reader
+    from OCP.TopoDS import TopoDS_Shape, TopoDS
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Sewing, BRepBuilderAPI_MakeSolid
+    from OCP.ShapeFix import ShapeFix_Solid
+    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+    m = _g.vida_cubugu(*args, **kw)
+    with tempfile.NamedTemporaryFile(suffix=".stl", delete=False) as f:
+        yol = f.name
+    _g.trimesh_e(m).export(yol)
+    sh = TopoDS_Shape()
+    StlAPI_Reader().Read(sh, yol)
+    os.remove(yol)
+    sew = BRepBuilderAPI_Sewing(1e-4)
+    sew.Add(sh)
+    sew.Perform()
+    ms = BRepBuilderAPI_MakeSolid()
+    ex = TopExp_Explorer(sew.SewedShape(), TopAbs_SHELL)
+    while ex.More():
+        ms.Add(TopoDS.Shell(ex.Current()))
+        ex.Next()
+    fx = ShapeFix_Solid(ms.Solid())
+    fx.Perform()
+    u = ShapeUpgrade_UnifySameDomain(fx.Solid(), True, True, True)
+    u.Build()
+    return O(u.Shape())

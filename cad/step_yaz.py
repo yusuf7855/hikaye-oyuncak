@@ -26,7 +26,8 @@ from OCP.Quantity import Quantity_Color, Quantity_TypeOfColor  # noqa: E402
 from OCP.Interface import Interface_Static  # noqa: E402
 
 RENK = {"kabuk": (0.96, 0.94, 0.90), "taban_plakasi": (0.91, 0.86, 0.80), "halka_nfc_tutucu": (0.79, 0.76, 0.72),
-        "figur_taban": (0.12, 0.71, 0.69), "ayar_karti": (0.48, 0.31, 0.82)}
+        "figur_taban": (0.12, 0.71, 0.69), "figur_kapagi": (0.96, 0.76, 0.23),
+        "ay_dede": (0.96, 0.76, 0.23), "ayar_karti": (0.48, 0.31, 0.82)}
 
 
 def step_yaz(yol, parcalar):
@@ -57,12 +58,12 @@ def main():
             os.remove(os.path.join(d, eski))
     parca = {"kabuk": C.kabuk(), "taban_plakasi": C.taban(),
              "halka_nfc_tutucu_rc522": C.tutucu("rc522"), "halka_nfc_tutucu_pn5180": C.tutucu("pn5180"),
-             "figur_taban": C.figur_taban().translate([0, 0, C.Z_CANAK_TABAN]), "ayar_karti": C.figur_taban(topuz=True)}
+             }   # figür tabanları (vida dişli) STL olarak: cad/stl_cakil/figurler/ (dişli sarmal OCC'de çok yavaş)
     for ad, m in parca.items():
         print(f"{ad}: hacim {m.volume():.0f} mm³, geçerli katı: {BRepCheck_Analyzer(m.sh).IsValid()}", flush=True)
         step_yaz(os.path.join(d, f"{ad}.step"), [(ad, m.sh)])
     for nfc in ("rc522", "pn5180"):
-        adlar = ["kabuk", "taban_plakasi", f"halka_nfc_tutucu_{nfc}", "figur_taban"]
+        adlar = ["kabuk", "taban_plakasi", f"halka_nfc_tutucu_{nfc}"]
         print(step_yaz(os.path.join(d, f"0_montaj_{nfc}.step"), [(a, parca[a].sh) for a in adlar]))
 
 
