@@ -9,7 +9,7 @@ Yerleşim (alttan üste):
   taban plakası (vidalı, 4 ayak, hoparlör ızgarası) | hoparlör 50x50 AŞAĞI bakar (önde; ses tabandan ve ayak
   boşluğundan çıkar: 55 mm yükseklikte dik 50x50 hoparlör sığmıyor) | 18650 yatağı (ortada, x boyunca) |
   TP4056 (arka orta, USB-C arka duvarda) | MAX98357A (sağ ön) | açma-kapama (sol yan duvar) |
-  ESP32-S3 (arkada, TERS: pinler yukarı, jumper'lar üstten takılır) | NFC okuyucu (anten figürün tam altında) | 16'lı halka | figür zemini (kabuk) |
+  ESP32-S3 (arkada, TERS: pinler yukarı, jumper'lar üstten takılır) | NFC okuyucu (anten figürün tam altında) | LED halka (Ø55/Ø70) | figür zemini (kabuk) |
   mikrofon (üstte, arkada delik).
 """
 import math
@@ -35,17 +35,19 @@ TABAN_KAL = 2.4
 # figür yuvası (seçenek 3)
 # Ürün sahibi (16 Ekim 2026, seçenek A): 16'lı halka çukurun DIŞINDA, üst yüzün altındaki tavanda; bunun için çukur
 # halkanın iç boşluğuna (Ø31,75) girer -> figür tabanı Ø28 (NTAG213 Ø25 sığar). Işık figür üstündeyken de görünür.
-FIGUR_TABAN_D = 28.0
-YUVA_R = FIGUR_TABAN_D / 2 + 0.3
+# Ürün sahibi (20 Ekim 2026, ilk baskıdan sonra): LED halkası iç Ø55 / dış Ø70; çukurun dış duvarı halkanın iç çapına
+# SIKI geçer (Ø54,9), çukurun içi Ø52,5, figür tabanı Ø52 (NTAG213 Ø25 rahat sığar).
+FIGUR_TABAN_D = 52.0
+YUVA_R = FIGUR_TABAN_D / 2 + 0.25
 CUKUR_DERIN = 5.0        # figür tabanının oturduğu yüz = H - 5
 # Ürün sahibi (16 Ekim 2026): ayrı yarı saydam parça yok, her şey PLA/PETG. Figürün oturduğu zemin kabuğun parçası;
 # zeminin altında, LED'lerin tam üstünde halka biçimli oyuk: zemin orada ISIK_KAL kalır, beyaz PLA'dan ışık geçer.
-YUVA_DUVAR = 1.2         # çukurun kabuk içine sarkan duvarı (halkanın iç boşluğundan geçer: r 15,5 < 15,9)
+YUVA_DUVAR = 1.2         # çukurun kabuk içine sarkan duvarı: dış Ø54,9 -> halkanın iç Ø55'ine sıkı geçer, halkayı ortalar
 ZEMIN_KAL = 1.6          # figür zemini kalınlığı (altında NFC okuyucu)
 ISIK_KAL = 0.6           # LED'lerin üstünde kalan zemin (0,6 mm beyaz PLA ışığı geçirir; renkli PLA'da delik açılabilir)
-ISIK_YARIK = (24, 1.6)   # ürün sahibi: çukurun LED şeridine bakan DİKEY iç duvarı şerit şerit açık -> 24 dikey pencere,
+ISIK_YARIK = (36, 1.6)   # ürün sahibi: çukurun LED şeridine bakan DİKEY iç duvarı şerit şerit açık -> 24 dikey pencere,
                          # 1,6 mm geniş; ışık yandan çukurun içine vurur (üst yüz kapalı kalır)
-ISIK_R = (16.2, 22.0)    # ışık oyuğu: LED'ler (5x5 mm, r ≈ 19) halka tavana yaslanınca bu oyuğun içine girer
+ISIK_R = (28.05, 34.6)   # ışık oyuğu: LED'ler (5x5 mm, r ≈ 31) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
 YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının üstünde
 
@@ -61,8 +63,8 @@ PARCA = {
     "kcd11": (15.0, 20.0, 18.5, 2.0, 1.6),   # yuvarlak: panel deliği Ø, arkadaki gövde+uçlar derinliği, flanş Ø, flanş
                                              # kalınlığı, panel kalınlığı (tırnaklar ~1-2 mm panele oturur); TAHMİN, ölç
     "inmp441": (14.0, 14.0, 3.0),
-    "halka": (31.75, 44.5, 1.6),         # NeoPixel 16'lı: iç Ø, dış Ø, kart kalınlığı
-    "halka_led": (5.0, 1.6),             # WS2812B 5050: en, yükseklik (kartın üstünde, r ≈ 19)
+    "halka": (55.0, 70.0, 1.6),          # NeoPixel halka (ürün sahibi ölçtü): iç Ø, dış Ø, kart kalınlığı
+    "halka_led": (5.0, 1.6),             # WS2812B 5050: en, yükseklik (kartın üstünde, r ≈ 31)
     "rc522": (60.0, 40.0, 1.6, 3.0),     # en, boy, PCB, alt bileşen yüksekliği
     "pn5180": (70.0, 39.0, 1.6, 3.0),
 }
@@ -182,6 +184,12 @@ def tp_konum():
     return y_kart - 0.1, y_usb, y_kart
 
 
+FIS_CEP = (12.8, 7.2, 3.0)    # ilk baskı (20 Ekim 2026): USB-C dişi yüzeyden içeride kaldı, fiş tam oturmadı -> dışta
+                              # fiş gövdesi için yuvarlak köşeli cep (en, boy, köşe), dişinin ön yüzüne kadar iner
+TP_KANAL_PAY = 0.4            # kızakta kartın iki yanındaki boşluk (ilk baskıda 0,15: dar geldi)
+TP_KANAL_YUKSEK = 0.8         # kartın kalınlığına eklenen dudak arası boşluk (ilk baskıda 0,3)
+
+
 def usb_cukurluk():
     """USB-C ön yüzünün ortasının dış yüzeyden içeride kaldığı mesafe (mm)."""
     return tp_konum()[1] + math.sqrt(dis_r(USB_ZC) ** 2 - TP_X ** 2)
@@ -295,15 +303,18 @@ def kabuk():
     y_ic, y_usb, y_kart = tp_konum()
     uw, uh, ul, ut = PARCA["tp4056_usb"]
     w_k, d_k, t_k = PARCA["tp4056"]
-    g = g - kutu(TP_X - w_k / 2 - 0.6, TP_X + w_k / 2 + 0.6, y_ic, y_usb + 9, USB_Z_ALT - 0.6, USB_ZC + uh / 2 + 1.2)   # iç cep
-    g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + 0.3, uh + 0.3, 1.5), -80, y_usb + 9, x=TP_X, z=USB_ZC)
+    g = g - kutu(TP_X - w_k / 2 - 0.8, TP_X + w_k / 2 + 0.8, y_ic, y_usb + 9, USB_Z_ALT - 0.8, USB_ZC + uh / 2 + 1.2)   # iç cep
+    g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + 0.6, uh + 0.6, 1.6), -80, y_usb + 9, x=TP_X, z=USB_ZC)
+    fw, fh, fr = FIS_CEP
+    g = g - xz_den_y_ye(yuvarlak_dikdortgen(fw, fh, fr), -80, y_usb - 0.05, x=TP_X, z=USB_ZC)        # fiş cebi (dışta)
     x0, x1, zu = TP_X - w_k / 2, TP_X + w_k / 2, USB_Z_ALT + t_k
     kz = None
     for s, xk in ((-1, x0), (1, x1)):
-        dis_x, ic_x = xk + s * 1.6, xk - s * 0.8     # kızak duvarı kartın 0,15 mm dışında; dudaklar kart kenarına 0,8 mm biner
-        f = kutu(min(xk + s * 0.15, dis_x), max(xk + s * 0.15, dis_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.4, zu + 1.4)
-        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.4, USB_Z_ALT - 0.15)   # alt dudak
-        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, zu + 0.15, zu + 1.4)                 # üst dudak
+        pay, ust = TP_KANAL_PAY, TP_KANAL_YUKSEK / 2
+        dis_x, ic_x = xk + s * (pay + 1.45), xk - s * 0.8   # kızak duvarı kartın 0,4 mm dışında; dudaklar karta 0,8 mm biner
+        f = kutu(min(xk + s * pay, dis_x), max(xk + s * pay, dis_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.6, zu + 1.6)
+        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.6, USB_Z_ALT - ust)    # alt dudak
+        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, zu + ust, zu + 1.6)                  # üst dudak
         kz = f if kz is None else kz + f
     g = g + (kz ^ dondur(profil(-0.5), SEG))
     # anahtar: Ø delik + flanşın düz oturma yüzü (dışta, gövdeye gömülü) + içte düz panel (tırnaklar için)
@@ -349,6 +360,8 @@ def tutucu(nfc):
         dudak = kutu(cx - w / 2 + 6, cx + w / 2 - 6, min(y_d, y_ic), max(y_d, y_ic), z_alt, Z_OKUYUCU_UST - pcb - 0.2)
         ust = kutu(cx - w / 2 + 6, cx + w / 2 - 6, min(y_d, y_ic + s * 2.0), max(y_d, y_ic + s * 2.0), Z_OKUYUCU_UST + 0.2, zt + 0.01)
         p = p + ray + dudak + (ust - silindir(CANAK_GOVDE_R + 0.4, zt - 9, zt + 5, seg=SEG))
+    # çukur (Ø54,9) büyüyünce rayların üstü çukurun zemin gövdesine girer: zemin altına kadar kesilir
+    p = p - silindir(CANAK_GOVDE_R + 0.4, Z_CANAK_TABAN - ZEMIN_KAL - 0.2, H, seg=SEG)
     return p
 
 
@@ -373,8 +386,12 @@ def taban(oz=TABAN_OZ):
             besik = kutu(-hd / 2 - 3, hd / 2 + 3, y0, y1, TABAN_KAL - 0.01, HOP_ZC - 6)
             besik = besik - silindir(ric, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC])
             t = t + besik
-        eyer = kutu(-18, 18, yf - hdr + 3, yf - hdr + 7, TABAN_KAL - 0.01, HOP_ZC - 9)
-        t = t + (eyer - silindir(PARCA["hoparlor_miknatis_r"] + 0.3, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
+        # eyerler: ürün sahibi (20 Ekim 2026) içteki küçük eyerin aynısından bir tane daha istedi, onun içine; üç destek
+        # (ön beşik, eyer, ikinci eyer) arası eşit
+        on_merkez, eyer_merkez = yf - 1.5, yf - hdr + 5
+        for ym in (eyer_merkez, 2 * eyer_merkez - on_merkez):
+            eyer = kutu(-18, 18, ym - 2, ym + 2, TABAN_KAL - 0.01, HOP_ZC - 9)
+            t = t + (eyer - silindir(PARCA["hoparlor_miknatis_r"] + 0.3, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
         for x in (-hd / 2 - 1.5, hd / 2 - 1.0):
             t = t - kutu(x, x + 2.5, yf - 10, yf - 6, -1, TABAN_KAL + 1)
     # pil yatağı cebi (1,5 mm duvar, 3 mm yüksek) + iki kablo bağı yarığı (yatak cırt/kablo bağıyla tabana sıkılır)
@@ -439,11 +456,11 @@ def taban(oz=TABAN_OZ):
 # Taban Ø28 x 8 (5 mm çukurda, 3 mm üstte); altta M24 x 2 benzeri yamuk diş, 1,5 tur. Kapak bir fincan: Ø20 NTAG213
 # yapışkan etiket fincanın tabanına yapışır (zeminden 1 mm yukarıda), alt yüzde bozuk para yarığı ve figür adı.
 FIGUR_BOY = 8.0
-VIDA_ADIM, VIDA_KOK_R, VIDA_DERIN = 2.0, 11.0, 1.0     # erkek diş: kök Ø22, tepe Ø24
+VIDA_ADIM, VIDA_KOK_R, VIDA_DERIN = 2.0, 14.0, 1.0     # erkek diş: kök Ø28, tepe Ø30 (taban Ø52'ye büyüyünce)
 VIDA_UST, VIDA_ALT = 0.3, 1.45                         # diş kesiti: tepe ve kök genişliği (60° yanak)
 VIDA_PAY = 0.35                                        # yarıçapta ve yanakta boşluk (FDM)
 KAPAK_BOY, KAPAK_TABAN = 5.0, 1.0
-ETIKET_CAP = 20.0                                      # NTAG213 Ø20 (Ø25 tabana sığmaz)
+ETIKET_CAP = 25.0                                      # NTAG213 Ø25 (standart boy)
 
 
 def figur_taban(topuz=False):
@@ -465,17 +482,17 @@ def figur_kapak(ad=None, no=None):
     """Vidalı NFC kapağı (fincan): dış diş, içte Ø20 etiket yeri; alt yüzde bozuk para yarığı, ad ve numara (ayna:
     alttan okunur). Fincanın tabanı tablada basılır."""
     g = vida_cubugu(VIDA_KOK_R, VIDA_DERIN, VIDA_ADIM, VIDA_UST, VIDA_ALT, 0.0, KAPAK_BOY)
-    g = g - (silindir(15, -1, 0.6, seg=SEG) - silindir(VIDA_KOK_R + VIDA_DERIN, -1, 0.6, seg=SEG, r2=VIDA_KOK_R + VIDA_DERIN - 0.6))  # alt pah
+    g = g - (silindir(VIDA_KOK_R + 5, -1, 0.6, seg=SEG) - silindir(VIDA_KOK_R + VIDA_DERIN, -1, 0.6, seg=SEG, r2=VIDA_KOK_R + VIDA_DERIN - 0.6))  # alt pah
     g = g - silindir(ETIKET_CAP / 2 + 0.2, KAPAK_TABAN, KAPAK_BOY + 1, seg=SEG)
     g = g - kutu(-6.5, 6.5, -0.75, 0.75, -1, 0.5)                                # bozuk para / tornavida yarığı
-    for metin, yy, boy in ((ad, -5.6, 2.6), (f"No {no}" if no is not None else None, 5.4, 2.4)):
+    for metin, yy, boy in ((ad, -7.6, 3.0), (f"No {no}" if no is not None else None, 7.4, 2.8)):
         if not metin:
             continue
         cs = yazi_duz(metin, boy, FONT, ayna=True)
         b = cs.bounds()
         en = b[2] - b[0]
-        if en > 15.0:
-            cs = cs.scale([15.0 / en, 15.0 / en])
+        if en > 20.0:
+            cs = cs.scale([20.0 / en, 20.0 / en])
         g = g - cs.translate([0, yy]).extrude(1.4).translate([0, 0, -1])        # 0,4 mm kazıma
     return g
 
@@ -485,7 +502,7 @@ def ay_dede():
     z0 = FIGUR_BOY - 0.5
     ay = (CS.circle(15.0, 96).translate([0, 15.0]) - CS.circle(12.6, 96).translate([6.2, 17.2]))
     ay = ay + CS.square([10.0, 3.0]).translate([-6.0, 0.0])                     # tabana oturan ayak
-    govde = xz_den_y_ye(ay, -3.5, 3.5, x=0.0, z=z0)
+    govde = xz_den_y_ye(ay, -3.5, 3.5, x=0.0, z=0.0)
     # kapalı (uyuyan) göz ve gülümseme: hilalin iki yüzüne 0,6 mm kazıma
     import numpy as np
     def yay_seridi(cx, cz, r, a0, a1, kal=0.8):
@@ -495,8 +512,8 @@ def ay_dede():
     yuz = yay_seridi(-4.5, 21.0, 2.2, math.radians(200), math.radians(340)) + \
           yay_seridi(-3.0, 11.5, 3.0, math.radians(200), math.radians(320))
     for y0 in (-3.6, 2.9):
-        govde = govde - xz_den_y_ye(yuz, y0, y0 + 0.7, x=0.0, z=z0)
-    return figur_taban() + govde
+        govde = govde - xz_den_y_ye(yuz, y0, y0 + 0.7, x=0.0, z=0.0)
+    return figur_taban() + govde.scale([1.5, 1.4, 1.5]).translate([0, 0, z0])      # Ø52 tabana göre büyük
 
 
 # ---------------------------------------------------------------- denetim
@@ -627,7 +644,7 @@ def onizle():
         ax.view_init(elev=elev, azim=azim)
         ax.set_title(f"{nfc.upper()} — iç yerleşim (sağ yarı kesik)", fontsize=14)
     fig.suptitle("Çakıl stand, iç yerleşim: alt katta hoparlör (önden), 18650, TP4056, MAX98357A; arkada ters ESP32-S3; "
-                 "üstte NFC okuyucu, 16'lı halka, figür zemini (ışık oyuğu)", fontsize=11)
+                 "üstte NFC okuyucu, LED halka, figür zemini (ışık oyuğu)", fontsize=11)
     plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0)
     fig.savefig(os.path.join(cikti, "cakil_ic_kesit3b.png")); plt.close(fig)
     # 2) üstten yerleşim planı (katlar)

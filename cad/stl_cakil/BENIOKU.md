@@ -24,7 +24,7 @@ Yeniden üretmek: `python cad/cakil_ic.py --stl --onizle` (önce çarpışma den
 - M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği (tutucuda 3,5 mm vida tablası, direkte 3 mm kılavuz delik)
 - Kablo bağı 2,5 mm (3): pil yatağı (2), hoparlör (1)
 - Silikon ayak Ø10 x 1 mm (3–6)
-- NTAG213 **Ø20** yuvarlak yapışkan NFC etiket (13): her figürün vidalı kapağının içine (12 figür + ayar kartı)
+- NTAG213 **Ø25** yuvarlak yapışkan NFC etiket (13): her figürün vidalı kapağının içine (12 figür + ayar kartı)
 - Dişi-dişi jumper kablolar (ESP32 ters yatar, pinler yukarıda)
 
 ## Montaj sırası
@@ -61,7 +61,8 @@ Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya
 | `1_kabuk.3mf` | beyaz gövde, turkuaz "eco ai" ve çukur zemini, sarı çukur kenarı + güneş halkası, 6 mor yıldız | LED'lerin üstündeki ışık halkası beyaz kalmalı. Destek: ağaç (tree), yalnız iç kısım. Logo dikey duvarda: logo boyunca her katmanda renk değişir (en çok atık burada) |
 | `2_taban_plakasi.3mf` | beyaz plaka; alt yüzde turkuaz "eco ai", sarı halka, 4 mor yıldız | renkler ilk 3 katmanda, alttan okunur; destek yok |
 | `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
-| `4_figur_tabanlari_kapaklar_ayar_karti.3mf` | 11 turkuaz figür tabanı (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark), 13 sarı adlı kapak | tek tablada 26 parça |
+| `4a_figur_tabanlari_ay_dede_ayar_karti.3mf` | 11 turkuaz figür tabanı Ø52 (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark) | tek tablada 13 parça |
+| `4b_nfc_kapaklari.3mf` | 13 sarı adlı vidalı NFC kapağı | tek tablada 13 parça |
 
 Atık kulesi (prime tower) açık kalsın. 3MF açılmazsa ya da renkler gelmezse: aynı parçanın renk STL'lerini
 (ör. `1_kabuk_1_beyaz.stl` … `1_kabuk_4_mor.stl`) birlikte seçip Bambu Studio'ya sürükle, "tek nesne, çok parça
@@ -69,9 +70,9 @@ olarak yükle?" sorusuna **Evet** de, sonra her parçaya sağ tık → filament 
 
 ## Figür tabanları ve vidalı NFC kapağı — `figurler/`
 
-Her figür için tek dosya (iki parça yan yana, baskı yönünde): **taban** Ø28 x 8 (5 mm standın çukurunda, 3 mm üstte;
+Her figür için tek dosya (iki parça yan yana, baskı yönünde): **taban** Ø52 x 8 (5 mm standın çukurunda, 3 mm üstte;
 düz üst yüzüne oyuncak figür yapıştırılır) + **kapak** (şişe kapağı gibi tabanın altına vidalanır, 1,5 tur).
-Kapağın içine Ø20 NTAG213 yapışkan etiket yapıştırılır; etiket antene ≈ 2,9 mm. Kapağın alt yüzünde bozuk para
+Kapağın içine Ø25 NTAG213 yapışkan etiket yapıştırılır; etiket antene ≈ 2,9 mm. Kapağın alt yüzünde bozuk para
 yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı. Ay Dede tabanla tek parça hilal ay (dik basılır).
 
 | No | Figür | Dosya |
@@ -90,6 +91,17 @@ yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı.
 | 12 | Ay Dede | `figurler/12_gece.stl` |
 | 200 | Ayar kartı | `figurler/200_ayar_karti.stl` |
 
-Diş: adım 2 mm, erkek Ø24/Ø22, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
+Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
 %100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
 `bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.
+
+## İlk baskıdan sonra yapılan düzeltmeler (20 Ekim 2026)
+
+- **LED halka** iç Ø55 / dış Ø70 (ürün sahibinin ölçüsü): figür çukurunun dış duvarı Ø54,9 (halkaya sıkı geçer ve
+  halkayı ortalar), çukurun içi Ø52,5, ışık oyuğu r 28–34,6, çukur duvarında 36 ışık penceresi. Halka/NFC tutucusu
+  halkayla birlikte büyüdü (Ø75), rayları çukurun zemininin altında kalacak biçimde kısaltıldı.
+- **Figür tabanı Ø52** (kapak Ø30 dişli, içinde Ø25 etiket).
+- **USB-C:** kızak kanalı kartın iki yanında 0,4 mm, dudaklar arası kart + 0,8 mm (ilk baskıda dar geldi); delik
+  0,6 mm geniş; dışta fiş gövdesi için 12,8 x 7,2 mm yuvarlak köşeli cep (fiş dişinin ön yüzüne kadar oturur).
+- **Hoparlör:** mıknatıs eyerinin aynısından bir tane daha, içeride; ön beşik, eyer ve ikinci eyer arası eşit (15,5 mm).
+- Kabuk **ters** (üst yüz tablada) basılmalı; dik basılırsa USB-C deliğinin üstünde köprü sarkması olur.

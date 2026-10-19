@@ -1,6 +1,6 @@
 """Çakıl stand: parçaları TEK TEK yerleştirme adımları (ürün sahibi onayladıkça sıradaki) -> cad/onizleme/adim_<n>_<ad>.png
 
-    python cad/cakil_adim.py 1        # 1. adım: boş gövde + 16'lı halka
+    python cad/cakil_adim.py 1        # 1. adım: boş gövde + LED halka
 Her görsel: solda gövdenin sağ yarısı kesik 3B görünüş, sağda tam ortadan yan kesit (ölçülü).
 Ölçüler ve yerler cad/cakil_ic.py'den (tek kaynak).
 """
@@ -20,7 +20,7 @@ import dis_konsept as K  # noqa: E402
 from geometri import kutu  # noqa: E402
 
 ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular)
-    ("halka", "16'lı NeoPixel halka", ["NeoPixel 16"], ["tutucu"], ()),
+    ("halka", "NeoPixel halka (iç Ø55, dış Ø70)", ["NeoPixel 16"], ["tutucu"], ()),
     ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], [], ()),
     ("pil", "18650 pil yatağı", ["18650 yatağı"], ["taban"], ("vida", "ayak", "pil")),
     ("hoparlor", "Hoparlör Ø50 (önden)", ["hoparlör (önden)"], [], ("hoparlor",)),
@@ -103,7 +103,7 @@ def ust_gorunus():
     for y0 in (C.H - 1.2, C.H - 1.9):
         ax.add_patch(FancyArrowPatch((18.5, y0), (5, y0 - 2.5), arrowstyle="-|>", mutation_scale=14, color="#ff4fa3", lw=1.6))
     ax.text(2, C.H + 1.2, "figür çukuru", fontsize=10)
-    ax.text(16, C.H - 7.5, "16'lı halka\n(LED'ler oyukta)", fontsize=9, color="#b0306f")
+    ax.text(16, C.H - 7.5, "LED halka\n(LED'ler oyukta)", fontsize=9, color="#b0306f")
     ax.annotate("dikey pencere", xy=(15.0, C.H - 1.6), xytext=(4, C.H - 9), fontsize=10, arrowprops=dict(arrowstyle="->"))
     ax.set_xlim(0, 30); ax.set_ylim(C.H - 12, C.H + 3); ax.set_aspect("equal"); ax.grid(alpha=.25)
     ax.set_title("Bir pencereden geçen kesit (mm): ışık yandan çukura", fontsize=12)
@@ -198,7 +198,7 @@ def montaj_gorsel():
     ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_zlim(-20, 115)
     ax.set_box_aspect((1, 1, 1.15))
     ax.view_init(elev=elev, azim=azim)
-    ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• 16'lı halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
+    ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• LED halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
               "• açma-kapama anahtarı (sol yan duvarda)", transform=ax.transAxes, fontsize=10,
               bbox=dict(fc="white", ec="#b08a30"))
     ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör Ø50 (önde, dik)\n• ESP32-S3 (arkada, ters; jumper'lar üstten)\n"
@@ -253,7 +253,7 @@ def usb_yakin():
             ax2.add_patch(Polygon(np.c_[pp[:, 1], -pp[:, 0]], closed=True, fc=fc, ec=ec, lw=1))
     ax2.annotate("kart kenarı duvarın iç yüzüne dayanır", xy=(C.tp_konum()[2] + 0.5, C.USB_Z_ALT + 0.5), xytext=(-50, 18), fontsize=10,
                  arrowprops=dict(arrowstyle="->"))
-    ax2.annotate("USB-C ön yüzü = dış yüz (0 a 0)", xy=(C.tp_konum()[1], C.USB_ZC + 1), xytext=(-67, 15), fontsize=10,
+    ax2.annotate("USB-C ön yüzü; dışta fiş cebi", xy=(C.tp_konum()[1], C.USB_ZC + 1), xytext=(-67, 15), fontsize=10,
                  arrowprops=dict(arrowstyle="->"))
     ax2.set_xlim(-68, -18); ax2.set_ylim(-2, 24); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
     ax2.set_xlabel("y (mm)  ← ARKA"); ax2.set_title("Kartın ortasından yan kesit", fontsize=12)
@@ -418,7 +418,7 @@ if __name__ == "__main__":
         sys.exit(0)
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     notlar = {
-        1: [(-19, C.Z_HALKA_UST - 0.8, "16'lı halka çukurun ÇEVRESİNDE, tavana yaslı;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
+        1: [(-19, C.Z_HALKA_UST - 0.8, "LED halka çukurun ÇEVRESİNDE, tavana yaslı, çukura sıkı geçer;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
             (-15.4, C.H - 1.6, "çukurun dikey duvarı şerit şerit açık:\nLED ışığı yandan çukura girer", 16, 31),
             (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
             (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],

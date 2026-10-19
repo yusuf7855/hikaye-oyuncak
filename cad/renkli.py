@@ -27,7 +27,7 @@ KAKMA = 0.6
 RENKLER = [("1_beyaz", "beyaz", "#F4F1EA"), ("2_turkuaz", "turkuaz", "#1FB5B0"),
            ("3_sari", "sarı", "#F6C33B"), ("4_mor", "mor", "#7A4FD0")]
 RENK_NO = {k: i + 1 for i, (k, _, _) in enumerate(RENKLER)}
-YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = 34.0, 5.2, 6
+YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = 43.0, 3.6, 6     # Ø70 halkanın ışık oyuğu ve güneş halkasının dışında
 TABLA = 256.0                       # P2S tablası 256 x 256
 
 
@@ -83,8 +83,9 @@ def tutucu_renk(nfc):
     g = C.tutucu(nfc)
     zt = C.Z_TUTUCU_ALT
     # plakanın yan tarafında (raylardan uzak): "ÖN" ve üstünde öne (+y) bakan ok
-    on = yazi_duz("ÖN", 3.4, C.FONT, ayna=True).translate([-20.0, -1.4])
-    ok = CS([cokgen([(-21.8, 1.6), (-18.2, 1.6), (-20.0, 5.0)])])
+    xm = -(C.CANAK_GOVDE_R + C.PARCA["halka"][1] / 2 + 2.9) / 2        # plaka halkasının ortası (Ø70 halkayla büyüdü)
+    on = yazi_duz("ÖN", 3.4, C.FONT, ayna=True).translate([xm, -1.4])
+    ok = CS([cokgen([(xm - 1.8, 1.6), (xm + 1.8, 1.6), (xm, 5.0)])])
     sekil = (on + ok).extrude(KAKMA + 1).translate([0, 0, zt - 1])
     return _bol(g, {"2_turkuaz": sekil})
 
@@ -92,7 +93,7 @@ def tutucu_renk(nfc):
 def figur_renk():
     g = C.figur_taban()
     h = C.FIGUR_BOY
-    return _bol(g, {"3_sari": _halka(10.8, 12.9, h - KAKMA, h + 1)}, taban_renk="2_turkuaz")
+    return _bol(g, {"3_sari": _halka(C.FIGUR_TABAN_D / 2 - 3.6, C.FIGUR_TABAN_D / 2 - 1.4, h - KAKMA, h + 1)}, taban_renk="2_turkuaz")
 
 
 def ay_renk():
@@ -113,7 +114,7 @@ def ayar_renk():
         for da in (-0.17, 0.17):
             dis.append((r * math.cos(a + da), r * math.sin(a + da)))
     cark = (CS([cokgen(dis)]) - CS.circle(1.7, 32)).extrude(KAKMA + 1).translate([0, 0, tepe - KAKMA])
-    return _bol(g, {"1_beyaz": cark, "3_sari": _halka(10.5, 12.8, h - KAKMA, h + 0.01)}, taban_renk="4_mor")
+    return _bol(g, {"1_beyaz": cark, "3_sari": _halka(C.FIGUR_TABAN_D / 2 - 3.6, C.FIGUR_TABAN_D / 2 - 1.4, h - KAKMA, h + 0.01)}, taban_renk="4_mor")
 
 
 # ---------------------------------------------------------------- baskı konumu, dosyalar
@@ -280,9 +281,13 @@ def main():
                 ad_k = "AYAR" if f["kimlik"] == "ayar" else f["ad"].replace("i", "İ").replace("ı", "I").upper()
                 kp = baski_konumu({"3_sari": C.figur_kapak(ad_k, f["nfc_no"])}, False)
                 nes.append((f"kapak_{f['nfc_no']:02d}_{f['kimlik']}", [(f"kapak_{f['kimlik']}", 3, temiz(kp["3_sari"]))]))
-            yer = [(TABLA / 2 + (i % 6 - 2.5) * 36, TABLA / 2 + (2 - i // 6) * 36) for i in range(len(nes))]
-            print(yaz_3mf(os.path.join(d, "4_figur_tabanlari_kapaklar_ayar_karti.3mf"),
-                          [(a, p, xy) for (a, p), xy in zip(nes, yer)]))
+            tabanlar = [n for n in nes if not n[0].startswith("kapak_")]
+            kapaklar = [n for n in nes if n[0].startswith("kapak_")]
+            yer = [(TABLA / 2 + (i % 4 - 1.5) * 58, TABLA / 2 + (1.5 - i // 4) * 58) for i in range(len(tabanlar))]
+            print(yaz_3mf(os.path.join(d, "4a_figur_tabanlari_ay_dede_ayar_karti.3mf"),
+                          [(a, p, xy) for (a, p), xy in zip(tabanlar, yer)]))
+            yer = [(TABLA / 2 + (i % 5 - 2) * 38, TABLA / 2 + (1 - i // 5) * 38) for i in range(len(kapaklar))]
+            print(yaz_3mf(os.path.join(d, "4b_nfc_kapaklari.3mf"), [(a, p, xy) for (a, p), xy in zip(kapaklar, yer)]))
         elif ad != "5_ayar_karti":
             print(yaz_3mf(os.path.join(d, f"{ad}.3mf"), [(ad, parcalar, (TABLA / 2, TABLA / 2))]))
         print(f"  {ad}: hacim {hacim:.0f} mm³;", {k: round(m.volume()) for k, m in b.items()})

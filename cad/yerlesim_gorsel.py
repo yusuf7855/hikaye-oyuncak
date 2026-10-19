@@ -20,7 +20,7 @@ from geometri import kutu  # noqa: E402
 # (no, ad, zarf/yapı anahtarı, renk, modül)
 PARCALAR = [
     (1, "Dış kabuk (eco ai)", "kabuk", "#EFE6D8", "üst"),
-    (2, "NeoPixel 16'lı halka", "NeoPixel 16", "#ff4fa3", "üst"),
+    (2, "NeoPixel halka (Ø55/Ø70)", "NeoPixel 16", "#ff4fa3", "üst"),
     (3, "Halka + NFC tutucu", "tutucu", "#c9b07a", "üst"),
     (4, "NFC okuyucu (RC522 / PN5180)", "RC522 okuyucu", "#1f6f3f", "üst"),
     (5, "TP4056 şarj (USB-C arkada)", "TP4056 Type-C", "#2d6cdf", "üst"),

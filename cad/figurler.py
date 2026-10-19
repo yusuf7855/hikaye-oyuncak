@@ -27,13 +27,14 @@ def figur_listesi():
     return d["figurler"], d.get("ozel_kartlar", [])
 
 
-def tabla(parcalar, aralik=34.0):
-    """[(manifold, ters_mi)] -> yan yana dizilmiş, z = 0'dan başlayan tek manifold."""
-    out = None
-    for i, (m, ters) in enumerate(parcalar):
+def tabla(parcalar, bosluk=5.0):
+    """[(manifold, ters_mi)] -> aralarında bosluk mm kalacak biçimde yan yana, z = 0'dan başlayan tek manifold."""
+    out, x = None, 0.0
+    for m, ters in parcalar:
         m = m.rotate([180, 0, 0]) if ters else m
         b = m.bounding_box()
-        m = m.translate([i * aralik - (b[0] + b[3]) / 2, -(b[1] + b[4]) / 2, -b[2]])
+        m = m.translate([x - b[0], -(b[1] + b[4]) / 2, -b[2]])
+        x += (b[3] - b[0]) + bosluk
         out = m if out is None else out + m
     return out
 
@@ -89,7 +90,7 @@ def onizle():
     for p in kapak.slice(0.2).to_polygons():
         p = np.asarray(p)
         ax.add_patch(Polygon(np.c_[-p[:, 0], p[:, 1]], closed=True, fc="#F6C33B", ec="#8a6a10", lw=0.6))
-    ax.set_xlim(-14, 14); ax.set_ylim(-14, 14); ax.set_aspect("equal"); ax.axis("off")
+    ax.set_xlim(-16, 16); ax.set_ylim(-16, 16); ax.set_aspect("equal"); ax.axis("off")
     ax.set_title("Kapağın alt yüzü (alttan bakınca okunur):\nbozuk para yarığı, figür adı, NFC numarası", fontsize=11)
     # 3) kesit: standın çukurunda, kapak takılı, etiket
     ax = fig.add_subplot(2, 3, 3)
@@ -120,7 +121,7 @@ def onizle():
     K.ciz(ax2, [(ay, "#F6C33B", False)], [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
     ax2.set_xlim(-20, 20); ax2.set_ylim(-20, 20); ax2.set_zlim(0, 42); ax2.view_init(15, 60)
     ax2.set_title("Ay Dede (gece figürü)", fontsize=11)
-    fig.suptitle("Figür tabanları: Ø28 taban + şişe kapağı gibi vidalanan NFC kapağı", fontsize=16, fontweight="bold")
+    fig.suptitle("Figür tabanları: Ø52 taban + şişe kapağı gibi vidalanan NFC kapağı (Ø25 etiket)", fontsize=16, fontweight="bold")
     yol = os.path.join(C.KOK, "onizleme", "figurler.png")
     fig.savefig(yol)
     plt.close(fig)
