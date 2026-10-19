@@ -101,7 +101,11 @@ Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak
   halkayı ortalar), çukurun içi Ø52,5, ışık oyuğu r 28–34,6, çukur duvarında 36 ışık penceresi. Halka/NFC tutucusu
   halkayla birlikte büyüdü (Ø75), rayları çukurun zemininin altında kalacak biçimde kısaltıldı.
 - **Figür tabanı Ø52** (kapak Ø30 dişli, içinde Ø25 etiket).
-- **USB-C:** kızak kanalı kartın iki yanında 0,4 mm, dudaklar arası kart + 0,8 mm (ilk baskıda dar geldi); delik
-  0,6 mm geniş; dışta fiş gövdesi için 12,8 x 7,2 mm yuvarlak köşeli cep (fiş dişinin ön yüzüne kadar oturur).
+- **USB-C:** kabuktaki kızaklar KALDIRILDI (ters baskıda havada kaldıkları için destekle dolup kapanıyordu) ve içteki
+  geniş inceltme cebi kaldırıldı (duvarı 1,1 mm'ye indirip dış yüzde pürüz yapıyordu). Şimdi: USB-C deliği dişiden
+  0,8 mm büyük; kartın ön kenarı duvarın içindeki ince düz banda dayanır (bantta duvar en az 1,4 mm); dışta fiş gövdesi
+  için 12,8 x 7,2 mm cep (dişinin ön yüzüne kadar iner, fiş sonuna kadar oturur). Kart tabandaki kaideye oturur,
+  arkadaki esnek dayanağın tırnağı kartın arka kenarına üstten biner. Montaj: kartı kabuğa içeriden tak (USB-C deliğe),
+  sonra tabanı kapat.
 - **Hoparlör:** mıknatıs eyerinin aynısından bir tane daha, içeride; ön beşik, eyer ve ikinci eyer arası eşit (15,5 mm).
 - Kabuk **ters** (üst yüz tablada) basılmalı; dik basılırsa USB-C deliğinin üstünde köprü sarkması olur.

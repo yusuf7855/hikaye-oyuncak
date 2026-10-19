@@ -172,22 +172,26 @@ def anahtar_yer():
     return x_otur, x_otur - pk
 
 
-def tp_konum():
-    """TP4056: (duvarın inceltilmiş iç yüzü y, USB-C ön yüzü y, kartın ön kenarı y).
-    Ürün sahibi: USB-C dış yüzle 0'a 0, ama DIŞ GÖVDE BOZULMAZ. USB-C'nin düz ön yüzü, dört köşesinin hiçbiri eğri
-    dış yüzü aşmayacak en arka yere konur (ortası yüzeyden en çok birkaç onda bir mm içeride); duvar içeriden
-    inceltilir, kart kenarı bu iç yüze dayanır."""
-    uw, uh, ul, ut = PARCA["tp4056_usb"]
-    y_usb = max(-math.sqrt(dis_r(USB_ZC + dz) ** 2 - (TP_X + dx) ** 2)
-                for dx in (-uw / 2, 0.0, uw / 2) for dz in (-uh / 2, 0.0, uh / 2)) + 0.05
-    y_kart = y_usb + ut
-    return y_kart - 0.1, y_usb, y_kart
-
-
+USB_DUVAR_MIN = 1.4          # kart kenarının dayandığı bantta kalan en ince duvar
+USB_DELIK_PAY = 0.8           # USB-C deliği dişiden bu kadar büyük (ilk baskıda +0,3: küçük geldi)
 FIS_CEP = (12.8, 7.2, 3.0)    # ilk baskı (20 Ekim 2026): USB-C dişi yüzeyden içeride kaldı, fiş tam oturmadı -> dışta
                               # fiş gövdesi için yuvarlak köşeli cep (en, boy, köşe), dişinin ön yüzüne kadar iner
-TP_KANAL_PAY = 0.4            # kızakta kartın iki yanındaki boşluk (ilk baskıda 0,15: dar geldi)
-TP_KANAL_YUKSEK = 0.8         # kartın kalınlığına eklenen dudak arası boşluk (ilk baskıda 0,3)
+
+
+def tp_konum():
+    """TP4056: (kart kenarının dayandığı iç düz bandın y'si, USB-C ön yüzü y, kartın ön kenarı y).
+    İlk baskı (20 Ekim 2026): kabuktaki kızaklar ters baskıda havada kaldı, destekle doldu ve kapandı; içteki geniş
+    inceltme cebi duvarı 1,1-1,9 mm'ye indirip dış yüzde pürüz yaptı. Yeni: kızak yok, geniş cep yok. Kartın ön kenarı
+    duvarın içinde açılan ince düz banda dayanır (bant, kartın köşelerinde bile duvarı USB_DUVAR_MIN kalınlıkta
+    bırakır); USB-C dişi deliğe girer, dışta fiş cebi fişin dişiye tam oturmasını sağlar."""
+    uw, uh, ul, ut = PARCA["tp4056_usb"]
+    w_k, d_k, t_k = PARCA["tp4056"]
+    xk = w_k / 2 + 0.4
+    y_dis = max(-math.sqrt(dis_r(z) ** 2 - (TP_X + dx) ** 2)
+                for dx in np.linspace(-xk, xk, 9) for z in (USB_Z_ALT - 0.6, USB_Z_ALT + t_k + 0.6))
+    y_bant = y_dis + USB_DUVAR_MIN
+    y_kart = y_bant + 0.1
+    return y_bant, y_kart - ut, y_kart
 
 
 def usb_cukurluk():
@@ -297,26 +301,15 @@ def kabuk():
     yaka = (silindir(hd / 2 - 1.0, 0, 30, seg=96) - silindir(hd / 2 - 3.0, -1, 31, seg=96)).rotate([-90, 0, 0]).translate([0, HOP_YF + 2.0, HOP_ZC])
     g = g + (yaka ^ dondur(profil(-1.0), SEG) ^ kutu(-40, 40, -70, 70, TABAN_KAL + 1.0, H))
     # arka: USB-C (fiş gövdesi için 12,5 x 7,5) ve anahtar (Ø15)
-    # USB-C 0'a 0 (dış gövde aynen kalır; deliğin çevresi kapalı, dışta yalnız USB-C deliği görünür): içte duvar
-    # inceltilir; kart kabuğa bağlı iki yan kızağa içeriden kayarak takılır (USB-C deliğe girer), taban plakası kapanınca
-    # altındaki kaide ve arkadaki dayanak kartı yerinde kilitler
-    y_ic, y_usb, y_kart = tp_konum()
+    # USB-C: delik + dışta fiş cebi + içte kart kenarının dayandığı ince düz bant (kızak yok; kart tabandaki kaidede
+    # durur, arkadaki tırnaklı dayanak kilitler). Dış gövde yalnız fiş cebi kadar değişir.
+    y_bant, y_usb, y_kart = tp_konum()
     uw, uh, ul, ut = PARCA["tp4056_usb"]
     w_k, d_k, t_k = PARCA["tp4056"]
-    g = g - kutu(TP_X - w_k / 2 - 0.8, TP_X + w_k / 2 + 0.8, y_ic, y_usb + 9, USB_Z_ALT - 0.8, USB_ZC + uh / 2 + 1.2)   # iç cep
-    g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + 0.6, uh + 0.6, 1.6), -80, y_usb + 9, x=TP_X, z=USB_ZC)
+    g = g - kutu(TP_X - w_k / 2 - 0.4, TP_X + w_k / 2 + 0.4, y_bant, y_usb + 9, USB_Z_ALT - 0.6, USB_Z_ALT + t_k + 0.6)
+    g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + USB_DELIK_PAY, uh + USB_DELIK_PAY, 1.8), -80, y_usb + 9, x=TP_X, z=USB_ZC)
     fw, fh, fr = FIS_CEP
     g = g - xz_den_y_ye(yuvarlak_dikdortgen(fw, fh, fr), -80, y_usb - 0.05, x=TP_X, z=USB_ZC)        # fiş cebi (dışta)
-    x0, x1, zu = TP_X - w_k / 2, TP_X + w_k / 2, USB_Z_ALT + t_k
-    kz = None
-    for s, xk in ((-1, x0), (1, x1)):
-        pay, ust = TP_KANAL_PAY, TP_KANAL_YUKSEK / 2
-        dis_x, ic_x = xk + s * (pay + 1.45), xk - s * 0.8   # kızak duvarı kartın 0,4 mm dışında; dudaklar karta 0,8 mm biner
-        f = kutu(min(xk + s * pay, dis_x), max(xk + s * pay, dis_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.6, zu + 1.6)
-        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, USB_Z_ALT - 1.6, USB_Z_ALT - ust)    # alt dudak
-        f = f + kutu(min(dis_x, ic_x), max(dis_x, ic_x), y_ic - 4, y_kart + 14, zu + ust, zu + 1.6)                  # üst dudak
-        kz = f if kz is None else kz + f
-    g = g + (kz ^ dondur(profil(-0.5), SEG))
     # anahtar: Ø delik + flanşın düz oturma yüzü (dışta, gövdeye gömülü) + içte düz panel (tırnaklar için)
     dd, derin, fd, fk, pk = PARCA["kcd11"]
     x_otur, x_ic = anahtar_yer()
@@ -402,14 +395,17 @@ def taban(oz=TABAN_OZ):
         for x in (-PIL_BAG_X, PIL_BAG_X):
             for y in (PIL_Y - d / 2 - 2.0, PIL_Y + d / 2 + 0.6):
                 t = t - kutu(x - 2.0, x + 2.0, y, y + 2.6, -1, TABAN_KAL + 4)
-    # TP4056: kart kabuktaki kızaklarda durur; tabanda altında kaide (kartı kızağın ortasında tutar) ve arkada dayanak
-    # (fiş takılırken kart içeri kaçmaz)
+    # TP4056: kart tabandaki kaideye oturur; arkadaki esnek dayanak kartı öne (duvara) tutar, tırnağı kartın arka
+    # kenarına üstten biner (fiş takılırken kart içeri kaçmaz, kalkmaz). Tırnağın üstü basamaklı pah: taban kapanırken
+    # kartın arka kenarına sürtüp esner, sonra oturur.
     w, d, tk = PARCA["tp4056"]
     y_plaka, y_usb, y_kart = tp_konum()
     x0, x1, y0, y1 = TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d
     zu = USB_Z_ALT + tk
     tp = kutu(x0 + 1.2, x1 - 1.2, y0 - 3, y1 - 3, TABAN_KAL - 0.01, USB_Z_ALT)
-    tp = tp + kutu(x0 + 1, x1 - 1, y1 + 0.2, y1 + 1.6, TABAN_KAL - 0.01, zu + 1.0)
+    tp = tp + kutu(x0 + 2, x1 - 2, y1 + 0.2, y1 + 1.4, TABAN_KAL - 0.01, zu + 1.6)          # esnek dayanak
+    for ya, za, zb in ((y1 - 0.8, zu + 0.15, zu + 0.55), (y1 - 0.4, zu + 0.55, zu + 0.95), (y1 + 0.0, zu + 0.95, zu + 1.35)):
+        tp = tp + kutu(x0 + 2, x1 - 2, ya, y1 + 0.21, za, zb)                                   # tırnak
     if "tp4056" in oz:
         t = t + tp
     w, d, h = PARCA["max98357"]
