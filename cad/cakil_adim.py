@@ -22,9 +22,9 @@ from geometri import kutu  # noqa: E402
 ADIMLAR = [  # (ad, başlık, parçalar, yapılar, taban plakasındaki tutucular)
     ("halka", "NeoPixel halka (iç Ø55, dış Ø70)", ["NeoPixel 16"], ["tutucu"], ()),
     ("nfc", "NFC okuyucu (RC522 / PN5180)", ["RC522 okuyucu"], [], ()),
-    ("pil", "18650 pil yatağı", ["18650 yatağı"], ["taban"], ("vida", "ayak", "pil")),
+    ("pil", "Pil kutusu: 4'lü AA, alttan vidalı kapak", ["4xAA yatağı"], ["taban", "pil_kapagi"], ("vida", "ayak", "pil")),
     ("hoparlor", "Hoparlör Ø50 (önden)", ["hoparlör (önden)"], [], ("hoparlor",)),
-    ("tp4056", "TP4056 Type-C şarj devresi", ["TP4056 Type-C"], [], ("tp4056",)),
+    ("duzenleyici", "5 V düzenleyici (pil kutusunun tavanında)", ["5 V düzenleyici"], [], ()),
     ("esp32", "ESP32-S3 (ters, jumper'lar üstten)", ["ESP32-S3", "jumper payı"], [], ("esp32",)),
     ("anahtar", "Açma-kapama anahtarı", ["KCD11 anahtar"], [], ()),
     ("amfi", "MAX98357A", ["MAX98357A"], [], ("amfi",)),
@@ -55,7 +55,7 @@ def adim_gorsel(n, notlar=(), nfc="rc522"):
     ls += [(yapi[y], "#d8d2c8", False) for y in onceki_y]
     ls += [(z[p], "#9a9a9a", False) for p in onceki_p]
     ls += [(yapi[y], "#ffd27a", False) for y in yapilar]
-    gercek = {"TP4056 Type-C": C.tp_stl, "ESP32-S3": C.esp_stl}
+    gercek = {"ESP32-S3": C.esp_stl}
     ls += [(gercek[p]() if p in gercek else z[p], C.RENK_PARCA.get(p, "#e33"), p in ("NeoPixel 16", "jumper payı")) for p in parcalar]
     elev, azim = 22, 25
     e, a = math.radians(elev), math.radians(azim)
@@ -76,7 +76,7 @@ def adim_gorsel(n, notlar=(), nfc="rc522"):
     for x, yy, metin, tx, ty in notlar:
         ax2.annotate(metin, xy=(x, yy), xytext=(tx, ty), fontsize=9, arrowprops=dict(arrowstyle="->", color="#444"))
     ax2.set_xlim(-66, 66); ax2.set_ylim(-4, 64); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
-    ax2.set_xlabel("y (mm)   ← ARKA (USB-C)                 ÖN (logo) →"); ax2.set_ylabel("z (mm)")
+    ax2.set_xlabel("y (mm)   ← ARKA                 ÖN (logo) →"); ax2.set_ylabel("z (mm)")
     ax2.set_title("Ortadan yan kesit (x = 0)", fontsize=12)
     fig.suptitle(f"Adım {n}/{len(ADIMLAR)}: {baslik}" + (f" — {nfc.upper()}" if n >= 2 else ""), fontsize=15)
     plt.tight_layout()
@@ -147,19 +147,19 @@ def taban_plan(n):
     for poly in ust.to_polygons():
         pp = np.asarray(poly)
         ax.add_patch(Polygon(pp, closed=True, fc="#c9b89c", ec="#7a6a55", lw=0.8))
-    parca = [p for a in ADIMLAR[:n] for p in a[2] if p in ("18650 yatağı", "hoparlör (önden)", "TP4056 Type-C", "ESP32-S3", "MAX98357A")]
+    parca = [p for a in ADIMLAR[:n] for p in a[2] if p in ("4xAA yatağı", "hoparlör (önden)", "5 V düzenleyici", "ESP32-S3", "MAX98357A")]
     for p in parca:
         b = z[p].bounding_box()
         ax.add_patch(Rectangle((b[0], b[1]), b[3] - b[0], b[4] - b[1], fc=C.RENK_PARCA[p] + "88", ec=C.RENK_PARCA[p], lw=2))
         ax.text((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, p, ha="center", va="center", fontsize=10, color="white")
-    for x in (-C.PIL_BAG_X, C.PIL_BAG_X):
-        ax.annotate("kablo bağı yarıkları", xy=(x, C.PIL_Y - 12), xytext=(x - 18, C.PIL_Y - 30), fontsize=8,
+    for x in (-20.0, 20.0):
+        ax.annotate("yatağın kablo deliği", xy=(x, C.PIL_Y + C.PIL_IC[1] - 2.5), xytext=(x - 14, C.PIL_Y + C.PIL_IC[1] + 9), fontsize=8,
                     arrowprops=dict(arrowstyle="->"))
     if n < 4:
         ax.text(0, 40, "ön yarı: hoparlör (sonraki adım)", ha="center", fontsize=10, color="#777")
-    if n < 5:
-        ax.text(0, -46, "arka: TP4056, ESP32 (sonraki adımlar)", ha="center", fontsize=9, color="#777")
-    ax.text(0, 57, "ÖN (logo)", ha="center"); ax.text(0, -60, "ARKA (USB-C)", ha="center")
+    if n < 6:
+        ax.text(0, -50, "arka: ESP32 kutunun üstünde (sonraki adım)", ha="center", fontsize=9, color="#777")
+    ax.text(0, 57, "ÖN (logo)", ha="center"); ax.text(0, -60, "ARKA", ha="center")
     ax.set_xlim(-62, 62); ax.set_ylim(-63, 62); ax.set_aspect("equal"); ax.grid(alpha=.25)
     ax.set_title(f"Adım {n}: taban plakası üstten (koyu: tutucu duvarlar)", fontsize=12)
     plt.tight_layout()
@@ -170,7 +170,8 @@ def taban_plan(n):
 
 
 def montaj_gorsel():
-    """İki modül: üst (kabuk + halka + tutucu + NFC + mikrofon + anahtar) ve alt kapak (pil, hoparlör, ESP32, TP4056, amfi)."""
+    """İki modül: üst (kabuk + halka + tutucu + NFC + mikrofon + anahtar) ve alt kapak (pil kutusu, hoparlör, ESP32,
+    düzenleyici, amfi)."""
     z, yapi, sorun, mesafe = C.denetle("rc522")
     fig = plt.figure(figsize=(10, 12), dpi=110)
     ax = fig.add_subplot(1, 1, 1, projection="3d")
@@ -180,11 +181,10 @@ def montaj_gorsel():
           (yapi["tutucu"].translate([0, 0, yuk]), "#ffd27a", False),
           (z["NeoPixel 16"].translate([0, 0, yuk]), "#ff4fa3", True),
           (z["RC522 okuyucu"].translate([0, 0, yuk]), C.RENK_PARCA["RC522 okuyucu"], False),
-          (C.taban(), "#E8DCCB", False)]
-    for p in ("18650 yatağı", "hoparlör (önden)", "ESP32-S3", "TP4056 Type-C", "MAX98357A"):
+          (C.taban(), "#E8DCCB", False), (yapi["pil_kapagi"].translate([0, 0, -12]), C.RENK_YAPI["pil_kapagi"], False)]
+    for p in ("hoparlör (önden)", "ESP32-S3", "5 V düzenleyici", "MAX98357A"):
         ls.append((z[p], C.RENK_PARCA[p], False))
-    etiket = {"18650 yatağı": "18650 pil yatağı", "hoparlör (önden)": "HOPARLÖR Ø50\n(önden)",
-              "ESP32-S3": "ESP32-S3 (ters)"}
+    etiket = {"hoparlör (önden)": "HOPARLÖR Ø50\n(önden)", "ESP32-S3": "ESP32-S3 (ters)"}
     for p, yazi in etiket.items():
         b = z[p].bounding_box()
         ax.text((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, b[5] + 3, yazi, fontsize=9, ha="center", color="#222",
@@ -201,8 +201,9 @@ def montaj_gorsel():
     ax.text2D(0.02, 0.86, "ÜST MODÜL (kabuk)\n• LED halka + tutucu plaka (4 direğe vidalı)\n• NFC okuyucu (raylarda)\n"
               "• açma-kapama anahtarı (sol yan duvarda)", transform=ax.transAxes, fontsize=10,
               bbox=dict(fc="white", ec="#b08a30"))
-    ax.text2D(0.02, 0.30, "ALT KAPAK\n• 18650 pil yatağı\n• hoparlör Ø50 (önde, dik)\n• ESP32-S3 (arkada, ters; jumper'lar üstten)\n"
-              "• TP4056 (USB-C arka delikte)\n• MAX98357A", transform=ax.transAxes, fontsize=10, bbox=dict(fc="white", ec="#8a7a66"))
+    ax.text2D(0.02, 0.30, "ALT KAPAK\n• pil kutusu: 4'lü AA, alttan vidalı pil kapağı\n• hoparlör Ø50 (önde, dik)\n"
+              "• kutunun üstünde: ESP32-S3 (ters; jumper'lar üstten),\n  MAX98357A, 5 V düzenleyici", transform=ax.transAxes, fontsize=10,
+              bbox=dict(fc="white", ec="#8a7a66"))
     ax.text2D(0.62, 0.10, "4 x M3 vida alttan\n(kabukta ısıl gömme somun)", transform=ax.transAxes, fontsize=10)
     ax.set_title("Montaj: iki modül ayrı kurulur, kablolar soketle takılır, kabuk alt kapağın üstüne iner", fontsize=11)
     yol = os.path.join(C.KOK, "onizleme", "montaj_iki_modul.png")
@@ -229,50 +230,57 @@ def dis_on():
     return yol
 
 
-def usb_yakin():
-    """USB-C yakından: arkadan dış görünüş ve kartın ortasından yan kesit."""
-    from matplotlib.patches import Rectangle
+def pil_yakin():
+    """Pil kutusu yakından: alttan görünüş (kapak, dil yuvaları, vida, ayaklar), kutunun ortasından iki kesit."""
     z, yapi, sorun, mesafe = C.denetle("rc522")
-    k = yapi["kabuk"]
-    tb = C.taban(("vida", "pil", "tp4056"))
-    fig = plt.figure(figsize=(21, 7), dpi=110)
+    tb, kp = yapi["taban"], yapi["pil_kapagi"]
+    fig = plt.figure(figsize=(21, 7.4), dpi=110)
     ax = fig.add_subplot(1, 3, 1, projection="3d")
-    kirp = kutu(-30, 22, -70, -30, -2, 30)
-    ls = [(k ^ kirp, C.RENK_YAPI["kabuk"], False), (tb ^ kirp, "#E8DCCB", False), (C.tp_stl(), "#2d6cdf", False)]
-    elev, azim = 10, -90
+    ls = [(tb, "#E8DCCB", False), (kp.translate([0, 0, -8]), C.RENK_YAPI["pil_kapagi"], False)]
+    elev, azim = -55, -70
     e, a = math.radians(elev), math.radians(azim)
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
-    ax.set_xlim(-26, 18); ax.set_ylim(-70, -26); ax.set_zlim(-4, 26)
+    ax.set_xlim(-55, 55); ax.set_ylim(-55, 55); ax.set_zlim(-30, 30)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Arkadan: USB-C deliği ve çevresinde fiş cebi (fiş dişiye sonuna kadar oturur)", fontsize=11)
+    ax.set_title("Alttan: pil kapağı (8 mm aşağıda gösterildi); solda iki dil, sağda vida", fontsize=11)
+    renkler = ((tb, "#E8DCCB", "#8a7a66"), (kp, C.RENK_YAPI["pil_kapagi"], "#7a5a30"), (z["4xAA yatağı"], "#555", "k"),
+               (z["ESP32-S3"], "#3a3a3a", "k"), (z["MAX98357A"], C.RENK_PARCA["MAX98357A"], "k"),
+               (z["5 V düzenleyici"], C.RENK_PARCA["5 V düzenleyici"], "k"), (yapi["kabuk"], C.RENK_YAPI["kabuk"], "#8a7a66"))
     ax2 = fig.add_subplot(1, 3, 2)
-    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
-        cs = man.translate([-C.TP_X, 0, 0]).rotate([0, -90, 0]).slice(0.0)
-        for poly in cs.to_polygons():
-            pp = np.asarray(poly)
-            ax2.add_patch(Polygon(np.c_[pp[:, 1], -pp[:, 0]], closed=True, fc=fc, ec=ec, lw=1))
-    ax2.annotate("kart kenarı duvarın iç yüzüne dayanır", xy=(C.tp_konum()[2] + 0.5, C.USB_Z_ALT + 0.5), xytext=(-50, 18), fontsize=10,
-                 arrowprops=dict(arrowstyle="->"))
-    ax2.annotate("USB-C ön yüzü; dışta fiş cebi", xy=(C.tp_konum()[1], C.USB_ZC + 1), xytext=(-67, 15), fontsize=10,
-                 arrowprops=dict(arrowstyle="->"))
-    ax2.set_xlim(-68, -18); ax2.set_ylim(-2, 24); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
-    ax2.set_xlabel("y (mm)  ← ARKA"); ax2.set_title("Kartın ortasından yan kesit", fontsize=12)
-    ax3 = fig.add_subplot(1, 3, 3)
-    yk = C.tp_konum()[2] + 8.0
-    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
+    yk = C.PIL_DIL_Y[1]
+    for man, fc, ec in renkler:
         cs = man.translate([0, -yk, 0]).rotate([-90, 0, 0]).slice(0.0)
         for poly in cs.to_polygons():
             pp = np.asarray(poly)
-            ax3.add_patch(Polygon(pp, closed=True, fc=fc, ec=ec, lw=1))
-    ax3.annotate("kızak yok: kart tabandaki kaidede,\narkadaki tırnak üstten tutar", xy=(C.TP_X + C.PARCA["tp4056"][0] / 2 + 0.8, C.USB_Z_ALT + 2.2),
-                 xytext=(C.TP_X + 2, 18), fontsize=10, arrowprops=dict(arrowstyle="->"))
-    ax3.annotate("taban plakasındaki kaide", xy=(C.TP_X - 4, C.USB_Z_ALT - 2), xytext=(C.TP_X - 22, 1.0), fontsize=10,
+            ax2.add_patch(Polygon(pp, closed=True, fc=fc, ec=ec, lw=1))
+    xe = C.PIL_KAPAK_XE
+    ax2.annotate("dil plakadaki yuvaya girer", xy=(-xe - 1.5, 1.6), xytext=(-62, 12), fontsize=9, arrowprops=dict(arrowstyle="->"))
+    ax2.annotate("4 pil (yatak ters: açık yüzü kapağa)", xy=(0, 10), xytext=(-40, 30), fontsize=9, arrowprops=dict(arrowstyle="->"))
+    ax2.annotate("tavan: yatağın sırtı bantla yapışır", xy=(10, C.Z_PIL_TAVAN + 0.8), xytext=(-25, 42), fontsize=9,
                  arrowprops=dict(arrowstyle="->"))
-    ax3.set_xlim(C.TP_X - 22, C.TP_X + 22); ax3.set_ylim(-2, 24); ax3.set_aspect("equal"); ax3.grid(alpha=.25)
-    ax3.set_xlabel("x (mm)"); ax3.set_title(f"Önden kesit (USB-C'den {yk - C.tp_konum()[1]:.0f} mm içeride)", fontsize=12)
-    fig.suptitle("Adım 5: TP4056 Type-C — şarj girişi arka duvarda", fontsize=14)
+    ax2.annotate("duvar kapağın kenarına basar", xy=(xe - 0.6, C.TABAN_KAL + 0.2), xytext=(5, -8), fontsize=9,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.set_xlim(-64, 64); ax2.set_ylim(-12, 48); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
+    ax2.set_xlabel("x (mm)  ← SOL        SAĞ →"); ax2.set_title("Soldaki dilden geçen enine kesit", fontsize=12)
+    ax3 = fig.add_subplot(1, 3, 3)
+    xv, yv = C.PIL_VIDA_XY
+    for man, fc, ec in renkler[:3] + renkler[6:]:
+        cs = man.translate([0, -yv, 0]).rotate([-90, 0, 0]).slice(0.0)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax3.add_patch(Polygon(pp, closed=True, fc=fc, ec=ec, lw=1))
+    ax3.add_patch(Polygon([(xv - 3.0, 0), (xv + 3.0, 0), (xv + 1.5, 1.5), (xv + 1.5, 8.0), (xv - 1.5, 8.0), (xv - 1.5, 1.5)],
+                          closed=True, fc="#9aa3ad", ec="k", lw=1))
+    ax3.annotate("M3 x 8 havşa vida", xy=(xv + 2.0, 0.6), xytext=(xv - 2, -9), fontsize=9, arrowprops=dict(arrowstyle="->"))
+    ax3.annotate("M3 ısıl gömme somun\n(alttan takılır)", xy=(xv + 1.8, 5.0), xytext=(xv - 14, 24), fontsize=9,
+                 arrowprops=dict(arrowstyle="->"))
+    ax3.annotate("tırnak çentiği: kapağı\nburadan kaldır", xy=(xv + 6.0, 0.4), xytext=(xv - 4, 14), fontsize=9,
+                 arrowprops=dict(arrowstyle="->"))
+    ax3.set_xlim(xv - 22, xv + 14); ax3.set_ylim(-12, 30); ax3.set_aspect("equal"); ax3.grid(alpha=.25)
+    ax3.set_xlabel("x (mm)"); ax3.set_title("Sağdaki vidadan geçen enine kesit", fontsize=12)
+    fig.suptitle("Adım 3: pil kutusu — kapak taban plakasıyla aynı hizada, açmak için tornavida gerekir", fontsize=14)
     plt.tight_layout()
-    yol = os.path.join(C.KOK, "onizleme", "adim_5_usb_yakin.png")
+    yol = os.path.join(C.KOK, "onizleme", "adim_3_pil_yakin.png")
     fig.savefig(yol)
     plt.close(fig)
     return yol
@@ -287,37 +295,38 @@ def esp_yakin():
     fig = plt.figure(figsize=(21, 7.4), dpi=110)
     ax = fig.add_subplot(1, 3, 1, projection="3d")
     kirp = kutu(-45, 45, -62, -10, -2, 50)
-    ls = [(tb ^ kirp, "#E8DCCB", False), (C.esp_stl(), "#2b2b2b", False), (z["jumper payı"], "#e8a33d", True),
-          (z["TP4056 Type-C"], C.RENK_PARCA["TP4056 Type-C"], False)]
+    ls = [(tb ^ kirp, "#E8DCCB", False), (C.esp_stl(), "#2b2b2b", False), (z["jumper payı"], "#e8a33d", True)]
     elev, azim = 32, -62
     e, a = math.radians(elev), math.radians(azim)
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
     ax.set_xlim(-42, 42); ax.set_ylim(-74, 10); ax.set_zlim(-5, 45)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_title("Taban plakasında ters ESP32; turuncu: jumper'lar için boş alan", fontsize=11)
-    for i, (xk, baslik) in enumerate(((xc, "Kartın ortasından enine kesit"), (xc - 29.4, "USB-C ucundan enine kesit (köşe kancaları)"))):
+    ax.set_title("Pil kutusunun üstünde ters ESP32; turuncu: J1 jumper'ları için boş alan", fontsize=11)
+    for i, (xk, baslik) in enumerate(((xc, "Kartın ortasından enine kesit"), (xc + 29.4, "USB-C ucundan enine kesit (köşe kancaları)"))):
         ax2 = fig.add_subplot(1, 3, 2 + i)
         for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tb, "#E8DCCB", "#8a7a66"), (z["ESP32-S3"], "#3a3a3a", "k"),
-                            (z["jumper payı"], "#e8a33d55", "#c07a10"), (z["TP4056 Type-C"], "#2d6cdf", "k")):
+                            (z["jumper payı"], "#e8a33d55", "#c07a10"), (z["4xAA yatağı"], "#555", "k")):
             cs = man.translate([-xk, 0, 0]).rotate([0, -90, 0]).slice(0.0)
             for poly in cs.to_polygons():
                 pp = np.asarray(poly)
                 ax2.add_patch(Polygon(np.c_[pp[:, 1], -pp[:, 0]], closed=True, fc=fc, ec=ec, lw=1))
         if i == 0:
-            ax2.annotate("dişi jumper'lar\n(14 mm + büküm)", xy=(yc - 12.8, C.ESP_Z + 14), xytext=(yc - 30, C.ESP_Z + 30), fontsize=9,
+            ax2.annotate("J1 jumper'ları\n(14 mm + büküm)", xy=(yc + 12.8, C.ESP_Z + 14), xytext=(yc - 14, C.ESP_Z + 15), fontsize=9,
+                         arrowprops=dict(arrowstyle="->"))
+            ax2.annotate("pil kutusunun tavanı", xy=(yc + 8, C.Z_PIL_UST - 0.8), xytext=(yc + 5, 4), fontsize=9,
                          arrowprops=dict(arrowstyle="->"))
             ax2.annotate("iç kiriş: kartı pin\nsırasının içinden taşır", xy=(yc + 11.3, C.ESP_Z - 0.5), xytext=(yc + 6, C.ESP_Z - 14), fontsize=9,
                          arrowprops=dict(arrowstyle="->"))
-            ax2.annotate("bileşenler aşağı bakar", xy=(yc, C.ESP_Z - 2), xytext=(yc - 9, C.ESP_Z + 24), fontsize=9,
+            ax2.annotate("bileşenler aşağı bakar", xy=(yc, C.ESP_Z - 2), xytext=(yc - 12, C.ESP_Z + 8), fontsize=9,
                          arrowprops=dict(arrowstyle="->"))
         else:
-            ax2.annotate("köşe kancası: kartın ucu\naltına kayar", xy=(yc - 13.5, C.ESP_Z + 2.0), xytext=(yc - 32, C.ESP_Z + 14), fontsize=9,
+            ax2.annotate("köşe kancası: kartın ucu\naltına kayar", xy=(yc - 13.5, C.ESP_Z + 2.0), xytext=(yc - 30, C.ESP_Z + 18), fontsize=9,
                          arrowprops=dict(arrowstyle="->"))
-            ax2.annotate("ortası açık: USB-C fişi takılır\n(kod yüklemek için, kabuk açıkken)", xy=(yc, C.ESP_Z - 1.6), xytext=(yc - 6, C.ESP_Z + 22),
+            ax2.annotate("ortası açık: USB-C fişi takılır\n(kod yüklemek için, taban açıkken)", xy=(yc, C.ESP_Z - 1.6), xytext=(yc - 6, C.ESP_Z + 10),
                          fontsize=9, arrowprops=dict(arrowstyle="->"))
         ax2.set_xlim(yc - 30, yc + 30); ax2.set_ylim(-2, 50); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
         ax2.set_xlabel("y (mm)  ← ARKA        ÖN →"); ax2.set_title(baslik, fontsize=12)
-    fig.suptitle("Adım 6: ESP32-S3 — ters yatar, jumper'lar yukarıdan; anten ucunda bastırınca oturan tırnak", fontsize=14)
+    fig.suptitle("Adım 6: ESP32-S3 — pil kutusunun üstünde ters yatar, J1 öne bakar, jumper'lar yukarıdan; anten ucunda tırnak", fontsize=14)
     plt.tight_layout()
     yol = os.path.join(C.KOK, "onizleme", "adim_6_esp32_yakin.png")
     fig.savefig(yol)
@@ -425,20 +434,17 @@ if __name__ == "__main__":
         2: [(0, C.Z_OKUYUCU_UST - 0.8, "NFC okuyucu: anten yüzü çukur zemininin 0,3 mm altında", -60, 30),
             (0, C.Z_CANAK_TABAN + 0.4, f"figür etiketi -> anten ≈ {(C.Z_CANAK_TABAN + 0.4) - C.Z_OKUYUCU_UST:.1f} mm", 8, 62),
             (-21, C.Z_OKUYUCU_UST - 2.5, "tutucunun rayları (kart kayarak girer)", -62, 18)],
-        3: [(0, C.TABAN_KAL + 10, "18650 pil yatağı (77x21x19, tahmin), x boyunca", -62, 40),
-            (C.PIL_Y - 11.5, C.TABAN_KAL + 1.5, "taban plakasında 3 mm cep duvarı", -62, 24),
-            (0, 1.0, "taban plakası (alttan 4 x M3 vida)", 10, 14)],
+        3: [(0, C.TABAN_KAL + 9, "4 x AA yatağı (62,5 x 58 x 15,5, tahmin):\nters durur, piller alttan takılır", -62, 40),
+            (0, C.Z_PIL_TAVAN + 0.8, "kutunun tavanı (yatağın sırtı bantla yapışır)", 2, 30),
+            (0, 1.2, "pil kapağı (taban plakasıyla aynı hizada)", 10, -2)],
         4: [(0, C.HOP_ZC + 12, "hoparlör Ø50, dik, öne bakar\n(ön çerçeve + mıknatıs, tahmin)", -62, 44),
             (C.HOP_YF + 6, C.HOP_ZC + 20, "ses yakası: hoparlörden ızgaraya boru", 2, 60),
             (C.HOP_YF + 9, C.HOP_ZC - 6, "ön duvarda ızgara", 20, 12),
             (C.HOP_YF - 2, C.TABAN_KAL + 2, "beşik (taban plakasında)", -10, 4)],
-        5: [(C.tp_konum()[1], C.USB_ZC, "USB-C arkanın ortasında; dışta fiş cebi,\nfiş dişiye sonuna kadar oturur", -62, 34),
-            (C.tp_konum()[2] + 12, C.USB_Z_ALT + 1, "TP4056: USB-C içeriden deliğe girer, kart kenarı duvara dayanır;\ntaban kapanınca kaide ve tırnaklı dayanak kilitler (kızak yok)", -30, 22),
-            (C.PIL_Y, C.TABAN_KAL + 12, "pil yatağı (öne alındı)", 10, 30)],
+        5: [(C.DUZ_XY[1], C.Z_PIL_UST + 3, "5 V düzenleyici (sol, kesitin arkasında):\npil -> anahtar -> düzenleyici -> 5 V", -62, 40)],
         6: [(C.ESP_XY[1], C.ESP_Z + 0.8, "ESP32-S3 TERS: bileşenler aşağı, pinler yukarı", 0, 46),
             (C.ESP_XY[1] - 12.8, C.ESP_Z + 20, "jumper payı: dişi jumper (14 mm)\n+ kablo bükümü, yukarıdan takılır", -64, 52),
-            (C.ESP_XY[1] + 13, C.ESP_Z - 6, "taban plakasındaki kanal:\niç kiriş kartı taşır, dış duvar yandan tutar", -10, 6),
-            (C.tp_konum()[2] + 6, C.USB_Z_ALT + 1, "TP4056 altta kalır (kanal üstünden köprüyle geçer)", -64, 4)],
+            (C.ESP_XY[1] + 13, C.ESP_Z - 2, "kanal: iç kiriş kartı taşır, dış duvar yandan tutar;\nöndeki kanal pil kutusunun tavanında", -10, 6)],
     }.get(n, [])
     if n == 2:
         for nfc in ("rc522", "pn5180"):
@@ -452,8 +458,8 @@ if __name__ == "__main__":
         print(taban_plan(n))
     if n == 4:
         print(dis_on())
-    if n == 5:
-        print(usb_yakin())
+    if n == 3:
+        print(pil_yakin())
     if n == 6:
         print(esp_yakin())
     if n == 7:

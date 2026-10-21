@@ -3,13 +3,16 @@
     python cad/cakil_ic.py            # RC522 ve PN5180: çarpışma denetimi, önizleme PNG, STL (cad/stl_cakil/<nfc>/)
 
 Ölçüler TAHMİN (ürün sahibi, 16 Ekim 2026: "tahminle başlayalım"); parça ölçüleri PARCA sözlüğünde, gerçekleri
-ölçülünce yalnız orası değişir. Koordinat: z yukarı (z=0 taban), +y ÖN (logo), -y ARKA (USB-C, anahtar).
+ölçülünce yalnız orası değişir. Koordinat: z yukarı (z=0 taban), +y ÖN (logo), -y ARKA (anahtar solda).
+
+Güç (ürün sahibi, 21 Ekim 2026): USB-C, 18650 ve TP4056 kalktı; 4'lü AA pil yatağı tabandaki PİL KUTUSUNDA, alttan
+vidalı kapakla açılır. Piller -> anahtar (KCD11) -> 5 V düzenleyici -> ESP32, ses kartı, halka.
 
 Yerleşim (alttan üste):
-  taban plakası (vidalı, 4 ayak, hoparlör ızgarası) | hoparlör 50x50 AŞAĞI bakar (önde; ses tabandan ve ayak
-  boşluğundan çıkar: 55 mm yükseklikte dik 50x50 hoparlör sığmıyor) | 18650 yatağı (ortada, x boyunca) |
-  TP4056 (arka orta, USB-C arka duvarda) | MAX98357A (sağ ön) | açma-kapama (sol yan duvar) |
-  ESP32-S3 (arkada, TERS: pinler yukarı, jumper'lar üstten takılır) | NFC okuyucu (anten figürün tam altında) | LED halka (Ø55/Ø70) | figür zemini (kabuk) |
+  taban plakası (vidalı, 4 ayak) + alttan açılan pil kapağı | pil kutusu (ortada; 4xAA yatağı ters durur, sırtı
+  kutunun tavanına bantlı) | hoparlör Ø50 önde dik (ses ön ızgaradan) | kutunun tavanında: MAX98357A (sağ),
+  5 V düzenleyici (sol) | açma-kapama (sol yan duvar) | ESP32-S3 (arkada, kutunun üstünde, TERS: pinler yukarı, J1 öne,
+  jumper'lar üstten takılır) | NFC okuyucu (anten figürün tam altında) | LED halka (Ø55/Ø70) | figür zemini (kabuk) |
   mikrofon (üstte, arkada delik).
 """
 import math
@@ -21,7 +24,7 @@ import trimesh
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import manifold3d as m3  # noqa: E402
-from geometri import M, CS, kutu, silindir, dondur, xz_den_y_ye, yazi_duz, yuvarlak_dikdortgen, trimesh_e, vida_cubugu  # noqa: E402
+from geometri import M, CS, kutu, silindir, dondur, xz_den_y_ye, xy_prizma, aynala_x, yazi_duz, yuvarlak_dikdortgen, trimesh_e, vida_cubugu, cokgen  # noqa: E402
 
 KOK = os.path.dirname(os.path.abspath(__file__))
 FONT = os.path.join(KOK, "font", "Fredoka.ttf")
@@ -55,9 +58,9 @@ YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının 
 PARCA = {
     "hoparlor": (50.0, 22.0),
     "hoparlor_miknatis_r": 20.7,         # arkadaki mıknatıs yarıçapı (ürün sahibi: eyer yarıçapı 21 = 20,7 + 0,3 pay)            # 4 Ω 3 W YUVARLAK: Ø50, derinlik (mıknatıs dahil) tahmin
-    "pil_yatagi": (77.0, 21.0, 19.0),    # 18650 tekli yatak
-    "tp4056": (17.3, 28.0, 1.0),         # TP4056 Type-C HW-373 (ürün sahibinin STL'si, cad/parca_stl/): en, boy, kart
-    "tp4056_usb": (9.8, 3.0, 6.9, 1.5),  # USB-C dişi: en, yükseklik, boy, kart kenarından taşma (STL'den)
+    "pil_4aa": (62.5, 58.0, 15.5),       # 4'lü AA yatağı, 4 pil yan yana: en (pillere dik, x), boy (pil ekseni, y),
+                                         # yükseklik; TAHMİN, ölç (yaygın yatak 62-63 x 57-58 x 15-16)
+    "duzenleyici": (11.5, 15.5, 6.0),    # 5 V düzenleyici (Pololu S9V11F5 11,4 x 15,2; pinlerle ~6 mm)
     "max98357": (19.0, 18.0, 10.0),      # vida klemensi lehimliyse ~10 mm
     "esp32": (57.2, 28.5, 1.6),          # ESP32-S3 DevKit (ürün sahibinin STEP'i, cad/parca_stl/): kart en, boy, kalınlık
     "kcd11": (15.0, 20.0, 18.5, 2.0, 1.6),   # yuvarlak: panel deliği Ø, arkadaki gövde+uçlar derinliği, flanş Ø, flanş
@@ -86,26 +89,41 @@ def _hop_on_y():
     r = PARCA["hoparlor"][0] / 2
     return min(math.sqrt(max(0.0, (ic_r(HOP_ZC + r * math.sin(t)) - 0.6) ** 2 - (r * math.cos(t)) ** 2))
                for t in np.linspace(0, 2 * math.pi, 120, endpoint=False))
-PIL_Y = -4.0                         # pil yatağı (önce TP4056'ya, sonra arkadaki ESP32'ye yer açmak için öne alındı)
-TP_X = 0.0                           # USB-C arkanın tam ortasında (gövde eğrisine en iyi oturduğu yer)
-AMP_XY = (37.0, 18.5)                # sağ önde, pil ile hoparlör arasındaki köşe
-ANAHTAR_ACI, ANAHTAR_Z = 155.0, 17.0 # sol yan duvar (arka ESP32'ye kaldı)
-USB_Z_ALT = TABAN_KAL + 6.5          # TP4056 kartının alt yüzü: gövdenin dik kısmına çıkar ki USB-C yüzeyle hizalansın
-USB_ZC = USB_Z_ALT + 1.0 + 1.5       # USB-C dişinin ekseni (kart 1,0 + dişi 3,0 / 2)
+# Pil kutusu: 4xAA yatağı ters durur (açık yüzü aşağıda, kapağa bakar), sırtı kutunun tavanına ince çift taraflı
+# bantla yapışır; piller alttan takılır. Kapak taban plakasıyla aynı hizada: solda iki dil plakadaki yuvalara girer,
+# sağda tek M3 havşa vida (plakadaki ısıl gömme somuna). Kutunun duvarı kapağın kenarına basar (kapak içeri kaçmaz).
+PIL_Y = -11.4                        # kutunun ortası: arka köşeleri kabuğa, ön duvarı hoparlöre değmez
+PIL_PAY = 0.4                        # yatak ile kutu arası (her yanda)
+PIL_DUVAR = 2.4                      # kutu duvarı; iç 1,2 mm'si kapağın kenarına basar
+PIL_KAPAK_KENAR = 1.2                # kapak boşluktan her yanda bu kadar geniş
+PIL_BANT = 0.5                       # yatağın sırtı ile tavan arası (çift taraflı bant)
+PIL_TAVAN = 1.6
+PIL_KAPAK_KOSE = 4.0
+PIL_IC = (PARCA["pil_4aa"][0] / 2 + PIL_PAY, PARCA["pil_4aa"][1] / 2 + PIL_PAY)   # boşluğun yarı eni, yarı boyu
+Z_PIL_TAVAN = TABAN_KAL + 0.3 + PARCA["pil_4aa"][2] + PIL_BANT                       # boşluğun üstü
+Z_PIL_UST = Z_PIL_TAVAN + PIL_TAVAN                                                  # tavanın üstü
+PIL_KAPAK_XE = PIL_IC[0] + PIL_KAPAK_KENAR                                           # kapağın yarı eni
+PIL_DIL_Y = (PIL_Y - 18.0, PIL_Y + 18.0)                                             # soldaki iki dil
+PIL_VIDA_XY = (PIL_KAPAK_XE + 4.5, PIL_Y)                                            # sağdaki vida
+AMP_XY = (19.0, 2.0)                 # MAX98357A: kutunun tavanında, sağ önde (hoparlöre yakın)
+DUZ_XY = (-19.0, 2.0)                # 5 V düzenleyici: tavanda, sol önde (anahtara yakın)
+ANAHTAR_ACI, ANAHTAR_Z = 155.0, 28.0 # sol yan duvar; pil kutusunun üstüne çıktı
 # ESP32-S3: ürün sahibi "jumper takmama uygun yer kalsın". Kart TERS takılır (bileşenler aşağı, pinler yukarı): dişi
-# jumper'lar üst kabuk açıkken yukarıdan takılır. Kart arkada, TP4056'nın üstünde; uzun kenarı x boyunca, USB-C uçları -x.
-ESP_XY = (0.0, -32.5)                # kartın ortası
-ESP_Z = 18.0                         # bileşen yüzü (aşağı bakar); kartın arka yüzü ESP_Z + 1,6, pin uçları ESP_Z + 9,7
-JUMPER_BOY = 14.0 + 4.0              # dişi jumper gövdesi (14) + kablonun bükülme payı
+# jumper'lar üst kabuk açıkken yukarıdan takılır. Kart arkada, pil kutusunun tavanının üstünde; uzun kenarı x boyunca,
+# USB-C uçları +x, anten -x. Kullanılan bütün uçlar J1 sırasında: J1 öne (okuyucuya) bakar, arka sıraya (J3) jumper
+# takılmaz (kabuğun eğrisine yer kalmaz). Kod yüklemek için taban açılır, USB-C ESP32'nin kendi ucuna takılır.
+ESP_XY = (0.0, -34.5)                # kartın ortası (J1 jumper'ları okuyucunun arkasından geçer)
+ESP_Z = Z_PIL_UST + 0.6 + 3.4        # bileşen yüzü (aşağı bakar; bileşenler 3,4 mm); kartın arka yüzü ESP_Z + 1,6
+JUMPER_BOY = 14.0 + 3.0              # dişi jumper gövdesi (14) + kablonun bükülme payı (üstte okuyucunun rayı)
 ESP_STL = os.path.join(KOK, "parca_stl", "esp32s3_devkit.stl")   # STEP'ten: kart x ±28,6, y ±14,25, z 0..1,6 (pinler -z)
-PIL_BAG_X = 22.0                     # pil yatağını tabana sıkan iki kablo bağının yeri (x = ±22)
 MIKROFON = False                     # ürün sahibi (16 Ekim 2026): mikrofon şimdilik yok (sonra eklenecek; yeri ayrılı)
 MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), figür çukuru ile kabuk kenarı arasında
 UST_ACILAR = (45.0, 135.0, 225.0, 315.0)    # halka/NFC tutucu direkleri
-VIDA_ACILAR = (0.0, 180.0, 230.0, 330.0)    # taban vidaları (hoparlör, pil, TP4056, ESP32 arasında)
+VIDA_ACILAR = (0.0, 180.0, 210.0, 330.0)    # taban vidaları (pil kutusu ve ESP32'nin dışında)
 VIDA_R = 50.0
 UST_DIREK_R = 41.0                   # halka/NFC tutucusunu taşıyan, kabuğun üstünden inen direkler
-AYAK = (10.0, 1.0, 38.0)             # silikon ayak yuvası Ø, derinlik, yarıçap
+AYAK = (10.0, 1.0)                   # silikon ayak yuvası Ø, derinlik
+AYAKLAR = ((0.0, 40.0), (-45.0, 10.0), (45.0, 10.0), (0.0, -49.0))   # pil kapağının dışında
 
 
 def dis_r(z):
@@ -135,28 +153,18 @@ Z_TUTUCU_ALT = Z_HALKA_ALT - TUTUCU_KAL      # halka tutucu plakası (halkayı t
 Z_OKUYUCU_UST = Z_CANAK_TABAN - ZEMIN_KAL - 0.3   # NFC okuyucunun anten yüzü: çukur zemininin hemen altı
 
 
-TP_STL = os.path.join(KOK, "parca_stl", "tp4056_hw373_usbc.stl")   # STL: kart x -20..8 (USB-C x-), y -5,3..12, z 0..1
-
-
-def tp_stl():
-    """Ürün sahibinin TP4056 STL'si standdaki yerinde (yalnız görsel; denetim kutu zarflarla)."""
-    m = trimesh.load(TP_STL)
-    m.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 0, 1]))   # (x, y) -> (-y, x): USB-C y-
-    b = m.bounds
-    y_plaka, y_usb, y_kart = tp_konum()
-    m.apply_translation([TP_X - (b[0][0] + b[1][0]) / 2, y_usb - b[0][1], USB_Z_ALT - b[0][2]])
-    return m
 
 
 def esp_yerine(m):
-    """ESP32 STEP koordinatından (bileşenler +z, pinler -z) standdaki ters yerine: x ekseni etrafında 180°."""
-    return m.rotate([180, 0, 0]).translate([ESP_XY[0], ESP_XY[1], ESP_Z + PARCA["esp32"][2]])
+    """ESP32 STEP koordinatından (bileşenler +z, pinler -z; J1 +y, USB-C -x) standdaki ters yerine: y ekseni etrafında
+    180° (J1 önde kalır, USB-C +x'e döner)."""
+    return m.rotate([0, 180, 0]).translate([ESP_XY[0], ESP_XY[1], ESP_Z + PARCA["esp32"][2]])
 
 
 def esp_stl():
     """Ürün sahibinin ESP32-S3 modeli standdaki yerinde (yalnız görsel; denetim kutu zarflarla)."""
     m = trimesh.load(ESP_STL)
-    m.apply_transform(trimesh.transformations.rotation_matrix(math.pi, [1, 0, 0]))
+    m.apply_transform(trimesh.transformations.rotation_matrix(math.pi, [0, 1, 0]))
     m.apply_translation([ESP_XY[0], ESP_XY[1], ESP_Z + PARCA["esp32"][2]])
     return m
 
@@ -172,31 +180,58 @@ def anahtar_yer():
     return x_otur, x_otur - pk
 
 
-USB_DUVAR_MIN = 1.4          # kart kenarının dayandığı bantta kalan en ince duvar
-USB_DELIK_PAY = 0.8           # USB-C deliği dişiden bu kadar büyük (ilk baskıda +0,3: küçük geldi)
-FIS_CEP = (12.8, 7.2, 3.0)    # ilk baskı (20 Ekim 2026): USB-C dişi yüzeyden içeride kaldı, fiş tam oturmadı -> dışta
-                              # fiş gövdesi için yuvarlak köşeli cep (en, boy, köşe), dişinin ön yüzüne kadar iner
+def pil_kapak_cs(pay=0.0):
+    """Pil kapağının dış çizgisi (xy, yuvarlak köşeli); pay: her yanda büyütme (plakadaki delik için)."""
+    w, d = 2 * PIL_KAPAK_XE + 2 * pay, 2 * (PIL_IC[1] + PIL_KAPAK_KENAR) + 2 * pay
+    return yuvarlak_dikdortgen(w, d, PIL_KAPAK_KOSE + pay).translate([0, PIL_Y])
 
 
-def tp_konum():
-    """TP4056: (kart kenarının dayandığı iç düz bandın y'si, USB-C ön yüzü y, kartın ön kenarı y).
-    İlk baskı (20 Ekim 2026): kabuktaki kızaklar ters baskıda havada kaldı, destekle doldu ve kapandı; içteki geniş
-    inceltme cebi duvarı 1,1-1,9 mm'ye indirip dış yüzde pürüz yaptı. Yeni: kızak yok, geniş cep yok. Kartın ön kenarı
-    duvarın içinde açılan ince düz banda dayanır (bant, kartın köşelerinde bile duvarı USB_DUVAR_MIN kalınlıkta
-    bırakır); USB-C dişi deliğe girer, dışta fiş cebi fişin dişiye tam oturmasını sağlar."""
-    uw, uh, ul, ut = PARCA["tp4056_usb"]
-    w_k, d_k, t_k = PARCA["tp4056"]
-    xk = w_k / 2 + 0.4
-    y_dis = max(-math.sqrt(dis_r(z) ** 2 - (TP_X + dx) ** 2)
-                for dx in np.linspace(-xk, xk, 9) for z in (USB_Z_ALT - 0.6, USB_Z_ALT + t_k + 0.6))
-    y_bant = y_dis + USB_DUVAR_MIN
-    y_kart = y_bant + 0.1
-    return y_bant, y_kart - ut, y_kart
+def pil_dil(pay=0.0):
+    """Kapağın solundaki iki dil (plakadaki yuvalara girer): üstü düz, altı 45° pahlı (desteksiz basılır, kapak
+    plakaya oturunca dilin pahı yuvanın pahına dayanır, kapak aşağı düşmez)."""
+    x0 = -PIL_KAPAK_XE
+    kesit = CS([cokgen([(x0 + 0.5, -pay), (x0 + 0.5, 2.2 + pay), (x0 - 2.4 - pay, 2.2 + pay), (x0 - 2.4 - pay, 1.2 - pay),
+                        (x0 - 1.2 - pay, -pay)])])
+    d = None
+    for yd in PIL_DIL_Y:
+        e = xz_den_y_ye(kesit, yd - 4.0 - pay, yd + 4.0 + pay)
+        d = e if d is None else d + e
+    return d
 
 
-def usb_cukurluk():
-    """USB-C ön yüzünün ortasının dış yüzeyden içeride kaldığı mesafe (mm)."""
-    return tp_konum()[1] + math.sqrt(dis_r(USB_ZC) ** 2 - TP_X ** 2)
+def pil_kapagi(yazi_ile=True):
+    """Pil kapağı (yerinde, z 0..TABAN_KAL): plaka + soldaki iki dil + sağda vida tablası (M3 havşa); dış yüzde yazı
+    (yazi_ile=False: yazı oyulmaz, renkli baskıda kakma olur)."""
+    k = xy_prizma(pil_kapak_cs(), 0, TABAN_KAL)
+    # dilin karşısındaki alt kenar pahı: kapak eğik takılırken plakanın kenarına takılmaz
+    k = k - xz_den_y_ye(CS([cokgen([(-PIL_KAPAK_XE - 1, -1), (-PIL_KAPAK_XE + 2.0, -1), (-PIL_KAPAK_XE - 1, 2.0)])]), -80, 80)
+    k = k + pil_dil()
+    xv, yv = PIL_VIDA_XY
+    k = k + kutu(PIL_KAPAK_XE - 1.0, xv + 4.5, yv - 6.0, yv + 6.0, 0, 1.8)
+    k = k - silindir(1.7, -1, 5, x=xv, y=yv, seg=24) - silindir(3.2, -0.01, 1.5, x=xv, y=yv, seg=32, r2=1.7)
+    return k - xy_prizma(pil_kapak_yazi(), -1, 0.6) if yazi_ile else k
+
+
+def pil_kapak_yazi():
+    """Kapağın dış yüzündeki yazı (2B, ayna: alttan okunur)."""
+    return (yazi_duz("4 x AA", 8.0, FONT, ayna=True).translate([0, PIL_Y + 6])
+            + yazi_duz("1,5 V", 6.0, FONT, ayna=True).translate([0, PIL_Y - 8]))
+
+
+def pil_bosluklari():
+    """Taban plakasından çıkarılan: pil boşluğu, kapak deliği, dil yuvaları, vida tablası cebi ve tırnak çentiği,
+    ısıl gömme somun deliği, tavandaki kablo delikleri."""
+    xi, yi = PIL_IC
+    b = kutu(-xi, xi, PIL_Y - yi, PIL_Y + yi, -1, Z_PIL_TAVAN)
+    b = b + xy_prizma(pil_kapak_cs(0.25), -1, TABAN_KAL)
+    b = b + pil_dil(0.25)
+    xv, yv = PIL_VIDA_XY
+    b = b + kutu(PIL_KAPAK_XE - 1.0, xv + 4.8, yv - 6.3, yv + 6.3, -1, 1.85)               # vida tablası cebi
+    b = b + kutu(xv + 4.8 - 0.01, xv + 7.0, yv - 4.0, yv + 4.0, -1, 1.0)                    # tırnak çentiği (kapağı açmak)
+    b = b + silindir(2.0, 1.8, 1.8 + 5.9, x=xv, y=yv, seg=24) + silindir(1.6, 1.8, 10.3, x=xv, y=yv, seg=24)  # Ø4 somun
+    for x in (-20.0, 20.0):                                                                  # yatağın kabloları
+        b = b + kutu(x - 5, x + 5, PIL_Y + yi - 5.0, PIL_Y + yi - 0.5, Z_PIL_TAVAN - 1, Z_PIL_UST + 1)
+    return b
 
 
 def gorunmez():
@@ -213,17 +248,14 @@ def zarflar(nfc):
     hop = (silindir(hd / 2, hdr - 5, hdr, seg=96) + silindir(mr, hdr - 13, hdr - 5, seg=96, r2=hd / 2)
            + silindir(mr, 0, hdr - 13, seg=64))
     z["hoparlör (önden)"] = hop.rotate([-90, 0, 0]).translate([0, yf - hdr, HOP_ZC])
-    w, d, h = PARCA["pil_yatagi"]
-    z["18650 yatağı"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, TABAN_KAL, TABAN_KAL + h)
-    w, d, t = PARCA["tp4056"]
-    uw, uh, ul, ut = PARCA["tp4056_usb"]
-    y_plaka, y_usb, y_kart = tp_konum()
-    z["TP4056 Type-C"] = (kutu(TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d, USB_Z_ALT, USB_Z_ALT + t)
-                          + kutu(TP_X - w / 2 + 1.0, TP_X + w / 2 - 1.0, y_kart + 1.0, y_kart + d - 1.0, USB_Z_ALT + t, USB_Z_ALT + t + 1.3)
-                          + xz_den_y_ye(yuvarlak_dikdortgen(uw, uh, 1.3), y_usb, y_usb + ul, x=TP_X, z=USB_ZC))   # USB-C dişi (köşeleri yuvarlak)
+    w, d, h = PARCA["pil_4aa"]
+    z["4xAA yatağı"] = kutu(-w / 2, w / 2, PIL_Y - d / 2, PIL_Y + d / 2, TABAN_KAL + 0.3, TABAN_KAL + 0.3 + h)
+    w, d, h = PARCA["duzenleyici"]
+    z["5 V düzenleyici"] = kutu(DUZ_XY[0] - w / 2, DUZ_XY[0] + w / 2, DUZ_XY[1] - d / 2, DUZ_XY[1] + d / 2,
+                                Z_PIL_UST + 1, Z_PIL_UST + 1 + h)
     w, d, h = PARCA["max98357"]
     z["MAX98357A"] = kutu(AMP_XY[0] - w / 2, AMP_XY[0] + w / 2, AMP_XY[1] - d / 2, AMP_XY[1] + d / 2,
-                          TABAN_KAL + 1, TABAN_KAL + 1 + h)
+                          Z_PIL_UST + 1, Z_PIL_UST + 1 + h)
     dd, derin, fd, fk, pk = PARCA["kcd11"]
     x_otur, x_ic = anahtar_yer()
     k = (silindir(dd / 2 - 0.3, x_ic - derin, x_otur, seg=48)                  # gövde + uçlar (delikten geçer)
@@ -235,12 +267,11 @@ def zarflar(nfc):
     # başlık plastiği; pinler jumper payının içinde
     e = (kutu(-28.6, 28.6, -14.25, 14.25, 0, 1.6) + kutu(-28.6, 28.6, -10.45, 10.45, 1.6, 5.0)
          + kutu(28.5, 35.3, -9.0, 9.0, 1.6, 2.4))
-    j = None
     for s in (-1, 1):
         e = e + kutu(-27.2, 27.5, min(s * 12.2, s * 13.4), max(s * 12.2, s * 13.4), 1.6, 3.1)
         e = e + kutu(-27.7, 28.2, min(s * 11.5, s * 14.0), max(s * 11.5, s * 14.0), -2.5, 0)
-        jj = kutu(-28.0, 28.3, min(s * 11.3, s * 14.3), max(s * 11.3, s * 14.3), -2.5 - JUMPER_BOY, -2.5)
-        j = jj if j is None else j + jj
+    e = e + kutu(-27.5, 28.0, -13.4, -12.1, -8.1, -2.5)                                # J3 pin uçları (jumper yok)
+    j = kutu(-28.0, 28.3, 11.3, 14.3, -2.5 - JUMPER_BOY, -2.5)                          # J1 jumper'ları
     z["ESP32-S3"] = esp_yerine(e)
     z["jumper payı"] = esp_yerine(j)
     w, d, h = PARCA["inmp441"]
@@ -300,16 +331,6 @@ def kabuk():
     g = g - xz_den_y_ye(izgara, 40, 75, x=0, z=HOP_ZC)
     yaka = (silindir(hd / 2 - 1.0, 0, 30, seg=96) - silindir(hd / 2 - 3.0, -1, 31, seg=96)).rotate([-90, 0, 0]).translate([0, HOP_YF + 2.0, HOP_ZC])
     g = g + (yaka ^ dondur(profil(-1.0), SEG) ^ kutu(-40, 40, -70, 70, TABAN_KAL + 1.0, H))
-    # arka: USB-C (fiş gövdesi için 12,5 x 7,5) ve anahtar (Ø15)
-    # USB-C: delik + dışta fiş cebi + içte kart kenarının dayandığı ince düz bant (kızak yok; kart tabandaki kaidede
-    # durur, arkadaki tırnaklı dayanak kilitler). Dış gövde yalnız fiş cebi kadar değişir.
-    y_bant, y_usb, y_kart = tp_konum()
-    uw, uh, ul, ut = PARCA["tp4056_usb"]
-    w_k, d_k, t_k = PARCA["tp4056"]
-    g = g - kutu(TP_X - w_k / 2 - 0.4, TP_X + w_k / 2 + 0.4, y_bant, y_usb + 9, USB_Z_ALT - 0.6, USB_Z_ALT + t_k + 0.6)
-    g = g - xz_den_y_ye(yuvarlak_dikdortgen(uw + USB_DELIK_PAY, uh + USB_DELIK_PAY, 1.8), -80, y_usb + 9, x=TP_X, z=USB_ZC)
-    fw, fh, fr = FIS_CEP
-    g = g - xz_den_y_ye(yuvarlak_dikdortgen(fw, fh, fr), -80, y_usb - 0.05, x=TP_X, z=USB_ZC)        # fiş cebi (dışta)
     # anahtar: Ø delik + flanşın düz oturma yüzü (dışta, gövdeye gömülü) + içte düz panel (tırnaklar için)
     dd, derin, fd, fk, pk = PARCA["kcd11"]
     x_otur, x_ic = anahtar_yer()
@@ -358,7 +379,7 @@ def tutucu(nfc):
     return p
 
 
-TABAN_OZ = ("vida", "ayak", "pil", "hoparlor", "tp4056", "esp32", "amfi")
+TABAN_OZ = ("vida", "ayak", "pil", "hoparlor", "esp32", "amfi")
 
 
 def taban(oz=TABAN_OZ):
@@ -379,53 +400,38 @@ def taban(oz=TABAN_OZ):
             besik = kutu(-hd / 2 - 3, hd / 2 + 3, y0, y1, TABAN_KAL - 0.01, HOP_ZC - 6)
             besik = besik - silindir(ric, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC])
             t = t + besik
-        # eyerler: ürün sahibi (20 Ekim 2026) içteki küçük eyerin aynısından bir tane daha istedi, onun içine; üç destek
-        # (ön beşik, eyer, ikinci eyer) arası eşit
-        on_merkez, eyer_merkez = yf - 1.5, yf - hdr + 5
-        for ym in (eyer_merkez, 2 * eyer_merkez - on_merkez):
+        # eyer: ürün sahibi (20 Ekim 2026) bir eyer daha istemişti (y ≈ 15); 21 Ekim'de pil kutusu oraya geldi, ikinci
+        # eyer kalktı (kutunun ön duvarı hoparlörün 5 mm arkasında)
+        eyer_merkez = yf - hdr + 5
+        for ym in (eyer_merkez,):
             eyer = kutu(-18, 18, ym - 2, ym + 2, TABAN_KAL - 0.01, HOP_ZC - 9)
             t = t + (eyer - silindir(PARCA["hoparlor_miknatis_r"] + 0.3, -5, 80, seg=96).rotate([-90, 0, 0]).translate([0, -10, HOP_ZC]))
         for x in (-hd / 2 - 1.5, hd / 2 - 1.0):
             t = t - kutu(x, x + 2.5, yf - 10, yf - 6, -1, TABAN_KAL + 1)
-    # pil yatağı cebi (1,5 mm duvar, 3 mm yüksek) + iki kablo bağı yarığı (yatak cırt/kablo bağıyla tabana sıkılır)
-    w, d, h = PARCA["pil_yatagi"]
+    # pil kutusu: duvarlar + tavan (boşluk, kapak deliği ve yuvalar en sonda çıkarılır); sağda kapak vidasının kolonu
     if "pil" in oz:
-        t = t + (kutu(-w / 2 - 1.5, w / 2 + 1.5, PIL_Y - d / 2 - 1.5, PIL_Y + d / 2 + 1.5, TABAN_KAL, TABAN_KAL + 3)
-                 - kutu(-w / 2 - 0.3, w / 2 + 0.3, PIL_Y - d / 2 - 0.3, PIL_Y + d / 2 + 0.3, TABAN_KAL - 1, TABAN_KAL + 4))
-        for x in (-PIL_BAG_X, PIL_BAG_X):
-            for y in (PIL_Y - d / 2 - 2.0, PIL_Y + d / 2 + 0.6):
-                t = t - kutu(x - 2.0, x + 2.0, y, y + 2.6, -1, TABAN_KAL + 4)
-    # TP4056: kart tabandaki kaideye oturur; arkadaki esnek dayanak kartı öne (duvara) tutar, tırnağı kartın arka
-    # kenarına üstten biner (fiş takılırken kart içeri kaçmaz, kalkmaz). Tırnağın üstü basamaklı pah: taban kapanırken
-    # kartın arka kenarına sürtüp esner, sonra oturur.
-    w, d, tk = PARCA["tp4056"]
-    y_plaka, y_usb, y_kart = tp_konum()
-    x0, x1, y0, y1 = TP_X - w / 2, TP_X + w / 2, y_kart, y_kart + d
-    zu = USB_Z_ALT + tk
-    tp = kutu(x0 + 1.2, x1 - 1.2, y0 - 3, y1 - 3, TABAN_KAL - 0.01, USB_Z_ALT)
-    tp = tp + kutu(x0 + 2, x1 - 2, y1 + 0.2, y1 + 1.4, TABAN_KAL - 0.01, zu + 1.6)          # esnek dayanak
-    for ya, za, zb in ((y1 - 0.8, zu + 0.15, zu + 0.55), (y1 - 0.4, zu + 0.55, zu + 0.95), (y1 + 0.0, zu + 0.95, zu + 1.35)):
-        tp = tp + kutu(x0 + 2, x1 - 2, ya, y1 + 0.21, za, zb)                                   # tırnak
-    if "tp4056" in oz:
-        t = t + tp
+        xo, yo = PIL_IC[0] + PIL_DUVAR, PIL_IC[1] + PIL_DUVAR
+        t = t + kutu(-xo, xo, PIL_Y - yo, PIL_Y + yo, TABAN_KAL - 0.01, Z_PIL_UST)
+        t = t + silindir(4.2, 1.0, 11.0, x=PIL_VIDA_XY[0], y=PIL_VIDA_XY[1], seg=32)
+        # 5 V düzenleyici: tavanda alçak çerçeve (çift taraflı bantla yapışır)
+        w, d, h = PARCA["duzenleyici"]
+        t = t + (kutu(DUZ_XY[0] - w / 2 - 1.2, DUZ_XY[0] + w / 2 + 1.2, DUZ_XY[1] - d / 2 - 1.2, DUZ_XY[1] + d / 2 + 1.2, Z_PIL_UST - 0.01, Z_PIL_UST + 2.0)
+                 - kutu(DUZ_XY[0] - w / 2 - 0.2, DUZ_XY[0] + w / 2 + 0.2, DUZ_XY[1] - d / 2 - 0.2, DUZ_XY[1] + d / 2 + 0.2, Z_PIL_UST, Z_PIL_UST + 3))
     w, d, h = PARCA["max98357"]
     if "amfi" in oz:
-        t = t + (kutu(AMP_XY[0] - w / 2 - 1.2, AMP_XY[0] + w / 2 + 1.2, AMP_XY[1] - d / 2 - 1.2, AMP_XY[1] + d / 2 + 1.2, TABAN_KAL, TABAN_KAL + 2.5)
-                 - kutu(AMP_XY[0] - w / 2 - 0.2, AMP_XY[0] + w / 2 + 0.2, AMP_XY[1] - d / 2 - 0.2, AMP_XY[1] + d / 2 + 0.2, TABAN_KAL - 1, TABAN_KAL + 4))
+        t = t + (kutu(AMP_XY[0] - w / 2 - 1.2, AMP_XY[0] + w / 2 + 1.2, AMP_XY[1] - d / 2 - 1.2, AMP_XY[1] + d / 2 + 1.2, Z_PIL_UST - 0.01, Z_PIL_UST + 2.5)
+                 - kutu(AMP_XY[0] - w / 2 - 0.2, AMP_XY[0] + w / 2 + 0.2, AMP_XY[1] - d / 2 - 0.2, AMP_XY[1] + d / 2 + 0.2, Z_PIL_UST, Z_PIL_UST + 4))
     # ESP32 yuvası (ters kart): iki uzun kenarda kanal (iç kiriş kartı pin sıralarının hemen içinden taşır, dış duvar
     # yandan tutar; aradaki boşluk pin lehimlerine), USB-C ucunda iki köşe kancası (kart altına kayar), anten ucunda
     # esnek tırnak (bastırınca kartın modül ucuna oturur) ve modül ucunun altında destek
     if "esp32" in oz:
-        xc, yc, ze = ESP_XY[0], ESP_XY[1], ESP_Z
+        t0, t = t, M()
+        xc, yc, ze = 0.0, ESP_XY[1], ESP_Z   # x'te 0'da kurulur, sonra aynalanır (USB-C +x)
         za = ze + PARCA["esp32"][2]
         def yb(a, b, s):
             return min(yc + s * a, yc + s * b), max(yc + s * a, yc + s * b)
         for s in (-1, 1):
-            parcalar = ((-28.5, 28.5),) if s > 0 else ((-28.5, -11.5), (11.5, 28.5))   # arka kanalın altından TP4056 geçer
-            for xa, xb in parcalar:
-                t = t + kutu(xc + xa, xc + xb, *yb(10.7, 15.4, s), TABAN_KAL - 0.01, ze - 1.8)
-            if s < 0:
-                t = t + kutu(xc - 11.6, xc + 11.6, *yb(10.7, 15.4, s), 13.5, ze - 1.8)        # TP4056'nın üstünden köprü
+            t = t + kutu(xc - 28.5, xc + 28.5, *yb(10.7, 15.4, s), TABAN_KAL - 0.01, ze - 1.8)  # ön kanal kutunun tavanında durur
             t = t + kutu(xc - 28.5, xc + 28.5, *yb(10.7, 11.9, s), ze - 1.9, ze)             # iç kiriş (kartı taşır)
             t = t + kutu(xc - 28.5, xc + 28.5, *yb(14.4, 15.4, s), ze - 1.9, za + 0.5)       # dış duvar
             # USB-C ucu: köşe kancası (USB-C fişleri |dy| < 12,1'den geçer)
@@ -436,14 +442,14 @@ def taban(oz=TABAN_OZ):
         t = t + kutu(xc + 29.5, xc + 33.5, yc + 1.5, yc + 7.5, TABAN_KAL - 0.01, ze - 0.9)
         t = t + kutu(xc + 35.6, xc + 36.8, yc + 1.5, yc + 7.5, TABAN_KAL - 0.01, ze + 1.0)
         t = t + kutu(xc + 34.6, xc + 35.65, yc + 1.5, yc + 7.5, ze + 0.1, ze + 1.0)
+        t = t0 + aynala_x(t)
     # ayak yuvaları
-    for aci in ((90.0, 210.0, 330.0) if "ayak" in oz else ()):
-        x, y = AYAK[2] * math.cos(math.radians(aci)), AYAK[2] * math.sin(math.radians(aci))
-        t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
-    for x, y in (((0, -42), (-44, 14), (44, 14)) if "ayak" in oz else ()):
+    for x, y in (AYAKLAR if "ayak" in oz else ()):
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
     ic = dondur(profil(-DUVAR - 0.3, 1.0, H - DUVAR), SEG)
     t = (t ^ kutu(-70, 70, -70, 70, -1, 1.2)) + (t ^ ic)
+    if "pil" in oz:
+        t = t - pil_bosluklari()
     return t
 
 
@@ -516,14 +522,11 @@ def ay_dede():
 def denetle(nfc):
     z = zarflar(nfc)
     bosluk = dondur(profil(-DUVAR, TABAN_KAL, H - DUVAR), SEG) + (
-        silindir(ISIK_R[1], H - DUVAR - 0.5, H - ISIK_KAL, seg=SEG) - silindir(ISIK_R[0], H - DUVAR - 1, H, seg=SEG)) + (
-        kutu(TP_X - 6, TP_X + 6, tp_konum()[1] - 0.01, tp_konum()[2] + 1, USB_Z_ALT, USB_ZC + 2)) + (
-        kutu(TP_X - PARCA["tp4056"][0] / 2 - 0.6, TP_X + PARCA["tp4056"][0] / 2 + 0.6, tp_konum()[0], tp_konum()[1] + 9,
-             TABAN_KAL, USB_ZC + 3))  # ışık oyuğu, USB-C deliği ve duvardaki kart cebi
+        silindir(ISIK_R[1], H - DUVAR - 0.5, H - ISIK_KAL, seg=SEG) - silindir(ISIK_R[0], H - DUVAR - 1, H, seg=SEG))  # ışık oyuğu
     fd = PARCA["kcd11"][2]
     bosluk = bosluk + silindir(fd / 2 + 0.3, anahtar_yer()[1] - 6, 80, seg=96).rotate([0, 90, 0]).translate(
         [0, 0, ANAHTAR_Z]).rotate([0, 0, ANAHTAR_ACI])   # anahtarın deliği; flanş ve tuş dışta
-    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(),
+    yapi = {"kabuk": kabuk(), "tutucu": tutucu(nfc), "taban": taban(), "pil_kapagi": pil_kapagi(),
             "figur": (figur_taban() + figur_kapak()).translate([0, 0, Z_CANAK_TABAN])}
     sorun = []
     for ad, e in z.items():
@@ -568,6 +571,7 @@ def _tablaya(m):
 BASKI = (  # (dosya, parça, baskı yönü açıklaması)
     ("1_kabuk", "kabuk", "ters: üst yüz (figür çukuru) tablada"),
     ("2_taban_plakasi", "taban", "düz alt yüz tablada"),
+    ("2b_pil_kapagi", "pil_kapagi", "dış yüz (yazılı) tablada"),
     ("3_halka_nfc_tutucu", "tutucu", "ters: halkanın bastığı düz yüz tablada, raylar yukarı"),
     ("4_figur_taban", "figur", "ters: düz üst yüz tablada, dişli oyuk yukarı; figür başına 1 (adlı kapaklarla figurler/ klasöründe)"),
     ("4b_figur_kapagi", "kapak", "alt yüz tablada; Ø20 NFC etiketi içine yapışır, tabana vidalanır"),
@@ -582,17 +586,17 @@ def stl_yaz(nfc, yapi):
     for eski in os.listdir(d):
         if eski.endswith(".stl"):
             os.remove(os.path.join(d, eski))
-    baski = {"kabuk": yapi["kabuk"].rotate([180, 0, 0]), "taban": yapi["taban"],
+    baski = {"kabuk": yapi["kabuk"].rotate([180, 0, 0]), "taban": yapi["taban"], "pil_kapagi": yapi["pil_kapagi"],
              "tutucu": yapi["tutucu"].rotate([180, 0, 0]), "figur": figur_taban().rotate([180, 0, 0]), "kapak": figur_kapak(), "ayar": figur_taban(topuz=True)}
     for dosya, ad, _ in BASKI:
         _tm(_tablaya(baski[ad])).export(os.path.join(d, f"{dosya}.stl"))
     # tüm hali: basılan parçalar yerinde (tek dosya, ayrı gövdeler)
-    tum = [yapi["kabuk"], yapi["tutucu"], yapi["taban"], yapi["figur"]]
+    tum = [yapi["kabuk"], yapi["tutucu"], yapi["taban"], yapi["pil_kapagi"], yapi["figur"]]
     trimesh.util.concatenate([_tm(m) for m in tum]).export(os.path.join(d, f"0_tum_stand_{nfc}_montajli.stl"))
-    # elektronikle birlikte (yalnız bakmak için): ESP32 ve TP4056 gerçek modelleri, ötekiler kutu zarf
+    # elektronikle birlikte (yalnız bakmak için): ESP32 gerçek modeli, ötekiler kutu zarf
     z = zarflar(nfc)
-    el = [_tm(m) for m in tum] + [tp_stl(), esp_stl()]
-    el += [_tm(e) for ad, e in z.items() if ad not in ("TP4056 Type-C", "ESP32-S3", "jumper payı")]
+    el = [_tm(m) for m in tum] + [esp_stl()]
+    el += [_tm(e) for ad, e in z.items() if ad not in ("ESP32-S3", "jumper payı")]
     trimesh.util.concatenate(el).export(os.path.join(d, f"0_tum_stand_{nfc}_elektronikli_GORSEL.stl"))
     return d
 
@@ -608,11 +612,11 @@ if __name__ == "__main__":
 
 
 # ---------------------------------------------------------------- önizleme
-RENK_PARCA = {"hoparlör (önden)": "#555b66", "18650 yatağı": "#2f2f33", "TP4056 Type-C": "#2d6cdf",
+RENK_PARCA = {"hoparlör (önden)": "#555b66", "4xAA yatağı": "#2f2f33", "5 V düzenleyici": "#2d6cdf",
               "MAX98357A": "#7b3fbf", "KCD11 anahtar": "#111111", "ESP32-S3": "#1d1d1d", "jumper payı": "#e8a33d",
               "INMP441 mikrofon": "#3a7d44", "NeoPixel 16": "#ff4fa3", "RC522 okuyucu": "#1f6f3f",
               "PN5180 okuyucu": "#1f4f8f"}
-RENK_YAPI = {"kabuk": "#F6E7D2", "tutucu": "#c9c2b8", "taban": "#E8DCCB"}
+RENK_YAPI = {"kabuk": "#F6E7D2", "tutucu": "#c9c2b8", "taban": "#E8DCCB", "pil_kapagi": "#d9c6ad"}
 
 
 def onizle():
@@ -629,7 +633,7 @@ def onizle():
         z, yapi, sorun, mesafe = sonuc[nfc]
         yarim = kutu(-80, 0, -80, 80, -5, 80)
         ls = [(yapi["kabuk"] ^ yarim, RENK_YAPI["kabuk"], False),
-              (yapi["taban"], RENK_YAPI["taban"], False),
+              (yapi["taban"], RENK_YAPI["taban"], False), (yapi["pil_kapagi"], RENK_YAPI["pil_kapagi"], False),
               (yapi["tutucu"], RENK_YAPI["tutucu"], False)]
         ls += [(e, RENK_PARCA.get(ad, "#444"), ad in ("NeoPixel 16", "jumper payı")) for ad, e in z.items()]
         ax = fig.add_subplot(1, 2, i + 1, projection="3d")
@@ -639,14 +643,14 @@ def onizle():
         ax.set_xlim(-55, 55); ax.set_ylim(-55, 55); ax.set_zlim(-20, 75)
         ax.view_init(elev=elev, azim=azim)
         ax.set_title(f"{nfc.upper()} — iç yerleşim (sağ yarı kesik)", fontsize=14)
-    fig.suptitle("Çakıl stand, iç yerleşim: alt katta hoparlör (önden), 18650, TP4056, MAX98357A; arkada ters ESP32-S3; "
-                 "üstte NFC okuyucu, LED halka, figür zemini (ışık oyuğu)", fontsize=11)
+    fig.suptitle("Çakıl stand, iç yerleşim: altta pil kutusu (4xAA, alttan kapaklı) ve önde hoparlör; kutunun üstünde "
+                 "MAX98357A, 5 V düzenleyici, ters ESP32-S3; üstte NFC okuyucu, LED halka, figür zemini", fontsize=11)
     plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0)
     fig.savefig(os.path.join(cikti, "cakil_ic_kesit3b.png")); plt.close(fig)
     # 2) üstten yerleşim planı (katlar)
     fig, axs = plt.subplots(1, 3, figsize=(19, 6.6), dpi=110)
-    katlar = [("Alt kat (taban plakası, z 2–22)", ["hoparlör (önden)", "18650 yatağı", "TP4056 Type-C", "MAX98357A", "KCD11 anahtar"]),
-              ("Orta kat (z 15–40): ters ESP32-S3 + jumper payı", ["ESP32-S3", "jumper payı", "18650 yatağı"]),
+    katlar = [("Alt kat (z 0–21): pil kutusu, hoparlör", ["hoparlör (önden)", "4xAA yatağı"]),
+              ("Orta kat (z 21–46): kutunun üstü", ["ESP32-S3", "jumper payı", "MAX98357A", "5 V düzenleyici", "KCD11 anahtar"]),
               ("Üst kat (z 37–54): RC522 / PN5180", ["RC522 okuyucu", "PN5180 okuyucu", "NeoPixel 16", "INMP441 mikrofon"])]
     th = np.linspace(0, 2 * np.pi, 200)
     for ax, (baslik, adlar) in zip(axs, katlar):
@@ -678,7 +682,10 @@ def onizle():
                 ax.text((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, ad.replace(" (aşağı bakar)", "\n(aşağı bakar)").replace(" (rafta)", ""),
                         ha="center", va="center", fontsize=8)
             if nfc == "rc522" and adlar is katlar[0][1]:
-                ax.annotate("USB-C", (TP_X, -dis_r(6)), (TP_X + 6, -dis_r(6) - 4), fontsize=8, arrowprops=dict(arrowstyle="->"))
+                xk = PIL_KAPAK_XE
+                yk0, yk1 = PIL_Y - PIL_IC[1] - PIL_KAPAK_KENAR, PIL_Y + PIL_IC[1] + PIL_KAPAK_KENAR
+                ax.plot([-xk, xk, xk, -xk, -xk], [yk0, yk0, yk1, yk1, yk0], color="#b07a2a", lw=1.2, ls="--")
+                ax.text(0, yk0 - 4, "pil kapağı (alttan)", ha="center", fontsize=8, color="#b07a2a")
         ax.text(0, dis_r(ZC) + 2, "ÖN (logo)", ha="center", fontsize=9)
         ax.text(0, -dis_r(ZC) - 6, "ARKA", ha="center", fontsize=9)
         ax.set_xlim(-66, 66); ax.set_ylim(-68, 66); ax.set_aspect("equal"); ax.grid(alpha=.25)
@@ -696,12 +703,13 @@ def onizle():
           (z["RC522 okuyucu"].translate([0, 0, 36]), RENK_PARCA["RC522 okuyucu"], False),
           (z["ESP32-S3"].translate([0, 0, -40]), RENK_PARCA["ESP32-S3"], False),
           (yapi["taban"].translate([0, 0, -40]), RENK_YAPI["taban"], False)]
-    for ad in ("hoparlör (önden)", "18650 yatağı", "TP4056 Type-C", "MAX98357A"):
+    ls.append((yapi["pil_kapagi"].translate([0, 0, -60]), RENK_YAPI["pil_kapagi"], False))
+    for ad in ("hoparlör (önden)", "4xAA yatağı", "5 V düzenleyici", "MAX98357A"):
         ls.append((z[ad].translate([0, 0, -20]), RENK_PARCA[ad], False))
     elev, azim = 16, 60
     e, a = math.radians(elev), math.radians(azim)
     K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
-    ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_zlim(-45, 250)
+    ax.set_xlim(-60, 60); ax.set_ylim(-60, 60); ax.set_zlim(-65, 250)
     ax.set_box_aspect((1, 1, 2.3))
     ax.view_init(elev=elev, azim=azim)
     ax.set_title("Patlatılmış görünüş (RC522): kabuk, halka, tutucu, okuyucu, alt kat (ESP32 dahil), taban", fontsize=10)

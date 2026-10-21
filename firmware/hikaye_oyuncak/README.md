@@ -243,8 +243,8 @@ Pinlerin hepsi `donanim.h`'de; değişirse `docs/URUN_TANIMI.md` ve bu tablo bir
 | NeoPixel halka (WS2812B) | DIN | 18 | 74AHCT1G125 seviye çevirici (3,3 → 5 V) + 330 Ω seri direnç; halka girişinde 1000 µF; halka 5 V'tan beslenir |
 | Kart üstü RGB LED | — | 48 (38) | kullanılmaz |
 
-Kullanılmayan uçlar: 0, 3, 45, 46 (açılış), 19/20 (USB), 26–37 (flash/PSRAM), 43/44 (UART). Güç: USB-C 5 V / 2 A
-adaptör. PN532 okuyucu da kullanılabilir (`NFC_OKUYUCU 2`): aynı SPI uçlarına, modülün anahtarları SPI'ye alınarak
+Kullanılmayan uçlar: 0, 3, 45, 46 (açılış), 19/20 (USB), 26–37 (flash/PSRAM), 43/44 (UART). Güç: 4 x AA pil → anahtar →
+5 V düzenleyici (Pololu S9V11F5) → 5V (docs/URUN_TANIMI.md). PN532 okuyucu da kullanılabilir (`NFC_OKUYUCU 2`): aynı SPI uçlarına, modülün anahtarları SPI'ye alınarak
 (RSTPDN → GPIO9). Geliştirme için düğmeler `DUGME_ACIK 1` ile açılır (FİGÜR 1, YER 2, OYNAT 14; GND'ye).
 
 Gereken Arduino kütüphanesi: **MFRC522** (GithubCommunity, 1.4.x) — Library Manager'dan. PN532 için ayrıca

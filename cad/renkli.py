@@ -6,7 +6,8 @@ Renkler (AMS yuvası = Bambu Studio'daki filament numarası):
   1 beyaz   2 turkuaz   3 sarı   4 mor
   kabuk     : beyaz gövde (LED'lerin üstündeki 0,6 mm ışık halkası BEYAZ kalmalı), turkuaz "eco ai" logosu ve çukur
               zemini, sarı çukur kenarı + "güneş" halkası, üstte 6 mor yıldız
-  taban     : beyaz plaka; alt yüzde turkuaz "eco ai", sarı halka, 4 mor yıldız (alttan okunur)
+  taban     : beyaz plaka; alt yüzde, pil kapağının önünde turkuaz "eco ai" (alttan okunur)
+  pil kapağı: beyaz; dış yüzde turkuaz "4 x AA / 1,5 V"
   tutucu    : beyaz (LED ışığını yansıtır); montajda görünen yüzünde turkuaz "ÖN" ve ok
   figür     : turkuaz jeton, üst yüzde sarı halka (11 adet, tek tablada)
   ayar kartı: mor jeton ve topuz, topuzun tepesinde beyaz çark, jetonun üstünde sarı halka
@@ -72,10 +73,13 @@ def taban_renk():
     """Alt yüz (tablada): alttan bakınca okunur (ayna)."""
     g = C.taban()
     alt = lambda cs: cs.extrude(KAKMA + 1).translate([0, 0, -1])   # noqa: E731
-    yazi = alt(yazi_duz(C.YAZI, 12.0, C.FONT, ayna=True))
-    sari = _halka(26.5, 29.0, -1, KAKMA)
-    mor = alt(_yildizlar(19.5, 3.2, 4, aci0=45.0))
-    return _bol(g, {"2_turkuaz": yazi, "3_sari": sari, "4_mor": mor})
+    yazi = alt(yazi_duz(C.YAZI, 8.0, C.FONT, ayna=True).translate([0, 28.5]))   # ortası pil kapağı: yazı önde
+    return _bol(g, {"2_turkuaz": yazi})
+
+
+def pil_kapagi_renk():
+    g = C.pil_kapagi(yazi_ile=False)
+    return _bol(g, {"2_turkuaz": C.pil_kapak_yazi().extrude(KAKMA + 1).translate([0, 0, -1])})
 
 
 def tutucu_renk(nfc):
@@ -219,9 +223,10 @@ def onizle(parcalar):
     import matplotlib.pyplot as plt
     import dis_konsept as K
     renk = {k: c for k, _, c in RENKLER}
-    fig = plt.figure(figsize=(18, 11), dpi=100)
+    sutun = (len(parcalar) + 1) // 2
+    fig = plt.figure(figsize=(6 * sutun, 11), dpi=100)
     for i, (bas, b, elev, azim) in enumerate(parcalar):
-        ax = fig.add_subplot(2, 3, i + 1, projection="3d")
+        ax = fig.add_subplot(2, sutun, i + 1, projection="3d")
         e, a = math.radians(elev), math.radians(azim)
         K.ciz(ax, [(m, renk[k], False) for k, m in b.items()], [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
         hepsi = None
@@ -250,6 +255,7 @@ def main():
             os.remove(os.path.join(d, eski))
     # (dosya adı, renk bölgeleri, baskıda ters mi, tablada adet)
     isler = [("1_kabuk", kabuk_renk(), True, 1), ("2_taban_plakasi", taban_renk(), False, 1),
+             ("2b_pil_kapagi", pil_kapagi_renk(), False, 1),
              ("3_halka_nfc_tutucu_rc522", tutucu_renk("rc522"), True, 1),
              ("3_halka_nfc_tutucu_pn5180", tutucu_renk("pn5180"), True, 1)]
     figur, ayar = figur_renk(), ayar_renk()
@@ -292,7 +298,7 @@ def main():
             print(yaz_3mf(os.path.join(d, f"{ad}.3mf"), [(ad, parcalar, (TABLA / 2, TABLA / 2))]))
         print(f"  {ad}: hacim {hacim:.0f} mm³;", {k: round(m.volume()) for k, m in b.items()})
     print(onizle([("1) kabuk", isler[0][1], 30, 70), ("2) taban plakası (alttan)", isler[1][1], -55, 90),
-                  ("3) tutucu (montajda görünen alt yüzü)", isler[2][1], -60, 90),
+                  ("3) tutucu (montajda görünen alt yüzü)", isler[3][1], -60, 90), ("2b) pil kapağı (alttan)", isler[2][1], -60, 90),
                   ("4) figür tabanı", figur, 40, 60), ("5) ayar kartı", ayar, 35, 60),
                   ("1) kabuk önden", isler[0][1], 15, 90)]))
     print("açık (su geçirmeyen) dosya:", hata)

@@ -5,7 +5,7 @@
 cakil_ic.py'deki aynı tasarım kodu, geometri.py yerine geometri_occ.py (OpenCASCADE) ile çalıştırılır: çıktı gerçek
 B-rep katıdır (kavisli dış yüz düzgün B-spline, delikler gerçek silindir). Fusion 360 / SolidWorks / FreeCAD /
 Onshape'te düzenlenebilir katı olarak açılır. Koordinat: mm, z yukarı, parçalar montajdaki yerinde (+y ön/logo,
--y arka/USB-C); ayar kartı kendi yerinde (z = 0).
+-y arka); ayar kartı kendi yerinde (z = 0).
 """
 import os
 import sys
@@ -25,7 +25,8 @@ from OCP.TDataStd import TDataStd_Name  # noqa: E402
 from OCP.Quantity import Quantity_Color, Quantity_TypeOfColor  # noqa: E402
 from OCP.Interface import Interface_Static  # noqa: E402
 
-RENK = {"kabuk": (0.96, 0.94, 0.90), "taban_plakasi": (0.91, 0.86, 0.80), "halka_nfc_tutucu": (0.79, 0.76, 0.72),
+RENK = {"kabuk": (0.96, 0.94, 0.90), "taban_plakasi": (0.91, 0.86, 0.80), "pil_kapagi": (0.85, 0.78, 0.68),
+        "halka_nfc_tutucu": (0.79, 0.76, 0.72),
         "figur_taban": (0.12, 0.71, 0.69), "figur_kapagi": (0.96, 0.76, 0.23),
         "ay_dede": (0.96, 0.76, 0.23), "ayar_karti": (0.48, 0.31, 0.82)}
 
@@ -56,14 +57,14 @@ def main():
     for eski in os.listdir(d):
         if eski.endswith(".step"):
             os.remove(os.path.join(d, eski))
-    parca = {"kabuk": C.kabuk(), "taban_plakasi": C.taban(),
+    parca = {"kabuk": C.kabuk(), "taban_plakasi": C.taban(), "pil_kapagi": C.pil_kapagi(yazi_ile=False),
              "halka_nfc_tutucu_rc522": C.tutucu("rc522"), "halka_nfc_tutucu_pn5180": C.tutucu("pn5180"),
              }   # figür tabanları (vida dişli) STL olarak: cad/stl_cakil/figurler/ (dişli sarmal OCC'de çok yavaş)
     for ad, m in parca.items():
         print(f"{ad}: hacim {m.volume():.0f} mm³, geçerli katı: {BRepCheck_Analyzer(m.sh).IsValid()}", flush=True)
         step_yaz(os.path.join(d, f"{ad}.step"), [(ad, m.sh)])
     for nfc in ("rc522", "pn5180"):
-        adlar = ["kabuk", "taban_plakasi", f"halka_nfc_tutucu_{nfc}"]
+        adlar = ["kabuk", "taban_plakasi", "pil_kapagi", f"halka_nfc_tutucu_{nfc}"]
         print(step_yaz(os.path.join(d, f"0_montaj_{nfc}.step"), [(a, parca[a].sh) for a in adlar]))
 
 

@@ -2,12 +2,13 @@
 
 `python cad/step_yaz.py` ile üretilir: `cakil_ic.py`'deki aynı tasarım OpenCASCADE ile gerçek katı (B-rep) olarak
 kurulur. Kavisli dış yüz düzgün B-spline, delikler gerçek silindir; Fusion 360, SolidWorks, Onshape, FreeCAD'de
-düzenlenebilir katı olarak açılır. Birim mm; z yukarı; parçalar montajdaki yerinde (+y ön/logo, -y arka/USB-C).
+düzenlenebilir katı olarak açılır. Birim mm; z yukarı; parçalar montajdaki yerinde (+y ön/logo, -y arka).
 
 | Dosya | Parça |
 |---|---|
-| `kabuk.step` | dış kabuk ("eco ai" logolu, figür çukuru, ışık oyuğu, hoparlör ızgarası, USB-C ve anahtar delikleri, TP4056 kızakları, vida kolonları) |
-| `taban_plakasi.step` | alt kapak (pil yatağı cebi, hoparlör beşiği, TP4056 kaidesi, ESP32 yuvası, MAX98357A cebi, vida havşaları, ayak yuvaları) |
+| `kabuk.step` | dış kabuk ("eco ai" logolu, figür çukuru, ışık oyuğu, hoparlör ızgarası, anahtar deliği, vida kolonları) |
+| `taban_plakasi.step` | alt kapak (pil kutusu ve kapak deliği, hoparlör beşiği, ESP32 yuvası, MAX98357A ve düzenleyici çerçeveleri, vida havşaları, ayak yuvaları) |
+| `pil_kapagi.step` | pil kapağı (iki dil, M3 havşa vida tablası) |
 | `halka_nfc_tutucu_rc522.step` / `_pn5180.step` | NeoPixel halka + NFC okuyucu tutucusu (kullandığın okuyucunun dosyası) |
 | `0_montaj_rc522.step` / `0_montaj_pn5180.step` | kabuk + taban + tutucu, adlı ve renkli ayrı katılar |
 

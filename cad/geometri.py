@@ -64,6 +64,16 @@ def xz_den_y_ye(cs, y0, y1, x=0.0, z=0.0):
     return e.translate([x, y1, z])
 
 
+def xy_prizma(cs, z0, z1):
+    """x-y düzlemindeki 2B şekli z0..z1 arasında uzatır."""
+    return cs.extrude(z1 - z0).translate([0, 0, z0])
+
+
+def aynala_x(man):
+    """x -> -x (yz düzlemine göre ayna)."""
+    return man.mirror([1, 0, 0])
+
+
 def acida(man, aci):
     return man.rotate([0, 0, aci])
 

@@ -169,6 +169,16 @@ def xz_den_y_ye(cs, y0, y1, x=0.0, z=0.0):
     return cs_prizma(cs, y1 - y0).rotate([90, 0, 0]).translate([x, y1, z])
 
 
+def xy_prizma(cs, z0, z1):
+    return cs_prizma(cs, z1 - z0).translate([0, 0, z0])
+
+
+def aynala_x(man):
+    t = gp_Trsf()
+    t.SetMirror(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0)))
+    return man._tr(t)
+
+
 def trimesh_e(man):   # kullanılmaz (uyumluluk)
     raise NotImplementedError
 

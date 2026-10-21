@@ -57,4 +57,6 @@ Yalnız Türkçe. İnternetsiz. Düğme YOK.
 | NeoPixel halka | DIN (seviye çevirici üzerinden) | 18 |
 | Kart üstü RGB LED | kullanılmaz | 48 (ya da 38) |
 Kullanılmayacak uçlar: 0, 3, 45, 46 (açılış), 19/20 (USB), 26–37 (flash/PSRAM), 43/44 (UART).
-Güç: USB-C 5 V / 2 A adaptör (standın arkasındaki USB-C girişi), pil yok (ilk sürüm).
+Güç (ürün sahibi, 21 Ekim 2026): **4 x AA pil** (alttan vidalı pil kapağı) → açma-kapama anahtarı → 5 V düzenleyici
+(Pololu S9V11F5, düşürür-yükseltir) → ESP32 5V, ses kartı, halka. USB-C girişi ve şarj devresi yok; kod yüklerken
+taban açılır, ESP32'nin kendi USB-C'si kullanılır (anahtar kapalı).
