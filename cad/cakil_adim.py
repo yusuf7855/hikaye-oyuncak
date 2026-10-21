@@ -286,6 +286,52 @@ def pil_yakin():
     return yol
 
 
+def pim_yakin():
+    """Tutucu pimleri yakından: direğin ortasından kesit, tablanın üstten görünüşü (kaburgalar), 3B."""
+    z, yapi, sorun, mesafe = C.denetle("rc522")
+    k, tu = yapi["kabuk"], yapi["tutucu"]
+    aci = C.UST_ACILAR[0]
+    x0, y0 = C.UST_DIREK_R * math.cos(math.radians(aci)), C.UST_DIREK_R * math.sin(math.radians(aci))
+    fig = plt.figure(figsize=(19, 7), dpi=110)
+    ax = fig.add_subplot(1, 3, 1, projection="3d")
+    kirp = C.silindir(9, 35, 60, x=x0, y=y0, seg=48)
+    ls = [((k ^ kirp).translate([0, 0, 12]), C.RENK_YAPI["kabuk"], False), (tu ^ kirp, "#ffd27a", False)]
+    e, a = math.radians(-25), math.radians(-60)
+    K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+    ax.set_xlim(x0 - 10, x0 + 10); ax.set_ylim(y0 - 10, y0 + 10); ax.set_zlim(38, 75); ax.set_box_aspect((1, 1, 1.8))
+    ax.view_init(elev=-25, azim=-60)
+    ax.set_title("Alttan: kabuğun direği ve pimi (12 mm yukarıda),\naltta tutucunun tablası", fontsize=11)
+    ax2 = fig.add_subplot(1, 3, 2)
+    for man, fc, ec in ((k, C.RENK_YAPI["kabuk"], "#8a7a66"), (tu, "#ffd27a", "#b08a30")):
+        cs = man.translate([-x0, -y0, 0]).rotate([0, 0, -aci]).rotate([90, 0, 0]).slice(0.0)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax2.add_patch(Polygon(np.c_[pp[:, 0], -pp[:, 1]], closed=True, fc=fc, ec=ec, lw=1))
+    zt = C.Z_TUTUCU_ALT
+    ax2.annotate(f"pim Ø{2 * C.PIM_R:.0f}, {C.PIM_BOY:.0f} mm, ucu pahlı", xy=(0, zt - 4), xytext=(-14, zt - 9), fontsize=10,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.annotate("tutucunun tablası\n(3 kaburga ezilerek sıkar)", xy=(3.5, zt + 0.5), xytext=(4, zt - 9), fontsize=10,
+                 arrowprops=dict(arrowstyle="->"))
+    ax2.annotate("kabuğun direği", xy=(-3, zt + 4), xytext=(-14, zt + 6), fontsize=10, arrowprops=dict(arrowstyle="->"))
+    ax2.set_xlim(-16, 16); ax2.set_ylim(zt - 12, C.H + 1); ax2.set_aspect("equal"); ax2.grid(alpha=.25)
+    ax2.set_title("Direğin ortasından kesit (montajdaki gibi)", fontsize=11)
+    ax3 = fig.add_subplot(1, 3, 3)
+    cs = tu.translate([-x0, -y0, 0]).slice(zt)
+    for poly in cs.to_polygons():
+        pp = np.asarray(poly)
+        ax3.add_patch(Polygon(pp, closed=True, fc="#ffd27a", ec="#b08a30", lw=1))
+    ax3.add_patch(plt.Circle((0, 0), C.PIM_R, fc="none", ec="#8a7a66", lw=1.5, ls="--"))
+    ax3.text(0, -C.PIM_R - 1.5, "pim", ha="center", fontsize=9, color="#8a7a66")
+    ax3.set_xlim(-8, 8); ax3.set_ylim(-8, 8); ax3.set_aspect("equal"); ax3.grid(alpha=.25)
+    ax3.set_title("Tablanın deliği üstten: 3 kaburga (pim 0,12 mm sıkı)", fontsize=11)
+    fig.suptitle("Tutucu vidasız: kabuğun 4 direğinin ucundaki pimler tutucunun tablalarına geçer", fontsize=14)
+    plt.tight_layout()
+    yol = os.path.join(C.KOK, "onizleme", "adim_1_pim_yakin.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
 def esp_yakin():
     """ESP32 yuvası yakından: üstten (jumper'lar), USB-C ucundan kesit, uzunlamasına kesit."""
     z, yapi, sorun, mesafe = C.denetle("rc522")
@@ -429,7 +475,7 @@ if __name__ == "__main__":
     notlar = {
         1: [(-19, C.Z_HALKA_UST - 0.8, "LED halka çukurun ÇEVRESİNDE, tavana yaslı, çukura sıkı geçer;\nLED'ler tavandaki ışık oyuğuna girer", -60, 22),
             (-15.4, C.H - 1.6, "çukurun dikey duvarı şerit şerit açık:\nLED ışığı yandan çukura girer", 16, 31),
-            (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(4 direğe M2,5 vida); ortası çukura açık", 6, 8),
+            (24, C.Z_TUTUCU_ALT + 1, "tutucu plaka halkayı alttan tavana bastırır\n(kabuğun 4 pimine geçer, vidasız); ortası çukura açık", 6, 8),
             (-8, C.Z_CANAK_TABAN, f"figür çukuru Ø{2 * C.YUVA_R:.1f} (figür tabanı Ø{C.FIGUR_TABAN_D:.0f}), halkanın ortasından geçer", -55, 62)],
         2: [(0, C.Z_OKUYUCU_UST - 0.8, "NFC okuyucu: anten yüzü çukur zemininin 0,3 mm altında", -60, 30),
             (0, C.Z_CANAK_TABAN + 0.4, f"figür etiketi -> anten ≈ {(C.Z_CANAK_TABAN + 0.4) - C.Z_OKUYUCU_UST:.1f} mm", 8, 62),
@@ -454,6 +500,7 @@ if __name__ == "__main__":
         print(adim_gorsel(n, notlar))
     if n == 1:
         print(ust_gorunus())
+        print(pim_yakin())
     if n >= 3:
         print(taban_plan(n))
     if n == 4:

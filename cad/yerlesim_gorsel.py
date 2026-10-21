@@ -118,7 +118,7 @@ def main():
     for aci in C.UST_ACILAR:
         x, y = C.UST_DIREK_R * math.cos(math.radians(aci)), C.UST_DIREK_R * math.sin(math.radians(aci))
         ax3.add_patch(Circle((-x, y), 1.4, fc="#555", ec="none"))
-    ax3.text(-68, -62, "● M2,5 vida (4):\ntutucu → kabuk direkleri", fontsize=8, ha="left")
+    ax3.text(-68, -62, "● pim (4): tutucu kabuğun\ndireklerine geçer (vidasız)", fontsize=8, ha="left")
     # 4) yan kesit
     ax4 = fig.add_subplot(gs[1, 1:])
     for no, ad, k, renk, _ in PARCALAR:

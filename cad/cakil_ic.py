@@ -112,13 +112,18 @@ ANAHTAR_ACI, ANAHTAR_Z = 155.0, 28.0 # sol yan duvar; pil kutusunun üstüne ç�
 # jumper'lar üst kabuk açıkken yukarıdan takılır. Kart arkada, pil kutusunun tavanının üstünde; uzun kenarı x boyunca,
 # USB-C uçları +x, anten -x. Kullanılan bütün uçlar J1 sırasında: J1 öne (okuyucuya) bakar, arka sıraya (J3) jumper
 # takılmaz (kabuğun eğrisine yer kalmaz). Kod yüklemek için taban açılır, USB-C ESP32'nin kendi ucuna takılır.
-ESP_XY = (0.0, -34.5)                # kartın ortası (J1 jumper'ları okuyucunun arkasından geçer)
+ESP_XY = (0.0, -32.7)                # kartın ortası: köşeleri kabuğun alt ağzından geçmeli (GECIS_R)
 ESP_Z = Z_PIL_UST + 0.6 + 3.4        # bileşen yüzü (aşağı bakar; bileşenler 3,4 mm); kartın arka yüzü ESP_Z + 1,6
-JUMPER_BOY = 14.0 + 3.0              # dişi jumper gövdesi (14) + kablonun bükülme payı (üstte okuyucunun rayı)
+JUMPER_BOY = 14.0 + 2.0              # dişi jumper gövdesi (14) + kablonun bükülme payı (üstte okuyucu; kabloyu yana yatır)
 ESP_STL = os.path.join(KOK, "parca_stl", "esp32s3_devkit.stl")   # STEP'ten: kart x ±28,6, y ±14,25, z 0..1,6 (pinler -z)
 MIKROFON = False                     # ürün sahibi (16 Ekim 2026): mikrofon şimdilik yok (sonra eklenecek; yeri ayrılı)
 MIK_XY = (0.0, -40.8)                # yuvarlak INMP441 kartı (Ø14), figür çukuru ile kabuk kenarı arasında
-UST_ACILAR = (45.0, 135.0, 225.0, 315.0)    # halka/NFC tutucu direkleri
+UST_ACILAR = (38.0, 142.0, 218.0, 322.0)    # halka/NFC tutucu direkleri (ürün sahibi, 21 Ekim 2026: öndeki ikisi
+                                            # hoparlörden uzaklaştı; okuyucunun köşelerine de değmez)
+# Tutucu vidasız, pimli (ürün sahibi, 21 Ekim 2026): kabuğun direklerinin ucunda Ø5 pim, tutucunun tablasındaki deliğe
+# (3 ezilen kaburga, sıkı geçme) girer. Pim uzun: tutucu tasarımdan birkaç mm aşağıda kalsa da tutar.
+PIM_R, PIM_BOY = 2.5, 10.0
+TABLA_R = 4.6                        # tutucudaki pim tablası
 VIDA_ACILAR = (0.0, 180.0, 210.0, 330.0)    # taban vidaları (pil kutusu ve ESP32'nin dışında)
 VIDA_R = 50.0
 UST_DIREK_R = 41.0                   # halka/NFC tutucusunu taşıyan, kabuğun üstünden inen direkler
@@ -144,6 +149,7 @@ def profil(ofs=0.0, z0=0.0, z1=H):
 
 
 HOP_YF = _hop_on_y()                         # hoparlörün ön yüzü (y)
+GECIS_R = ic_r(1.2) - 0.4                    # kabuğun alt ağzı: taban plakasındaki her şey bunun içinde kalmalı
 Z_CANAK_TABAN = H - CUKUR_DERIN              # figür tabanının oturduğu yüz
 Z_HALKA_UST = H - DUVAR                      # halka kartı üst yüzün altına (tavana) yaslanır, LED'ler oyukta
 Z_HALKA_ALT = Z_HALKA_UST - PARCA["halka"][2]
@@ -307,14 +313,13 @@ def kabuk():
     n, gen = ISIK_YARIK   # çukur duvarında dikey pencereler: ışık oyuğundan (LED'ler) çukurun içine; üstte 0,6 mm dudak kalır
     for i in range(n):
         g = g - kutu(YUVA_R - 0.5, ISIK_R[0] + 0.5, -gen / 2, gen / 2, H - DUVAR - 0.2, H - ISIK_KAL).rotate([0, 0, 360.0 * (i + 0.5) / n])
-    # tutucu direkleri (üstten iner, M2,5 pilot)
+    # tutucu direkleri (üstten iner) ve uçlarında pim (tutucunun tablasına geçer; ucu pahlı)
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
-        z0 = Z_TUTUCU_ALT + TUTUCU_KAL   # direk tutucu plakanın üstünde biter (plaka altından vidalanır)
-        g = g + silindir(3.5, z0, H - DUVAR + 0.5, x=x, y=y, seg=32)
-    for aci in UST_ACILAR:   # M2,5 sac vidası kılavuz deliği: tavanın içine 3 mm (üst yüzde 1 mm et kalır)
-        x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
-        g = g - silindir(1.05, Z_TUTUCU_ALT + TUTUCU_KAL - 1, H - 1.0, x=x, y=y, seg=24)
+        z0 = Z_TUTUCU_ALT + TUTUCU_KAL   # direk tutucu plakanın üstünde biter
+        g = g + silindir(3.8, z0, H - DUVAR + 0.5, x=x, y=y, seg=32)
+        g = g + silindir(PIM_R, z0 - PIM_BOY + 0.8, z0 + 0.01, x=x, y=y, seg=32)
+        g = g + silindir(PIM_R - 0.8, z0 - PIM_BOY, z0 - PIM_BOY + 0.8, x=x, y=y, seg=32, r2=PIM_R)
     # taban vida kolonları (duvara yapışık, alttan M3 ısıl gömme somun)
     for aci in VIDA_ACILAR:
         x, y = VIDA_R * math.cos(math.radians(aci)), VIDA_R * math.sin(math.radians(aci))
@@ -359,8 +364,12 @@ def tutucu(nfc):
     for aci in UST_ACILAR:
         x, y = UST_DIREK_R * math.cos(math.radians(aci)), UST_DIREK_R * math.sin(math.radians(aci))
         kol = kutu(0, UST_DIREK_R, -4, 4, zt, zt + TUTUCU_KAL).rotate([0, 0, aci])
-        p = p + kol + silindir(4.0, zt - 1.5, zt + TUTUCU_KAL, x=x, y=y, seg=32)   # vida tablası 3,5 mm (M2,5 x 6)
-        p = p - silindir(1.4, zt - 3, zt + 5, x=x, y=y, seg=24)
+        p = p + kol + silindir(TABLA_R, zt - 1.5, zt + TUTUCU_KAL, x=x, y=y, seg=32)   # pim tablası 3,5 mm
+        delik = silindir(PIM_R + 0.25, zt - 3, zt + 5, x=x, y=y, seg=32) \
+            + silindir(PIM_R + 0.25, zt + TUTUCU_KAL - 0.6, zt + TUTUCU_KAL + 0.01, x=x, y=y, seg=32, r2=PIM_R + 0.85)   # giriş pahı
+        p = p - delik
+        for k in range(3):   # ezilen kaburgalar: pim (Ø5) ile 0,12 mm sıkı geçme; kırılmaz, ezilir
+            p = p + kutu(PIM_R - 0.12, PIM_R + 0.4, -0.4, 0.4, zt - 1.5, zt + TUTUCU_KAL - 0.6).rotate([0, 0, 120 * k + aci]).translate([x, y, 0])
     p = p - silindir(CANAK_GOVDE_R + 0.4, zt - 1, zt + 5, seg=SEG)            # çukur geçer
     # halkayı tavandaki ışık oyuğuna giren LED'ler ortalar (bilezik gerekmez: plakanın üst yüzü düz, ters basılır);
     # arkada halkanın kablo lehimleri için plakadan geçen çentik
@@ -447,7 +456,9 @@ def taban(oz=TABAN_OZ):
     for x, y in (AYAKLAR if "ayak" in oz else ()):
         t = t - silindir(AYAK[0] / 2 + 0.2, -1, AYAK[1], x=x, y=y, seg=32)
     ic = dondur(profil(-DUVAR - 0.3, 1.0, H - DUVAR), SEG)
-    t = (t ^ kutu(-70, 70, -70, 70, -1, 1.2)) + (t ^ ic)
+    # kabuk alttan indirilirken her şey kabuğun en dar ağzından (z ≈ 1,2) geçmeli: plakanın üstündekiler GECIS_R içinde
+    # (ilk baskı, 21 Ekim 2026: hoparlör beşiğinin sağ kolu kabuğun alt kenarına takılıyordu)
+    t = (t ^ kutu(-70, 70, -70, 70, -1, 1.2)) + (t ^ ic ^ silindir(GECIS_R, 1.0, H, seg=SEG))
     if "pil" in oz:
         t = t - pil_bosluklari()
     return t
@@ -546,12 +557,27 @@ def denetle(nfc):
             v = (e ^ y).volume()
             if v > 1.0:
                 sorun.append(f"{ad} ile {yad} çakışıyor ({v:.0f} mm³)")
+    pimler = M()
+    for aci in UST_ACILAR:   # pim ile tablanın kaburgaları kasıtlı olarak sıkı geçer
+        pimler = pimler + silindir(PIM_R + 0.05, 0, H, x=UST_DIREK_R * math.cos(math.radians(aci)),
+                                   y=UST_DIREK_R * math.sin(math.radians(aci)), seg=32)
     ys = list(yapi)
     for i in range(len(ys)):
         for j in range(i + 1, len(ys)):
-            v = (yapi[ys[i]] ^ yapi[ys[j]]).volume()
+            v = ((yapi[ys[i]] ^ yapi[ys[j]]) - pimler).volume()
             if v > 0.5:
                 sorun.append(f"{ys[i]} ile {ys[j]} (basılan parçalar) çakışıyor ({v:.0f} mm³)")
+    # kabuk alt modülün üstüne indirilirken: alt modüldeki parçalar kabuğun ağzından geçer mi, taban kabuğa sürter mi
+    gecis = silindir(GECIS_R + 0.01, -1, H, seg=SEG)
+    for ad in ("hoparlör (önden)", "4xAA yatağı", "5 V düzenleyici", "MAX98357A", "ESP32-S3"):
+        v = (z[ad] - gecis).volume()
+        if v > 0.5:
+            sorun.append(f"{ad}: kabuk takılırken alt ağza çarpar ({v:.0f} mm³)")
+    for dz in (1.0, 3.0, 6.0, 10.0, 15.0, 20.0, 30.0):
+        v = (yapi["taban"].translate([0, 0, -dz]) ^ yapi["kabuk"]).volume()
+        if v > 0.5:
+            sorun.append(f"taban {dz:.0f} mm aşağıdayken kabuğa sürtüyor ({v:.0f} mm³)")
+            break
     # NFC: etiket ile anten arası
     mesafe = (Z_CANAK_TABAN + KAPAK_TABAN) - Z_OKUYUCU_UST     # etiket kapağın tabanında
     return z, yapi, sorun, mesafe

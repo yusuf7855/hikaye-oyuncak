@@ -22,7 +22,7 @@ elinde olunca ölç, `cad/cakil_ic.py` PARCA sözlüğünde düzelt, yeniden ür
 ## Ek malzeme
 
 - M3 x 8 HAVŞA BAŞLI vida (4) + M3 ısıl gömme somun (4, Ø4,6 x 5,7; delik Ø4,0 x 6,5): taban plakası → kabuk (somunlar kabuğun 4 kolonuna havyayla gömülür)
-- M2,5 x 6 sac vidası (4): halka/NFC tutucu → kabuğun 4 direği (tutucuda 3,5 mm vida tablası, direkte 3 mm kılavuz delik)
+- Halka/NFC tutucu VİDASIZ: kabuğun 4 direğinin ucundaki Ø5 pimler tutucunun tablalarına sıkı geçer (3 ezilen kaburga)
 - Pil kapağı: M3 x 8 HAVŞA vida (1) + M3 ısıl gömme somun (1; taban plakasındaki kolona ALTTAN gömülür)
 - 4'lü AA pil yatağı (yan yana 4 pil, kablolu) + ince çift taraflı bant (yatağın sırtı kutunun tavanına)
 - 5 V düzenleyici: **Pololu S9V11F5** (5 V, düşürür-yükseltir; alkalin 6,4 V'tan şarjlı NiMH 4,4 V'a kadar sabit 5 V)
@@ -36,7 +36,8 @@ elinde olunca ölç, `cad/cakil_ic.py` PARCA sözlüğünde düzelt, yeniden ür
 Üst modül (kabuk ters dururken):
 1. Isıl gömme somunları 4 kolona göm.
 2. NeoPixel halkayı LED'ler tavandaki ışık oyuğuna girecek biçimde koy (kablosu arkada).
-3. NFC okuyucuyu tutucunun raylarına kaydır; tutucuyu halkanın üstüne koy, 4 M2,5 vidayla direklere vidala.
+3. NFC okuyucuyu tutucunun raylarına kaydır; tutucuyu halkanın üstüne koy, 4 tablayı kabuğun 4 pimine hizala ve
+   bastır (sıkı geçer; çıkarmak için tablaların yanından eşit çek). Pimler 10 mm: tutucu halkaya tam basmasa da tutar.
 4. KCD11 anahtarı sol yandaki deliğe dışarıdan bastır (tırnaklar içte oturur).
 
 Alt modül (taban plakası):
@@ -104,6 +105,16 @@ yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı.
 Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
 %100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
 `bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.
+
+## v5 (21 Ekim 2026, baskıdan sonra)
+
+- **Hoparlör beşiğinin kolları** (ve alt modüldeki her şey) kabuğun alt ağzından geçecek kadar içeri alındı (r ≤ 55,0):
+  kabuk indirilirken 1-SAĞ kolunun köşesi kabuğun alt kenarına takılıyordu. Çarpışma denetimi artık kabuğu alt modülün
+  üstüne indirmeyi de dener.
+- **Tutucu direkleri** 45°/135° → 38°/142° (öndekiler hoparlörden ~3 mm uzakta, okuyucunun köşesine de değmez).
+- **Tutucu vidasız, pimli:** direklerin ucunda Ø5 x 10 pim, tutucunun tablalarında 3 kaburgalı delik (0,12 mm sıkı).
+- **ESP32** y −34,5 → −32,7 (köşeleri kabuğun alt ağzından geçer); jumper payı 14 + 2 mm: kabloları yana yatır ya da
+  90° açılı jumper / lehim kullan.
 
 ## Pil kutusu (21 Ekim 2026): USB-C ve şarj kalktı, 4'lü AA geldi
 
