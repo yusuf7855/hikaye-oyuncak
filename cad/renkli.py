@@ -5,7 +5,7 @@
 Renkler (AMS yuvası = Bambu Studio'daki filament numarası):
   1 beyaz   2 turkuaz   3 sarı   4 mor
   kabuk     : beyaz gövde (LED'lerin üstündeki 0,6 mm ışık halkası BEYAZ kalmalı), turkuaz "eco ai" logosu ve çukur
-              zemini, sarı çukur kenarı + "güneş" halkası, üstte 6 mor yıldız
+              zemini, sarı çukur kenarı + "güneş" halkası, üstte 6 büyük mor yıldız
   taban     : beyaz plaka; alt yüzde, pil kapağının önünde turkuaz "eco ai" (alttan okunur)
   pil kapağı: beyaz; dış yüzde turkuaz "4 x AA / 1,5 V"
   tutucu    : beyaz (LED ışığını yansıtır); montajda görünen yüzünde turkuaz "ÖN" ve ok
@@ -28,7 +28,9 @@ KAKMA = 0.6
 RENKLER = [("1_beyaz", "beyaz", "#F4F1EA"), ("2_turkuaz", "turkuaz", "#1FB5B0"),
            ("3_sari", "sarı", "#F6C33B"), ("4_mor", "mor", "#7A4FD0")]
 RENK_NO = {k: i + 1 for i, (k, _, _) in enumerate(RENKLER)}
-YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = 43.0, 3.6, 6     # Ø70 halkanın ışık oyuğu ve güneş halkasının dışında
+YILDIZ_ACI = 60.0                   # önde ortada yıldız yok, logonun iki yanında birer tane (simetrik)
+YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = 48.1, 6.8, 6     # ürün sahibi (21 Ekim 2026): büyük, üstten bakınca güneş halkası (r 38,2) ile
+                                                    # dış kenar (r ≈ 58) arasında ortalı; kabuğun yüzünü (omzu) izler
 TABLA = 256.0                       # P2S tablası 256 x 256
 
 
@@ -65,7 +67,8 @@ def kabuk_renk():
             ^ dondur(C.profil(1.2), seg)) - dondur(C.profil(-1.3), seg)   # harf kökü 1,3 mm (0,8 / 1,0 sınırlarına değmesin)
     zemin = silindir(C.YUVA_R + 0.01, C.Z_CANAK_TABAN - KAKMA, C.Z_CANAK_TABAN + 0.01, seg=seg)
     sari = _halka(C.YUVA_R - 0.01, C.ISIK_R[0] - 0.4, H - KAKMA, H + 1) + _halka(C.ISIK_R[1] + 0.6, C.ISIK_R[1] + 3.6, H - KAKMA, H + 1)
-    mor = _yildizlar(YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET).extrude(KAKMA + 1).translate([0, 0, H - KAKMA])
+    deri = dondur(C.profil(1.0, 0.0, H + 1.0), seg) - dondur(C.profil(-KAKMA, 0.0, H - KAKMA), seg)   # yüzeyin 0,6 mm'lik derisi (üst yüz dahil)
+    mor = _yildizlar(YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET, aci0=YILDIZ_ACI).extrude(30).translate([0, 0, H - 25]) ^ deri
     return _bol(g, {"2_turkuaz": logo + zemin, "3_sari": sari, "4_mor": mor})
 
 

@@ -68,7 +68,7 @@ Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya
 
 | Dosya | Renkler | Not |
 |---|---|---|
-| `1_kabuk.3mf` | beyaz gövde, turkuaz "eco ai" ve çukur zemini, sarı çukur kenarı + güneş halkası, 6 mor yıldız | LED'lerin üstündeki ışık halkası beyaz kalmalı. Destek: ağaç (tree), yalnız iç kısım. Logo dikey duvarda: logo boyunca her katmanda renk değişir (en çok atık burada) |
+| `1_kabuk.3mf` | beyaz gövde, turkuaz "eco ai" ve çukur zemini, sarı çukur kenarı + güneş halkası, 6 büyük mor yıldız (üst yüzü ve omzu izler) | LED'lerin üstündeki ışık halkası beyaz kalmalı. Destek: ağaç (tree), yalnız iç kısım. Logo dikey duvarda: logo boyunca her katmanda renk değişir (en çok atık burada) |
 | `2_taban_plakasi.3mf` | beyaz plaka; alt yüzde (pil kapağının önünde) turkuaz "eco ai" | renkler ilk 3 katmanda, alttan okunur; destek: yalnız tablaya değen (pil kutusu tavanı) |
 | `2b_pil_kapagi.3mf` | beyaz kapak; dış yüzde turkuaz "4 x AA / 1,5 V" | destek yok |
 | `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
