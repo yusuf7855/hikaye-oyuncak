@@ -28,10 +28,10 @@ KAKMA = 0.6
 RENKLER = [("1_beyaz", "beyaz", "#F4F1EA"), ("2_turkuaz", "turkuaz", "#1FB5B0"),
            ("3_sari", "sarı", "#F6C33B"), ("4_mor", "mor", "#7A4FD0")]
 RENK_NO = {k: i + 1 for i, (k, _, _) in enumerate(RENKLER)}
-# Ürün sahibi (22 Ekim 2026): üst yüzdeki dış sarı halka kalktı, yerine yıldızlar; hepsi düz üst yüzde (r ≤ 47),
-# ışık halkasının (r 34,6) dışı ile üst yüzün kenarı arasında ortalı
+# Ürün sahibi (22 Ekim 2026): üst yüzdeki dış sarı halka kalktı, yerine yıldızlar; çukurun dış dairesi (sarı kenar,
+# r 27,65) ile üst yüzün dış dairesi (r 47) arasında ortalı. İç uçları LED ışık halkasının (r 28-34,6) dış kenarına biner.
 YILDIZ_ACI = 90.0
-YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = 41.0, 5.2, 8
+YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET = (C.ISIK_R[0] - 0.4 + C.dis_r(C.H)) / 2, 6.0, 8
 TABLA = 256.0                       # P2S tablası 256 x 256
 
 
