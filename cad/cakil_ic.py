@@ -127,6 +127,15 @@ TABLA_R = 4.6                        # tutucudaki pim tablası
 VIDA_ACILAR = (0.0, 180.0, 210.0, 330.0)    # taban vidaları (pil kutusu ve ESP32'nin dışında)
 VIDA_R = 50.0
 UST_DIREK_R = 41.0                   # halka/NFC tutucusunu taşıyan, kabuğun üstünden inen direkler
+# Kedi kulakları (ürün sahibi, 23 Ekim 2026; cad/kulaklar.py): ayrı basılır, kabuğun omzundaki iki yuvaya dilleriyle
+# takılır. Yuvalar kabukta; içte her yuvanın altında dili saran bir kaide.
+KULAK = True
+KULAK_ACILAR = (45.0, 135.0)         # sağ ön ve sol ön omuz (önden bakınca figürü kapatmaz, yıldızlara değmez)
+KULAK_Z = 53.5                       # kulağın oturduğu omuz noktası (r ≈ 50)
+KULAK_EGIM, KULAK_GOM = 4.0, 3.0     # geriye yatıklık (°), tabanın yüzeye gömülmesi
+KULAK_DIL = ((-5.0,), 8.0, (-1.0, 3.0), (-7.0, 6.0))   # dil x'i (sağ kulak; solda aynası), eni, y aralığı (ön yüz +3),
+                                                       # z aralığı (yerel). Dil kulağın içe (üst yüze) yakın yarısında:
+                                                       # dış yarıda omuz dikleşir, dil ve yuva dışarıdan görünürdü
 AYAK = (10.0, 1.0)                   # silikon ayak yuvası Ø, derinlik
 AYAKLAR = ((0.0, 40.0), (-45.0, 10.0), (45.0, 10.0), (0.0, -49.0))   # pil kapağının dışında
 
@@ -134,6 +143,29 @@ AYAKLAR = ((0.0, 40.0), (-45.0, 10.0), (45.0, 10.0), (0.0, -49.0))   # pil kapa�
 def dis_r(z):
     u = abs(z - ZC) / B
     return R * max(0.0, 1 - u ** N) ** (1 / N)
+
+
+def kulak_yon(aci):
+    return 90 + (aci - 90) * 0.45    # kulak öne bakar, biraz dışa açık
+
+
+def kulak_yer(m, aci, geri=False):
+    """Kulağın yerel koordinatından (taban z=0, xz düzlemi, ön yüz +y) kabuktaki yerine; geri=True: tersi."""
+    r = dis_r(KULAK_Z)
+    x, y = 0.98 * r * math.cos(math.radians(aci)), 0.98 * r * math.sin(math.radians(aci))
+    if geri:
+        return m.translate([-x, -y, -KULAK_Z]).rotate([0, 0, -(kulak_yon(aci) - 90)]).rotate([KULAK_EGIM, 0, 0]).translate([0, 0, KULAK_GOM])
+    return m.translate([0, 0, -KULAK_GOM]).rotate([-KULAK_EGIM, 0, 0]).rotate([0, 0, kulak_yon(aci) - 90]).translate([x, y, KULAK_Z])
+
+
+def kulak_dilleri(aci, pay=0.0, uzat=0.0):
+    """Kulağın iki dili kabuktaki yerinde (pay: her yanda büyütme, uzat: aşağı/yukarı uzatma; yuva için)."""
+    xs, en, (y0, y1), (z0, z1) = KULAK_DIL
+    s = 1.0 if math.cos(math.radians(aci)) > 0 else -1.0
+    d = M()
+    for xc in (s * x for x in xs):
+        d = d + kutu(xc - en / 2 - pay, xc + en / 2 + pay, y0 - pay, y1 + pay, z0 - pay - uzat, z1 + uzat)
+    return kulak_yer(d, aci)
 
 
 def ic_r(z):
@@ -348,6 +380,15 @@ def kabuk():
         r = PARCA["inmp441"][0] / 2 + 0.3
         cep = (silindir(r + 1.2, Z_MIK + 1.5, H - DUVAR + 0.01, seg=32) - silindir(r, Z_MIK, H, seg=32)).translate([MIK_XY[0], MIK_XY[1], 0])
         g = g + (cep ^ dondur(profil(-0.6), SEG))
+    # kedi kulağı yuvaları: içte dili saran kaide (dış yüzden taşmaz), sonra dilin yuvası
+    if KULAK:
+        xs, en, (y0, y1), (z0, z1) = KULAK_DIL
+        for aci in KULAK_ACILAR:
+            kaide = M()
+            for xc in ((1.0 if math.cos(math.radians(aci)) > 0 else -1.0) * x for x in xs):
+                kaide = kaide + kutu(xc - en / 2 - 2.2, xc + en / 2 + 2.2, y0 - 2.2, y1 + 2.2, z0 - 2.5, KULAK_GOM)
+            g = g + (kulak_yer(kaide, aci) ^ dondur(profil(-0.4), SEG))
+            g = g - kulak_dilleri(aci, pay=0.2, uzat=1.0)
     # kabuğun alt kenarında taban plakası için 1,2 mm oturma basamağı
     g = g - silindir(ic_r(1.0) + 0.6, -1, 1.2, seg=SEG)
     return g

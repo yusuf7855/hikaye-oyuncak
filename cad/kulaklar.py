@@ -1,6 +1,7 @@
-"""Kabuğa takılan tema parçaları (kedi / ayı / tavşan kulağı, dinozor dikenleri): konsept görseli.
+"""Kabuğa takılan tema parçaları (kedi / ayı / tavşan kulağı, dinozor dikenleri).
 
-    python cad/kulaklar.py     # cad/onizleme/kabuk_temalar.png
+    python cad/kulaklar.py           # konsept: cad/onizleme/kabuk_temalar.png
+    python cad/kulaklar.py --kedi    # kedi kulakları: stl_cakil/kulak/*.stl, renkli_bambu/6_kedi_kulaklari.3mf, görsel
 
 Kabuk ters (üst yüz tablada) basıldığı için kulaklar kabuğa basılmaz: ayrı basılır, kabuğun omzundaki deliklere
 pimle takılır (tema değiştirilebilir). Bu dosya şimdilik yalnız biçimleri ve yerleri gösterir.
@@ -73,6 +74,86 @@ def tema(ad):
     return g, k
 
 
+# ---------------------------------------------------------------- kedi kulakları (baskıya hazır)
+def kedi_kulak(aci):
+    """(gövde, iç kakma) kabuktaki yerinde. Gövde kabuğun yüzüne oturur (taban yüzeye göre kesilir), iki dili
+    kabuğun yuvalarına girer. Sol kulak sağın aynası (uçlar dışa yatık)."""
+    dis = _yuvarla(CS([cokgen([(-15, 0), (15, 0), (3, 27)])]), 2.8)
+    ic = _yuvarla(CS([cokgen([(-9.5, 4.5), (9.5, 4.5), (2.2, 20)])]), 1.5)
+    if math.cos(math.radians(aci)) < 0:
+        dis, ic = dis.mirror([1, 0]), ic.mirror([1, 0])
+    dis_kabuk = C.dondur(C.profil(), C.SEG)
+    govde = C.kulak_yer(xz_den_y_ye(dis, -3.0, 3.0), aci) - dis_kabuk
+    kakma = C.kulak_yer(xz_den_y_ye(ic, 2.2, 3.01), aci)
+    return govde + C.kulak_dilleri(aci), kakma
+
+
+def kulak_uret():
+    """STL (tek renk) ve renkli 3MF (beyaz kulak, iç kakma 4. filament): ön yüzü tablada, dilleri tabla düzleminde."""
+    import trimesh
+    import renkli as R
+    d = os.path.join(C.KOK, "stl_cakil", "kulak")
+    os.makedirs(d, exist_ok=True)
+    k = C.kabuk()
+    nesneler = []
+    for aci, ad in ((45.0, "sag"), (135.0, "sol")):
+        g, kk = kedi_kulak(aci)
+        print(f"  {ad}: kabukla çakışma {(g ^ k).volume():.2f} mm³, hacim {g.volume():.0f} mm³")
+        yerel = lambda m: C.kulak_yer(m, aci, geri=True).rotate([-90, 0, 0])   # noqa: E731  ön yüz (+y) tabaya
+        b = R._bol(yerel(g), {"4_mor": yerel(kk)})
+        bk = R.baski_konumu(b, False)
+        tek = C._tm(C._tablaya(yerel(g)))
+        tek.export(os.path.join(d, f"kedi_kulagi_{ad}.stl"))
+        parcalar = [(f"kedi_kulagi_{ad}_{r}", R.RENK_NO[r], R.temiz(m)) for r, m in bk.items()]
+        nesneler.append((f"kedi_kulagi_{ad}", parcalar, (R.TABLA / 2 + (25 if ad == "sag" else -25), R.TABLA / 2)))
+    print(R.yaz_3mf(os.path.join(C.KOK, "stl_cakil", "renkli_bambu", "6_kedi_kulaklari.3mf"), nesneler))
+    return d
+
+
+def kulak_gorsel():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib.patches import Polygon
+    import dis_konsept as K
+    import renkli as R
+    b = R.kabuk_renk()
+    renk = {k: c for k, _, c in R.RENKLER}
+    fig = plt.figure(figsize=(21, 8), dpi=105)
+    for i, (elev, azim, bas) in enumerate(((16, 90, "Önden"), (30, 40, "Sağ önden"))):
+        ax = fig.add_subplot(1, 3, i + 1, projection="3d")
+        ls = [(m, renk[kk], False) for kk, m in b.items()]
+        for aci in C.KULAK_ACILAR:
+            g, kk = kedi_kulak(aci)
+            ls += [(g - kk, "#F4F1EA", False), (kk, "#ff8fb8", False)]
+        e, a = math.radians(elev), math.radians(azim)
+        K.ciz(ax, ls, [math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+        ax.set_xlim(-62, 62); ax.set_ylim(-62, 62); ax.set_zlim(-5, 90); ax.set_box_aspect((1, 1, 0.78)); ax.set_axis_off()
+        ax.view_init(elev=elev, azim=azim); ax.set_title(bas, fontsize=13)
+    ax = fig.add_subplot(1, 3, 3)
+    aci = C.KULAK_ACILAR[0]
+    g, kk = kedi_kulak(aci)
+    for man, fc, ec in ((C.kabuk(), "#F6E7D2", "#8a7a66"), (g, "#ffffff", "#555")):
+        cs = C.kulak_yer(man, aci, geri=True).rotate([90, 0, 0]).slice(KULAK_KESIT_Y)
+        for poly in cs.to_polygons():
+            pp = np.asarray(poly)
+            ax.add_patch(Polygon(np.c_[pp[:, 0], -pp[:, 1]], closed=True, fc=fc, ec=ec, lw=1))
+    ax.annotate("dil (8 x 4 mm) kabuğun yuvasına girer", xy=(-5, -4), xytext=(-20, -16), fontsize=10, arrowprops=dict(arrowstyle="->"))
+    ax.annotate("içte dili saran kaide", xy=(-1.5, -8.5), xytext=(4, -20), fontsize=10, arrowprops=dict(arrowstyle="->"))
+    ax.set_xlim(-22, 26); ax.set_ylim(-24, 30); ax.set_aspect("equal"); ax.grid(alpha=.25)
+    ax.set_title("Kulağın düzleminden kesit (sağ kulak)", fontsize=12)
+    fig.suptitle("Kedi kulakları: ayrı basılır, kabuğun omzundaki iki yuvaya dilleriyle takılır", fontsize=15, fontweight="bold")
+    plt.subplots_adjust(left=0, right=0.99, top=0.88, bottom=0.04, wspace=0.02)
+    yol = os.path.join(C.KOK, "onizleme", "kedi_kulaklari.png")
+    fig.savefig(yol)
+    plt.close(fig)
+    return yol
+
+
+KULAK_KESIT_Y = 1.0   # kesit düzlemi (kulağın yerel y'si; dillerin ortası)
+
+
 def konsept():
     import matplotlib
     matplotlib.use("Agg")
@@ -106,4 +187,8 @@ def konsept():
 
 
 if __name__ == "__main__":
-    print(konsept())
+    if "--kedi" in sys.argv:
+        print(kulak_uret())
+        print(kulak_gorsel())
+    else:
+        print(konsept())

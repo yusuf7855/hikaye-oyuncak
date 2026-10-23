@@ -74,6 +74,7 @@ Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya
 | `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
 | `4a_figur_tabanlari_ay_dede_ayar_karti.3mf` | 11 turkuaz figür tabanı Ø52 (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark) | tek tablada 13 parça |
 | `4b_nfc_kapaklari.3mf` | 13 sarı adlı vidalı NFC kapağı | tek tablada 13 parça |
+| `6_kedi_kulaklari.3mf` | iki beyaz kedi kulağı, içleri 4. filamentte (pembe istiyorsan 4. yuvaya pembe tak) | ön yüzü tablada, destek yok |
 
 Atık kulesi (prime tower) açık kalsın. 3MF açılmazsa ya da renkler gelmezse: aynı parçanın renk STL'lerini
 (ör. `1_kabuk_1_beyaz.stl` … `1_kabuk_4_mor.stl`) birlikte seçip Bambu Studio'ya sürükle, "tek nesne, çok parça
@@ -105,6 +106,15 @@ yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı.
 Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
 %100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
 `bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.
+
+## Kedi kulakları (23 Ekim 2026) — `kulak/`
+
+- `kulak/kedi_kulagi_sag.stl`, `kulak/kedi_kulagi_sol.stl` (tek renk) ya da `renkli_bambu/6_kedi_kulaklari.3mf`.
+  Ön yüzü (iç kısmı renkli yüz) tablada, desteksiz.
+- Kabuğun omzunda (sağ ön ve sol ön, 45°/135°) iki yuva var; kulağın altındaki 8 x 4 mm dil yuvaya girer (0,2 mm
+  boşluk). İçte dili saran kaide var. Sıkı gelir; çocuk çekmesin diye bir damla yapıştırıcı sürülebilir.
+- Kulaklar yanlarda: önden bakınca figürü kapatmaz, üstteki yıldızlara değmez. Sağ ve sol kulak birbirinin aynası
+  (uçlar dışa yatık); dosya adına göre tak.
 
 ## v5 (21 Ekim 2026, baskıdan sonra)
 
