@@ -107,6 +107,11 @@ Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak
 %100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
 `bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.
 
+## Yeni logo (23 Ekim 2026)
+
+- "eco ai" yuvarlak harflerle (Bubblegum Sans, OFL) turkuaz; çevresinde 3 sarı ve 2 mor yıldız. Hepsi 1,2 mm kabarık,
+  renkli baskıda kendi renginde. Görsel: `onizleme/logo_3b.png`. Kabuğun iki hali de (kulaklı / kulaksız) yeni logolu.
+
 ## Kedi kulakları (23 Ekim 2026) — `kulak/`
 
 - `kulak/kedi_kulagi_sag.stl`, `kulak/kedi_kulagi_sol.stl` (tek renk) ya da `renkli_bambu/6_kedi_kulaklari.3mf`.

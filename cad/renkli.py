@@ -4,7 +4,7 @@
 
 Renkler (AMS yuvası = Bambu Studio'daki filament numarası):
   1 beyaz   2 turkuaz   3 sarı   4 mor
-  kabuk     : beyaz gövde (LED'lerin üstündeki 0,6 mm ışık halkası BEYAZ kalmalı), turkuaz "eco ai" logosu ve çukur
+  kabuk     : beyaz gövde (LED'lerin üstündeki 0,6 mm ışık halkası BEYAZ kalmalı), turkuaz "eco ai" (sarı/mor yıldızlı) ve çukur
               zemini, sarı çukur kenarı, üst yüzde 8 mor yıldız (dış sarı halkanın yerinde)
   taban     : beyaz plaka; alt yüzde, pil kapağının önünde turkuaz "eco ai" (alttan okunur)
   pil kapağı: beyaz; dış yüzde turkuaz "4 x AA / 1,5 V"
@@ -64,12 +64,13 @@ def _halka(r0, r1, z0, z1):
 def kabuk_renk(kulak=None):
     g = C.kabuk(kulak)
     H, seg = C.H, C.SEG
-    logo = (xz_den_y_ye(yazi_duz(C.YAZI, C.YAZI_BOY, C.FONT, ayna=True), 0, 80, x=0, z=C.YAZI_Z)
-            ^ dondur(C.profil(1.2), seg)) - dondur(C.profil(-1.3), seg)   # harf kökü 1,3 mm (0,8 / 1,0 sınırlarına değmesin)
+    kabarik, kok = dondur(C.profil(1.2), seg), dondur(C.profil(-1.3), seg)   # harf kökü 1,3 mm (0,8 / 1,0 sınırlarına değmesin)
+    lp = {r: (C.logo_prizma(cs) ^ kabarik) - kok for r, cs in C.logo_parcalari().items()}
+    logo = lp["2_turkuaz"]
     zemin = silindir(C.YUVA_R + 0.01, C.Z_CANAK_TABAN - KAKMA, C.Z_CANAK_TABAN + 0.01, seg=seg)
     sari = _halka(C.YUVA_R - 0.01, C.ISIK_R[0] - 0.4, H - KAKMA, H + 1)          # çukurun kenarı
     mor = _yildizlar(YILDIZ_R, YILDIZ_BOY, YILDIZ_ADET, aci0=YILDIZ_ACI).extrude(KAKMA + 1).translate([0, 0, H - KAKMA])
-    return _bol(g, {"2_turkuaz": logo + zemin, "3_sari": sari, "4_mor": mor})
+    return _bol(g, {"2_turkuaz": logo + zemin, "3_sari": sari + lp["3_sari"], "4_mor": mor + lp["4_mor"]})
 
 
 def taban_renk():

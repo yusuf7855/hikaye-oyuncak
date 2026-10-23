@@ -52,7 +52,12 @@ ISIK_YARIK = (36, 1.6)   # ürün sahibi: çukurun LED şeridine bakan DİKEY i�
                          # 1,6 mm geniş; ışık yandan çukurun içine vurur (üst yüz kapalı kalır)
 ISIK_R = (28.05, 34.6)   # ışık oyuğu: LED'ler (5x5 mm, r ≈ 31) halka tavana yaslanınca bu oyuğun içine girer
 CANAK_GOVDE_R = YUVA_R + YUVA_DUVAR   # çukurun dış yarıçapı (tutucu plaka da bu kadar)
-YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının üstünde
+YAZI, YAZI_BOY, YAZI_Z = "eco ai", 13.0, 44.5   # logo hoparlör ızgarasının üstünde (YAZI_BOY: ızgaranın üst sınırı)
+# Logo (ürün sahibi, 23 Ekim 2026: "yıldızlar arasında"): yuvarlak harfler (Bubblegum Sans, OFL) turkuaz, çevresinde
+# sarı ve mor yıldızlar; hepsi 1,2 mm kabarık. Ölçüler önden bakana göre (x sağa, y yukarı, YAZI_Z'ye göre).
+LOGO_FONT, LOGO_BOY = os.path.join(KOK, "font", "BubblegumSans-Regular.ttf"), 18.0
+LOGO_YILDIZ = ((-25.5, 3.6, 2.6, "3_sari"), (-21.8, -4.6, 1.7, "4_mor"), (25.0, 4.2, 2.8, "3_sari"),
+               (28.8, -3.4, 1.7, "4_mor"), (30.3, 1.4, 1.2, "3_sari"))
 
 # ---------------------------------------------------------------- parçalar (TAHMİN; ölçülünce düzelt)
 PARCA = {
@@ -138,6 +143,21 @@ KULAK_DIL = ((-5.0,), 8.0, (-1.0, 3.0), (-7.0, 6.0))   # dil x'i (sağ kulak; so
                                                        # dış yarıda omuz dikleşir, dil ve yuva dışarıdan görünürdü
 AYAK = (10.0, 1.0)                   # silikon ayak yuvası Ø, derinlik
 AYAKLAR = ((0.0, 40.0), (-45.0, 10.0), (45.0, 10.0), (0.0, -49.0))   # pil kapağının dışında
+
+
+def logo_parcalari():
+    """{renk: 2B şekil} önden bakana göre (aynasız), merkez (0, 0) = (x 0, z YAZI_Z)."""
+    from geometri import yildiz
+    p = {"2_turkuaz": yazi_duz(YAZI, LOGO_BOY, LOGO_FONT)}
+    for x, y, r, renk in LOGO_YILDIZ:
+        y_ = yildiz(x, y, r, r * 0.5, aci0=90).offset(0.15, m3.JoinType.Round, 2.0, 8)   # uçlar hafif yuvarlak
+        p[renk] = y_ if renk not in p else p[renk] + y_
+    return p
+
+
+def logo_prizma(cs):
+    """Önden bakana göre 2B şekli kabuğun ön duvarına doğru uzatır (önden okunur)."""
+    return xz_den_y_ye(cs.mirror([1, 0]), 0, 80, x=0, z=YAZI_Z)
 
 
 def dis_r(z):
@@ -337,7 +357,10 @@ def kabuk(kulak=None):
     g = dis - ic
     # logo (kabarık)
     dis12 = dondur(profil(1.2), SEG)
-    g = g + ((xz_den_y_ye(yazi_duz(YAZI, YAZI_BOY, FONT, ayna=True), 0, 80, x=0, z=YAZI_Z) ^ dis12) - dondur(profil(-0.8), SEG))
+    logo = M()
+    for cs in logo_parcalari().values():
+        logo = logo + logo_prizma(cs)
+    g = g + ((logo ^ dis12) - dondur(profil(-0.8), SEG))
     # figür çukuru: zemin ve duvar kabuğun parçası; zeminin altında LED'lerin üstünde ışık oyuğu
     g = g + silindir(CANAK_GOVDE_R, Z_CANAK_TABAN - ZEMIN_KAL, H - DUVAR + 0.01, seg=SEG)
     g = g - silindir(YUVA_R, Z_CANAK_TABAN, H + 1, seg=SEG)
