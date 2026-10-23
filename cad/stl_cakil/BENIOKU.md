@@ -115,6 +115,8 @@ Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak
   boşluk). İçte dili saran kaide var. Sıkı gelir; çocuk çekmesin diye bir damla yapıştırıcı sürülebilir.
 - Kulaklar yanlarda: önden bakınca figürü kapatmaz, üstteki yıldızlara değmez. Sağ ve sol kulak birbirinin aynası
   (uçlar dışa yatık); dosya adına göre tak.
+- Kulak takmayacaksan kabuğu **kulaksız** bas: `rc522/1_kabuk_kulaksiz.stl` (iki klasörde aynı) ya da
+  `renkli_bambu/1_kabuk_kulaksiz.3mf` (omuzda yuva yok, gerisi aynı).
 
 ## v5 (21 Ekim 2026, baskıdan sonra)
 

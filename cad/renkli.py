@@ -61,8 +61,8 @@ def _halka(r0, r1, z0, z1):
 
 
 # ---------------------------------------------------------------- parçalar (kullanım konumunda, z yukarı)
-def kabuk_renk():
-    g = C.kabuk()
+def kabuk_renk(kulak=None):
+    g = C.kabuk(kulak)
     H, seg = C.H, C.SEG
     logo = (xz_den_y_ye(yazi_duz(C.YAZI, C.YAZI_BOY, C.FONT, ayna=True), 0, 80, x=0, z=C.YAZI_Z)
             ^ dondur(C.profil(1.2), seg)) - dondur(C.profil(-1.3), seg)   # harf kökü 1,3 mm (0,8 / 1,0 sınırlarına değmesin)
@@ -258,6 +258,7 @@ def main():
             os.remove(os.path.join(d, eski))
     # (dosya adı, renk bölgeleri, baskıda ters mi, tablada adet)
     isler = [("1_kabuk", kabuk_renk(), True, 1), ("2_taban_plakasi", taban_renk(), False, 1),
+             *([("1_kabuk_kulaksiz", kabuk_renk(kulak=False), True, 1)] if C.KULAK else []),
              ("2b_pil_kapagi", pil_kapagi_renk(), False, 1),
              ("3_halka_nfc_tutucu_rc522", tutucu_renk("rc522"), True, 1),
              ("3_halka_nfc_tutucu_pn5180", tutucu_renk("pn5180"), True, 1)]
@@ -300,8 +301,10 @@ def main():
         elif ad != "5_ayar_karti":
             print(yaz_3mf(os.path.join(d, f"{ad}.3mf"), [(ad, parcalar, (TABLA / 2, TABLA / 2))]))
         print(f"  {ad}: hacim {hacim:.0f} mm³;", {k: round(m.volume()) for k, m in b.items()})
-    print(onizle([("1) kabuk", isler[0][1], 30, 70), ("2) taban plakası (alttan)", isler[1][1], -55, 90),
-                  ("3) tutucu (montajda görünen alt yüzü)", isler[3][1], -60, 90), ("2b) pil kapağı (alttan)", isler[2][1], -60, 90),
+    ib = {ad: b for ad, b, _, _ in isler}
+    print(onizle([("1) kabuk", ib["1_kabuk"], 30, 70), ("2) taban plakası (alttan)", ib["2_taban_plakasi"], -55, 90),
+                  ("3) tutucu (montajda görünen alt yüzü)", ib["3_halka_nfc_tutucu_rc522"], -60, 90),
+                  ("2b) pil kapağı (alttan)", ib["2b_pil_kapagi"], -60, 90),
                   ("4) figür tabanı", figur, 40, 60), ("5) ayar kartı", ayar, 35, 60),
                   ("1) kabuk önden", isler[0][1], 15, 90)]))
     print("açık (su geçirmeyen) dosya:", hata)

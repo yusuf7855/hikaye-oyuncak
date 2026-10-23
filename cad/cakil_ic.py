@@ -330,7 +330,8 @@ def zarflar(nfc):
 
 
 # ---------------------------------------------------------------- basılacak parçalar
-def kabuk():
+def kabuk(kulak=None):
+    kulak = KULAK if kulak is None else kulak   # False: kedi kulağı yuvası yok (kulaksız kabuk)
     dis = dondur(profil(), SEG)
     ic = dondur(profil(-DUVAR, -1.0, H - DUVAR), SEG)
     g = dis - ic
@@ -381,7 +382,7 @@ def kabuk():
         cep = (silindir(r + 1.2, Z_MIK + 1.5, H - DUVAR + 0.01, seg=32) - silindir(r, Z_MIK, H, seg=32)).translate([MIK_XY[0], MIK_XY[1], 0])
         g = g + (cep ^ dondur(profil(-0.6), SEG))
     # kedi kulağı yuvaları: içte dili saran kaide (dış yüzden taşmaz), sonra dilin yuvası
-    if KULAK:
+    if kulak:
         xs, en, (y0, y1), (z0, z1) = KULAK_DIL
         for aci in KULAK_ACILAR:
             kaide = M()
@@ -657,6 +658,8 @@ def stl_yaz(nfc, yapi):
              "tutucu": yapi["tutucu"].rotate([180, 0, 0]), "figur": figur_taban().rotate([180, 0, 0]), "kapak": figur_kapak(), "ayar": figur_taban(topuz=True)}
     for dosya, ad, _ in BASKI:
         _tm(_tablaya(baski[ad])).export(os.path.join(d, f"{dosya}.stl"))
+    if KULAK:   # kulak takılmayacaksa: yuvasız kabuk
+        _tm(_tablaya(kabuk(kulak=False).rotate([180, 0, 0]))).export(os.path.join(d, "1_kabuk_kulaksiz.stl"))
     # tüm hali: basılan parçalar yerinde (tek dosya, ayrı gövdeler)
     tum = [yapi["kabuk"], yapi["tutucu"], yapi["taban"], yapi["pil_kapagi"], yapi["figur"]]
     trimesh.util.concatenate([_tm(m) for m in tum]).export(os.path.join(d, f"0_tum_stand_{nfc}_montajli.stl"))
