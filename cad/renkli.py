@@ -305,6 +305,9 @@ def main():
                   ("4) figür tabanı", figur, 40, 60), ("5) ayar kartı", ayar, 35, 60),
                   ("1) kabuk önden", isler[0][1], 15, 90)]))
     print("açık (su geçirmeyen) dosya:", hata)
+    if C.KULAK:   # kedi kulakları da aynı klasörde (6_kedi_kulaklari.3mf)
+        import kulaklar
+        kulaklar.kulak_uret()
 
 
 if __name__ == "__main__":
