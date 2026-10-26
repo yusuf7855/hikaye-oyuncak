@@ -12,6 +12,8 @@ klasörlerde tutulur.
   python degerlendirme/urun_hafif_topla.py birlestir urun_karma2 urun_v3 urun_v4
                                                           # data/urun_karma2/: v2 + v3 + v4 (sıra önemli: aynı sha1
                                                           # ilk kümede kalır, sonrakilerde atlanır)
+  python degerlendirme/urun_hafif_topla.py birlestir urun_karma2 urun_v3 urun_v4 --gecesiz
+                                                          # gece (ninni) metinleri hiç alınmaz
 Doğrulama bölmesi yalnız v2'nin hakemli doğrulama bölmesidir; hafif hat hikâyeleri yalnız eğitime girer (val.bin ve
 --en-iyi seçimi önceki modellerle karşılaştırılabilir kalır).
 
@@ -102,9 +104,10 @@ def _bloklar(yol):
     return out
 
 
-def birlestir(hedef="urun_karma", ekler=("urun_v3",), kok=None):
+def birlestir(hedef="urun_karma", ekler=("urun_v3",), kok=None, gece=True):
     """data/<hedef>/: v2 kabulleri (izin bölmesiyle) + eklerin geçen hikâyeleri (yalnız eğitim). Gece metinlerinden
-    GECE_DOGRULAMA kadarı <hedef>/gece_ayri/ altına ayrılır (eğitime ve val.bin'e girmez)."""
+    GECE_DOGRULAMA kadarı <hedef>/gece_ayri/ altına ayrılır (eğitime ve val.bin'e girmez). gece=False: gece metinleri
+    hiç alınmaz (2026-10-15 kararı: ninniler sabit, gece figürü modeli çalıştırmaz)."""
     H = _veri(hedef, kok)
     v2 = _veri("urun_v2", kok)
     if os.path.exists(H):
@@ -130,6 +133,8 @@ def birlestir(hedef="urun_karma", ekler=("urun_v3",), kok=None):
             if os.path.basename(yol) == "gecen.txt":
                 continue
             fk = os.path.basename(yol)[:-4]
+            if fk == GECE and not gece:
+                continue
             kalan = []
             for s, k, ham in _bloklar(yol):
                 if s not in gecen or s in izin or s in gece_kayit:
@@ -177,6 +182,8 @@ if __name__ == "__main__":
     if komut == "topla":
         topla(*(arg[:1] or ["urun_v3"]))
     elif komut == "birlestir":
-        birlestir(arg[0], tuple(arg[1:]) or ("urun_v3",)) if arg else birlestir()
+        gece = "--gecesiz" not in arg
+        arg = [a for a in arg if a != "--gecesiz"]
+        birlestir(arg[0], tuple(arg[1:]) or ("urun_v3",), gece=gece) if arg else birlestir(gece=gece)
     else:
         raise SystemExit(__doc__)
