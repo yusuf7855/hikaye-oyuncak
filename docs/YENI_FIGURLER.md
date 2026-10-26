@@ -8,17 +8,17 @@ Keloğlan'ın kartı zaten var (değişmedi). NFC numaraları yeni: eski numaral
 |---|---|---|---|---|
 | 4 | Keloğlan | oğlan (masal) | yeşil (eski) | orman, dağ, ev, şato |
 | 13 | Pamuk Prenses | prenses (masal) | kırmızı-pembe | orman, ev, bahçe, şato |
-| 14 | Pinokyo | kukla (masal) | tahta sarısı | ev, park, orman, deniz |
+| 14 | Pinokyo | kukla (masal) | tahta sarısı | ev, park, orman |
 | 15 | Alaaddin | oğlan (masal) | mor | ev, park, bahçe, şato |
 | 16 | Nasreddin Hoca | dede (masal) | yeşil | ev, park, bahçe, dağ |
 | 17 | Bulut | kedi (bizim) | beyaz | ev, bahçe, park |
 | 18 | Zıpzıp | tavşan (bizim) | pembe | bahçe, orman, park |
-| 19 | Tontiş | dinozor (bizim) | açık yeşil | orman, dağ, deniz |
+| 19 | Tontiş | dinozor (bizim) | açık yeşil | orman, dağ, park |
 | 20 | Bilge Baykuş | baykuş (bizim) | kahverengi | orman, dağ, gökyüzü |
 | 21 | Ejderha Yavrusu | ejderha (bizim) | turkuaz | dağ, gökyüzü, orman, şato |
 | 22 | Tek Boynuzlu At | at (bizim) | lila | gökyüzü, orman, bahçe, dağ |
 | 23 | Bip | robot (bizim) | mavi | ev, park, bahçe |
-| 24 | Fıstık | fil (bizim) | gri | orman, deniz, park |
+| 24 | Fıstık | fil (bizim) | gri | orman, park, bahçe |
 
 Ay Dede (12, ninni modu) aynen kalır.
 
@@ -46,9 +46,9 @@ Ay Dede (12, ninni modu) aynen kalır.
 
 **Güvenlik:** Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Merakı tek başına uzağa gitmek olarak gösterilmez.
 
-**Yerler:** ev (Yaşlı marangozun küçük atölyesi; tahta oyuncaklar ve aletler vardır.); park (Kasabanın meydanı; çeşmesi ve ağaçları vardır.); orman (Kasabanın yanındaki orman.); deniz (Kasabanın denize bakan kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.)
+**Yerler:** ev (Yaşlı marangozun küçük atölyesi; tahta oyuncaklar ve aletler vardır.); park (Kasabanın meydanı; çeşmesi ve ağaçları vardır.); orman (Kasabanın yanındaki orman.)
 
-**Yanındakiler:** Gepetto Usta (Pinokyo'yu tahtadan yapan yaşlı ve iyi kalpli marangoz; onun babasıdır); cırcır böceği (Pinokyo'ya doğruyu söyleyen ve ona yol gösteren konuşan cırcır böceği); kuş (doğa hayvanı); balık (doğa hayvanı)
+**Yanındakiler:** Gepetto Usta (Pinokyo'yu tahtadan yapan yaşlı ve iyi kalpli marangoz; onun babasıdır); cırcır böceği (Pinokyo'ya doğruyu söyleyen ve ona yol gösteren konuşan cırcır böceği); kuş (doğa hayvanı); köpek (doğa hayvanı)
 
 **Hikâyeye girmeyenler:** Tilki, kedi ve dev balık hikayeye girmez; kimse Pinokyo'yu kandırmaz ya da yutmaz. Pinokyo eşeğe dönüşmez ve kimse onu cezalandırmaz. Gepetto Usta Pinokyo'nun babasıdır; annesi hikayede yoktur. Kötü kukla tiyatrosu sahibi, hırsızlar ve büyü hikayeye girmez.
 
@@ -126,7 +126,7 @@ Ay Dede (12, ninni modu) aynen kalır.
 
 **Güvenlik:** Büyüklüğü kimseyi korkutmaz ve hiçbir şeyi kırmaz; kükremesi küçük ve tatlıdır.
 
-**Yerler:** orman (Kocaman ağaçları olan yeşil bir orman.); dağ (Çiçekli ve taşlı bir tepe.); deniz (Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.)
+**Yerler:** orman (Kocaman ağaçları olan yeşil bir orman.); dağ (Çiçekli ve taşlı bir tepe.); park (Çimenleri ve ağaçları olan büyük bir park.)
 
 **Yanındakiler:** kuş (doğa hayvanı); kaplumbağa (doğa hayvanı); kelebek (doğa hayvanı)
 
@@ -204,9 +204,9 @@ Ay Dede (12, ninni modu) aynen kalır.
 
 **Özellikleri:** Hortumuyla su püskürtür. Kocaman kulaklarını yelpaze gibi sallar. Arkadaşlarıyla oyun oynamayı çok sever.
 
-**Güvenlik:** Su püskürtmeyi yalnız oyun olarak ve sığ su kenarında yapar; kimse derin suya girmez.
+**Güvenlik:** Su püskürtmeyi yalnız oyun olarak yapar; kimseyi ıslatıp üzmez, kimse suya girmez.
 
-**Yerler:** orman (Büyük ağaçları olan yeşil bir orman.); deniz (Denizin kıyısı; kum ve sığ su kenarı. Herkes kumda ve su kenarında kalır.); park (Çimenleri ve ağaçları olan bir park.)
+**Yerler:** orman (Büyük ağaçları olan yeşil bir orman.); park (Çimenleri ve ağaçları olan bir park.); bahçe (Çiçekli bir bahçe; küçük bir su birikintisi vardır.)
 
 **Yanındakiler:** kuş (doğa hayvanı); kaplumbağa (doğa hayvanı); maymun (doğa hayvanı)
 
