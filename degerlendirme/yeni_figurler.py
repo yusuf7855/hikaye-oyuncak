@@ -423,5 +423,32 @@ def ozet():
     print(yol)
 
 
+
+def birlestir():
+    """Onaylanan kartları ürün dosyalarına ekler (ürün sahibi onayı, 26 Ekim 2026): kartlar onaylı, lisanslı figürler
+    ürün listesinden çıkarılır (kartları durur, 'cikarilanlar'), yeni figürler 'populer' (masal) ve 'temel' (bizim)."""
+    kp, up = os.path.join(KOK, "data", "urun_kartlari.json"), os.path.join(KOK, "data", "urun_figurleri.json")
+    kart = json.load(open(kp, encoding="utf-8"))
+    urun = json.load(open(up, encoding="utf-8"))
+    ks = kartlar()
+    for k in ks:
+        k["onayli"] = True
+    mevcut = {k["kimlik"] for k in kart["kartlar"]}
+    kart["kaynaklar"].update(KAYNAKLAR)
+    kart["kartlar"] += [k for k in ks if k["kimlik"] not in mevcut]
+    lisansli = [f for f in urun["populer"] if f["ad"] != "Keloğlan"]
+    urun["cikarilan_lisansli_aciklama"] = ("Ürün sahibi (26 Ekim 2026): lisanslı figürler üründen çıktı, yerine lisanssız "
+                                           "figürler geldi (docs/YENI_FIGURLER.md). Kartları ve verileri durur.")
+    urun["cikarilan_lisansli"] = lisansli
+    urun["cikarilanlar"] = urun["cikarilanlar"] + [f["ad"] for f in lisansli if f["ad"] not in urun["cikarilanlar"]]
+    yeni = urun_girdileri(ks)
+    urun["populer"] = [f for f in urun["populer"] if f["ad"] == "Keloğlan"] + [
+        {k: v for k, v in g.items() if k != "grup"} for g in yeni if g["grup"] == "populer"]
+    urun["temel"] = [{k: v for k, v in g.items() if k != "grup"} for g in yeni if g["grup"] == "temel"]
+    json.dump(kart, open(kp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(urun, open(up, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("eklendi:", [k["kimlik"] for k in ks], "| çıkarılan:", [f["ad"] for f in lisansli])
+
+
 if __name__ == "__main__":
-    {"yaz": yaz, "kontrol": kontrol, "ozet": ozet}[sys.argv[1] if len(sys.argv) > 1 else "yaz"]()
+    {"yaz": yaz, "kontrol": kontrol, "ozet": ozet, "birlestir": birlestir}[sys.argv[1] if len(sys.argv) > 1 else "yaz"]()

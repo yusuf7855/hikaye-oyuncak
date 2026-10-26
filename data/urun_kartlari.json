@@ -1,6 +1,6 @@
 {
  "surum": 1,
- "aciklama": "Ürün figürlerinin kaynaklı kartları (11 etkin figür; data/urun_figurleri.json 'cikarilanlar' listesindeki figürlerin kartları durur ama kullanılmaz) (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları'). Hello Kitty kartı kullanıcı isteğiyle eklendi ve kullanıcı yetkisiyle onaylandı. Gece figürü Ay Dede'nin kartı (kimlik 'gece', grup 'uyku') ürün tanımındaki uyku modu için eklendi (urun_v4 ninni ve uyku masalı verisi; data/urun_figurleri.json 'uyku').",
+ "aciklama": "Ürün figürlerinin kaynaklı kartları (13 etkin figür + Ay Dede: Keloğlan ve lisanssız 12 figür, 26 Ekim 2026; data/urun_figurleri.json 'cikarilanlar' listesindeki figürlerin kartları durur ama kullanılmaz) (docs/KUSURSUZ_VERI.md, 1. Kart). Kart kapalı dünyadır: kartta olmayan aile, ev, yetenek ya da eşya yoktur. Her olgunun 'kaynak' alanı 'kaynaklar' sözlüğündeki kimliklere bağlanır. Kullanıcı bir kartı onaylayınca 'onayli': true yapılır ve kartın sha1'i kilitlenir; onaysız kartla hikaye yazılmaz. 14 kart kullanıcı yetkisiyle onaylandı (docs/KUSURSUZ_VERI.md 'Kullanıcı kararları'). Hello Kitty kartı kullanıcı isteğiyle eklendi ve kullanıcı yetkisiyle onaylandı. Gece figürü Ay Dede'nin kartı (kimlik 'gece', grup 'uyku') ürün tanımındaki uyku modu için eklendi (urun_v4 ninni ve uyku masalı verisi; data/urun_figurleri.json 'uyku').",
  "sema": {
   "olgu": "{'deger': ..., 'kaynak': [kaynak kimliği, ...]} ; ek alanlar: 'onay_bekliyor', 'not_'",
   "yer.dizide_karsiligi": "dogrulandi | kismen | dogrulanmadi | yok | urun_tanimi",
@@ -705,6 +705,42 @@
    "baslik": "Uyku modu yazım kılavuzu: ninni ve uyku masalı (Ay Dede)",
    "dosya": "degerlendirme/KILAVUZ_GECE.md",
    "erisim": "2026-10-14"
+  },
+  "kullanici_karari_yeni": {
+   "tur": "kullanici",
+   "baslik": "Ürün sahibinin lisanssız figür listesi (26 Ekim 2026)",
+   "dosya": "docs/YENI_FIGURLER.md",
+   "erisim": "2026-10-26"
+  },
+  "vikipedi_pamuk_prenses": {
+   "tur": "vikipedi",
+   "baslik": "Pamuk Prenses ve Yedi Cüceler (Grimm Kardeşler, 1812)",
+   "url": "https://tr.wikipedia.org/wiki/Pamuk_Prenses",
+   "erisim": "2026-10-26"
+  },
+  "vikipedi_pinokyo": {
+   "tur": "vikipedi",
+   "baslik": "Pinokyo (Carlo Collodi, Pinokyo'nun Serüvenleri, 1883)",
+   "url": "https://tr.wikipedia.org/wiki/Pinokyo",
+   "erisim": "2026-10-26"
+  },
+  "vikipedi_en_pinokyo": {
+   "tur": "vikipedi",
+   "baslik": "The Adventures of Pinocchio (Collodi, 1883)",
+   "url": "https://en.wikipedia.org/wiki/The_Adventures_of_Pinocchio",
+   "erisim": "2026-10-26"
+  },
+  "vikipedi_alaaddin": {
+   "tur": "vikipedi",
+   "baslik": "Alaaddin'in Sihirli Lambası (Binbir Gece Masalları)",
+   "url": "https://tr.wikipedia.org/wiki/Alaaddin%27in_Sihirli_Lambas%C4%B1",
+   "erisim": "2026-10-26"
+  },
+  "vikipedi_nasreddin": {
+   "tur": "vikipedi",
+   "baslik": "Nasreddin Hoca",
+   "url": "https://tr.wikipedia.org/wiki/Nasreddin_Hoca",
+   "erisim": "2026-10-26"
   }
  },
  "kartlar": [
@@ -7661,6 +7697,3836 @@
     "Uyku rolü: 'uyuyan' yan metnin uykuya dalan kahramanıdır; 'eslik' yan (baykuş, annesi, babası, yıldız) uyanık kalıp eşlik eder. Tohum en çok bir uyuyan ve bir eşlikçi verir.",
     "Dinleyen çocuğa ninnide 'yavrum' diye seslenilir ('yavru' izinli dünya kökü); 'kuzum' yalnız kuzu tohumunda geçer.",
     "Metin türleri: ninni (ritimli, tekrarlı dizeler) ve uyku masalı (çok sakin kısa masal); tür plan satırının ilk kelimesidir: 'ninni, ...' ya da 'masal, ...' (degerlendirme/KILAVUZ_GECE.md)."
+   ]
+  },
+  {
+   "kimlik": "pamuk_prenses",
+   "grup": "populer",
+   "onayli": true,
+   "ad": {
+    "deger": "Pamuk Prenses",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_pamuk_prenses"
+    ]
+   },
+   "okunus": {
+    "deger": "pamuk prenses",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Pamuk Prenses ve Yedi Cüceler (Grimm masalı)",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_pamuk_prenses"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Pamuk Prenses, ormandaki küçük bir evde cücelerle yaşayan nazik bir prensestir.",
+    "kaynak": [
+     "vikipedi_pamuk_prenses"
+    ]
+   },
+   "tur": {
+    "deger": "prenses",
+    "kaynak": [
+     "vikipedi_pamuk_prenses"
+    ],
+    "lemmalar": [
+     "prenses",
+     "kız"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Herkese karşı nazik ve yardımseverdir.",
+     "anahtar_kok": "nazik",
+     "anahtar_ifade": "\\bnazik\\w*",
+     "ornek_bicimler": [
+      "nazik",
+      "nazikçe"
+     ],
+     "kaynak": [
+      "vikipedi_pamuk_prenses"
+     ]
+    },
+    {
+     "deger": "Şarkı söylemeyi çok sever.",
+     "anahtar_kok": "şarkı",
+     "anahtar_ifade": "\\bşarkı\\w*",
+     "ornek_bicimler": [
+      "şarkı",
+      "şarkısını"
+     ],
+     "kaynak": [
+      "vikipedi_pamuk_prenses",
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Evi temiz ve düzenli tutmayı sever.",
+     "anahtar_kok": "düzen",
+     "anahtar_ifade": "\\bdüzen\\w*",
+     "ornek_bicimler": [
+      "düzenli",
+      "düzenledi"
+     ],
+     "kaynak": [
+      "vikipedi_pamuk_prenses"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Yardımseverliği tek başına uzak yerlere gitmek olarak gösterilmez; yardım ederken hep evin ve bahçenin yakınında kalır.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Evin çevresindeki yeşil orman; çiçekler ve küçük patikalar vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_pamuk_prenses"
+     ]
+    },
+    {
+     "etiket": "ev",
+     "tarif": "Cücelerin ormandaki küçük evi; yedi küçük yatağı ve küçük bir masası vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_pamuk_prenses"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Küçük evin önündeki çiçekli bahçe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "şato",
+     "tarif": "Pamuk Prenses'in eskiden yaşadığı taş saray; bahçesi ve yüksek kapıları vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_pamuk_prenses"
+     ],
+     "not": "Masalda saray kötü kraliçenindir; kraliçe hikayeye girmez, saray yalnız güzel bir yer olarak anlatılır."
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:cuce",
+     "kisa_ad": "en küçük cüce",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "en küçük cüce",
+      "küçük cüce",
+      "cüce"
+     ],
+     "iliski": {
+      "deger": "Pamuk Prenses'le aynı evde yaşayan yedi cüceden en küçüğü; onun en yakın arkadaşı.",
+      "kaynak": [
+       "vikipedi_pamuk_prenses"
+      ]
+     },
+     "tur": {
+      "deger": "cüce",
+      "kaynak": [
+       "vikipedi_pamuk_prenses"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pamuk_prenses"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:cuceler",
+     "kisa_ad": "cüceler",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "cüceler",
+      "yedi cüce"
+     ],
+     "iliski": {
+      "deger": "Ormandaki küçük evde yaşayan yedi cüce; gündüz çalışır, akşam eve döner.",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "cüce",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:tavsan",
+     "kisa_ad": "tavşan",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "tavşan"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "tavşan",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "kullanici_karari_yeni"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Kötü kraliçe, sihirli ayna, avcı ve zehirli elma hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Kk]raliçe\\w*",
+      "\\b[Aa]yna\\w*\\s+(?:[\\w']+\\s+){0,2}(?:konuştu|dedi|cevap)",
+      "\\b[Zz]ehir\\w*",
+      "\\b[Aa]vcı\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_pamuk_prenses",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Cüceler topluca konuşmaz; konuşan yalnız en küçük cücedir.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:[Cc]üceler|[Yy]edi\\s+cüce)\\b",
+      "(?:[Cc]üceler|[Yy]edi\\s+cüce)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Prens, düğün, evlilik ve uzun uyku hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Pp]rens(?!es)\\w*",
+      "\\b[Dd]üğün\\w*",
+      "\\b[Ee]vlen\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_pamuk_prenses",
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Kraliçe",
+      "kaynak": [
+       "vikipedi_pamuk_prenses"
+      ],
+      "belirsiz": true
+     },
+     {
+      "ad": "Prens",
+      "kaynak": [
+       "vikipedi_pamuk_prenses"
+      ],
+      "belirsiz": true
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Büyü, cadı, zehir ve korkutucu kılık değiştirme hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_pamuk_prenses",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "cüce",
+    "şarkı"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "en küçük cüce",
+     "kart": [
+      "yan:cuce"
+     ]
+    },
+    {
+     "urun": "cüceler",
+     "kart": [
+      "yan:cuceler"
+     ]
+    },
+    {
+     "urun": "tavşan",
+     "kart": [
+      "yan:tavsan"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Masalın kötü kısmı (kraliçe, zehirli elma, avcı) çıkarıldı; yalnız ormandaki evde cücelerle mutlu yaşam kaldı.",
+    "Cüceler adsız: Disney'in cüce adları kullanılmaz."
+   ],
+   "kural_ornekleri": [
+    [
+     "Kraliçe saraydan çıktı.",
+     "Zehirli bir elma getirdi.",
+     "Prens atına bindi.",
+     "\"Gel,\" dedi cüceler."
+    ],
+    [
+     "En küçük cüce güldü.",
+     "Pamuk Prenses elmayı yıkadı.",
+     "Cüceler eve döndü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "pinokyo",
+   "grup": "populer",
+   "onayli": true,
+   "ad": {
+    "deger": "Pinokyo",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_en_pinokyo"
+    ]
+   },
+   "okunus": {
+    "deger": "pinokyo",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Pinokyo'nun Serüvenleri (Collodi masalı)",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_en_pinokyo"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Pinokyo, yaşlı bir marangozun tahtadan yaptığı meraklı bir kukladır.",
+    "kaynak": [
+     "vikipedi_pinokyo",
+     "vikipedi_en_pinokyo"
+    ]
+   },
+   "tur": {
+    "deger": "kukla",
+    "kaynak": [
+     "vikipedi_pinokyo",
+     "vikipedi_en_pinokyo"
+    ],
+    "lemmalar": [
+     "kukla",
+     "çocuk",
+     "oğlan"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Tahtadan yapılmıştır.",
+     "anahtar_kok": "tahta",
+     "anahtar_ifade": "\\btahta\\w*",
+     "ornek_bicimler": [
+      "tahtadan",
+      "tahta"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ]
+    },
+    {
+     "deger": "Yalan söylediğinde burnu biraz uzar, doğruyu söyleyince eski haline döner.",
+     "anahtar_kok": "burn",
+     "anahtar_ifade": "\\bburn\\w*|\\bburun\\w*",
+     "ornek_bicimler": [
+      "burnu",
+      "burun"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ]
+    },
+    {
+     "deger": "Her şeyi merak eder ve yeni şeyler öğrenmek ister.",
+     "anahtar_kok": "merak",
+     "anahtar_ifade": "\\bmerak\\w*",
+     "ornek_bicimler": [
+      "meraklı",
+      "merakla"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Doğruyu söyleyince burnu hemen eski haline döner. Merakı tek başına uzağa gitmek olarak gösterilmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "ev",
+     "tarif": "Yaşlı marangozun küçük atölyesi; tahta oyuncaklar ve aletler vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Kasabanın meydanı; çeşmesi ve ağaçları vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Kasabanın yanındaki orman.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ],
+     "not": "Masalda ormanda kötü karakterler var; onlar girmez."
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:gepetto",
+     "kisa_ad": "Gepetto Usta",
+     "tip": "adli",
+     "yuzey_bicimleri": [
+      "Gepetto Usta",
+      "Gepetto",
+      "usta",
+      "babası"
+     ],
+     "iliski": {
+      "deger": "Pinokyo'yu tahtadan yapan yaşlı ve iyi kalpli marangoz; onun babasıdır.",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     "tur": {
+      "deger": "dede",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:circir",
+     "kisa_ad": "cırcır böceği",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "cırcır böceği",
+      "böcek"
+     ],
+     "iliski": {
+      "deger": "Pinokyo'ya doğruyu söyleyen ve ona yol gösteren konuşan cırcır böceği.",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     "tur": {
+      "deger": "böcek",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kopek",
+     "kisa_ad": "köpek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "köpek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "köpek",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Tilki, kedi ve dev balık hikayeye girmez; kimse Pinokyo'yu kandırmaz ya da yutmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Tt]ilki\\w*",
+      "\\b[Yy]ut(?:tu|ar|mak)\\w*",
+      "\\b[Dd]ev\\s+balı\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Pinokyo eşeğe dönüşmez ve kimse onu cezalandırmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\beşeğe\\s+dönüş\\w*",
+      "\\b[Cc]eza\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Gepetto Usta Pinokyo'nun babasıdır; annesi hikayede yoktur.",
+     "yasak_duzenli_ifadeler": [
+      "Pinokyo'nun\\s+anne"
+     ],
+     "kaynak": [
+      "vikipedi_pinokyo",
+      "vikipedi_en_pinokyo"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Mavi Peri",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     {
+      "ad": "Jiminy",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ]
+     },
+     {
+      "ad": "Lambalı",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo"
+      ],
+      "belirsiz": true
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Kötü kukla tiyatrosu sahibi, hırsızlar ve büyü hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_pinokyo",
+       "vikipedi_en_pinokyo",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "kukla",
+    "tahta",
+    "marangoz",
+    "cırcır",
+    "atölye"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "Gepetto Usta",
+     "kart": [
+      "yan:gepetto"
+     ]
+    },
+    {
+     "urun": "cırcır böceği",
+     "kart": [
+      "yan:circir"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "köpek",
+     "kart": [
+      "yan:kopek"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Burun uzaması komik bir işaret olarak kalır; ceza ve korku yok.",
+    "Ürün sahibi kararı (26 Ekim 2026, seçenek 1): burun özelliği seçilen hikayede Pinokyo küçük bir yalan söyler, burnu biraz uzar, doğruyu söyleyince eski haline döner ve herkes güler. Bu figür için 'figürün kendi hatası yalnız özür temasında olur' kuralının istisnasıdır; yalan hep küçük ve zararsızdır, kimse üzülmez.",
+    "Disney'deki adlar (Jiminy) kullanılmaz; Collodi'deki adsız konuşan cırcır böceği kullanılır."
+   ],
+   "kural_ornekleri": [
+    [
+     "Tilki ona yaklaştı.",
+     "Dev balık onu yuttu.",
+     "Pinokyo'nun annesi geldi."
+    ],
+    [
+     "Pinokyo'nun burnu biraz uzadı.",
+     "Gepetto Usta güldü.",
+     "Cırcır böceği ötüyordu."
+    ]
+   ]
+  },
+  {
+   "kimlik": "alaaddin",
+   "grup": "populer",
+   "onayli": true,
+   "ad": {
+    "deger": "Alaaddin",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_alaaddin"
+    ]
+   },
+   "okunus": {
+    "deger": "alaaddin",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Alaaddin'in Sihirli Lambası (Binbir Gece Masalları)",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_alaaddin"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Alaaddin, annesiyle küçük bir evde yaşayan cesur ve iyi kalpli bir çocuktur.",
+    "kaynak": [
+     "vikipedi_alaaddin"
+    ]
+   },
+   "tur": {
+    "deger": "oğlan",
+    "kaynak": [
+     "vikipedi_alaaddin"
+    ],
+    "lemmalar": [
+     "oğlan",
+     "çocuk"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Eski bir lambası vardır; lambayı ovunca içinden bir cin çıkar.",
+     "anahtar_kok": "lamba",
+     "anahtar_ifade": "\\blamba\\w*",
+     "ornek_bicimler": [
+      "lamba",
+      "lambayı"
+     ],
+     "kaynak": [
+      "vikipedi_alaaddin"
+     ]
+    },
+    {
+     "deger": "Arkadaşlarına yardım etmeyi sever.",
+     "anahtar_kok": "yardım",
+     "anahtar_ifade": "\\byardım\\w*",
+     "ornek_bicimler": [
+      "yardım",
+      "yardımcı"
+     ],
+     "kaynak": [
+      "vikipedi_alaaddin",
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Yeni yerler görmeyi ve keşfetmeyi sever.",
+     "anahtar_kok": "keşf",
+     "anahtar_ifade": "\\bkeşf\\w*|\\bkeşif\\w*",
+     "ornek_bicimler": [
+      "keşfetti",
+      "keşif"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni",
+      "vikipedi_alaaddin"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Cin yalnız küçük, iyi ve eğlenceli şeyler yapar; kimseyi korkutmaz. Keşif tek başına uzağa gitmek ya da karanlık bir yere girmek olarak gösterilmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "ev",
+     "tarif": "Alaaddin'in annesiyle yaşadığı küçük ev.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_alaaddin"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Kasabanın renkli çarşısı ve meydanı; çeşmesi vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_alaaddin"
+     ],
+     "not": "Masalda çarşı geçer; ayrıntı ürün kararı."
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Meyve ağaçları olan büyük bir bahçe.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_alaaddin"
+     ],
+     "not": "Masaldaki mağara bahçesi; mağara girmez."
+    },
+    {
+     "etiket": "şato",
+     "tarif": "Kasabanın büyük ve güzel sarayı; bahçesi ve yüksek kapıları vardır.",
+     "dizide_karsiligi": "dogrulandi",
+     "kaynak": [
+      "vikipedi_alaaddin"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:ana",
+     "kisa_ad": "annesi",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "annesi",
+      "anne",
+      "anneciğim"
+     ],
+     "iliski": {
+      "deger": "Alaaddin'in annesi; onunla küçük bir evde yaşar.",
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     },
+     "tur": {
+      "deger": "anne",
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:cin",
+     "kisa_ad": "lamba cini",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "lamba cini",
+      "cin",
+      "Lamba Cini"
+     ],
+     "iliski": {
+      "deger": "Eski lambadan çıkan iyi kalpli ve şakacı cin; Alaaddin'in arkadaşıdır.",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "cin",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kedi",
+     "kisa_ad": "kedi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kedi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "bahçe",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "kullanici_karari_yeni"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Kötü büyücü ve hırsızlar hikayeye girmez; kimse lambayı çalmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Bb]üyücü\\w*",
+      "\\b[Hh]ırsız\\w*",
+      "\\bçal(?:dı|mak|ındı)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_alaaddin",
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Cin altın, zenginlik ya da güç vermez; küçük ve eğlenceli yardımlar yapar.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Aa]ltın\\w*",
+      "\\b[Zz]engin\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali",
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "kural": "Mağara, yer altı ve karanlık yerler hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Mm]ağara\\w*",
+      "\\b[Yy]er\\s*altı\\w*"
+     ],
+     "kaynak": [
+      "vikipedi_alaaddin",
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Cafer",
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     },
+     {
+      "ad": "Yasemin",
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     },
+     {
+      "ad": "Abu",
+      "kaynak": [
+       "vikipedi_alaaddin"
+      ]
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Uçan halı ve Disney'e özgü karakterler hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_alaaddin",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "lamba",
+    "cin",
+    "çarşı"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "annesi",
+     "kart": [
+      "yan:ana"
+     ]
+    },
+    {
+     "urun": "lamba cini",
+     "kart": [
+      "yan:cin"
+     ]
+    },
+    {
+     "urun": "kedi",
+     "kart": [
+      "yan:kedi"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Disney'e özgü adlar (Yasemin, Cafer, Abu) ve uçan halı kullanılmaz.",
+    "Cin dilek dağıtıp zenginlik getirmez; küçük, eğlenceli yardımlar yapar (kullanıcı kararı)."
+   ],
+   "kural_ornekleri": [
+    [
+     "Büyücü kapıyı çaldı.",
+     "Cin ona altın verdi.",
+     "Bir mağaraya girdiler."
+    ],
+    [
+     "Lamba cini güldü.",
+     "Alaaddin lambayı ovdu.",
+     "Annesi çorba yaptı."
+    ]
+   ]
+  },
+  {
+   "kimlik": "nasreddin_hoca",
+   "grup": "populer",
+   "onayli": true,
+   "ad": {
+    "deger": "Nasreddin Hoca",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_nasreddin"
+    ]
+   },
+   "okunus": {
+    "deger": "nasreddin hoca",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "Nasreddin Hoca fıkraları",
+    "kaynak": [
+     "urun_karari",
+     "vikipedi_nasreddin"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Nasreddin Hoca, Akşehir'de yaşayan akıllı ve güler yüzlü bir dededir.",
+    "kaynak": [
+     "vikipedi_nasreddin"
+    ]
+   },
+   "tur": {
+    "deger": "dede",
+    "kaynak": [
+     "vikipedi_nasreddin"
+    ],
+    "lemmalar": [
+     "dede",
+     "hoca"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Herkesi güldüren komik cevaplar verir.",
+     "anahtar_kok": "komik",
+     "anahtar_ifade": "\\bkomik\\w*",
+     "ornek_bicimler": [
+      "komik",
+      "komikti"
+     ],
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ]
+    },
+    {
+     "deger": "Eşeğine bazen ters biner.",
+     "anahtar_kok": "ters",
+     "anahtar_ifade": "\\bters\\w*",
+     "ornek_bicimler": [
+      "ters",
+      "tersine"
+     ],
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ]
+    },
+    {
+     "deger": "Akıllı fikirleriyle sorunları çözer.",
+     "anahtar_kok": "fikir",
+     "anahtar_ifade": "\\bfikir\\w*|\\bfikr\\w*",
+     "ornek_bicimler": [
+      "fikir",
+      "fikri"
+     ],
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Ters binmek yalnız yavaş yürüyen eşekte komik bir şey olarak gösterilir; kimse düşmez. Kimseyle alay etmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "ev",
+     "tarif": "Hoca'nın Akşehir'deki küçük evi.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ],
+     "not": "Fıkralarda evi geçer; tarif ürün kararı."
+    },
+    {
+     "etiket": "park",
+     "tarif": "Akşehir'in meydanı ve pazarı.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ],
+     "not": "Fıkralarda pazar geçer."
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Hoca'nın evinin önündeki bahçe; ceviz ağacı vardır.",
+     "dizide_karsiligi": "kismen",
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ],
+     "not": "Ceviz ağacı fıkrası."
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Akşehir'in yakınındaki tepe.",
+     "dizide_karsiligi": "dogrulanmadi",
+     "kaynak": [
+      "urun_karari",
+      "kullanici_karari_yeni"
+     ],
+     "not": "Ürün kararı."
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:esek",
+     "kisa_ad": "eşeği",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "eşek",
+      "eşeği",
+      "eşeğine"
+     ],
+     "iliski": {
+      "deger": "Nasreddin Hoca'nın eşeği; Hoca bazen ona ters biner.",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "eşek",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": false,
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:komsu",
+     "kisa_ad": "komşusu",
+     "tip": "rol",
+     "yuzey_bicimleri": [
+      "komşu",
+      "komşusu",
+      "komşular"
+     ],
+     "iliski": {
+      "deger": "Hoca'nın iyi kalpli komşusu; birlikte gülerler.",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "komşu",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kedi",
+     "kisa_ad": "kedi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kedi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "bahçe",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "kullanici_karari_yeni"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Hoca'nın eşeği konuşmaz; yük taşır, başını sallar, anırır.",
+     "yasak_duzenli_ifadeler": [
+      "(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\s+(?:[Ee]şe[kğ]\\w*)\\b",
+      "(?:[Ee]şe[kğ]\\w*)\\b\\s+(?:[\\w']+\\s+){0,3}(?:dedi|sordu|söyledi|konuştu|anlattı|seslendi|fısıldadı|bağırdı|cevap\\s+verdi)\\b"
+     ],
+     "kaynak": [
+      "vikipedi_nasreddin"
+     ]
+    },
+    {
+     "kural": "Kimse kızmaz, kavga etmez; şakalar herkesi güldürür.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Kk]avga\\w*",
+      "\\b[Dd]öv\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [
+     {
+      "ad": "Timur",
+      "kaynak": [
+       "vikipedi_nasreddin"
+      ]
+     },
+     {
+      "ad": "Kadı",
+      "kaynak": [
+       "vikipedi_nasreddin"
+      ],
+      "belirsiz": true
+     }
+    ],
+    "ogeler": [
+     {
+      "deger": "Kadı, hükümdar, savaş ve borç fıkraları hikayeye girmez.",
+      "kaynak": [
+       "vikipedi_nasreddin",
+       "urun_kurali"
+      ]
+     }
+    ]
+   },
+   "izinli_dunya_kokleri": [
+    "hoca",
+    "ters",
+    "Akşehir"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "eşeği",
+     "kart": [
+      "yan:esek"
+     ]
+    },
+    {
+     "urun": "komşusu",
+     "kart": [
+      "yan:komsu"
+     ]
+    },
+    {
+     "urun": "kedi",
+     "kart": [
+      "yan:kedi"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Eşek konuşmaz (Karakaçan kararıyla aynı).",
+    "Yetişkin konulu fıkralar (kadı, borç, hükümdar) girmez."
+   ],
+   "kural_ornekleri": [
+    [
+     "\"Hadi,\" dedi eşek.",
+     "Komşusuyla kavga etti."
+    ],
+    [
+     "Hoca eşeğine ters bindi.",
+     "Eşek anırdı.",
+     "Komşusu güldü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "bulut",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Bulut",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "bulut",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Bulut, bembeyaz ve yumuşak tüylü, sevecen bir kedidir.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "kedi",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "kedi"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Tüyleri bembeyaz ve yumuşaktır.",
+     "anahtar_kok": "beyaz",
+     "anahtar_ifade": "\\bbeyaz\\w*|\\bbembeyaz\\w*",
+     "ornek_bicimler": [
+      "bembeyaz",
+      "beyaz"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Sevinince mırlar.",
+     "anahtar_kok": "mırla",
+     "anahtar_ifade": "\\bmırla\\w*|\\bmırıl\\w*",
+     "ornek_bicimler": [
+      "mırladı",
+      "mırlayarak"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Güneşte uyuklamayı sever.",
+     "anahtar_kok": "uyukla",
+     "anahtar_ifade": "\\buyukla\\w*",
+     "ornek_bicimler": [
+      "uyukladı",
+      "uyuklamak"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Uyuklamayı yalnız güneşli ve güvenli bir yerde yapar; yükseğe tırmanmaz, suya girmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "ev",
+     "tarif": "Sıcak ve rahat bir ev; pencerenin önünde güneşli bir minder vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Çiçekli bir bahçe; kelebekler uçar.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çimenleri ve ağaçları olan bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kelebek",
+     "kisa_ad": "kelebek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kelebek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kelebek",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:fare",
+     "kisa_ad": "fare",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "fare"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "fare",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Bulut hiçbir hayvanı kovalamaz, yakalamaz ya da yemez; fare ve kuş onun arkadaşıdır.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Ff]are|[Kk]uş|[Kk]elebe[kğ])\\w*\\s+(?:[\\w']+\\s+){0,2}(?:kovaladı|yakaladı|yedi)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "mırla"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kelebek",
+     "kart": [
+      "yan:kelebek"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "fare",
+     "kart": [
+      "yan:fare"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Pamuk adı Pamuk Prenses yüzünden kullanılmaz; beyaz kedinin adı Bulut (kullanıcı onayı)."
+   ],
+   "kural_ornekleri": [
+    [
+     "Fareyi hızla kovaladı."
+    ],
+    [
+     "Bulut topu yakaladı.",
+     "Kuş ağaca kondu."
+    ]
+   ]
+  },
+  {
+   "kimlik": "zipzip",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Zıpzıp",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "zıpzıp",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Zıpzıp, zıplamayı çok seven neşeli bir tavşandır.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "tavşan",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "tavşan"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Her yere zıplayarak gider.",
+     "anahtar_kok": "zıpla",
+     "anahtar_ifade": "\\bzıpla\\w*|\\bzıpl\\w*",
+     "ornek_bicimler": [
+      "zıpladı",
+      "zıplayarak"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Uzun kulakları vardır.",
+     "anahtar_kok": "kulak",
+     "anahtar_ifade": "\\bkula[kğ]\\w*",
+     "ornek_bicimler": [
+      "kulakları",
+      "kulağı"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Havucu çok sever.",
+     "anahtar_kok": "havuç",
+     "anahtar_ifade": "\\bhavu[cç]\\w*",
+     "ornek_bicimler": [
+      "havuç",
+      "havucu"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Zıplarken yükseğe çıkmaz, kimseye çarpmaz; zıplaması hep yumuşak ve kısadır.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "bahçe",
+     "tarif": "Sebzeli ve çiçekli bir bahçe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Büyük ağaçları olan yeşil bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çimenleri olan bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe",
+       "orman"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "zıpla",
+    "havuç"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    },
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Pamuk (tavşan kartı) yerine yeni kart: ad Zıpzıp (kullanıcı onayı)."
+   ],
+   "kural_ornekleri": [
+    [],
+    [
+     "Zıpzıp havucu yedi."
+    ]
+   ]
+  },
+  {
+   "kimlik": "tontis",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Tontiş",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "tontiş",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Tontiş, kocaman ama çok yumuşak kalpli, sevimli bir dinozordur.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "dinozor",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "dinozor"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Kocamandır ama çok dikkatli yürür.",
+     "anahtar_kok": "dikkat",
+     "anahtar_ifade": "\\bdikkat\\w*",
+     "ornek_bicimler": [
+      "dikkatli",
+      "dikkatle"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Yaprak ve meyve yemeyi sever.",
+     "anahtar_kok": "yaprak",
+     "anahtar_ifade": "\\byaprak\\w*",
+     "ornek_bicimler": [
+      "yaprak",
+      "yaprakları"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Küçük ve tatlı bir sesle kükrer.",
+     "anahtar_kok": "kükre",
+     "anahtar_ifade": "\\bkükre\\w*|\\bkükr\\w*",
+     "ornek_bicimler": [
+      "kükredi",
+      "kükreyerek"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Büyüklüğü kimseyi korkutmaz ve hiçbir şeyi kırmaz; kükremesi küçük ve tatlıdır.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Kocaman ağaçları olan yeşil bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli ve taşlı bir tepe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çimenleri ve ağaçları olan büyük bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kaplumbaga",
+     "kisa_ad": "kaplumbağa",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kaplumbağa"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kaplumbağa",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kelebek",
+     "kisa_ad": "kelebek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kelebek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kelebek",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Tontiş et yemez, kimseyi kovalamaz ve korkutmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Ee]t\\s+ye\\w*",
+      "\\bkorkut\\w*",
+      "\\bkovala\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "dinozor",
+    "kükre"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "kaplumbağa",
+     "kart": [
+      "yan:kaplumbaga"
+     ]
+    },
+    {
+     "urun": "kelebek",
+     "kart": [
+      "yan:kelebek"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Dinozor otobur ve yumuşak kalpli; korku öğesi yok."
+   ],
+   "kural_ornekleri": [
+    [
+     "Tontiş kuşu kovaladı.",
+     "Herkesi korkuttu."
+    ],
+    [
+     "Tontiş yaprakları yedi.",
+     "Kuş güldü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "bilge_baykus",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Bilge Baykuş",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "bilge baykuş",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Bilge Baykuş, çok şey bilen ve soru sormayı seven yaşlı bir baykuştur.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "baykuş",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "baykuş"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Çok şey bilir ve bildiklerini anlatmayı sever.",
+     "anahtar_kok": "bil",
+     "anahtar_ifade": "\\bbili[ry]\\w*|\\bbilg\\w*",
+     "ornek_bicimler": [
+      "bilir",
+      "bilgi"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Kocaman, yuvarlak gözleri vardır.",
+     "anahtar_kok": "göz",
+     "anahtar_ifade": "\\bgöz\\w*",
+     "ornek_bicimler": [
+      "gözleri",
+      "gözlerini"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Geceleri uyanıktır, gündüz biraz uykuludur.",
+     "anahtar_kok": "uyku",
+     "anahtar_ifade": "\\buyku\\w*",
+     "ornek_bicimler": [
+      "uykulu",
+      "uykusu"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Bilgisini yardım etmek için kullanır; kimseyi küçümsemez. Geceleri yalnız yıldızlara bakar, karanlıkta kimse yolunu kaybetmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Kocaman bir meşe ağacının olduğu orman; Bilge Baykuş'un yuvası bu ağaçtadır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Ağaçları olan bir tepe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "gökyüzü",
+     "tarif": "Yıldızlı ve sakin gece göğü.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:tavsan",
+     "kisa_ad": "tavşan",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "tavşan"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "tavşan",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kirpi",
+     "kisa_ad": "kirpi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kirpi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kirpi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Bilge Baykuş hiçbir hayvanı avlamaz, yakalamaz ya da yemez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b(?:[Ff]are|[Tt]avşan|[Ss]incap|[Ss]incab)\\w*\\s+(?:[\\w']+\\s+){0,2}(?:avladı|yakaladı|yedi)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "baykuş",
+    "yuva"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    },
+    {
+     "urun": "tavşan",
+     "kart": [
+      "yan:tavsan"
+     ]
+    },
+    {
+     "urun": "kirpi",
+     "kart": [
+      "yan:kirpi"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Baykuş avcı değil; bilge bir öğretmen gibi."
+   ],
+   "kural_ornekleri": [
+    [
+     "Fareyi yakaladı."
+    ],
+    [
+     "Bilge Baykuş bir soru sordu.",
+     "Sincap güldü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "ejderha_yavrusu",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Ejderha Yavrusu",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "ejderha yavrusu",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Ejderha Yavrusu, ağzından baloncuk üfleyen küçük ve şirin bir ejderhadır.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "ejderha",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "ejderha"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Ağzından renkli baloncuklar üfler.",
+     "anahtar_kok": "baloncuk",
+     "anahtar_ifade": "\\bbaloncu\\w*",
+     "ornek_bicimler": [
+      "baloncuk",
+      "baloncukları"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Küçük kanatlarıyla uçmayı öğreniyor.",
+     "anahtar_kok": "kanat",
+     "anahtar_ifade": "\\bkanat\\w*",
+     "ornek_bicimler": [
+      "kanatları",
+      "kanatlarını"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Çok meraklı ve neşelidir.",
+     "anahtar_kok": "neşe",
+     "anahtar_ifade": "\\bneşe\\w*",
+     "ornek_bicimler": [
+      "neşeli",
+      "neşeyle"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Uçarken alçakta kalır ve hep dikkatlidir; baloncukları kimseye zarar vermez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "dağ",
+     "tarif": "Çiçekli, yeşil bir tepe; ejderhanın yuvası buradadır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "gökyüzü",
+     "tarif": "Bulutlu ve güneşli gökyüzü.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Yeşil bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "şato",
+     "tarif": "Tepedeki eski ve boş taş saray; bahçesinde çiçekler vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kelebek",
+     "kisa_ad": "kelebek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kelebek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kelebek",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "dağ",
+       "orman"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:sincap",
+     "kisa_ad": "sincap",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "sincap"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "sincap",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Ejderha Yavrusu ateş üflemez, hiçbir şeyi yakmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Aa]teş\\w*",
+      "\\b[Yy]ak(?:tı|mak|ar)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Şövalye, savaş ve canavar hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Şş]övalye\\w*",
+      "\\b[Ss]avaş\\w*",
+      "\\b[Cc]anavar\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "ejderha",
+    "baloncuk"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "kelebek",
+     "kart": [
+      "yan:kelebek"
+     ]
+    },
+    {
+     "urun": "sincap",
+     "kart": [
+      "yan:sincap"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Ateş yok: baloncuk üfler (kullanıcıya önerildi, onaylandı)."
+   ],
+   "kural_ornekleri": [
+    [
+     "Ağzından ateş üfledi.",
+     "Şövalye geldi."
+    ],
+    [
+     "Baloncuklar uçtu.",
+     "Kuş güldü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "tek_boynuzlu_at",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Tek Boynuzlu At",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "tek boynuzlu at",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Tek Boynuzlu At, alnında parlayan bir boynuzu olan nazik bir attır.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "at",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "at"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Alnındaki boynuzu karanlıkta parlar.",
+     "anahtar_kok": "boynuz",
+     "anahtar_ifade": "\\bboynuz\\w*",
+     "ornek_bicimler": [
+      "boynuzu",
+      "boynuz"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Yelesi gökkuşağı renklerindedir.",
+     "anahtar_kok": "yele",
+     "anahtar_ifade": "\\byele\\w*",
+     "ornek_bicimler": [
+      "yelesi",
+      "yelesini"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Çok naziktir ve herkese yardım eder.",
+     "anahtar_kok": "nazik",
+     "anahtar_ifade": "\\bnazik\\w*",
+     "ornek_bicimler": [
+      "nazik",
+      "nazikçe"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Boynuzuyla kimseyi itmez; boynuzu yalnız yolu aydınlatmak için parlar.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "gökyüzü",
+     "tarif": "Bulutların üstü; gökkuşağı vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "orman",
+     "tarif": "Çiçekli bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Çiçeklerle dolu büyük bir bahçe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "dağ",
+     "tarif": "Yeşil bir tepe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kelebek",
+     "kisa_ad": "kelebek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kelebek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kelebek",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe",
+       "dağ"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:tavsan",
+     "kisa_ad": "tavşan",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "tavşan"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "tavşan",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Hayvanlar tek tek konuşabilir; arka plandaki hayvan toplulukları konuşmaz.",
+     "yasak_duzenli_ifadeler": [],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "boynuz",
+    "yele",
+    "gökkuşağı"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kelebek",
+     "kart": [
+      "yan:kelebek"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "tavşan",
+     "kart": [
+      "yan:tavsan"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Ad Türkçe: Tek Boynuzlu At (unicorn)."
+   ],
+   "kural_ornekleri": [
+    [],
+    [
+     "Tek Boynuzlu At koştu."
+    ]
+   ]
+  },
+  {
+   "kimlik": "bip",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Bip",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "bip",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Bip, bip bip diye konuşan, yardımsever küçük bir robottur.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "robot",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "robot"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Konuşurken bip bip diye ses çıkarır.",
+     "anahtar_kok": "bip",
+     "anahtar_ifade": "\\bbip\\b",
+     "ornek_bicimler": [
+      "bip"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Gözleri ışık gibi parlar.",
+     "anahtar_kok": "ışık",
+     "anahtar_ifade": "\\bışı[kğ]\\w*",
+     "ornek_bicimler": [
+      "ışık",
+      "ışığı"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Saymayı ve düzenlemeyi çok sever.",
+     "anahtar_kok": "say",
+     "anahtar_ifade": "\\bsay(?:dı|mak|ar|arak|ıyor)\\w*",
+     "ornek_bicimler": [
+      "saydı",
+      "saymak"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Elektrik, kablo, priz ve pil hikayeye girmez; Bip kendi kendine çalışır. Hiçbir şeyi sökmez ya da kırmaz.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "ev",
+     "tarif": "Rahat bir ev; oyuncaklarla dolu bir oda vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çimenleri ve ağaçları olan bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Çiçekli bir bahçe.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kedi",
+     "kisa_ad": "kedi",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kedi"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kedi",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "ev",
+       "bahçe",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kelebek",
+     "kisa_ad": "kelebek",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kelebek"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kelebek",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "bahçe",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Elektrik, priz, kablo ve pil hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Ee]lektri\\w*",
+      "\\b[Pp]riz\\w*",
+      "\\b[Kk]ablo\\w*",
+      "\\b[Pp]il(?:i|ler|leri)?\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    },
+    {
+     "kural": "Bip hiçbir şeyi sökmez ve kırmaz.",
+     "yasak_duzenli_ifadeler": [
+      "\\bsök(?:tü|mek)\\b"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "robot",
+    "bip"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kedi",
+     "kart": [
+      "yan:kedi"
+     ]
+    },
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "kelebek",
+     "kart": [
+      "yan:kelebek"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Elektrik güvenliği: priz/kablo/pil yok."
+   ],
+   "kural_ornekleri": [
+    [
+     "Bip prize koştu.",
+     "Kabloyu çekti."
+    ],
+    [
+     "Bip bip dedi.",
+     "Kuş güldü."
+    ]
+   ]
+  },
+  {
+   "kimlik": "fistik",
+   "grup": "temel",
+   "onayli": true,
+   "ad": {
+    "deger": "Fıstık",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "okunus": {
+    "deger": "fıstık",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "seri": {
+    "deger": "temel figür",
+    "kaynak": [
+     "urun_karari",
+     "kullanici_karari_yeni"
+    ]
+   },
+   "kimlik_cumlesi": {
+    "deger": "Fıstık, hortumuyla su püskürtmeyi seven neşeli bir yavru fildir.",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ]
+   },
+   "tur": {
+    "deger": "fil",
+    "kaynak": [
+     "kullanici_karari_yeni"
+    ],
+    "lemmalar": [
+     "fil"
+    ]
+   },
+   "ozellikler": [
+    {
+     "deger": "Hortumuyla su püskürtür.",
+     "anahtar_kok": "hortum",
+     "anahtar_ifade": "\\bhortum\\w*",
+     "ornek_bicimler": [
+      "hortumu",
+      "hortumuyla"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Kocaman kulaklarını yelpaze gibi sallar.",
+     "anahtar_kok": "kulak",
+     "anahtar_ifade": "\\bkula[kğ]\\w*",
+     "ornek_bicimler": [
+      "kulakları",
+      "kulağını"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "deger": "Arkadaşlarıyla oyun oynamayı çok sever.",
+     "anahtar_kok": "oyun",
+     "anahtar_ifade": "\\boyun\\w*|\\boyna\\w*",
+     "ornek_bicimler": [
+      "oyun",
+      "oynadı"
+     ],
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "guvenli_ozellik_kullanimi": {
+    "deger": "Su püskürtmeyi yalnız oyun olarak yapar; kimseyi ıslatıp üzmez, kimse suya girmez.",
+    "kaynak": [
+     "urun_kurali"
+    ]
+   },
+   "yerler": [
+    {
+     "etiket": "orman",
+     "tarif": "Büyük ağaçları olan yeşil bir orman.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "park",
+     "tarif": "Çimenleri ve ağaçları olan bir park.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    },
+    {
+     "etiket": "bahçe",
+     "tarif": "Çiçekli bir bahçe; küçük bir su birikintisi vardır.",
+     "dizide_karsiligi": "urun_tanimi",
+     "kaynak": [
+      "kullanici_karari_yeni"
+     ]
+    }
+   ],
+   "yanlar": [
+    {
+     "yan_kimlik": "yan:kus",
+     "kisa_ad": "kuş",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kuş"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kuş",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     }
+    },
+    {
+     "yan_kimlik": "yan:kaplumbaga",
+     "kisa_ad": "kaplumbağa",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "kaplumbağa"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "kaplumbağa",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "bahçe"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    },
+    {
+     "yan_kimlik": "yan:maymun",
+     "kisa_ad": "maymun",
+     "tip": "isimsiz",
+     "yuzey_bicimleri": [
+      "maymun"
+     ],
+     "iliski": {
+      "deger": "Figürün dünyasında yaşayan bir doğa hayvanı.",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "tur": {
+      "deger": "maymun",
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "konusur": {
+      "deger": true,
+      "kaynak": [
+       "urun_karari"
+      ]
+     },
+     "yerler": {
+      "deger": [
+       "orman",
+       "park"
+      ],
+      "kaynak": [
+       "urun_kurali"
+      ],
+      "not_": "Doğa hayvanı yalnız yaşadığı yerde bulunur (tohum dünyası kuralı)."
+     }
+    }
+   ],
+   "dunya_kurallari": [
+    {
+     "kural": "Avcı ve tehlikeli hayvanlar hikayeye girmez.",
+     "yasak_duzenli_ifadeler": [
+      "\\b[Aa]vcı\\w*",
+      "\\b[Aa]slan\\w*",
+      "\\b[Tt]imsah\\w*"
+     ],
+     "kaynak": [
+      "urun_kurali"
+     ]
+    }
+   ],
+   "yasaklar": {
+    "adlar": [],
+    "ogeler": []
+   },
+   "izinli_dunya_kokleri": [
+    "hortum",
+    "püskürt"
+   ],
+   "urun_yan_eslesmesi": [
+    {
+     "urun": "kuş",
+     "kart": [
+      "yan:kus"
+     ]
+    },
+    {
+     "urun": "kaplumbağa",
+     "kart": [
+      "yan:kaplumbaga"
+     ]
+    },
+    {
+     "urun": "maymun",
+     "kart": [
+      "yan:maymun"
+     ]
+    }
+   ],
+   "acik_noktalar": [],
+   "tohum_yasak_kategoriler": {
+    "deger": [
+     "teknoloji",
+     "cagdas_arac",
+     "arac",
+     "cagdas",
+     "ev_esyasi",
+     "mutfak",
+     "giysi",
+     "okul",
+     "hazir_yiyecek",
+     "bostan",
+     "calgi",
+     "buyu"
+    ],
+    "kaynak": [
+     "urun_kurali",
+     "kullanici_karari_yeni"
+    ],
+    "not_": "Tohum kelimesi dünyaya uyar."
+   },
+   "kararlar": [
+    "Yavru fil; annesi yok (temel figürün yanları isimsiz hayvanlar)."
+   ],
+   "kural_ornekleri": [
+    [
+     "Avcı geldi."
+    ],
+    [
+     "Fıstık su püskürttü.",
+     "Maymun güldü."
+    ]
    ]
   }
  ]
