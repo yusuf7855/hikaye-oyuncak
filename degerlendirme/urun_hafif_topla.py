@@ -49,8 +49,12 @@ def _veri(ad, kok=None):
 
 
 def topla(ad="urun_v3", kok=None):
-    """Her tohumun son kontrol kaydı geçtiyse o bloğu alır (aynı sha1 bir kez)."""
+    """Her tohumun son kontrol kaydı geçtiyse o bloğu alır (aynı sha1 bir kez). data/AD/cikar.txt'deki tohumlar
+    (<tohum kimliği> <neden>; kod kontrolünden geçtiği halde elle ayıklananlar) alınmaz."""
     V = _veri(ad, kok)
+    cikar_yol = os.path.join(V, "cikar.txt")
+    cikar = {s.split()[0] for s in open(cikar_yol, encoding="utf-8")
+             if s.strip() and not s.startswith("#")} if os.path.exists(cikar_yol) else set()
     son = {}
     for yol in sorted(glob.glob(os.path.join(V, "kontrol", "*.json"))):
         d = json.load(open(yol, encoding="utf-8"))
@@ -60,7 +64,7 @@ def topla(ad="urun_v3", kok=None):
     figur = collections.defaultdict(list)
     gor = set()
     for tohum, k in sorted(son.items()):
-        if not k.get("gecti") or k["sha1"] in gor:
+        if not k.get("gecti") or k["sha1"] in gor or tohum in cikar:
             continue
         gor.add(k["sha1"])
         blok = urun_kayit.ayristir(k["ham"])[0]
