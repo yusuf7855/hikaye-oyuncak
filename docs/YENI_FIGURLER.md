@@ -44,7 +44,7 @@ Ay Dede (12, ninni modu) aynen kalır.
 
 **Özellikleri:** Tahtadan yapılmıştır. Yalan söylediğinde burnu biraz uzar, doğruyu söyleyince eski haline döner. Her şeyi merak eder ve yeni şeyler öğrenmek ister.
 
-**Güvenlik:** Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Merakı tek başına uzağa gitmek olarak gösterilmez.
+**Güvenlik:** Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Doğruyu söyleyince burnu hemen eski haline döner. Merakı tek başına uzağa gitmek olarak gösterilmez.
 
 **Yerler:** ev (Yaşlı marangozun küçük atölyesi; tahta oyuncaklar ve aletler vardır.); park (Kasabanın meydanı; çeşmesi ve ağaçları vardır.); orman (Kasabanın yanındaki orman.)
 
@@ -52,7 +52,7 @@ Ay Dede (12, ninni modu) aynen kalır.
 
 **Hikâyeye girmeyenler:** Tilki, kedi ve dev balık hikayeye girmez; kimse Pinokyo'yu kandırmaz ya da yutmaz. Pinokyo eşeğe dönüşmez ve kimse onu cezalandırmaz. Gepetto Usta Pinokyo'nun babasıdır; annesi hikayede yoktur. Kötü kukla tiyatrosu sahibi, hırsızlar ve büyü hikayeye girmez.
 
-**Kararlar:** Burun uzaması komik bir işaret olarak kalır; ceza ve korku yok. Disney'deki adlar (Jiminy) kullanılmaz; Collodi'deki adsız konuşan cırcır böceği kullanılır.
+**Kararlar:** Burun uzaması komik bir işaret olarak kalır; ceza ve korku yok. Ürün sahibi kararı (26 Ekim 2026, seçenek 1): burun özelliği seçilen hikayede Pinokyo küçük bir yalan söyler, burnu biraz uzar, doğruyu söyleyince eski haline döner ve herkes güler. Bu figür için 'figürün kendi hatası yalnız özür temasında olur' kuralının istisnasıdır; yalan hep küçük ve zararsızdır, kimse üzülmez. Disney'deki adlar (Jiminy) kullanılmaz; Collodi'deki adsız konuşan cırcır böceği kullanılır.
 
 ## Alaaddin
 

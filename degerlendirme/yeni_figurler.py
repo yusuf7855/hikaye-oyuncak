@@ -152,7 +152,7 @@ def kartlar():
          oz("Yalan söylediğinde burnu biraz uzar, doğruyu söyleyince eski haline döner.", "burn",
             r"\bburn\w*|\bburun\w*", ["burnu", "burun"], vpi),
          oz("Her şeyi merak eder ve yeni şeyler öğrenmek ister.", "merak", r"\bmerak\w*", ["meraklı", "merakla"], vpi)],
-        "Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Merakı tek başına uzağa gitmek olarak gösterilmez.",
+        "Burnunun uzaması yalnız komik ve küçük bir şey olarak gösterilir; ceza ya da korku değildir. Doğruyu söyleyince burnu hemen eski haline döner. Merakı tek başına uzağa gitmek olarak gösterilmez.",
         [yer("ev", "Yaşlı marangozun küçük atölyesi; tahta oyuncaklar ve aletler vardır.", vpi, "dogrulandi"),
          yer("park", "Kasabanın meydanı; çeşmesi ve ağaçları vardır.", UK + KK, "urun_tanimi"),
          yer("orman", "Kasabanın yanındaki orman.", vpi, "kismen", "Masalda ormanda kötü karakterler var; onlar girmez.")],
@@ -166,6 +166,9 @@ def kartlar():
         [o("Kötü kukla tiyatrosu sahibi, hırsızlar ve büyü hikayeye girmez.", vpi + UT)],
         ["kukla", "tahta", "marangoz", "cırcır", "atölye"], esle(yanlar), MASAL,
         ["Burun uzaması komik bir işaret olarak kalır; ceza ve korku yok.",
+         "Ürün sahibi kararı (26 Ekim 2026, seçenek 1): burun özelliği seçilen hikayede Pinokyo küçük bir yalan söyler, "
+         "burnu biraz uzar, doğruyu söyleyince eski haline döner ve herkes güler. Bu figür için 'figürün kendi hatası "
+         "yalnız özür temasında olur' kuralının istisnasıdır; yalan hep küçük ve zararsızdır, kimse üzülmez.",
          "Disney'deki adlar (Jiminy) kullanılmaz; Collodi'deki adsız konuşan cırcır böceği kullanılır."], vpi,
         ornekler=(["Tilki ona yaklaştı.", "Dev balık onu yuttu.", "Pinokyo'nun annesi geldi."],
                   ["Pinokyo'nun burnu biraz uzadı.", "Gepetto Usta güldü.", "Cırcır böceği ötüyordu."])))
