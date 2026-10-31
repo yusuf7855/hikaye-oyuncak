@@ -134,7 +134,7 @@ def birlestir(hedef="urun_karma", ekler=("urun_v3",), kok=None, gece=True):
         onek = ad.split("_")[-1]                       # urun_v3 -> v3
         yeni = []
         for yol in sorted(glob.glob(os.path.join(V, "*.txt"))):
-            if os.path.basename(yol) == "gecen.txt":
+            if os.path.basename(yol) in ("gecen.txt", "cikar.txt"):
                 continue
             fk = os.path.basename(yol)[:-4]
             if fk == GECE and not gece:
