@@ -1,7 +1,8 @@
 // Hikâye Oyuncağı (ESP32-S3 N16R8): ürün yazılımı + seri monitör test komutları.
 //
 // Model: c3ft_karma (C3: d192 L12 F512 P56, V16384; model.bin 10 331 252 B), flash'taki "model" bölümünde
-// (0x1D0000). Figürler data/urun_kartlari.json'daki 11 ürün figürü ve kart yerleri; üretim bilgisayardaki
+// (0x1D0000). Figürler data/urun_figurleri.json'daki 13 ürün figürü (kartları ve yerleri data/urun_kartlari.json;
+// lisanslı figürler 26 Ekim 2026'da çıktı, generated/ başlıklarına girmez); üretim bilgisayardaki
 // degerlendirme/urun_uret.py ile aynı (runtime/ornekle.h + runtime/isim_suzgec.h, generated/ altına kopya):
 // istem <|endoftext|> + "Karakter: F | Yer: Y\nSorun:" (Yan alanı yok), plan modu, sıcaklık 0.5, top-k 40, tekrar
 // cezası 1.1, istem tekrar penceresine girmez (gen -P), gövdede satır sonu yasağı (gen -N), isim süzgeci (gen -Y:
@@ -26,7 +27,7 @@
 // Ürün (docs/URUN_TANIMI.md; README "6. Oyuncak olarak"): düğme yok. Pinler ve sabitler donanim.h'de.
 // - Stand (NFC, nfc.h; RC522): hikâye yalnız standdaki oyuncağın hikâyesidir. Oyuncak etiketi kayıtlıdır (etiket.h:
 //   sihir + sürüm + nfc_no + CRC, NTAG sayfa 4-5); kayıt yoksa UID tablosu. İlk kez konan oyuncak "tanınır" (NVS).
-//   Kondu -> halka figür renginde dolar -> selamlama ("Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım.",
+//   Kondu -> halka figür renginde dolar -> selamlama ("Merhaba Emre, şimdi sana Keloğlan'ın hikâyesini okuyacağım.",
 //   selam.h) -> en eski hazır hikâye; hazır yoksa canlı okuma (canli_oku: selam çalarken model yazmaya başlar, her
 //   cümle biter bitmez okunur; yerler kendiliğinden döner). Çekilince cümle sonunda durur
 //   (ayar). nfc_no 200 = ayar kartı: Wi-Fi erişim noktası + ayar sayfası (ayar_sayfa.h, ayarlar.h).
@@ -40,9 +41,9 @@
 // - Hikâye kuyruğu (kuyruk.h, flash'ta "kuyruk" bölümü): ilk açılıştan boştayken bütün figürler için (standa konmuş
 //   olanlar önce; ARKA_HEPSI) K=5 aday + seçici, en iyisi saklanır; yuvalar figürlere bölünür. Açılıştan açılışa kalır.
 // - Güç: uyku modunda hafif uyku; yazılımla ses seviyesi; görev bekçisi her token'da beslenir.
-// Seri komutlar (geliştirme): "8" = Elsa (standı atlar) | "8 4" | "8 4 K" = her zaman K adayla üret (test) | "k" kuyruk,
-// "k+"/"k-", "k sil" | "v+"/"v-"/"v N" ses | "w dur" sesli komut taklidi | "n" stand, "n koy 3" / "n kaldir" taslak
-// okuyucuda etiket | "a" ayar modu | "sahip" tanınmış oyuncaklar | "h" halka | "u" hafif uyku denemesi.
+// Seri komutlar (geliştirme): "2" = Pamuk Prenses (standı atlar) | "2 4" | "2 4 K" = her zaman K adayla üret (test) |
+// "k" kuyruk, "k+"/"k-", "k sil" | "v+"/"v-"/"v N" ses | "w dur" sesli komut taklidi | "n" stand, "n koy 13" /
+// "n kaldir" taslak okuyucuda etiket | "a" ayar modu | "sahip" tanınmış oyuncaklar | "h" halka | "u" hafif uyku denemesi.
 
 #include "esp_partition.h"
 #include "esp_heap_caps.h"
@@ -321,13 +322,13 @@ static void liste() {
   for (int f = 0; f < N_FIGUR; f++) {
     int harf = 0;
     for (const char *p = FIGUR_AD[f]; *p; p++) harf += (*p & 0xC0) != 0x80;
-    Serial.printf("  %2d  %s%*s", f + 1, FIGUR_AD[f], harf < 13 ? 13 - harf : 0, "");
+    Serial.printf("  %2d  %s%*s", f + 1, FIGUR_AD[f], harf < 16 ? 16 - harf : 0, "");
     for (int j = 0; j < FIGUR_YER_N[f]; j++) Serial.printf("  %d %s", j + 1, YER_AD[FIGUR_YER[f * YER_MAKS + j]]);
     Serial.println();
   }
-  Serial.println("Ürün: oyuncağı standa koyun (taslak okuyucuda \"n koy 8\" = Elsa, \"n koy 12\" = Ay Dede, \"n kaldir\").");
-  Serial.println("Geliştirme: \"8 4\" (Elsa, şato) | \"8\" (Elsa, sürpriz yer): hazır varsa hemen, yoksa canlı.");
-  Serial.println("Sona aday sayısı (en çok 16) eklenirse her zaman üretilir, en iyisi seçilir: \"8 4 8\" (8 aday).");
+  Serial.println("Ürün: oyuncağı standa koyun (taslak okuyucuda \"n koy 13\" = Pamuk Prenses, \"n koy 12\" = Ay Dede, \"n kaldir\").");
+  Serial.println("Geliştirme: \"2 4\" (Pamuk Prenses, şato) | \"2\" (Pamuk Prenses, sürpriz yer): hazır varsa hemen, yoksa canlı.");
+  Serial.println("Sona aday sayısı (en çok 16) eklenirse her zaman üretilir, en iyisi seçilir: \"2 4 8\" (8 aday).");
   Serial.println("(ürün: kuyrukta önceden hazırlanan hikâye K=5; hazır yoksa canlı okuma: yazdıkça okur)");
   Serial.printf("Ses: \"s <metin>\" metni okur | \"o\" hikâyeyi okuma %s (şu an %s) | \"v+\" \"v-\" \"v N\" ses seviyesi\n",
                 ses_var ? "aç/kapa" : "(ses modeli yok)", ses_var && ses_oku ? "açık" : "kapalı");
@@ -546,7 +547,7 @@ static struct {
   char mesaj[128];
 } ayr;
 static uint32_t son_etkinlik_ms = 0;          // son olay / seri komut
-static bool uretim_serbest = false;          // geliştirme (seri "8 4"): standda oyuncak olmasa da üret
+static bool uretim_serbest = false;          // geliştirme (seri "2 4"): standda oyuncak olmasa da üret
 static bool ayar_kirli = false;
 
 static int donanim_bul(int no) {
@@ -2315,7 +2316,7 @@ static void seri_komut(String g) {
   int n = sscanf(g.c_str(), "%d %d %d", &a, &y, &k);
   int f = a - 1, j = n >= 2 ? y - 1 : -1;
   if (n < 1 || f < 0 || f >= N_FIGUR || (n >= 2 && (j < 0 || j >= FIGUR_YER_N[f]))) {
-    Serial.println("Anlaşılmadı. Örnek: \"8 4\" (figür no, o figürün yer no) ya da \"8 4 8\" (8 aday). \"?\" liste.");
+    Serial.println("Anlaşılmadı. Örnek: \"2 4\" (figür no, o figürün yer no) ya da \"2 4 8\" (8 aday). \"?\" liste.");
     return;
   }
   uretim_serbest = true;  // geliştirme: standda oyuncak olmasa da üretilir

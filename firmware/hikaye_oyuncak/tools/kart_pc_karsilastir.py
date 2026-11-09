@@ -10,9 +10,11 @@ Kart int8 aktivasyon kullanır (LLM_INT8_ACT; çekirdek ve head q4f/int8 yollar�
 derlenmiş kopyasıyla yapılır (GEN ortam değişkeni; urun_uret aynen çalışır). --float: ayrıca ./gen (float) ile
 kaç adayın aynı çıktığını bilgi olarak yazar (fark beklenir: aktivasyon nicemlemesi).
 
-Kullanım: python firmware/hikaye_oyuncak/tools/kart_pc_karsilastir.py [--model hf_c3ft_karma] [--vaka 11] [--aday 4]
+Kullanım: python firmware/hikaye_oyuncak/tools/kart_pc_karsilastir.py [--model hf_c3ft_karma] [--vaka N] [--aday 4]
           [--hepsi] [--float]
-  --vaka N: figür başına ilk vakadan başlayarak N vaka (varsayılan 11: her figürden bir); --hepsi: 41 vakanın hepsi.
+  --model: varsayılan hf_c3ft_karma, yoksa modeller/c3ft_karma (yeni figürleri bilen ara model: --model hf_c3ft_v5a)
+  --vaka N: figür başına ilk vakadan başlayarak N vaka (varsayılan: ürün figürü sayısı, her figürden bir; figürler
+  urun_uret.FIGURLER = generated/istemler.h); --hepsi: bütün figür × kart yeri vakaları (13 figürde 45).
 Çıkış kodu: uyuşmazlık varsa 1.
 """
 import argparse
@@ -56,8 +58,10 @@ def kart_kos(kart, model, komutlar):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default=os.path.join(ROOT, "hf_c3ft_karma"))
-    ap.add_argument("--vaka", type=int, default=11)
+    ap.add_argument("--model", default=next(
+        (m for m in (os.path.join(ROOT, "hf_c3ft_karma"), os.path.join(ROOT, "modeller", "c3ft_karma"))
+         if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "hf_c3ft_karma")))
+    ap.add_argument("--vaka", type=int, default=None, help="varsayılan: figür sayısı (her figürden bir vaka)")
     ap.add_argument("--aday", type=int, default=4)
     ap.add_argument("--hepsi", action="store_true")
     ap.add_argument("--float", action="store_true", help="./gen (float aktivasyon) ile de karşılaştır (bilgi)")
@@ -74,7 +78,7 @@ def main():
         vakalar = tum
     else:  # her figürün sırayla kart yerleri: önce her figürün 1. yeri, sonra 2. yeri ...
         sira = sorted(range(len(tum)), key=lambda i: (sum(1 for v in tum[:i] if v["figur"] == tum[i]["figur"]), i))
-        vakalar = [tum[i] for i in sira[:a.vaka]]
+        vakalar = [tum[i] for i in sira[:a.vaka or len(U.FIGURLER)]]
     komut = []
     for v in vakalar:
         f = U.FIGURLER.index(v["figur"])

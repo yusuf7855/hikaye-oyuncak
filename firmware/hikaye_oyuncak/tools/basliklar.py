@@ -5,17 +5,21 @@ llm.h, ornekle.h, isim_suzgec.h: runtime/'dan kopya (Arduino IDE çizim dışın
 vocab.h   : token id -> ham UTF-8 baytları (GPT-2 bayt düzeyi tablosundan; tek token'ın decode'u Türkçe harfin
             yarısını taşıyan token'da U+FFFD verirdi). Özel token'lar (<|endoftext|>) boş.
 istemler.h: ürün kurulumu, degerlendirme/urun_uret.py ile birebir:
-            - data/urun_kartlari.json'daki figürler (urun_uret.FIGURLER) ve kart yerleri; istem urun_uret.istem
-              (EOT + "Karakter: F | Yer: Y\\nSorun:", plan modu, Yan alanı yok: ürün varsayılanı), yalnız tek figür
+            - ürün figürleri (urun_uret.FIGURLER: data/urun_figurleri.json, kartları data/urun_kartlari.json) ve
+              kart yerleri; istem urun_uret.istem (EOT + "Karakter: F | Yer: Y\\nSorun:", plan modu, Yan alanı yok:
+              ürün varsayılanı), yalnız tek figür. Üründen çıkan (lisanslı) figürler tablolara girmez.
             - isim süzgeci (runtime/isim_suzgec.h, gen -Y): figür başına urun_uret.suzgec_dosyasi'nın ad satırları
-              (kadro_disi, kelime başı olabilen adlar '$' ile) ve süzgecin token baytlarının vocab.h'den farklı
-              olduğu token'lar (gen -Y dosyası özel token'ı da metniyle yazar: "<|endoftext|>")
+              (kadro_disi: eğitim verisindeki eski figürlerin adları da yasak; kelime başı olabilen adlar '$' ile)
+              ve süzgecin token baytlarının vocab.h'den farklı olduğu token'lar (gen -Y dosyası özel token'ı da
+              metniyle yazar: "<|endoftext|>")
             - seçici (secici.h secici_urun_puanla = urun_uret.puanla) tabloları: kadro, izinli adlar, bütün ürün
-              adları, ISIM_KELIME, takıntı önekleri ve TAKINTI_HARIC
+              adları (urun_uret.TUM_ISIM / TUM_AD), ISIM_KELIME, takıntı önekleri ve TAKINTI_HARIC
             Kartta seçim yalnız bu tablolardan okunur; tokenizer kartta çalışmaz.
 figur_donanim.h: data/figur_donanim.json (NFC numarası, halka rengi, mod) + her donanım figürünün modeldeki figür
             numarası (DONANIM_MODEL: urun_uret.FIGURLER'deki yeri; -1 = model bu figürü bilmiyor, kart yerleşik metin
-            okur). Uyku modu figürü (Ay Dede) hep -1: yalnız sabit ninnileri okur (yerlesik.h).
+            okur). Uyku modu figürü (Ay Dede) hep -1: yalnız sabit ninnileri okur (yerlesik.h). 'cikarildi' alanı olan
+            (üründen çıkmış) figürler başlığa girmez; numaraları yine de tekrar denetimine girer (asla yeniden
+            kullanılmaz).
             Yalnız bu başlık: --donanim (tokenizer gerekmez).
 """
 import argparse
@@ -32,9 +36,10 @@ from baslangic import KAR, YABANCI  # noqa: E402
 import urun_uret as U  # noqa: E402
 
 # secici.h sc_yer_say sırası (sec.YER_KELIME: orman, deniz, ev, park, sato, dag); kart etiketleri bunların
-# Türkçe yazımı (urun_uret.YER_ANAHTAR)
+# Türkçe yazımı (urun_uret.YER_ANAHTAR). Yer kuralı olmayan kart yerleri (yeni figürlerin bahçe ve gökyüzü) sona
+# eklenir: secici_urun_puanla yer >= 6'da yer kuralı uygulamaz (urun_uret.puanla: sec.YER_KELIME'de yoksa kural yok).
 YERLER = ["orman", "deniz", "ev", "park", "sato", "dag"]
-YER_AD = ["orman", "deniz", "ev", "park", "şato", "dağ"]
+YER_AD = ["orman", "deniz", "ev", "park", "şato", "dağ", "bahçe", "gökyüzü"]
 YER_MAKS = 5
 
 
@@ -99,10 +104,15 @@ def donanim_basligi():
     import json
     with open(os.path.join(ROOT, "data", "figur_donanim.json"), encoding="utf-8") as f:
         d = json.load(f)
-    fig = d["figurler"]
     model = list(U.FIGURLER)
-    nolar = [x["nfc_no"] for x in fig] + [x["nfc_no"] for x in d.get("ozel_kartlar", [])]
+    # çıkarılan figürlerin numaraları da sayılır: nfc_no asla yeniden kullanılmaz
+    nolar = [x["nfc_no"] for x in d["figurler"]] + [x["nfc_no"] for x in d.get("ozel_kartlar", [])]
     assert len(set(nolar)) == len(nolar), "nfc_no tekrar ediyor"
+    fig = [x for x in d["figurler"] if not x.get("cikarildi")]
+    eksik = [k for k in model if k not in {x["kimlik"] for x in fig}]
+    assert not eksik, f"ürün figürlerinin donanım kaydı yok (data/figur_donanim.json): {eksik}"
+    fazla = [x["kimlik"] for x in fig if x.get("mod", "hikaye") == "hikaye" and x["kimlik"] not in model]
+    assert not fazla, f"donanım figürü ürün listesinde yok (urun_uret.FIGURLER): {fazla}"
     modlar = {"hikaye": 0, "uyku": 1}
 
     def rgb(h):
@@ -133,7 +143,10 @@ def donanim_basligi():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tokenizer", default=os.path.join(ROOT, "hf_c3ft_karma", "tokenizer.json"))
+    ap.add_argument("--tokenizer", default=next(
+        (t for t in (os.path.join(ROOT, "hf_c3ft_karma", "tokenizer.json"),
+                     os.path.join(ROOT, "modeller", "c3ft_karma", "tokenizer.json")) if os.path.exists(t)),
+        os.path.join(ROOT, "hf_c3ft_karma", "tokenizer.json")))
     ap.add_argument("--donanim", action="store_true", help="yalnız generated/figur_donanim.h")
     a = ap.parse_args()
     if a.donanim:
@@ -194,8 +207,10 @@ def main():
         rol = {s for y in k["yanlar"] for s in y["yuzey_bicimleri"] if s[:1].isupper()}
         izinli.append(sorted(kd | rol | {w for x in kd | rol for w in x.split()}))  # urun_uret.kadro_cezalari
         takinti_ad.append(sorted({U.sec.kucuk(w)[:5] for x in kd for w in x.split()}))  # urun_uret.takinti_cezasi
-    tum_isim = sorted(set().union(*(U.figur_adlari(k) for k in figurler)))  # puanla: sec.TUM_ISIM
-    tum_ad = sorted(set(tum_isim) | set(YABANCI) | {x["isim"] for x in KAR.values()})  # kadro_cezalari: tum_urun
+    # puanla: sec.TUM_ISIM; kadro_cezalari: TUM_AD (eski figürlerin adları dahil: urun_uret.ISIM_FIGURLER)
+    tum_isim = sorted(U.TUM_ISIM)
+    tum_ad = sorted(U.TUM_AD)
+    assert set(tum_ad) == set(tum_isim) | set(YABANCI) | {x["isim"] for x in KAR.values()}
     for L in kadro + izinli + [tum_isim, tum_ad]:
         for s in L:
             assert "\n" not in s

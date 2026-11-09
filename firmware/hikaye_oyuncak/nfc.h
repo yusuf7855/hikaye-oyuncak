@@ -28,8 +28,8 @@ typedef struct {
 
 static const NfcEtiket NFC_TABLO[] = {
     // örnek UID'ler (kayıt yazılamayan etiketler için; kendi etiketlerinizinkini yazın)
-    {{0x04, 0xA1, 0xB2, 0xC3}, 4, 1},                    // Niloya
-    {{0x04, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66}, 7, 8},  // Elsa (7 baytlık NTAG UID örneği)
+    {{0x04, 0xA1, 0xB2, 0xC3}, 4, 4},                     // Keloğlan
+    {{0x04, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66}, 7, 13},  // Pamuk Prenses (7 baytlık NTAG UID örneği)
 };
 
 static int nfc_tablo_no(const uint8_t *uid, int n) {

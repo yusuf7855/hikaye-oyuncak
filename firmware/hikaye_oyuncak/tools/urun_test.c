@@ -1,7 +1,8 @@
 // Ürün parçalarının bilgisayarda denemesi (saf C başlıklar): etiket kaydı (etiket.h: kodla/çöz/CRC, bozulmalar),
-// taslak NFC sürücüsünde etiket belleğine yazma + doğrulama (nfc.h, NFC_OKUYUCU 0), selamlama ekleri (selam.h: 11
-// figür + adsız + ninni), ayar formu doğrulaması (ayarlar.h), halka durumları ve sınırları (halka.h), müzik kutusu
-// (muzik_kutusu.h), donanım figürü tablosu (generated/figur_donanim.h, yerlesik.h).
+// taslak NFC sürücüsünde etiket belleğine yazma + doğrulama (nfc.h, NFC_OKUYUCU 0), selamlama ekleri (selam.h:
+// donanım figürlerinin hepsi, üründen çıkan eski figürlerin adları, adsız, ninni), ayar formu doğrulaması (ayarlar.h),
+// halka durumları ve sınırları (halka.h), müzik kutusu (muzik_kutusu.h), donanım figürü tablosu
+// (generated/figur_donanim.h: üründen çıkan figürler yok, yerlesik.h).
 // Derle:  cc -O2 -Wall -o /tmp/urun_test firmware/hikaye_oyuncak/tools/urun_test.c -lm
 // Çalıştır: /tmp/urun_test   (çıkış kodu 0: hepsi geçti)
 #include <stdbool.h>
@@ -21,6 +22,12 @@
 #include "../yerlesik.h"
 
 static int hata = 0;
+// Donanım tablosunda kimliği k olan figür (yoksa -1)
+static int donanim_kimlik(const char *k) {
+  for (int d = 0; d < DONANIM_N; d++)
+    if (!strcmp(DONANIM_KIMLIK[d], k)) return d;
+  return -1;
+}
 #define DENE(k, ...)                                                                                    \
   do {                                                                                                  \
     if (!(k)) { printf("HATA (satır %d): ", __LINE__); printf(__VA_ARGS__); printf("\n"); hata++; }      \
@@ -75,7 +82,7 @@ static void nfc_denemesi(void) {
   const uint8_t klasik[4] = {0x04, 0xA1, 0xB2, 0xC3};
   nfc_sahte_koy_bos(klasik, 4, false);
   DENE(nfc_kayit_yaz(2, klasik, 4) == NFC_YAZ_NTAG_DEGIL, "Classic'e yazıldı");
-  DENE(nfc_etiket_no(klasik, 4, &kayit) == 1 && !kayit, "UID tablosu (Niloya)");
+  DENE(nfc_etiket_no(klasik, 4, &kayit) == 4 && !kayit, "UID tablosu (Keloğlan)");
   nfc_sahte_koy_no(12);
   DENE(nfc_uid_oku(u, sizeof u) == 7 && nfc_etiket_no(u, 7, NULL) == 12, "programlanmış gece figürü");
   nfc_sahte_kaldir();
@@ -84,15 +91,29 @@ static void nfc_denemesi(void) {
 
 // ---- selam ----
 static void selam_denemesi(void) {
-  static const char *const BEK[DONANIM_N] = {"Niloya'nın", "Maşa'nın", "Pepee'nin", "Keloğlan'ın", "Doru'nun",
-                                             "Hayri'nin", "Şakir'in", "Elsa'nın", "Chase'in", "Örümcek Adam'ın",
-                                             "Hello Kitty'nin", "Ay Dede'nin"};
+  // donanım figürlerinin hepsi (kimliğe göre: tablo sırası değişse de) ve beklenen ekleri
+  static const char *const BEK[][2] = {
+      {"keloglan", "Keloğlan'ın"},           {"gece", "Ay Dede'nin"},          {"pamuk_prenses", "Pamuk Prenses'in"},
+      {"pinokyo", "Pinokyo'nun"},            {"alaaddin", "Alaaddin'in"},      {"nasreddin_hoca", "Nasreddin Hoca'nın"},
+      {"bulut", "Bulut'un"},                 {"zipzip", "Zıpzıp'ın"},          {"tontis", "Tontiş'in"},
+      {"bilge_baykus", "Bilge Baykuş'un"},   {"ejderha_yavrusu", "Ejderha Yavrusu'nun"},
+      {"tek_boynuzlu_at", "Tek Boynuzlu At'ın"}, {"bip", "Bip'in"},        {"fistik", "Fıstık'ın"}};
   char b[160];
   for (int d = 0; d < DONANIM_N; d++) {
+    const char *bek = NULL;
+    for (size_t i = 0; i < sizeof BEK / sizeof BEK[0]; i++)
+      if (!strcmp(BEK[i][0], DONANIM_KIMLIK[d])) bek = BEK[i][1];
+    DENE(bek != NULL, "%s için beklenen selam eki yazılmamış", DONANIM_KIMLIK[d]);
+    if (!bek) continue;
     selam_iyelik(DONANIM_AD[d], b, sizeof b);
-    DENE(!strcmp(b, BEK[d]), "%s -> %s (beklenen %s)", DONANIM_AD[d], b, BEK[d]);
+    DENE(!strcmp(b, bek), "%s -> %s (beklenen %s)", DONANIM_AD[d], b, bek);
   }
-  static const char *const DIGER[][2] = {{"Pamuk", "Pamuk'un"}, {"Gülüş", "Gülüş'ün"}, {"Ömür", "Ömür'ün"},
+  // üründen çıkan (lisanslı) figürlerin adları: kural denemesi olarak kalır (yabancı adda "y", Chase istisnası)
+  static const char *const DIGER[][2] = {{"Niloya", "Niloya'nın"},     {"Maşa", "Maşa'nın"},     {"Pepee", "Pepee'nin"},
+                                        {"Doru", "Doru'nun"},         {"Hayri", "Hayri'nin"},   {"Şakir", "Şakir'in"},
+                                        {"Elsa", "Elsa'nın"},         {"Chase", "Chase'in"},    {"Örümcek Adam", "Örümcek Adam'ın"},
+                                        {"Hello Kitty", "Hello Kitty'nin"},
+                                        {"Pamuk", "Pamuk'un"}, {"Gülüş", "Gülüş'ün"}, {"Ömür", "Ömür'ün"},
                                         {"Ali", "Ali'nin"},     {"Ayşe", "Ayşe'nin"}, {"Arı", "Arı'nın"},
                                         {"Kuzu", "Kuzu'nun"},   {"Örtü", "Örtü'nün"}, {"Mary", "Mary'nin"},
                                         {"Tony", "Tony'nin"},   {"Kral Şakir", "Kral Şakir'in"},
@@ -179,7 +200,9 @@ static void halka_denemesi(void) {
   Halka h;
   const int N = 35;
   halka_kur(&h, N, 25, 600);
-  const uint8_t *nil = &DONANIM_RENK[0];
+  const int pp = donanim_kimlik("pamuk_prenses");
+  DENE(pp >= 0, "Pamuk Prenses donanım tablosunda yok");
+  const uint8_t *nil = &DONANIM_RENK[3 * (pp >= 0 ? pp : 0)];  // figür rengi (Pamuk Prenses: kırmızı-pembe)
   // açılış: gökkuşağı (farklı renkler), sonra boşta
   halka_taban(&h, HT_ACILIS, 1000);
   halka_ciz(&h, 1000 + HALKA_ACILIS_MS - 1, kare);
@@ -199,7 +222,8 @@ static void halka_denemesi(void) {
   int yari = yanan(N);
   halka_ciz(&h, 20000 + HALKA_DOLMA_MS, kare);
   DENE(yari > N / 3 && yari < 2 * N / 3 && yanan(N) == N, "dolma %d", yari);
-  DENE(kare[0][0] == (255 * 25 + 50) / 100 && kare[0][1] == (111 * 25 + 50) / 100, "tavan %%25: %d %d", kare[0][0], kare[0][1]);
+  DENE(kare[0][0] == (nil[0] * 25 + 50) / 100 && kare[0][1] == (nil[1] * 25 + 50) / 100, "tavan %%25: %d %d", kare[0][0],
+       kare[0][1]);
   // okuma: 3/10 cümle -> 10 LED dolu, kalanı sönük
   halka_taban(&h, HT_OKUMA, 30000);
   halka_ilerleme(&h, 3, 10);
@@ -233,7 +257,9 @@ static void halka_denemesi(void) {
   halka_ciz(&h, 43000 + HALKA_SES_MS, kare);
   DENE(h.ust == HU_YOK, "ses göstergesi 2 s'de bitmedi");
   // gece: gece mavisi zemin + parlayan yıldızlar; sönme 60 s
-  halka_renk(&h, &DONANIM_RENK[3 * 11]);
+  const int gd = donanim_kimlik("gece");
+  DENE(gd >= 0, "gece figürü donanım tablosunda yok");
+  halka_renk(&h, &DONANIM_RENK[3 * (gd >= 0 ? gd : 0)]);
   halka_taban(&h, HT_GECE, 50000);
   int yildiz_en = 0, zemin_mavi = 1;
   for (uint32_t t = 50000; t < 70000; t += 250) {
@@ -311,12 +337,27 @@ static void muzik_denemesi(void) {
 
 // ---- donanım figürleri ve yerleşik metinler ----
 static void donanim_denemesi(void) {
-  int gece = -1;
+  int gece = -1, hikaye = 0;
   for (int d = 0; d < DONANIM_N; d++) {
-    DENE(DONANIM_NFC[d] == d + 1, "nfc_no sırası");
+    DENE(d == 0 || DONANIM_NFC[d] > DONANIM_NFC[d - 1], "nfc_no sırası (artan, tekrarsız)");
     if (DONANIM_MOD[d] == MOD_UYKU) gece = d;
+    if (DONANIM_MOD[d] == MOD_HIKAYE) {
+      hikaye++;
+      DENE(DONANIM_MODEL[d] >= 0, "%s: hikâye figürü modelde yok", DONANIM_KIMLIK[d]);
+      for (int e = 0; e < d; e++) DENE(DONANIM_MODEL[e] != DONANIM_MODEL[d], "model figürü iki kez");
+    }
   }
-  DENE(gece == 11 && !strcmp(DONANIM_KIMLIK[gece], "gece") && DONANIM_NFC[gece] == 12, "gece figürü");
+  DENE(gece >= 0 && !strcmp(DONANIM_KIMLIK[gece], "gece") && DONANIM_NFC[gece] == 12, "gece figürü");
+  // 26 Ekim 2026: lisanslı figürler üründen çıktı (data/figur_donanim.json 'cikarildi'): tabloda ne kimlikleri ne
+  // numaraları var; Keloğlan (4) kalır, yeni 12 figür 13-24 (numaralar asla yeniden kullanılmaz)
+  static const char *const CIKAN[] = {"niloya", "masa", "pepee", "doru", "hayri", "sakir", "elsa", "chase",
+                                      "orumcek_adam", "hello_kitty"};
+  for (size_t i = 0; i < sizeof CIKAN / sizeof CIKAN[0]; i++) DENE(donanim_kimlik(CIKAN[i]) < 0, "%s tabloda", CIKAN[i]);
+  for (int d = 0; d < DONANIM_N; d++)
+    DENE(DONANIM_NFC[d] == 4 || DONANIM_NFC[d] >= 12, "%s: çıkarılan figürün numarası (%d)", DONANIM_KIMLIK[d],
+         DONANIM_NFC[d]);
+  DENE(hikaye == 13 && DONANIM_N == 14 && DONANIM_NFC[DONANIM_N - 1] == 24, "13 hikâye figürü + Ay Dede (%d)", hikaye);
+  DENE(donanim_kimlik("keloglan") >= 0 && DONANIM_NFC[donanim_kimlik("keloglan")] == 4, "Keloğlan 4");
   int yerlesik_var = 0;
   for (size_t i = 0; i < sizeof YERLESIK / sizeof YERLESIK[0]; i++)
     if (!strcmp(YERLESIK[i].kimlik, "gece") && YERLESIK[i].n == 100) yerlesik_var = 1;

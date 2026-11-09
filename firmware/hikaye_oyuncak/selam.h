@@ -1,13 +1,15 @@
 // Oyuncağın söylediği kalıp cümleler: selamlama (doğru Türkçe tamlayan/iyelik ekiyle), ninni selamı, veda, ayar
 // şifresi.
 //
-//   selam_iyelik("Niloya") -> "Niloya'nın" | "Keloğlan" -> "Keloğlan'ın" | "Doru" -> "Doru'nun" | "Örümcek Adam" ->
-//   "Örümcek Adam'ın" (çok sözcüklü adda son sözcük) | "Hello Kitty" -> "Hello Kitty'nin" | "Chase" -> "Chase'in"
+//   selam_iyelik("Keloğlan") -> "Keloğlan'ın" | "Pinokyo" -> "Pinokyo'nun" | "Bulut" -> "Bulut'un" |
+//   "Tek Boynuzlu At" -> "Tek Boynuzlu At'ın" (çok sözcüklü adda son sözcük) | "Hello Kitty" -> "Hello Kitty'nin" |
+//   "Chase" -> "Chase'in"
 //
 // Kural: özel ad + kesme işareti + ek; ek son ünlüye uyar (büyük ünlü uyumu: a ı -> ın, e i -> in, o u -> un,
 // ö ü -> ün); ad ünlüyle bitiyorsa araya kaynaştırma "n" girer (nın/nin/nun/nün). Yabancı adlarda okunuş esas:
 // sözcük sonundaki ünsüzden sonra gelen "y" i okunur (Kitty -> "Kitti" -> 'nin); okunuşu yazılışından ayrılan adlar
-// SELAM_ISTISNA tablosundadır (Chase "Çeys" okunur -> 'in). Saf C: tools/urun_test.c 11 figürü ve adsız durumu dener.
+// SELAM_ISTISNA tablosundadır (Chase "Çeys" okunur -> 'in). Saf C: tools/urun_test.c donanım figürlerinin hepsini,
+// üründen çıkan eski figürlerin adlarını ve adsız durumu dener.
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
@@ -72,7 +74,7 @@ static int selam_iyelik(const char *ad, char *out, int kap) {
   return n < kap ? n : kap - 1;
 }
 
-// "Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım." (cocuk boş ya da NULL: "Merhaba, şimdi sana ...")
+// "Merhaba Emre, şimdi sana Keloğlan'ın hikâyesini okuyacağım." (cocuk boş ya da NULL: "Merhaba, şimdi sana ...")
 static int selam_metni(const char *cocuk, const char *figur, char *out, int kap) {
   char iy[96];
   selam_iyelik(figur, iy, sizeof iy);

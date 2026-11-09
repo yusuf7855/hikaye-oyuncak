@@ -118,27 +118,30 @@ tanınmış oyuncaklar: (yok: standa konan oyuncak tanınır)
 
 | No | Figür | Yerleri |
 |---|---|---|
-| 1 | Niloya | 1 orman, 2 dağ, 3 ev, 4 park |
-| 2 | Maşa | 1 orman, 2 dağ, 3 ev |
-| 3 | Pepee | 1 orman, 2 deniz, 3 park, 4 ev |
-| 4 | Keloğlan | 1 orman, 2 dağ, 3 ev, 4 şato |
-| 5 | Doru | 1 dağ, 2 orman, 3 park |
-| 6 | Hayri | 1 deniz, 2 orman, 3 park, 4 ev |
-| 7 | Şakir | 1 deniz, 2 orman, 3 park, 4 ev |
-| 8 | Elsa | 1 dağ, 2 orman, 3 deniz, 4 şato |
-| 9 | Chase | 1 dağ, 2 deniz, 3 orman, 4 park, 5 ev |
-| 10 | Örümcek Adam | 1 deniz, 2 park, 3 ev |
-| 11 | Hello Kitty | 1 park, 2 orman, 3 ev |
+| 1 | Keloğlan | 1 orman, 2 dağ, 3 ev, 4 şato |
+| 2 | Pamuk Prenses | 1 orman, 2 ev, 3 bahçe, 4 şato |
+| 3 | Pinokyo | 1 ev, 2 park, 3 orman |
+| 4 | Alaaddin | 1 ev, 2 park, 3 bahçe, 4 şato |
+| 5 | Nasreddin Hoca | 1 ev, 2 park, 3 bahçe, 4 dağ |
+| 6 | Bulut | 1 ev, 2 bahçe, 3 park |
+| 7 | Zıpzıp | 1 bahçe, 2 orman, 3 park |
+| 8 | Tontiş | 1 orman, 2 dağ, 3 park |
+| 9 | Bilge Baykuş | 1 orman, 2 dağ, 3 gökyüzü |
+| 10 | Ejderha Yavrusu | 1 dağ, 2 gökyüzü, 3 orman, 4 şato |
+| 11 | Tek Boynuzlu At | 1 gökyüzü, 2 orman, 3 bahçe, 4 dağ |
+| 12 | Bip | 1 ev, 2 park, 3 bahçe |
+| 13 | Fıstık | 1 orman, 2 park, 3 bahçe |
 
-Yer numarası figürün kendi listesindendir (her figür yalnız kartındaki yerlerde eğitildi). Sonra yazın:
+Yer numarası figürün kendi listesindendir (her figür yalnız kartındaki yerlerde eğitildi). Liste
+`data/urun_figurleri.json`'dan gelir (26 Ekim 2026'dan beri lisanssız 13 figür; lisanslı figürler çıktı). Sonra yazın:
 
 | Yazılan | Anlamı |
 |---|---|
-| `8 4` | Elsa, şato — kuyrukta hazır Elsa/şato hikâyesi varsa hemen okunur, yoksa canlı yazılır (standı ve tanınmışlığı atlar: geliştirme) |
-| `8` | Elsa, herhangi bir yer — en eski hazır hikâye, yoksa sıradaki yerinde canlı |
-| `1 2` | Niloya, dağ |
-| `8 4 8` | **her zaman** 8 aday üretir (en çok 16), seçiciyle en iyisini yazar ve okur (test; kuyruğa bakmaz) |
-| `8 4 1` | her zaman canlı |
+| `2 4` | Pamuk Prenses, şato — kuyrukta hazır Pamuk Prenses/şato hikâyesi varsa hemen okunur, yoksa canlı yazılır (standı ve tanınmışlığı atlar: geliştirme) |
+| `2` | Pamuk Prenses, herhangi bir yer — en eski hazır hikâye, yoksa sıradaki yerinde canlı |
+| `1 2` | Keloğlan, dağ |
+| `2 4 8` | **her zaman** 8 aday üretir (en çok 16), seçiciyle en iyisini yazar ve okur (test; kuyruğa bakmaz) |
+| `2 4 1` | her zaman canlı |
 | `?` | figür ve yer listesi |
 | `b` | hız testi: head'in üç yolunu ölçer, token başına ms dökümünü yazar, en hızlısını seçer |
 | `k` | tanınmış oyuncaklar ve kuyruk durumu: figür figür hazır hikâye sayısı ve yerleri |
@@ -146,22 +149,22 @@ Yer numarası figürün kendi listesindendir (her figür yalnız kartındaki yer
 | `k sil` | hazır hikâyelerin hepsini sil (boşta yeniden üretilir) |
 | `v+` / `v-` / `v 3` | ses seviyesi (0–7, en çok ayardaki sınır) |
 | `n` | standdaki etiket (UID, nfc_no) |
-| `n koy 8` / `n koy 12` / `n koy 200` / `n koy bos` / `n koy uid 04A1B2C3` / `n kaldir` | yalnız taslak okuyucuda (`NFC_OKUYUCU 0`): standa etiket koyma taklidi (Elsa, Ay Dede, ayar kartı, boş NTAG, kayıtsız etiket) |
+| `n koy 13` / `n koy 12` / `n koy 200` / `n koy bos` / `n koy uid 04A1B2C3` / `n kaldir` | yalnız taslak okuyucuda (`NFC_OKUYUCU 0`): standa etiket koyma taklidi (Pamuk Prenses, Ay Dede, ayar kartı, boş NTAG, kayıtsız etiket) |
 | `w uyandirma` `w dur` `w devam` `w baska` `w bir_daha` `w sesi_ac` `w sesi_kis` | sesli komut taklidi |
 | `a` / `a kapat` | ayar modunu aç / kapat (ayar kartı yerine) |
-| `sahip` / `sahip +8` / `sahip -8` / `sahip hepsi` / `sahip yok` | tanınmış oyuncaklar (nfc_no ile) |
+| `sahip` / `sahip +13` / `sahip -13` / `sahip hepsi` / `sahip yok` | tanınmış oyuncaklar (nfc_no ile) |
 | `h` | halkanın durumu, akım tahmini |
 | `s Merhaba` / `o` | metni oku / hikâyeyi sesli okumayı aç-kapa |
 | `u` | 10 s hafif uyku denemesi (akım ölçmek için; USB seri bağlantısı kopabilir) |
 
 Aday sayısı yazılmazsa kuyruk önce denenir, hazır yoksa **canlı okuma**: model yazdıkça her cümle biter bitmez okunur
 (seçici yok, bitmesi beklenmez). Boşta (son komuttan 5 s sonra; ilk açılıştan itibaren) kart kuyruğu bütün figürler
-için doldurmaya başlar (standa konmuş olanlar önce) ve seri porta `[kuyruk] Elsa | şato: 5 aday, puan -2.13 -> yuva 5
+için doldurmaya başlar (standa konmuş olanlar önce) ve seri porta `[kuyruk] Pamuk Prenses | şato: 5 aday, puan -2.13 -> yuva 5
 ...` gibi satırlar yazar; seri monitöre bir şey yazınca o aday bırakılır ve komutunuz hemen çalışır (iş sonra kaldığı
 adaydan sürer). Testte bunu istemezseniz `k-`. Ürün: kuyruğa hazırlarken **K=5** aday, en iyisi (ürün sahibinin
 kararı, 15 Ekim 2026). Figürün hikâyesinde başka figürlerin ve onların
-yanlarının adları (ör. Elsa'da "Niloya", "Şila") isim süzgeciyle hiç yazılamaz; figürün kendi kadrosu (Elsa için
-Anna, Olaf, Kristoff, Sven) serbesttir.
+yanlarının adları (ör. Pinokyo'da "Alaaddin", "Balkız"; modelin eğitim verisindeki eski lisanslı figürlerin adları da:
+"Niloya", "Elsa") isim süzgeciyle hiç yazılamaz; figürün kendi kadrosu (Pinokyo için Gepetto Usta) serbesttir.
 
 Her hikâyenin sonunda `token/s` ve bir **profil** satırı yazar: token başına ms olarak girdi, dikkat, FFN, PLE,
 head ve örnekleme. **Bu satırları, `b` çıktısını ve birkaç hikâyeyi bana gönderin.**
@@ -255,7 +258,7 @@ kütüphane yok (çekirdeğin `rmtInit`/`rmtWrite`'ı; Adafruit_NeoPixel gerekme
 
 | Ne olur | Oyuncak ne yapar |
 |---|---|
-| Oyuncak standa kondu | Halka figürün renginde dolar (0,6 sn) → "Merhaba Emre, şimdi sana Niloya'nın hikâyesini okuyacağım." → en eski hazır hikâye hemen okunur. Hazır yoksa **canlı okuma**: selam çalarken model yazmaya başlar, her cümle biter bitmez okunur (beklemek yok, aday seçimi yok). Figürün yerleri kendiliğinden döner. |
+| Oyuncak standa kondu | Halka figürün renginde dolar (0,6 sn) → "Merhaba Emre, şimdi sana Keloğlan'ın hikâyesini okuyacağım." → en eski hazır hikâye hemen okunur. Hazır yoksa **canlı okuma**: selam çalarken model yazmaya başlar, her cümle biter bitmez okunur (beklemek yok, aday seçimi yok). Figürün yerleri kendiliğinden döner. |
 | İlk açılış / boşta | Kart boştayken bütün figürler için hikâye hazırlar (her biri 5 aday, en iyisi; standa konmuş oyuncaklar önce). Okunan hikâye her zaman standdaki oyuncağınkidir. |
 | Canlı okurken "Dur" | Anlatım susar, hikâye sessizce tamamlanır; "Devam" kaldığı cümleden sürer. |
 | Oyuncak standdan alındı | Ayara göre: cümle bitince durur (varsayılan) / hemen durur / hikâyeyi bitirir. |
@@ -347,9 +350,10 @@ UID tablosuna (`nfc.h NFC_TABLO`) düşer; o da yoksa "bilinmeyen etiket" (kısa
 1. Ayar kartını standa koyun, telefondan ayar sayfasını açın.
 2. "Oyuncak tanıt"ta figürü seçin (yedek ayar kartı yazmak için "Ayar kartı"), **Etikete yaz**.
 3. Ayar kartını alın, yeni figürü (ya da boş etiketi) 60 sn içinde standa koyun. Kart yazar, geri okuyup doğrular;
-   sayfada ve sesle sonucu söyler ("Tamam, bu artık Niloya."). Figür tanınmış sayılır.
+   sayfada ve sesle sonucu söyler ("Tamam, bu artık Pinokyo."). Figür tanınmış sayılır.
 
-NFC numaraları ve renkler `data/figur_donanim.json`'da (sürüm 2: 11 figür + Ay Dede 12; ayar kartı 200). Numara
+NFC numaraları ve renkler `data/figur_donanim.json`'da (sürüm 3: Keloğlan 4, Ay Dede 12, yeni figürler 13–24; ayar
+kartı 200; üründen çıkan lisanslı figürlerin 1–3 ve 5–11 numaraları `cikarildi` ile durur, başlıklara girmez). Numara
 asla yeniden kullanılmaz. RC522 kitindeki MIFARE Classic kartlar NTAG değildir: onlara kayıt yazılamaz (UID
 tablosuyla kullanılabilir).
 
@@ -357,7 +361,7 @@ tablosuyla kullanılabilir).
 
 - Boşta (son olaydan 5 s sonra) kart, **tanınmış** figürlerden hazır hikâyesi en az olanı seçip sıradaki yeri için
   **16 aday** üretir, seçiciyle en iyisini flash'a yazar. 32 yuva tanınmış figürlere bölünür: figür başına
-  `min(6, (32 − 2) / tanınmış figür sayısı)` (tek figür 6, 11 figür 2). Yeni figür tanınınca hedef düşer; yer
+  `min(6, (32 − 2) / tanınmış figür sayısı)` (tek figür 6, 13 figür 2). Yeni figür tanınınca hedef düşer; yer
   gerekirse fazlası olan figürün en eski hikâyesi bırakılır.
 - Oyuncak konunca o figürün **en eski** hazır hikâyesi hemen okunur ve tüketilir; yerine boşta yenisi üretilir. Hazır
   yoksa yarım kalmış bir kuyruk işinin o ana kadarki en iyisi, o da yoksa canlı (K=1).
@@ -401,11 +405,13 @@ tablosuyla kullanılabilir).
 
 ## Geliştirici notları
 
-- `generated/` klasörü `tools/basliklar.py` ile üretilir: `vocab.h` (tokenizer tablosu), `istemler.h` (11 figür,
-  41 figür × yer istemi, figür başına isim süzgeci adları, seçici tabloları) ve `runtime/llm.h`, `runtime/ornekle.h`,
+- `generated/` klasörü `tools/basliklar.py` ile üretilir: `vocab.h` (tokenizer tablosu), `istemler.h` (13 figür,
+  45 figür × yer istemi, figür başına isim süzgeci adları, seçici tabloları) ve `runtime/llm.h`, `runtime/ornekle.h`,
   `runtime/isim_suzgec.h` kopyaları. Kaynak her zaman `degerlendirme/urun_uret.py` (KARTLAR/FIGURLER, istem,
-  kadro_disi + KELIME_BASI, figur_adlari, ISIM_KELIME, TAKINTI_HARIC). Kartlar ya da urun_uret değişince:
-  `python firmware/hikaye_oyuncak/tools/basliklar.py` (varsayılan tokenizer `hf_c3ft_karma/tokenizer.json`).
+  kadro_disi + KELIME_BASI, figur_adlari, ISIM_KELIME, TUM_ISIM/TUM_AD, TAKINTI_HARIC; ad kümeleri ISIM_FIGURLER'den:
+  ürün figürleri + eğitim verisindeki eski figürler). Kartlar ya da urun_uret değişince:
+  `python firmware/hikaye_oyuncak/tools/basliklar.py` (varsayılan tokenizer `hf_c3ft_karma/tokenizer.json`, yoksa
+  `modeller/c3ft_karma/tokenizer.json`; c3 modellerinin hepsinde aynı).
 - Üretim = `urun_uret.aday_uret` (gen ile aynı ayarlar): istem `<|endoftext|>Karakter: F | Yer: Y\nSorun:` (Yan alanı
   yok, ürün varsayılanı), plan modu (gen -S 199), istem tekrar penceresine girmez (gen -P), gövdede satır sonu
   yasağı (gen -N 199,9491), sıcaklık 0.5, top-k 40, tekrar 1.1, en çok 230 token. İsim süzgeci (gen -Y,
@@ -458,7 +464,7 @@ tablosuyla kullanılabilir).
     çalınması, CRC, imza, her noktada güç kesilmesi, aşınma, tanınmış figürlere bölme ve yer açma),
   - `tools/dugme_test.c` (sekme, kısa/uzun, ikili basış, millis taşması),
   - `tools/urun_test.c` (etiket kaydı ve her tek bit bozulması, taslak sürücüde tanıtma/kilitli/NTAG olmayan etiket,
-    11 figür + adsız + ninni selamı, ad doğrulaması ve form, halka durumları/tavan/akım sınırı, müzik kutusu,
+    donanım figürleri + eski adlar + adsız + ninni selamı, ad doğrulaması ve form, halka durumları/tavan/akım sınırı, müzik kutusu,
     donanım tablosu): `cc -O2 -o /tmp/urun_test tools/urun_test.c -lm && /tmp/urun_test`,
   - `python tools/kuyruk_test.py [--urun]` (çizimin kendisi kart_pc'de: doldur → yeniden başlat → çal → kalıcılık →
     bozulma → arka planda oyuncak konması, canlı üretimde oyuncak çekilmesi; `--urun` ilk işleri urun_uret ile de

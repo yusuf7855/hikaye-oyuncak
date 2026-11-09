@@ -5,7 +5,8 @@ kartı yeniden başlatmaktır.
   1. doldur:   bölüm eski model baytlarıyla (çöp) dolu; boşta arka plan üretimi her figüre KUYRUK_FIGUR_BASI hikâye
                yazar. Her işte K aday üretilir, yazılan = en yüksek puanlı aday (eşitlikte ilki), token token.
                --urun: ilk iki iş degerlendirme/urun_uret.py ile de üretilir; seçilen hikâye aynı olmalı.
-  2. çal:      yeniden başlat; "8" Elsa'nın en eski hazır hikâyesini hiç üretmeden çalar, tüketir; "8 1" yer seçerek.
+  2. çal:      yeniden başlat; "2" Pamuk Prenses'in en eski hazır hikâyesini hiç üretmeden çalar, tüketir; "2 1" yer
+               seçerek.
   3. kalıcı:   yeniden başlat; tüketilenler tüketilmiş kalır; boşta yalnız eksikler yeniden üretilir.
   4. bozulma:  dosyada bir hikâyenin bir baytı bozulur: o yuva açılışta yok sayılır ve yeniden üretilir.
   5. kesme:    arka plan üretimi sürerken oyuncak standa konur: aday bırakılır, oyuncak selamlanır, hikâyesi okunur,
@@ -14,6 +15,8 @@ kartı yeniden başlatmaktır.
   tools/dugme_test.c.)
 
 Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/kuyruk_test.py [--K 3] [--basi 2] [--urun]
+Model: HIKAYE_MODEL ortam değişkeni (model.bin + tokenizer.json dizini); yoksa hf_c3ft_karma, o da yoksa
+modeller/c3ft_karma. Figürler ve yer sayıları generated/istemler.h'den (kartın derlendiği tablolar).
 Çıkış kodu: hata varsa 1.
 """
 import argparse
@@ -29,10 +32,26 @@ import tempfile
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 SKETCH = os.path.dirname(TOOLS)
 ROOT = os.path.dirname(os.path.dirname(SKETCH))
-MODEL = os.path.join(ROOT, "hf_c3ft_karma")
+MODEL = os.environ.get("HIKAYE_MODEL") or next(
+    (m for m in (os.path.join(ROOT, "hf_c3ft_karma"), os.path.join(ROOT, "modeller", "c3ft_karma"))
+     if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "hf_c3ft_karma"))
 KUYRUK_OFS, KUYRUK_BOYUT, SEKTOR = 0xFE0000, 0x20000, 4096
-N_FIGUR = 11
-YER_N = [4, 3, 4, 4, 3, 4, 4, 4, 5, 3, 3]
+
+
+def istemler_tablosu():
+    """generated/istemler.h: N_FIGUR, FIGUR_YER_N ve FIGUR_AD (kartın derlendiği ürün figürleri)."""
+    s = open(os.path.join(SKETCH, "generated", "istemler.h"), encoding="utf-8").read()
+    n = int(re.search(r"#define N_FIGUR (\d+)", s).group(1))
+    yer_n = [int(x) for x in re.search(r"FIGUR_YER_N\[\d+\] = \{([^}]*)\}", s).group(1).replace(",", " ").split()]
+    govde = re.search(r"FIGUR_AD\[\d+\] = \{(.*?)\};", s, re.S).group(1).replace('" "', "")  # bitişik dizgeler
+    ad = [a.encode("latin-1").decode("unicode_escape").encode("latin-1").decode("utf-8")
+          for a in re.findall(r'"((?:[^"\\]|\\.)*)"', govde)]
+    assert len(yer_n) == n, (n, yer_n)
+    return n, yer_n, ad
+
+
+N_FIGUR, YER_N, FIGUR_AD = istemler_tablosu()
+FE = 1  # denemelerde öne çıkan figür: istemler.h'de 2. figür (Pamuk Prenses), seri komut "2"
 
 hatalar = []
 
@@ -185,24 +204,25 @@ def main():
         urun_karsilastir(d, ii[:2], 100, K)
 
     print("2. yeniden başlat, çal")
-    elsa = [i for i in ii if i["f"] == 7]  # yazılış sırası = sıra
-    beklenen_8 = elsa[0]
-    kalan = elsa[1:]
+    fe_ad = FIGUR_AD[FE]
+    fe = [i for i in ii if i["f"] == FE]  # yazılış sırası = sıra
+    beklenen = fe[0]
+    kalan = fe[1:]
     yer0 = [i for i in kalan if i["j"] == 0]
-    out, err = kos(kart, d, ["#durum", "8", "8 1", "#durum"])
+    out, err = kos(kart, d, ["#durum", f"{FE + 1}", f"{FE + 1} 1", "#durum"])
     olay = ayikla(err)
     cal = [o for o in olay if o[0] == "CALINDI"]
     ilk_aday = next((k for k, o in enumerate(olay) if o[0] == "ADAY"), len(olay))
     ilk_cal = next((k for k, o in enumerate(olay) if o[0] == "CALINDI"), len(olay))
-    dene(ilk_cal < ilk_aday, "\"8\" hazır hikâyeyi üretmeden önce çalmadı")
-    dene(cal and cal[0][1] == 7 and cal[0][3] == beklenen_8["tok"], "\"8\": Elsa'nın en eski hikâyesi çalınmadı")
+    dene(ilk_cal < ilk_aday, f"\"{FE + 1}\" hazır hikâyeyi üretmeden önce çalmadı")
+    dene(cal and cal[0][1] == FE and cal[0][3] == beklenen["tok"], f"\"{FE + 1}\": {fe_ad} en eski hikâyesi çalınmadı")
     dene("hazır hikâye" in out, "çıktıda 'hazır hikâye' yok")
     tuketilen = 1
     if yer0:
-        dene(len(cal) == 2 and cal[1][2] == 0 and cal[1][3] == yer0[0]["tok"], "\"8 1\": Elsa dağ hazırı çalınmadı")
+        dene(len(cal) == 2 and cal[1][2] == 0 and cal[1][3] == yer0[0]["tok"], f"\"{FE + 1} 1\": {fe_ad} 1. yer hazırı çalınmadı")
         tuketilen = 2
     else:
-        dene(len(cal) == 1 and "canlı okuma (yazdıkça)" in out, "\"8 1\": hazır yokken canlı okunmadı")
+        dene(len(cal) == 1 and "canlı okuma (yazdıkça)" in out, f"\"{FE + 1} 1\": hazır yokken canlı okunmadı")
     dene(durum(olay) == [toplam, toplam - tuketilen], f"hazır sayısı {durum(olay)}")
     print(f"  {tuketilen} hazır hikâye çalındı (üretim beklemeden)")
 
@@ -211,8 +231,8 @@ def main():
     olay = ayikla(err)
     yeni = isler(olay, K)
     dene(durum(olay) == [toplam - tuketilen, toplam], f"hazır sayısı {durum(olay)}")
-    dene(len(yeni) == tuketilen and all(i["f"] == 7 for i in yeni), f"yeniden üretilen {[(i['f'], i['j']) for i in yeni]}")
-    print(f"  {len(yeni)} hikâye yeniden üretildi (Elsa)")
+    dene(len(yeni) == tuketilen and all(i["f"] == FE for i in yeni), f"yeniden üretilen {[(i['f'], i['j']) for i in yeni]}")
+    print(f"  {len(yeni)} hikâye yeniden üretildi ({fe_ad})")
 
     print("4. bozulma: bir hikâyenin bir baytı bozuldu")
     with open(os.path.join(d, "kuyruk.bin"), "r+b") as f:
@@ -231,16 +251,17 @@ def main():
     print("5. kesme: arka plan üretimi sürerken oyuncak kondu; canlı üretim sürerken oyuncak çekildi")
     os.remove(os.path.join(d, "kuyruk.bin"))
     # ARKA_BEKLE_MS (5 s, sahte saat) sonra iş başlar; etiket ondan ~1,2 s sonra konur (gerçek saat: aday ortası)
-    out, err = kos(kart, d, ["k+", "sahip yok", "sahip +1", "#tohum 500", "#sonra 6200 #etiket koy 1", "#bosta 1",
+    # nfc_no 4 = Keloğlan (data/figur_donanim.json)
+    out, err = kos(kart, d, ["k+", "sahip yok", "sahip +4", "#tohum 500", "#sonra 6200 #etiket koy 4", "#bosta 1",
                              "#durum"])
     olay = ayikla(err)
     ii6 = isler(olay, K)
-    dene("[oyuncak: Niloya]" in out and "Niloya'nın hikâyesini" in out, "arka planda konan oyuncak selamlanmadı")
-    dene("yarım kuyruk işinden" in out or "=== Niloya" in out, "oyuncak konunca hikâye yok")
+    dene("[oyuncak: Keloğlan]" in out and "Keloğlan'ın hikâyesini" in out, "arka planda konan oyuncak selamlanmadı")
+    dene("yarım kuyruk işinden" in out or "=== Keloğlan" in out, "oyuncak konunca hikâye yok")
     dene(len(ii6) == 1, "iş sürüp bitmedi")
     print(f"  arka plan: {'yarım işin en iyisi okundu' if 'yarım kuyruk işinden' in out else 'canlı'}; iş sonra tamamlandı")
-    out, err = kos(kart, d, ["k-", "k sil", "sahip +6", "#etiket koy 6", "#sonra 4500 #etiket kaldir", "#bekle 20000",
-                             "#durum"], ek_env={"KART_SAAT": "sahte"})
+    out, err = kos(kart, d, ["k-", "k sil", "sahip +14", "#etiket koy 14", "#sonra 4500 #etiket kaldir", "#bekle 20000",
+                             "#durum"], ek_env={"KART_SAAT": "sahte"})  # 14 = Pinokyo
     dene("(durduruldu)" in out, "canlı üretim oyuncak çekilince durmadı")
     dene("(okuma:" not in out, "çekilen oyuncağın hikâyesi okundu")
     print("  canlı üretim durdu, hikâye okunmadı")

@@ -69,7 +69,7 @@ class GeceKart(Ortak):
     def test_kart_ve_figur_listesi(self):
         self.assertEqual(self.bg.mod_figurleri, ["Ay Dede"])
         self.assertNotIn("Ay Dede", self.bg.figurler)                  # hikâye figürü değil
-        self.assertEqual(len(self.bg.figurler), 11)
+        self.assertEqual(len(self.bg.figurler), 13)                    # Keloğlan + 12 lisanssız (26 Ekim 2026)
         kart = self.bg.kartlar["Ay Dede"]
         self.assertEqual((kart["kimlik"], kart["grup"], kart["onayli"]), ("gece", "uyku", True))
         self.assertEqual(uk.figur_kimligi("Ay Dede"), "gece")             # donanım kimliğiyle aynı
@@ -83,15 +83,18 @@ class GeceKart(Ortak):
     def test_kart_kontrol_temiz(self):
         h, _, s = vh.kart_kontrol(ROOT / "data" / "urun_kartlari.json", ROOT / "data" / "urun_figurleri.json")
         self.assertEqual(h, [])
-        self.assertEqual(s["etkin"], 12)
+        self.assertEqual(s["etkin"], 14)                                # 13 ürün figürü + Ay Dede
 
     def test_urun_modeli_gece_icermez(self):
-        """Ürün paketi (web, firmware istemler.h) urun_uret.FIGURLER'den gelir: gece kartı eklenince değişmez."""
+        """Ürün paketi (web, firmware istemler.h) urun_uret.FIGURLER'den gelir: gece kartı eklenince değişmez.
+        FIGURLER = data/urun_figurleri.json'daki ürün figürleri (populer + temel sırası), gece ve eski figürler yok."""
         import urun_uret as u
         self.assertFalse(u.GECE_MODELDE)
         self.assertNotIn("gece", u.FIGURLER)
-        self.assertEqual(len(u.FIGURLER), 11)
-        self.assertEqual(u.FIGURLER[0], "niloya")
+        self.assertNotIn("gece", u.ISIM_FIGURLER)
+        self.assertEqual(len(u.FIGURLER), 13)
+        self.assertEqual(u.FIGURLER[0], "keloglan")
+        self.assertEqual([u.KARTLAR[k]["ad"]["deger"] for k in u.FIGURLER], self.bg.figurler)
         from tokenizers import Tokenizer
         tok = Tokenizer.from_file(str(ROOT / "hf_c3ft_v6" / "tokenizer.json"))
         a = u.istem(tok, "Ay Dede", "bahçe", None)
@@ -124,7 +127,8 @@ class GeceKapi(Ortak):
             "K4.dunya_kurali": ("Kuşlar yuvada uyuyor.", "Uyumazsan rüzgar gelir."),
             "K8.kekeme": ("Ninni ninni, yavrum ninni. Ay Dede", "Ninni ninni ninni, yavrum. Ay Dede"),
             "K1.ninni_tirnak": ("Kuşlar yuvada uyuyor.", '"Uyu," dedi Ay Dede.'),
-            "K4.baska_figur": ("Kuşlar yuvada uyuyor.", "Niloya da yatağında uyuyor."),
+            "K4.baska_figur": ("Kuşlar yuvada uyuyor.", "Pinokyo da yatağında uyuyor."),
+            "K4.cikarilan_figur": ("Kuşlar yuvada uyuyor.", "Niloya da yatağında uyuyor."),   # lisanslı, çıktı
             "K4.canli_rol": ("Kuşlar yuvada uyuyor.", "Tavşan da yuvada uyuyor."),
         }
         for kod, (a, b) in vakalar.items():
@@ -173,14 +177,20 @@ class GeceKapi(Ortak):
     def test_oteki_figurler_degismedi(self):
         """Gece kuralları yalnız Ay Dede'ye uygulanır: öteki figürde 'o gece' zaman atlaması, 70 kelime alt sınırı,
         aynı cümle tekrarı ve -dı kuralı aynen kalır."""
-        from tests.test_urun_kapi import TABANLAR, TOHUMLAR
+        from tests.test_urun_kapi import TABANLAR, TOHUMLAR, _test_figur_listesi
         t = {x["id"]: x for x in TOHUMLAR}
-        b = uk.ayristir(TABANLAR)[1]                     # Niloya
-        self.assertIsNone(kapi.gece_turu(uk.kayit(b), t[b["tohum"]], self.bg))
+        b = uk.ayristir(TABANLAR)[1]                     # Niloya (lisanslı, çıktı: kapı mekaniği kopya listeyle)
+        eski = kapi.FIGUR
+        kapi.FIGUR = _test_figur_listesi()               # çıkarılan figürlerin de etkin olduğu kopya liste
+        try:
+            bg = kapi.Baglam(zemberek=False)
+        finally:
+            kapi.FIGUR = eski
+        self.assertIsNone(kapi.gece_turu(uk.kayit(b), t[b["tohum"]], bg))
         g = b["govde"]
 
         def kod(govde):
-            return kodlar(kapi.denetle({**b, "govde": govde}, t[b["tohum"]], self.bg, taslak_kart=True))
+            return kodlar(kapi.denetle({**b, "govde": govde}, t[b["tohum"]], bg, taslak_kart=True))
         self.assertEqual(kod(g), set())
         self.assertIn("K1.zaman", kod(g.replace("Niloya evde", "O gece Niloya evde")))
         self.assertIn("K2.uzunluk", kod(" ".join(g.split()[:60]).rstrip(",") + "."))

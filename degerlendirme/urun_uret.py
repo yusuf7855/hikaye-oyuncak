@@ -5,13 +5,17 @@ data/urun_kartlari.json'daki çizgi film figürleriyle (data/urun_v2) eğitildi.
 örnekleme ayarlarını (sıcaklık 0.5, top-k 40, tekrar 1.1, plan modu, gövdede satır sonu yasağı) ürün figürleriyle
 kullanır:
   - istem eğitim dizgisiyle aynı biçimde: <|endoftext|> + 'Karakter: F | Yer: Y[ | Yan: X]\\nSorun:' (urun_kayit.dizgi)
-  - isim süzgeci (gen -Y, runtime/isim_suzgec.h): başka figürlerin ve onların adlı yan karakterlerinin adları,
-    çok parçalı olsalar da üretilemez; figürün kendi kadrosu serbesttir
+  - isim süzgeci (gen -Y, runtime/isim_suzgec.h): başka figürlerin (eğitim verisindeki eski lisanslı figürler dahil,
+    ISIM_FIGURLER) ve onların adlı yan karakterlerinin adları, çok parçalı olsalar da üretilemez; figürün kendi
+    kadrosu serbesttir
   - K aday üretilir, seçici (sec.py kuralları + ürün adları) en iyisini alır
+Figürler (FIGURLER): data/urun_figurleri.json'daki ürün figürleri ('populer' + 'temel' sırası; 26 Ekim 2026'dan beri
+Keloğlan + 12 lisanssız figür). Eski lisanslı figürler (ESKI_FIGURLER: niloya, masa, pepee ...) seçilemez ama kartları
+durur: eski modelle kıyas için --figur ile verilebilirler.
 
 Kullanım:
   python degerlendirme/urun_uret.py <model_dizini> <cikti.json> [--aday K] [--suzgec/--suzgecsiz] [--yan]
-                                    [--figur niloya,pepee] [--tekrar-vaka 1] [--temp 0.5]
+                                    [--figur keloglan,pinokyo] [--tekrar-vaka 1] [--temp 0.5]
 Çıktı: [{figur, yer, yan, seed, plan, metin, puan, cezalar, yanlis_isim, bitti, plan_bozuk, adaylar: [...]}]
 Vakalar: her figürün kart yerleri (figür × yer), seed'ler sabit (tekrarlanabilir).
 """
@@ -36,12 +40,38 @@ KARTLAR = {k["kimlik"]: k for k in json.load(open(os.path.join(ROOT, "data", "ur
 # 15 Ekim 2026: ninniler kartta sabit (firmware/hikaye_oyuncak/ninniler.txt, 15 ninni); kart gece figüründe modeli
 # hiç çalıştırmaz, bu bayrak yalnız web/deney içindir.
 GECE_MODELDE = False
-# ürün modelinin verisi olan figürler (data/urun_v2/<kimlik>.txt) [+ gece, GECE_MODELDE ise]
-FIGURLER = [k for k in KARTLAR if os.path.exists(os.path.join(ROOT, "data", "urun_v2", f"{k}.txt"))] + \
-    (["gece"] if GECE_MODELDE and "gece" in KARTLAR else [])
+
+
+def _urun_figurleri():
+    """Ürünün seçilebilir figürleri, data/urun_figurleri.json'daki sırayla ('populer' sonra 'temel'): her girdinin
+    'ad'ı kartın ad.deger'iyle eşleşir, kimlik karttan gelir. 26 Ekim 2026'dan beri lisanssız 13 figür (Keloğlan +
+    docs/YENI_FIGURLER.md); lisanslı figürler 'cikarilan_lisansli'de, kartları durur."""
+    with open(os.path.join(ROOT, "data", "urun_figurleri.json"), encoding="utf-8") as f:
+        u = json.load(f)
+    ad_kimlik = {k["ad"]["deger"]: kim for kim, k in KARTLAR.items()}
+    eksik = [g["ad"] for g in u["populer"] + u["temel"] if g["ad"] not in ad_kimlik]
+    assert not eksik, f"urun_figurleri.json'daki figürlerin kartı yok: {eksik}"
+    return [ad_kimlik[g["ad"]] for g in u["populer"] + u["temel"]]
+
+
+# Seçilebilir ürün figürleri (kart, web ve istemler.h FIGUR_* sırası) [+ gece, GECE_MODELDE ise]
+FIGURLER = _urun_figurleri() + (["gece"] if GECE_MODELDE and "gece" in KARTLAR else [])
+# Eğitim verisinde geçen ama üründe olmayan figürler: eski lisanslı figürler (data/urun_v2/<kimlik>.txt; urun_v2-v4
+# ve ürün modelleri bu adlarla eğitildi). Seçilemezler (--figur ile eski modelle kıyas için hâlâ üretilebilirler), ama
+# adları ve adlı yanlarının adları isim süzgecinde ve seçicide yasak kalır: yeni figürün hikâyesinde "Niloya" çıkmaz.
+ESKI_FIGURLER = [k for k in KARTLAR if k not in FIGURLER
+                 and os.path.exists(os.path.join(ROOT, "data", "urun_v2", f"{k}.txt"))]
+# Ad kümeleri (kadro_disi, ISIM_KELIME, TUM_ISIM, TUM_AD) bu listeden kurulur
+ISIM_FIGURLER = FIGURLER + ESKI_FIGURLER
 GECE_TUR_ONEK = {"ninni": "ninni,", "uyku_masali": "masal,"}
 NL, SATIR_YASAK, EOT = 199, [199, 9491], 0
 BOZUK_LP = -99.0
+
+
+# Çok kelimeli adların sıradan Türkçe kelime olan parçaları: tek başlarına ad sayılmaz (öteki figürlerde yasak değil;
+# cümle başında "Tek", "Prenses", "Hoca", "Baykuş" yazılabilmeli). Adın tamamı ("Tek Boynuzlu At") yasak kalır.
+ORTAK_PARCA = {"Amca", "Dede", "Adam", "Koca", "Fil", "Hello", "Ayı", "Örümcek",
+               "Prenses", "Usta", "Hoca", "Bilge", "Baykuş", "Ejderha", "Yavrusu", "Tek", "Boynuzlu"}
 
 
 def figur_adlari(kimlik):
@@ -58,16 +88,17 @@ def figur_adlari(kimlik):
     for a in list(adlar):
         parca = re.split(r"[ \-]", a)
         if len(parca) > 1:
-            adlar.update(p for p in parca if p not in {"Amca", "Dede", "Adam", "Koca", "Fil", "Hello", "Ayı", "Örümcek"} and len(p) > 2)
+            adlar.update(p for p in parca if p not in ORTAK_PARCA and len(p) > 2)
     return adlar
 
 
 def kadro_disi(kimlik):
-    """Bu figürün hikâyesinde geçmemesi gereken adlar: diğer bütün figürler ve adlı yanları, eğitim verisindeki
-    yabancı adlar. Figürün kendi kadrosundaki adlar (ör. Elsa için Anna) hiçbir zaman yasak değil."""
+    """Bu figürün hikâyesinde geçmemesi gereken adlar: diğer bütün figürler (ürün figürleri ve eğitim verisindeki eski
+    figürler, ISIM_FIGURLER) ve adlı yanları, eğitim verisindeki yabancı adlar. Figürün kendi kadrosundaki adlar (ör.
+    Elsa için Anna) hiçbir zaman yasak değil."""
     izinli = figur_adlari(kimlik)
     tum = set(YABANCI) | {k["isim"] for k in KAR.values()}  # eski oyuncak adları (genel veride ve eski ince ayarda)
-    for k in FIGURLER:
+    for k in ISIM_FIGURLER:
         tum |= figur_adlari(k)
     return sorted(a for a in tum - izinli if not any(a in i.split() for i in izinli) and a not in ("Ayı", "Örümcek"))
 
@@ -87,7 +118,10 @@ def _bayt_haritasi():
 # genel veri (tr2_tinystories val, 3 M token) + urun_v2 hikâyelerinde adın büyük harfli, sözlükte olan daha uzun
 # bir kelimenin başı olarak geçtiği adlar. Öteki adlar tamamlandıkları anda reddedilir: '$' kuralı ad yazıldıktan
 # sonra ancak ardından gelen token'ı reddedebildiği için sızabilir ("Doru o evin" gibi), tam yasak sızmaz.
-KELIME_BASI = {"Bal", "Can", "Sara", "Tim", "Tom", "Sam", "Dino", "Alev", "Boncuk", "Pamuk", "Yumak"}
+# Yeni figürler (9 Kasım 2026, aynı ölçüm + urun_v3/urun_v5): "Bulut" (Bulutların 147, Bulutun 125, Bulutlar 93 ...),
+# "Fıstık" (Fıstıklar, Fıstıkları 13); öteki yeni adlar (Bip, Tontiş, Zıpzıp, Alaaddin, Pinokyo, Nasreddin, Gepetto)
+# hiçbir sözlük kelimesinin başı olarak geçmedi.
+KELIME_BASI = {"Bal", "Can", "Sara", "Tim", "Tom", "Sam", "Dino", "Alev", "Boncuk", "Pamuk", "Yumak", "Bulut", "Fıstık"}
 
 
 def kelime_basi_mi(ad):
@@ -141,7 +175,12 @@ def aday_uret(model, tok, ids, seed, temp, suzgec=None, n=230):
 YER_ANAHTAR = {"dağ": "dag", "şato": "sato"}
 # Ürün adlarının küçük harfli kelimeleri sözlükte yok: figürün kendi adı ("pepee", "niloya") ve kadrosu ("daşa")
 # 'uydurma kelime' sayılmasın (sayılınca seçici figürün adını çok anan hikâyeyi cezalandırıyordu).
-ISIM_KELIME = {w for k in FIGURLER for a in figur_adlari(k) for w in re.findall(r"[a-zçğıöşüâîû]+", sec.kucuk(a))}
+ISIM_KELIME = {w for k in ISIM_FIGURLER for a in figur_adlari(k) for w in re.findall(r"[a-zçğıöşüâîû]+", sec.kucuk(a))}
+# Bütün ürün adları (ürün figürleri + eğitim verisindeki eski figürler ve adlı yanları): puanla'da sec.TUM_ISIM
+# (uydurma karakter adı kuralı); TUM_AD = bunlar + yabancı adlar + eski oyuncak adları: kadro_cezalari'nın 'kartta
+# olmayan ad' kuralı bunları saymaz (kadro dışı olanlar 'yanlış isim' kuralında). Kart: istemler.h URUN_TUM_ISIM/AD.
+TUM_ISIM = set().union(*(figur_adlari(k) for k in ISIM_FIGURLER))
+TUM_AD = TUM_ISIM | set(YABANCI) | {x["isim"] for x in KAR.values()}
 
 
 def yanlis_isimler(metin, kimlik):
@@ -182,11 +221,10 @@ def kadro_cezalari(metin, kimlik):
             break
     if len(geçen) > 1:  # figürün kendi adı sec.olay_cezalari'nda; burada adlı yanlar
         c += [x for x in sec.olay_cezalari(metin, [n for n in geçen if n != k["ad"]["deger"]]) if "kendi kendine" in x[1]]
-    tum_urun = set().union(*(figur_adlari(f) for f in FIGURLER)) | set(YABANCI) | {x["isim"] for x in KAR.values()}
     bilinmeyen = []
     for m in BUYUK_AD.finditer(metin):
         w = m.group(1)
-        if w in izinli or w in tum_urun or any(len(i) > 2 and w.startswith(i) for i in izinli):
+        if w in izinli or w in TUM_AD or any(len(i) > 2 and w.startswith(i) for i in izinli):
             continue  # kadro dışı ürün adları 'yanlış isim' kuralında; 'Babaanneciğim' gibi ekli rol adları izinli
         once = metin[:m.start()].rstrip()
         cumle_basi = not once or once[-1] in '.!?"“”:'
@@ -226,7 +264,7 @@ def puanla(a, kimlik, yer):
         return -99.0, [(99, "gövde yok")]
     ad = KARTLAR[kimlik]["ad"]["deger"]
     eski = sec.TUM_ISIM
-    sec.TUM_ISIM = set().union(*(figur_adlari(k) for k in FIGURLER))  # uydurma ad kuralı ürün adlarıyla
+    sec.TUM_ISIM = TUM_ISIM  # uydurma ad kuralı ürün adlarıyla
     try:
         # sec.cezalar KAR kimliği ister; ad tabanlı kuralları doğrudan kurarız
         c = []
@@ -287,7 +325,8 @@ def main():
     ap.add_argument("--aday", type=int, default=1)
     ap.add_argument("--suzgecsiz", action="store_true")
     ap.add_argument("--yan", action="store_true", help="istemde Yan alanı (kart yanlarından biri)")
-    ap.add_argument("--figur", default=",".join(FIGURLER))
+    ap.add_argument("--figur", default=",".join(FIGURLER),
+                    help="virgülle kimlikler (varsayılan: ürün figürleri); eski figürler de verilebilir (kartları durur)")
     ap.add_argument("--tekrar-vaka", type=int, default=1)
     ap.add_argument("--temp", type=float, default=0.5)
     a = ap.parse_args()
