@@ -1,9 +1,11 @@
 """web/atolye.html ürün seçicisi (JS urunPuanla) = degerlendirme/urun_uret.puanla (Python).
 
-Gerçek model adayları (c3ft_urun740 / c3ft_urun1030s2 üretimlerinden, tests/atolye_secici_vakalar.json; kadro_cezalari
-ve takinti_cezasi'nı tetikleyenler dahil) iki tarafta puanlanır: puanlar 1e-6 içinde, ceza etiketleri (biçim farkı
-ayıklanmış: Python liste repr'i '['a', 'b']' / JS 'a, b') aynı olmalı. JS kodu atolye.html'deki seçici bölümünden
-(KATALOG'dan token çözmeye kadar) alınır; meta.urun'un seçici kısmı web/paketle.urun_secici() ile kurulur.
+Gerçek model adayları (c3ft_urun740 / c3ft_urun1030s2 üretimlerinden eski figürlerde, tests/atolye_secici_vakalar.json;
+kadro_cezalari ve takinti_cezasi'nı tetikleyenler dahil; ara model c3ft_v5a'nın ürün figürlerindeki adayları,
+degerlendirme/urun_secici_v5a/m_v5a.json, varsa) iki tarafta puanlanır: puanlar 1e-6 içinde, ceza etiketleri (biçim
+farkı ayıklanmış: Python liste repr'i '['a', 'b']' / JS 'a, b') aynı olmalı. JS kodu atolye.html'deki seçici
+bölümünden (KATALOG'dan token çözmeye kadar) alınır; meta.urun'un seçici kısmı web/paketle.urun_secici() ile kurulur
+(adayların figürleriyle: üründen çıkan eski figürler de; ad kümeleri her zaman ürününki).
 """
 import json
 import os
@@ -20,6 +22,7 @@ sys.path.insert(0, str(ROOT / "degerlendirme"))
 sys.path.insert(0, str(ROOT / "web"))
 NODE = shutil.which("node")
 VAKALAR = Path(os.environ.get("ATOLYE_SECICI_VAKALAR", Path(__file__).with_name("atolye_secici_vakalar.json")))
+YENI = ROOT / "degerlendirme" / "urun_secici_v5a" / "m_v5a.json"
 
 
 def secici_kodu():
@@ -46,7 +49,9 @@ def js_puanlar(adaylar):
     with tempfile.TemporaryDirectory() as d:
         js = os.path.join(d, "k.js")
         Path(js).write_text(secici_kodu() + "\n" + JS_KOSUCU, encoding="utf-8")
-        girdi = json.dumps({"U": paketle.urun_secici(), "adaylar": adaylar, "sozluk": str(ROOT / "web" / "sozluk.txt")})
+        figurler = sorted({a["figur"] for a in adaylar})
+        girdi = json.dumps({"U": paketle.urun_secici(figurler), "adaylar": adaylar,
+                            "sozluk": str(ROOT / "web" / "sozluk.txt")})
         r = subprocess.run([NODE, js], input=girdi, capture_output=True, text=True, check=True)
         return json.loads(r.stdout)
 
@@ -62,6 +67,10 @@ class UrunSeciciAyni(unittest.TestCase):
     def test_python_js_ayni(self):
         import urun_uret as u
         adaylar = json.loads(VAKALAR.read_text(encoding="utf-8"))
+        if YENI.exists():  # ürün figürlerinin gerçek adayları (vaka başına 8)
+            adaylar += [{**c, "figur": v["figur"], "yer": v["yer"]} for v in json.loads(YENI.read_text(encoding="utf-8"))
+                        for c in v["adaylar"]]
+            self.assertTrue(set(u.FIGURLER) <= {a["figur"] for a in adaylar})
         js = js_puanlar(adaylar)
         self.assertEqual(len(js), len(adaylar))
         fark, yeni_kural = [], 0

@@ -28,7 +28,7 @@ elinde olunca ölç, `cad/cakil_ic.py` PARCA sözlüğünde düzelt, yeniden ür
 - 5 V düzenleyici: **Pololu S9V11F5** (5 V, düşürür-yükseltir; alkalin 6,4 V'tan şarjlı NiMH 4,4 V'a kadar sabit 5 V)
 - Kablo bağı 2,5 mm (1): hoparlör
 - Silikon ayak Ø10 x 1 mm (4)
-- NTAG213 **Ø25** yuvarlak yapışkan NFC etiket (13): her figürün vidalı kapağının içine (12 figür + ayar kartı)
+- NTAG213 **Ø25** yuvarlak yapışkan NFC etiket (15): her figürün vidalı kapağının içine (13 figür + Ay Dede + ayar kartı)
 - Dişi-dişi jumper kablolar (ESP32 ters yatar, pinler yukarıda)
 
 ## Montaj sırası
@@ -72,8 +72,8 @@ Her `.3mf`'yi Bambu Studio'da aç: parçalar filament 1–4'e atanmış, tablaya
 | `2_taban_plakasi.3mf` | beyaz plaka; alt yüzde (pil kapağının önünde) turkuaz "eco ai" | renkler ilk 3 katmanda, alttan okunur; destek: yalnız tablaya değen (pil kutusu tavanı) |
 | `2b_pil_kapagi.3mf` | beyaz kapak; dış yüzde turkuaz "4 x AA / 1,5 V" | destek yok |
 | `3_halka_nfc_tutucu_rc522.3mf` / `_pn5180.3mf` | beyaz (LED ışığını yansıtır), turkuaz "ÖN" ve ok | yalnız birini bas; montajda ok kabuğun ÖNÜNE (logo tarafına) bakar |
-| `4a_figur_tabanlari_ay_dede_ayar_karti.3mf` | 11 turkuaz figür tabanı Ø52 (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark) | tek tablada 13 parça |
-| `4b_nfc_kapaklari.3mf` | 13 sarı adlı vidalı NFC kapağı | tek tablada 13 parça |
+| `4a_figur_tabanlari_ay_dede_ayar_karti.3mf` | 13 turkuaz figür tabanı Ø52 (üstte sarı halka), Ay Dede (turkuaz taban, sarı hilal), mor ayar kartı (topuzda beyaz çark) | tek tablada 15 parça |
+| `4b_nfc_kapaklari.3mf` | 15 sarı adlı vidalı NFC kapağı | tek tablada 15 parça |
 | `6_kedi_kulaklari.3mf` | iki beyaz kedi kulağı, içleri 4. filamentte (pembe istiyorsan 4. yuvaya pembe tak) | ön yüzü tablada, destek yok |
 
 Atık kulesi (prime tower) açık kalsın. 3MF açılmazsa ya da renkler gelmezse: aynı parçanın renk STL'lerini
@@ -89,23 +89,27 @@ yarığı, figürün adı ve NFC numarası (etikete yazılacak numara) kazılı.
 
 | No | Figür | Dosya |
 |---|---|---|
-| 1 | Niloya | `figurler/01_niloya.stl` |
-| 2 | Maşa | `figurler/02_masa.stl` |
-| 3 | Pepee | `figurler/03_pepee.stl` |
 | 4 | Keloğlan | `figurler/04_keloglan.stl` |
-| 5 | Doru | `figurler/05_doru.stl` |
-| 6 | Hayri | `figurler/06_hayri.stl` |
-| 7 | Şakir | `figurler/07_sakir.stl` |
-| 8 | Elsa | `figurler/08_elsa.stl` |
-| 9 | Chase | `figurler/09_chase.stl` |
-| 10 | Örümcek Adam | `figurler/10_orumcek_adam.stl` |
-| 11 | Hello Kitty | `figurler/11_hello_kitty.stl` |
 | 12 | Ay Dede | `figurler/12_gece.stl` |
+| 13 | Pamuk Prenses | `figurler/13_pamuk_prenses.stl` |
+| 14 | Pinokyo | `figurler/14_pinokyo.stl` |
+| 15 | Alaaddin | `figurler/15_alaaddin.stl` |
+| 16 | Nasreddin Hoca | `figurler/16_nasreddin_hoca.stl` |
+| 17 | Bulut | `figurler/17_bulut.stl` |
+| 18 | Zıpzıp | `figurler/18_zipzip.stl` |
+| 19 | Tontiş | `figurler/19_tontis.stl` |
+| 20 | Bilge Baykuş | `figurler/20_bilge_baykus.stl` |
+| 21 | Ejderha Yavrusu | `figurler/21_ejderha_yavrusu.stl` |
+| 22 | Tek Boynuzlu At | `figurler/22_tek_boynuzlu_at.stl` |
+| 23 | Bip | `figurler/23_bip.stl` |
+| 24 | Fıstık | `figurler/24_fistik.stl` |
 | 200 | Ayar kartı | `figurler/200_ayar_karti.stl` |
 
 Diş: adım 2 mm, erkek Ø30/Ø28, dişi oyuk 0,35 mm yarıçap ve 0,25 mm yanak boşluklu (FDM). Sıkı gelirse kapağı
 %100,5 ölçekle değil, `cakil_ic.py` VIDA_PAY'ı 0,45 yapıp yeniden üret. Boş taban/kapak: `bos_figur_taban.stl`,
-`bos_kapak.stl`. Lisanslı karakterlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır.
+`bos_kapak.stl`. Figürlerin kendisi çizilmez; hazır oyuncak figür yapıştırılır (ya da `cad/figur_tabanla.py`).
+Numaralar `data/figur_donanim.json`'dan; 26 Ekim 2026'da üründen çıkan lisanslı figürlerin (1–3, 5–11) dosyaları
+üretilmez, numaraları yeniden kullanılmaz.
 
 ## Yeni logo (23 Ekim 2026)
 

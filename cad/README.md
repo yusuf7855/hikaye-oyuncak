@@ -14,7 +14,7 @@ parlar, önde hoparlör, arkada USB-C güç girişi ve mikrofon deliği. Elektro
 | `geometri.py` | Yardımcılar (döndürme profili, yuvarlatılmış dikdörtgen, yay üstüne Türkçe yazı, yıldız/hilal) |
 | `uret.py` | STL'ler + denetim raporu + önizlemeler + teknik çizimler (hepsi tek komut) |
 | `onizleme.py`, `cizim.py` | PNG önizlemeler (matplotlib) ve A3 1:1 teknik çizimler (SVG + PDF) |
-| `stl/` | `govde_alt.stl`, `ust_kapak.stl`, `difuzor_halka.stl`, `rc522_tutucu.stl`, `figur_taban.stl` (yazısız), `ayar_karti.stl`, `figurler/<kimlik>.stl` (12 adlı taban) |
+| `stl/` | `govde_alt.stl`, `ust_kapak.stl`, `difuzor_halka.stl`, `rc522_tutucu.stl`, `figur_taban.stl` (yazısız), `ayar_karti.stl`, `figurler/<kimlik>.stl` (adlı tabanlar: üründeki 13 figür + Ay Dede) |
 | `teknik_cizim.svg/.pdf` | Üst görünüş, kesit A–A (yan, istif), kesit B–B (yerleşim), ölçüler, delik konumları, parça listesi |
 | `patlatilmis_montaj.svg/.pdf` | Patlatılmış kesit + montaj sırası + izometrik patlatılmış görünüş |
 | `kontrol_raporu.md` | Üretilen denetim: su geçirmezlik, hacim, baskı tahmini, montaj çakışmaları, ölçü kuralları |
@@ -30,7 +30,8 @@ cad/.venv/bin/python cad/uret.py --stl   # yalnız STL + denetim
 python3 docs/donanim/ciz_baglanti.py  # bağlantı ve blok şeması (yalnız standart kütüphane)
 ```
 
-Figür tabanları `data/figur_donanim.json`'dan üretilir: her figür için `stl/figurler/<kimlik>.stl`, adı üst
+Figür tabanları `data/figur_donanim.json`'dan üretilir (`cikarildi` alanı olan, üründen çıkmış figürler atlanır):
+her figür için `stl/figurler/<kimlik>.stl`, adı üst
 kenara kazınmış (yayın üstünde, öne okunur; Türkçe harfler için DejaVu Sans Bold), altta `No <nfc_no>` (aynalı,
 alttan okunur). Yeni figür eklenince yalnız `uret.py`'yi çalıştırın. **Gece figürü** (`mod: "uyku"`, Ay Dede):
 `gece.stl`'de "AY DEDE" + arka yarıda hilal ve üç yıldız. Yazı tipi matplotlib'in içindeki DejaVu Sans Bold

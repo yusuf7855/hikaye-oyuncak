@@ -8,18 +8,20 @@
 | `stl/difuzor_halka.stl` | 8.3 | 107.6 × 107.6 × 6.0 | evet | PETG doğal/beyaz yarı saydam | 0.2 | 100 | 11 | 0.5 | etekler tablada (olduğu gibi), destek YOK |
 | `stl/rc522_tutucu.stl` | 2.0 | 69.9 × 58.4 × 3.0 | evet | PLA/PETG | 0.2 | 30 | 3 | 0.1 | alt yüz tablada, destek YOK |
 | `stl/figur_taban.stl` | 17.3 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/niloya.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/masa.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/pepee.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
 | `stl/figurler/keloglan.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/doru.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/hayri.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/sakir.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/elsa.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/chase.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/orumcek_adam.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
-| `stl/figurler/hello_kitty.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
 | `stl/figurler/gece.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/pamuk_prenses.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/pinokyo.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/alaaddin.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/nasreddin_hoca.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/bulut.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/zipzip.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/tontis.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/bilge_baykus.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/ejderha_yavrusu.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/tek_boynuzlu_at.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/bip.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
+| `stl/figurler/fistik.stl` | 17.2 | 62.0 × 61.8 × 6.0 | evet | PLA/PETG | 0.16 | 30 | 11 | 0.6 | alt yüz (etiket cebi) tablada, destek YOK |
 | `stl/ayar_karti.stl` | 22.7 | 62.0 × 61.8 × 20.0 | evet | PLA/PETG | 0.16 | 30 | 14 | 0.8 | alt yüz tablada, destek YOK |
 
 ## Basılan parçalar arası çakışma (montajda, mm³; ≈0 olmalı)
@@ -63,6 +65,6 @@
 - TAMAM Mikrofon deliği hoparlör ızgarasından ≥ 80 mm: 127 mm
 - TAMAM Birleştirme vidası M3x10 (6 mm kolon + 4 mm insert): M3x10
 
-STL toplamı: 4.1 MB. Süre/filament kaba tahmindir (6 mm³/s, 0,4 meme); dilimleyicinin değerine bakın.
+STL toplamı: 4.7 MB. Süre/filament kaba tahmindir (6 mm³/s, 0,4 meme); dilimleyicinin değerine bakın.
 
 SONUÇ: HATA YOK

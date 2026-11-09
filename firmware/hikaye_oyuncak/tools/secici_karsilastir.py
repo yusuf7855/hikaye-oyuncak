@@ -2,8 +2,11 @@
 farkı, kural kural fark ve vaka başına seçim (argmax) karşılaştırılır.
 
 --urun (kartın kullandığı yol): secici_urun_puanla = degerlendirme/urun_uret.puanla. Havuzlar urun_uret.py çıktıları
-  (vaka başına bütün adaylar "adaylar" altında; varsayılan: c3ft_karma, 1030s2, 1030, 740 kıyaslarının 8'er adayı,
-  ~5000 aday). Puan farkı toleransı 1e-9 (lp kartta da gen -l'nin 4 basamaklı değerlerinden hesaplanır).
+  (vaka başına bütün adaylar "adaylar" altında; varsayılan: ara model c3ft_v5a'nın ürün figürlerindeki 8'er adayı
+  (degerlendirme/urun_secici_v5a) ve c3ft_karma, 1030s2, 1030, 740 kıyaslarının 8'er adayı). Kart tabloları
+  (generated/istemler.h) yalnız ürün figürlerini (urun_uret.FIGURLER) taşır: havuzlarda üründen çıkan figürlerin
+  adayları atlanır (sayısı yazılır); sentetik adaylarda bu figürler rastgele bir ürün figürüne çevrilir. Puan farkı
+  toleransı 1e-9 (lp kartta da gen -l'nin 4 basamaklı değerlerinden hesaplanır).
   python firmware/hikaye_oyuncak/tools/secici_karsilastir.py --urun [--sentetik 5000]
 Eski yol: secici_puanla (-DSECICI_ESKI=1) = degerlendirme/sec.py puanla, tolerans 1e-3.
 Kullanım: python firmware/hikaye_oyuncak/tools/secici_karsilastir.py [havuz.json ...] [--guvenlik] [--ayrinti N]
@@ -27,9 +30,11 @@ TOOLS = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(TOOLS)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "degerlendirme"))
+sys.path.insert(0, TOOLS)
 from baslangic import KAR  # noqa: E402
 import sec  # noqa: E402
 import urun_uret as U  # noqa: E402
+from basliklar import YER_AD  # noqa: E402
 
 FIGUR = list(KAR)  # secici.h SC_ISIM sırası
 YER = ["orman", "deniz", "ev", "park", "sato", "dag"]
@@ -107,9 +112,10 @@ def boz(h, rng):
 
 # ---- ürün seçicisi (urun_uret.puanla) ----
 URUN_HAVUZ = [os.path.join(ROOT, "degerlendirme", *y) for y in (
+    ("urun_secici_v5a", "m_v5a.json"),
     ("urun_kiyas_karma", "mkarma.json"), ("urun_kiyas_karma", "m1030s2.json"),
     ("urun_kiyas_740_1030", "buyuk_164", "m1030.json"), ("urun_kiyas_740_1030", "buyuk_164", "m740.json"))]
-URUN_YER = ["orman", "deniz", "ev", "park", "şato", "dağ"]  # generated/istemler.h YER_AD
+URUN_YER = YER_AD  # generated/istemler.h YER_AD (orman ... dağ; yer kuralı olmayan bahçe, gökyüzü sonda)
 # urun_uret.puanla mesajı -> secici.h kural adı (ilk eşleşen); "kendi kendine" figürün adıyla başlıyorsa olay kuralı,
 # yoksa kadro_cezalari'nın yan kuralı; "'X X'" (içinde " ve " yok) kadro_cezalari, "'X ve X'" figürün kendi kuralı
 URUN_MESAJ = [("hikâyede yeterince yok", "az_isim"), ("sonda yok", "sonda_yok"), ("yanlış isim", "yanlis_isim"),
@@ -147,7 +153,13 @@ URUN_PARCA = ["Niloya'nın", "Niloya", "Mete", "Murat", "Tospik'e", "Maşa", "Ko
               "Kitty Kitty'nin", "havlu", "havlusu", "havluyu", "kumdan", "kumdan kale", "sonra", "dedi", "Şimdi",
               "ormanda", "dağda", "şatoda", "denizde", "parkta", "evde", "kan", "yaralandı", "gaga", "baloncuk",
               "koştu koştu", "paylaşmanın güzel olduğunu anladı.", "\"", "“", "”", "'", "’", "\n", "  ", ".", "!",
-              "?", ",", ":", "diye", "sordu", "-", "Ali-Veli"]
+              "?", ",", ":", "diye", "sordu", "-", "Ali-Veli",
+              # ürün figürleri (26 Ekim 2026): adlar, '$'lı adlar, çok kelimeli adların sıradan kelime parçaları
+              "Pamuk Prenses", "Pamuk Prenses'in", "Prenses", "Pinokyo", "Gepetto Usta", "Gepetto", "Usta", "Alaaddin",
+              "Nasreddin Hoca", "Hoca", "Bulut", "Bulut'un", "Bulutlar", "Zıpzıp", "Tontiş", "Bilge Baykuş", "Baykuş",
+              "Ejderha Yavrusu", "Ejderha", "Tek Boynuzlu At", "Tek", "Tek başına", "Bip", "Fıstık", "Fıstıklar",
+              "Balkız", "Bilgecan Dede", "\"Teşekkürler, Bip!\" dedi Bip", "Pinokyo ile Pinokyo", "gökyüzünde",
+              "bahçede"]
 
 
 def urun_boz(h, rng):
@@ -163,7 +175,7 @@ def urun_boz(h, rng):
         w = w[:rng.randint(1, len(w))]
     k["metin"] = " ".join(w).strip()
     k["bitti"] = rng.random() < 0.8
-    if rng.random() < 0.3:
+    if rng.random() < 0.3 or k["figur"] not in U.FIGURLER:  # kart tabloları yalnız ürün figürlerini taşır
         k["figur"] = rng.choice(list(U.FIGURLER))
         k["yer"] = rng.choice([y["etiket"] for y in U.KARTLAR[k["figur"]]["yerler"]])
     pl = k.get("plan") or "Sorun: x\nÇözüm: y"
@@ -179,16 +191,23 @@ def urun_boz(h, rng):
 
 def urun_karsilastir(a, ikili, adlar):
     havuzlar = a.havuz or [y for y in URUN_HAVUZ if os.path.exists(y)]
-    kumeler = []
+    kumeler, kaynak = [], []
     for y in havuzlar:
-        adaylar = []
+        adaylar, atlanan = [], 0
         for vi, v in enumerate(json.load(open(y, encoding="utf-8"))):
             for j, c in enumerate(v.get("adaylar") or [v]):
-                adaylar.append({**c, "figur": v["figur"], "yer": v["yer"], "vaka": vi, "j": j})
-        kumeler.append((os.path.relpath(y, ROOT), adaylar, True))
+                h = {**c, "figur": v["figur"], "yer": v["yer"], "vaka": vi, "j": j}
+                kaynak += [h] if h["metin"] else []
+                if v["figur"] in U.FIGURLER:
+                    adaylar.append(h)
+                else:
+                    atlanan += 1
+        if atlanan:
+            print(f"{os.path.relpath(y, ROOT)}: üründen çıkan figürlerin {atlanan} adayı atlandı (sentetikte kaynak)")
+        if adaylar:
+            kumeler.append((os.path.relpath(y, ROOT), adaylar, True))
     if a.sentetik:
         rng = random.Random(a.tohum)
-        kaynak = [h for _, v, _ in kumeler for h in v if h["metin"]]
         kumeler.append((f"sentetik_{a.sentetik}", [urun_boz(rng.choice(kaynak), rng) for _ in range(a.sentetik)], False))
     fig = list(U.FIGURLER)
     toplam_hata, toplam_aday = 0, 0

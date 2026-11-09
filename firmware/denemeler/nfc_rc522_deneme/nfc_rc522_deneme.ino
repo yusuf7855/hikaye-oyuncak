@@ -21,12 +21,16 @@
 
 static MFRC522 rc(NFC_SS, NFC_RST);
 
-// data/figur_donanim.json (nfc_no -> ad)
+// data/figur_donanim.json (nfc_no -> ad; sürüm 3, çıkarılan figürlerin numaraları yeniden kullanılmaz)
 static const char *figur_adi(int no) {
-  static const char *AD[] = {"?", "Niloya", "Masa", "Pepee", "Keloglan", "Doru", "Hayri", "Sakir", "Elsa",
-                             "Chase", "Orumcek Adam", "Hello Kitty", "Ay Dede (ninni)"};
+  static const char *AD[] = {"?", "Niloya (cikarildi)", "Masa (cikarildi)", "Pepee (cikarildi)", "Keloglan",
+                             "Doru (cikarildi)", "Hayri (cikarildi)", "Sakir (cikarildi)", "Elsa (cikarildi)",
+                             "Chase (cikarildi)", "Orumcek Adam (cikarildi)", "Hello Kitty (cikarildi)",
+                             "Ay Dede (ninni)", "Pamuk Prenses", "Pinokyo", "Alaaddin", "Nasreddin Hoca", "Bulut",
+                             "Zipzip", "Tontis", "Bilge Baykus", "Ejderha Yavrusu", "Tek Boynuzlu At", "Bip",
+                             "Fistik"};
   if (no == 200) return "Ayar karti";
-  return no > 0 && no <= 12 ? AD[no] : "bilinmeyen numara";
+  return no > 0 && no < (int)(sizeof AD / sizeof AD[0]) ? AD[no] : "bilinmeyen numara";
 }
 
 // Kayıt (firmware/hikaye_oyuncak/etiket.h): sayfa 4-5 = "EKO", sürüm 1, nfc_no (2 B), CRC-16/CCITT-FALSE (2 B)

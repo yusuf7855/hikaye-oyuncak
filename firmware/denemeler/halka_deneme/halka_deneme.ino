@@ -57,13 +57,15 @@ static void renk_tekerlek(int h, uint8_t *r, uint8_t *g, uint8_t *b) {  // h 0..
   else { h -= 512; *r = h; *g = 0; *b = 255 - h; }
 }
 
-// data/figur_donanim.json'daki halka renkleri
+// data/figur_donanim.json'daki halka renkleri (üründeki figürler, sürüm 3; lisanslı figürler 26 Ekim 2026'da çıktı)
 static const struct { const char *ad; uint8_t r, g, b; } FIGUR[] = {
-    {"Niloya (pembe)", 0xFF, 0x6F, 0xA8},  {"Masa (mor)", 0xB4, 0x5C, 0xFF},     {"Pepee (turuncu)", 0xFF, 0x8A, 0x1F},
-    {"Keloglan (yesil)", 0x7E, 0xD3, 0x21}, {"Doru (kahverengi)", 0xC9, 0x80, 0x2E}, {"Hayri (sari)", 0xFF, 0xC2, 0x1A},
-    {"Sakir (altin)", 0xFF, 0xE4, 0x5C},    {"Elsa (buz mavisi)", 0x7F, 0xDB, 0xFF}, {"Chase (lacivert)", 0x25, 0x63, 0xFF},
-    {"Orumcek Adam (kirmizi)", 0xE8, 0x20, 0x2E}, {"Hello Kitty (beyaz)", 0xFF, 0xFF, 0xFF},
-    {"Ay Dede (gece mavisi)", 0x3B, 0x3F, 0xD8},
+    {"Keloglan (yesil)", 0x7E, 0xD3, 0x21}, {"Ay Dede (gece mavisi)", 0x3B, 0x3F, 0xD8},
+    {"Pamuk Prenses (kirmizi-pembe)", 0xFF, 0x5A, 0x7A}, {"Pinokyo (tahta sarisi)", 0xE8, 0xA3, 0x3D},
+    {"Alaaddin (mor)", 0x8A, 0x4F, 0xFF}, {"Nasreddin Hoca (yesil)", 0x2E, 0x9E, 0x5B},
+    {"Bulut (beyaz)", 0xFF, 0xFF, 0xFF}, {"Zipzip (pembe)", 0xFF, 0x9E, 0xC7},
+    {"Tontis (acik yesil)", 0x7E, 0xD3, 0x21}, {"Bilge Baykus (kahverengi)", 0xB5, 0x79, 0x3A},
+    {"Ejderha Yavrusu (turkuaz)", 0x1F, 0xB5, 0xB0}, {"Tek Boynuzlu At (lila)", 0xC7, 0x7D, 0xFF},
+    {"Bip (mavi)", 0x3B, 0x82, 0xF6}, {"Fistik (gri)", 0x9C, 0xA3, 0xAF},
 };
 
 static void renk_sirasi() {

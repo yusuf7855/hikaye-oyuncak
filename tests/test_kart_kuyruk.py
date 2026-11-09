@@ -6,11 +6,12 @@
 - tools/dugme_test.c: sekme süzgeci, kısa/uzun basış, ikili basışlar, millis taşması.
 - tools/kuyruk_test.py: çizimin kendisi (tools/kart_pc, sahte ESP32) ve dosyadaki sahte kuyruk bölümüyle doldur /
   çal / yeniden başlat / bozulma / kesme (K=3, figür başına 2; ~1 dakika).
-- tools/urun_test.c: etiket kaydı (CRC, taslak sürücüde yaz/doğrula), selamlama ekleri (11 figür + adsız + ninni),
-  ayar formu doğrulaması, halka durumları/sınırları, müzik kutusu, donanım figürü tablosu.
+- tools/urun_test.c: etiket kaydı (CRC, taslak sürücüde yaz/doğrula), selamlama ekleri (donanım figürleri, eski
+  adlar, adsız, ninni), ayar formu doğrulaması, halka durumları/sınırları, müzik kutusu, donanım figürü tablosu.
 - tools/urun_akis_test.py: ürün akışı kart_pc'de: stand, tanınmış figürler, halka, oyuncak çekilince, sesli komutlar
   (taklit), gece figürü, ayar kartı (Wi-Fi, ayar sayfası, oyuncak tanıt) (~30 s).
 """
+import os
 import shutil
 import subprocess
 import sys
@@ -20,7 +21,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "firmware" / "hikaye_oyuncak" / "tools"
-MODEL = ROOT / "hf_c3ft_karma" / "model.bin"
+# model: HIKAYE_MODEL (dizin) ya da hf_c3ft_karma, o da yoksa depodaki ürün modeli (tools/kuyruk_test.py ile aynı seçim)
+MODEL = next((m / "model.bin" for m in ([Path(os.environ["HIKAYE_MODEL"])] if os.environ.get("HIKAYE_MODEL") else [])
+              + [ROOT / "hf_c3ft_karma", ROOT / "modeller" / "c3ft_karma"] if (m / "model.bin").exists()),
+             ROOT / "hf_c3ft_karma" / "model.bin")
 
 
 @unittest.skipUnless(shutil.which("cc"), "C derleyicisi yok")
@@ -44,7 +48,7 @@ class KuyrukDugmeC(unittest.TestCase):
         self.kos("urun_test")
 
 
-@unittest.skipUnless(shutil.which("g++") and MODEL.exists(), "g++ ya da hf_c3ft_karma/model.bin yok")
+@unittest.skipUnless(shutil.which("g++") and MODEL.exists(), "g++ ya da model.bin yok")
 class KuyrukKart(unittest.TestCase):
     def test_kart_pc(self):
         r = subprocess.run([sys.executable, str(TOOLS / "kuyruk_test.py")], capture_output=True, text=True)

@@ -2,10 +2,12 @@
 
     python cad/figurler.py      # cad/stl_cakil/figurler/*.stl + cad/onizleme/figurler.png
 
-Figür listesi data/figur_donanim.json'dan (nfc_no kartın etikete yazdığı numaradır). Her dosyada iki parça yan yana:
+Figür listesi data/figur_donanim.json'dan (nfc_no kartın etikete yazdığı numaradır; 'cikarildi' alanı olan, üründen
+çıkmış figürler atlanır: 26 Ekim 2026'da lisanslı 10 figür çıktı). Her dosyada iki parça yan yana:
   taban (ters: düz üst yüz tablada, dişli oyuk yukarı) + kapak (alt yüzü tablada; altında figür adı ve numarası).
 Ay Dede (gece) tabanı üstünde hilal ayla tek parça (dik basılır); ayar kartı topuzlu taban (dik basılır).
-Lisanslı karakterlerin kendisi (Niloya, Elsa ...) çizilmez: hazır oyuncak figür tabanın düz üst yüzüne yapıştırılır.
+Figürlerin kendisi çizilmez: hazır oyuncak figür tabanın düz üst yüzüne yapıştırılır (ya da cad/figur_tabanla.py ile
+hazır figür STL'si tabanla tek parça yapılır).
 """
 import json
 import math
@@ -22,9 +24,10 @@ CIKTI = os.path.join(C.KOK, "stl_cakil", "figurler")
 
 
 def figur_listesi():
+    """(üründeki figürler, özel kartlar); üründen çıkan figürler ('cikarildi') atlanır."""
     with open(os.path.join(DEPO, "data", "figur_donanim.json"), encoding="utf-8") as f:
         d = json.load(f)
-    return d["figurler"], d.get("ozel_kartlar", [])
+    return [x for x in d["figurler"] if not x.get("cikarildi")], d.get("ozel_kartlar", [])
 
 
 def tabla(parcalar, bosluk=5.0):
@@ -76,7 +79,7 @@ def onizle():
     from matplotlib.patches import Polygon
     import dis_konsept as K
     figs, _ = figur_listesi()
-    taban, kapak = C.figur_taban(), C.figur_kapak("NİLOYA", 1)
+    taban, kapak = C.figur_taban(), C.figur_kapak("KELOĞLAN", 4)
     fig = plt.figure(figsize=(20, 11), dpi=100)
     # 1) taban + kapak ayrı (patlatılmış), alttan eğik
     ax = fig.add_subplot(2, 3, 1, projection="3d")
@@ -111,9 +114,9 @@ def onizle():
     # 4) tüm figür dosyaları (tablada)
     ax = fig.add_subplot(2, 3, (4, 6))
     ax.axis("off")
-    satir = [f"{f['nfc_no']:>3}  {f['ad']:<14} {f['nfc_no']:02d}_{f['kimlik']}.stl" + ("   (Ay Dede: hilal ay tabanla tek parça)" if f.get("mod") == "uyku" else "")
-             for f in figs] + ["200  Ayar kartı     200_ayar_karti.stl   (topuzlu taban)"]
-    ax.text(0.0, 1.0, "No   Figür          Dosya (taban + adlı kapak, tablada yan yana)\n" + "\n".join(satir), family="monospace",
+    satir = [f"{f['nfc_no']:>3}  {f['ad']:<16} {f['nfc_no']:02d}_{f['kimlik']}.stl" + ("   (Ay Dede: hilal ay tabanla tek parça)" if f.get("mod") == "uyku" else "")
+             for f in figs] + ["200  Ayar kartı       200_ayar_karti.stl   (topuzlu taban)"]
+    ax.text(0.0, 1.0, "No   Figür            Dosya (taban + adlı kapak, tablada yan yana)\n" + "\n".join(satir), family="monospace",
             fontsize=12, va="top")
     ay = C.ay_dede()
     ax2 = fig.add_axes([0.70, 0.04, 0.27, 0.42], projection="3d")

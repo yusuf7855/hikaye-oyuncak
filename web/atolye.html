@@ -998,7 +998,7 @@ const durum = {
   secili: saklaOku("secili", ["tavsan"]),
   yer: saklaOku("yer", "orman"),
   // ürün modu: tek figür (kimlik), yer (kart etiketi ya da "rastgele"), yan (kisa_ad, "rastgele" ya da "yok")
-  urunFigur: saklaOku("urun-figur", "niloya"),
+  urunFigur: saklaOku("urun-figur", "keloglan"),
   urunYer: saklaOku("urun-yer", "rastgele"),
   urunYan: saklaOku("urun-yan", "yok"),  // varsayılan yansız: ölçümde Yan'lı istem seçici puanını düşürdü
   calisiyor: false,
@@ -1088,9 +1088,13 @@ function destedenCek(kim, yer) {
 }
 
 // ---- arayüz: figürler ve yer ----
-const URUN_EMOJI = { niloya: "👧", masa: "🐻", pepee: "👦", keloglan: "🧒", doru: "🐴", hayri: "🧢", sakir: "🐱",
-  elsa: "❄️", chase: "🐕", orumcek_adam: "🕷️", hello_kitty: "🎀" };
-const YER_EMOJI = { orman: "🌲", deniz: "🌊", ev: "🏡", park: "🌳", "şato": "🏰", "dağ": "⛰️" };
+const URUN_EMOJI = { keloglan: "🧒", pamuk_prenses: "👸", pinokyo: "🪵", alaaddin: "🪔", nasreddin_hoca: "👳",
+  bulut: "🐱", zipzip: "🐰", tontis: "🦕", bilge_baykus: "🦉", ejderha_yavrusu: "🐉", tek_boynuzlu_at: "🦄", bip: "🤖",
+  fistik: "🐘",
+  // eski (lisanslı) figürler: 26 Ekim 2026'da üründen çıktı; eski model paketlerinde durur
+  niloya: "👧", masa: "🐻", pepee: "👦", doru: "🐴", hayri: "🧢", sakir: "🐱", elsa: "❄️", chase: "🐕",
+  orumcek_adam: "🕷️", hello_kitty: "🎀" };
+const YER_EMOJI = { orman: "🌲", deniz: "🌊", ev: "🏡", park: "🌳", "şato": "🏰", "dağ": "⛰️", "bahçe": "🌷", "gökyüzü": "☁️" };
 const URUN_AD = {};  // kimlik -> ad (karne için)
 const urunCizim = {};  // parça ("f", "y", "n", "fyn"…) başına son çizim: geç gelen eski meta yenisini ezmesin
 // Ürün meta'sı (figür kartları) seçili sürümden; figür yoksa çizim meta gelince tekrarlanır

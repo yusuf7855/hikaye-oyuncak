@@ -12,8 +12,8 @@ sys.path.insert(0, str(ROOT / "degerlendirme"))
 import urun_uret as u  # noqa: E402
 
 
-def kabul_govdeleri(kimlik):
-    yol = ROOT / "data" / "urun_v2" / f"{kimlik}.txt"
+def kabul_govdeleri(kimlik, veri="urun_v2"):
+    yol = ROOT / "data" / veri / f"{kimlik}.txt"
     if not yol.exists():
         return []
     out = []
@@ -54,15 +54,23 @@ class KadroKurallari(unittest.TestCase):
 
 
 class YanlisAlarm(unittest.TestCase):
-    def test_kabul_edilmis_hikayelerde_dusuk(self):
+    def olc(self, figurler, veri):
         n = alarm = 0
-        for k in u.FIGURLER:
-            for g in kabul_govdeleri(k):
+        for k in figurler:
+            for g in kabul_govdeleri(k, veri):
                 n += 1
                 alarm += bool(u.kadro_cezalari(g, k) or u.takinti_cezasi(g, k))
         if n < 100:
-            self.skipTest("urun_v2 verisi yok")
-        self.assertLess(alarm / n, 0.06, f"yanlış alarm {alarm}/{n}")
+            self.skipTest(f"{veri} verisi yok")
+        self.assertLess(alarm / n, 0.06, f"{veri}: yanlış alarm {alarm}/{n}")
+
+    def test_kabul_edilmis_hikayelerde_dusuk(self):
+        """urun_v2 (hakemli 1030): eski lisanslı figürler ve Keloğlan (eğitim verisindeki figürler, ISIM_FIGURLER)."""
+        self.olc(u.ISIM_FIGURLER, "urun_v2")
+
+    def test_yeni_figurlerin_kabul_edilmis_hikayelerinde_dusuk(self):
+        """urun_v5 (yeni 12 figürün kapıdan geçmiş hikâyeleri; 9 Kasım 2026'da ~12 bin hikâyede %2)."""
+        self.olc(u.FIGURLER, "urun_v5")
 
 
 if __name__ == "__main__":

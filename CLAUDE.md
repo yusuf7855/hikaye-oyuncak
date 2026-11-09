@@ -6,17 +6,19 @@ Saatleri Türkiye saatiyle (UTC+3) söyle.
 
 ## 1. Proje bir paragrafta
 
-3–6 yaş çocuklar için **internetsiz** hikâye oyuncağı. Çocuk bir figür (Niloya, Pepee, Kral Şakir, Keloğlan, Hayri,
-Doru, Maşa, Elsa, Örümcek Adam, Hello Kitty, Chase) ve bir yer seçer; **ESP32-S3 N16R8** üzerinde çalışan küçük bir
-Türkçe dil modeli (c3, 5,7 M çekirdek parametre, `model.bin` 10,3 MB) her seferinde yeni bir hikâye yazar ve kartın
-kendi ses modeli (~4,3 MB) kadın sesiyle okur. Model **daha büyük olamaz**: 16 MB flash / 8 MB PSRAM sınırı kesin.
+3–6 yaş çocuklar için **internetsiz** hikâye oyuncağı. Çocuk bir figür (Keloğlan, Pamuk Prenses, Pinokyo, Alaaddin,
+Nasreddin Hoca, Bulut, Zıpzıp, Tontiş, Bilge Baykuş, Ejderha Yavrusu, Tek Boynuzlu At, Bip, Fıstık; + Ay Dede ninni modu)
+ve bir yer seçer (liste `data/urun_figurleri.json`, NFC no ve halka rengi `data/figur_donanim.json`; lisanslı figürler
+26 Ekim 2026'da çıktı); **ESP32-S3 N16R8** üzerinde çalışan küçük bir Türkçe dil modeli (c3, 5,7 M çekirdek parametre,
+`model.bin` 10,3 MB) her seferinde yeni bir hikâye yazar ve kartın kendi ses modeli (~4,3 MB) kadın sesiyle okur.
+Model **daha büyük olamaz**: 16 MB flash / 8 MB PSRAM sınırı kesin.
 
 ## 2. Şu anki durum (2026-10-07)
 
 | Parça | Durum |
 |---|---|
 | Hikâye modeli | **c3ft_karma** (10 597 hikâye: 1030 hakemli + 9567 hafif hat). Kör kıyasta eski 1030s2'yi açık farkla geçti (genel 127–37, olay 112–41); rubrik 3,17 → 4,51 / 10. Dosya: `modeller/c3ft_karma/model.bin` (depoda). Ayrıntı `degerlendirme/urun_kiyas_karma/OZET.md`. |
-| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni modele ve 11 figüre taşındı; PC'de sahte ESP32 başlıklarıyla derlenip `urun_uret.py` ile birebir aynı çıktı (328/328) doğrulandı. **Gerçek kartta henüz denenmedi.** |
+| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ara model `hf_c3ft_v5a` ile doğrulandı (`kart_pc_karsilastir.py --model hf_c3ft_v5a`: 52/52 aday; seçici C = Python 0 uyuşmazlık). `modeller/c3ft_karma` yeni figürleri bilmez: son model (urun_v5 bitince) eğitilene kadar yeni figür hikâyeleri zayıf olur. **Gerçek kartta henüz denenmedi.** |
 | Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim **henüz yapılmadı** — bu bilgisayarın asıl işi bu (aşağıda). Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
 | Sıradaki büyük iş | Veriyi 20–30 bin hikâyeye çıkarıp yeniden eğitmek (`docs/YAPILACAKLAR.md`). |
 
@@ -85,6 +87,8 @@ TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 
   `python firmware/hikaye_oyuncak/tools/secici_karsilastir.py --urun`, `python -m pytest -q tests`.
 - Ses: yalnız ticari kullanıma açık kaynaklar (VoxCPM2 Apache-2.0, Supertonic Open RAIL-M). dfki, Emel, XTTS, F5-TTS
   vb. ASLA (`docs/SES_ARASTIRMASI.md`). Ambalajda "ses yapay zekâ ile üretilmiştir" notu.
-- Figürler lisanslı karakterler: satıştan önce lisans gerekir (`docs/PAZAR_ARASTIRMASI.md`).
+- Lisanslı figürler (Niloya, Elsa ...) 26 Ekim 2026'da üründen çıktı; kartları ve eğitim verileri durur, adları isim
+  süzgecinde yasak kalır (`urun_uret.ISIM_FIGURLER`). Ürün figürleri `urun_uret.FIGURLER` (`data/urun_figurleri.json`);
+  nfc_no asla yeniden kullanılmaz (`data/figur_donanim.json`, `cikarildi`).
 - Commit mesajları Türkçe; çalışma dalı `claude/wonderful-pasteur-x7seiq`. Büyük veri/model dosyalarını (ses_veri,
   ses_calisma, runs, hf_*) commit etme; yalnız ürün sahibinin istediği son model `modeller/` altına girer.

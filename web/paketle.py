@@ -8,8 +8,9 @@ Kullanım: .venv/bin/python web/paketle.py <sürüm> <model_dizini> [--tema] [--
   --pencere govde: başlık token'ları tekrar cezası penceresine girmez (gen.c -P)
   --satir-yasak: hikâye gövdesinde satır sonu token'ları yasak (gen.c -N)
   --eot-on: istem, eğitimdeki gibi <|endoftext|> ile başlar (prompt_idler eot=True)
-  --urun: ürün modeli (c3ft_urun*): eski oyuncak kataloğu yerine data/urun_kartlari.json'daki çizgi film figürleri
-          (degerlendirme/urun_uret.py ile birebir): istemler urun_uret.istem, figür başına yasaklı adlar
+  --urun: ürün modeli (c3ft_urun*): eski oyuncak kataloğu yerine ürün figürleri (urun_uret.FIGURLER:
+          data/urun_figurleri.json, kartları data/urun_kartlari.json; degerlendirme/urun_uret.py ile birebir):
+          istemler urun_uret.istem, figür başına yasaklı adlar
           urun_uret.kadro_disi ('$' = urun_uret.KELIME_BASI), plan modu, gövdede urun_uret.SATIR_YASAK, istem tekrar
           penceresi dışında (gen -P). --plan/--eot-on/--satir-yasak/--pencere govde bu modda kendiliğinden geçerli.
 Çıktı: web/m/<sürüm>/model.b64.txt (gzip + base64 model.bin; yayın yeri ikili dosya sunmuyor) ve meta.json
@@ -49,13 +50,16 @@ def _urun_uret():
     return urun_uret
 
 
-def urun_secici():
+def urun_secici(figurler_=None):
     """meta.urun'un seçici (atolye.html urunPuanla) ve süzgeç için gereken kısmı: figürler (kart yerleri ve yanları,
     yasaklı adlar, kadro_cezalari'nın kadro/izinli kümeleri) ve ad kümeleri. Ad mantığı urun_uret'ten gelir.
+    figurler_: paketlenecek figür kimlikleri (varsayılan urun_uret.FIGURLER, ürün figürleri; eski figürlerin adayları
+    için testler eski kimlikleri de verir). Ad kümeleri (tum_isim, tum_ad) her zaman urun_uret.TUM_ISIM / TUM_AD:
+    eğitim verisindeki eski figürlerin adları da (ISIM_FIGURLER).
     Tokenizer istemez (tests/test_atolye_secici.py bunu doğrudan kullanır)."""
     u = _urun_uret()
-    figurler, tum = [], set()
-    for kimlik in u.FIGURLER:
+    figurler = []
+    for kimlik in (figurler_ or u.FIGURLER):
         k = u.KARTLAR[kimlik]
         # urun_uret.kadro_cezalari: kadro = figur_adlari; izinli = kadro ∪ kartın büyük harfli rol yüzeyleri
         # ('Anne', 'Dede') ∪ bunların kelimeleri (kadro_cezalari'ndaki ifadenin aynısı)
@@ -69,13 +73,12 @@ def urun_secici():
             "yasak": [a + ("$" if u.kelime_basi_mi(a) else "") for a in u.kadro_disi(kimlik)],
             "kadro": sorted(kadro), "izinli": sorted(izinli),
         })
-        tum |= kadro
     return {
         "figurler": figurler,
-        "tum_isim": sorted(tum),     # sec.TUM_ISIM'in ürün hâli (urun_uret.puanla)
-        # kadro_cezalari'nın tum_urun'u: bütün ürün adları + yabancı adlar + eski oyuncak adları ('kartta olmayan ad'
+        "tum_isim": sorted(u.TUM_ISIM),     # sec.TUM_ISIM'in ürün hâli (urun_uret.puanla)
+        # kadro_cezalari'nın TUM_AD'ı: bütün ürün adları + yabancı adlar + eski oyuncak adları ('kartta olmayan ad'
         # bunları saymaz; kadro dışı olanlar 'yanlış isim' kuralında)
-        "tum_ad": sorted(tum | set(YABANCI) | {x["isim"] for x in KAR.values()}),
+        "tum_ad": sorted(u.TUM_AD),
         "takinti_haric": sorted(u.TAKINTI_HARIC),  # takinti_cezasi
         "yer_anahtar": u.YER_ANAHTAR,
     }

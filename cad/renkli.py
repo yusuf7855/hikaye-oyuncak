@@ -9,7 +9,7 @@ Renkler (AMS yuvası = Bambu Studio'daki filament numarası):
   taban     : beyaz plaka; alt yüzde, pil kapağının önünde turkuaz "eco ai" (alttan okunur)
   pil kapağı: beyaz; dış yüzde turkuaz "4 x AA / 1,5 V"
   tutucu    : beyaz (LED ışığını yansıtır); montajda görünen yüzünde turkuaz "ÖN" ve ok
-  figür     : turkuaz jeton, üst yüzde sarı halka (11 adet, tek tablada)
+  figür     : turkuaz jeton, üst yüzde sarı halka (data/figur_donanim.json'un üründeki figürleri, tek tablada)
   ayar kartı: mor jeton ve topuz, topuzun tepesinde beyaz çark, jetonun üstünde sarı halka
 Kakmaların çoğu baskının ilk/son 3 katmanında (az renk değişimi); kabuğun logosu dikey duvarda olduğu için logo
 boyunca her katmanda renk değişir (atık kulesi / prime tower açık kalmalı).

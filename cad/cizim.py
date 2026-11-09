@@ -213,7 +213,7 @@ def teknik_cizim(parca):
         ("2", "ust_kapak.stl", "üst kapak (yuva + halka kanalı), opak", "1"),
         ("3", "difuzor_halka.stl", "difüzör, beyaz yarı saydam PETG", "1"),
         ("4", "rc522_tutucu.stl", "RC522 tutucu çerçeve", "1"),
-        ("5", "figurler/<kimlik>.stl", "figür tabanı (12 adlı) / figur_taban.stl yazısız", "figür başına 1"),
+        ("5", "figurler/<kimlik>.stl", "figür tabanı (adlı) / figur_taban.stl yazısız", "figür başına 1"),
         ("6", "ayar_karti.stl", "ayar kartı tabanı (topuzlu, AYAR)", "1"),
         ("7", "ESP32-S3-DevKitC-1 N16R8", "taşıyıcıda dişi headerlara takılı", "1"),
         ("8", "5×7 cm delikli pertinaks", "4 köşe kenetli kızakta", "1"),

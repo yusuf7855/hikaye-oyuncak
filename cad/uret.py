@@ -37,9 +37,10 @@ BASKI = {   # malzeme, katman, dolgu, yön, renk
 
 
 def figurler():
+    """(üründeki figürler, özel kartlar); üründen çıkan figürler ('cikarildi', ör. lisanslı figürler) atlanır."""
     with open(FIG_JSON, encoding="utf-8") as f:
         d = json.load(f)
-    return d["figurler"], d.get("ozel_kartlar", [])
+    return [x for x in d["figurler"] if not x.get("cikarildi")], d.get("ozel_kartlar", [])
 
 
 def taban_yazisi(fig):
@@ -202,6 +203,11 @@ def main():
     for ad, (m, _) in parca.items():
         hata += not ekle(ad, m, f"{ad}.stl", ad)
     figs, ozel = figurler()
+    fdir = os.path.join(STL, "figurler")
+    gecerli = {f"{f['kimlik']}.stl" for f in figs}
+    for eski in (os.listdir(fdir) if os.path.isdir(fdir) else []):  # üründen çıkan figürlerin eski tabanları
+        if eski.endswith(".stl") and eski not in gecerli:
+            os.remove(os.path.join(fdir, eski))
     for f in figs:
         yazi, motif = taban_yazisi(f)
         m = pc.figur_taban(yazi, f["nfc_no"], motif=motif)
