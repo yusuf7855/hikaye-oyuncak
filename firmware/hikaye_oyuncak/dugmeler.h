@@ -1,4 +1,5 @@
-// Düğmeler: üç düğmenin (FİGÜR, YER, OYNAT) sekme süzgeci, kısa/uzun basış ve ikili basışlar -> olay halkası.
+// Düğmeler (yalnız geliştirme; ürün düğmesizdir, donanim.h DUGME_ACIK): üç düğmenin (FİGÜR, YER, OYNAT) sekme
+// süzgeci, kısa/uzun basış ve ikili basışlar -> olay halkası (olaylar.h).
 //
 // dugme_adim() saf bir durum makinesidir: her örneklemede (kartta 10 ms'de bir, ayrı görevde) üç düğmenin basılı
 // olup olmadığını ve zamanı (ms) alır, olayları halkaya ekler; olay_al() ana döngüden okur (tek üretici, tek
@@ -13,6 +14,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "olaylar.h"
 
 #ifndef DUGME_SEKME_MS
 #define DUGME_SEKME_MS 30     // seviye bu kadar kararlı kalmalı (sekme süzgeci)
@@ -26,56 +28,12 @@
 
 enum { DUGME_FIGUR = 0, DUGME_YER = 1, DUGME_OYNAT = 2, DUGME_N = 3 };
 
-typedef enum {
-  OLAY_YOK = 0,
-  OLAY_FIGUR, OLAY_FIGUR_UZUN,
-  OLAY_YER, OLAY_YER_UZUN,
-  OLAY_OYNAT, OLAY_OYNAT_UZUN,
-  OLAY_SES_ARTI, OLAY_SES_EKSI,
-  OLAY_ARKA,        // arka plan üretimi aç/kapa
-  OLAY_NFC,         // deger: figür (nfc.h)
-} OlayTur;
-
-static const char *const OLAY_AD[] = {"yok", "figür", "figür uzun", "yer", "yer uzun", "oynat", "oynat uzun",
-                                      "ses +", "ses -", "arka plan", "nfc"};
-
-typedef struct { uint8_t tur; int8_t deger; } Olay;
-
 typedef struct {
   bool ham, basili;      // son okunan seviye, süzülmüş durum
   uint32_t ham_ms;       // ham seviyenin değiştiği an
   uint32_t bas_ms;       // basışın başladığı an
   bool sustur;           // bu basış ikili basışa harcandı: kendi olayı verilmez
 } DugmeDurum;
-
-// Olay halkası: tek üretici, tek tüketici (kilitsiz). Düğme görevi ve ana döngü ayrı halkalara yazar.
-#define OLAY_HALKA 16
-typedef struct {
-  Olay o[OLAY_HALKA];
-  volatile uint8_t yaz, oku;
-} OlayHalka;
-
-static void halka_ekle(OlayHalka *h, uint8_t tur, int8_t deger) {
-  uint8_t y = h->yaz, s = (uint8_t)((y + 1) % OLAY_HALKA);
-  if (s == h->oku) return;  // halka dolu: olay düşer
-  h->o[y].tur = tur;
-  h->o[y].deger = deger;
-  __sync_synchronize();
-  h->yaz = s;
-}
-
-static bool halka_bak(const OlayHalka *h, Olay *o) {
-  if (h->oku == h->yaz) return false;
-  if (o) *o = h->o[h->oku];
-  return true;
-}
-
-static bool halka_al(OlayHalka *h, Olay *o) {
-  if (!halka_bak(h, o)) return false;
-  __sync_synchronize();
-  h->oku = (uint8_t)((h->oku + 1) % OLAY_HALKA);
-  return true;
-}
 
 typedef struct {
   DugmeDurum d[DUGME_N];

@@ -306,20 +306,28 @@ class KartKontrol(unittest.TestCase):
     def test_gercek_kartlar_temiz(self):
         h, u, s = self.denetle(self.kart)
         self.assertEqual(h, [])
-        self.assertEqual((s["kart"], s["etkin"], s["regex"], s["ornek_yakalandi"]), (15, 11, 61, 61))
+        # 28 kart: 13 ürün figürü + gece (Ay Dede) etkin; çıkarılan 4 temel ve 10 lisanslı figürün kartları da denetlenir
+        self.assertEqual((s["kart"], s["etkin"], s["regex"], s["ornek_yakalandi"]), (28, 14, 116, 93))
 
     def test_cikarilan_figurun_karti_etkin_sayilmaz(self):
-        """Kullanıcı isteği: yalnız çizgi film karakterleri. Temel figürlerin kartları durur ama ürün listesinde
-        'cikarilanlar'dadır: kart-kontrol onları denetler, etkin saymaz; çıkarılmamış fazla kart hatadır."""
+        """Kullanıcı istekleri: temel figürler (yalnız çizgi film karakterleri) ve lisanslı figürler (26 Ekim 2026)
+        çıktı. Kartları durur ama ürün listesinde 'cikarilanlar'dadır: kart-kontrol onları denetler, etkin saymaz;
+        çıkarılmamış fazla kart hatadır."""
         urun = json.loads((ROOT / "data" / "urun_figurleri.json").read_text())
-        self.assertEqual([f["ad"] for f in urun["populer"]][-1], "Hello Kitty")
-        self.assertEqual((len(urun["populer"]), urun["temel"]), (11, []))
-        self.assertTrue({"Tosbi", "Tekir", "Pamuk", "Karabaş"} <= set(urun["cikarilanlar"]))
-        urun["cikarilanlar"].remove("Tosbi")
-        yol = self.tmp / "urun.json"
-        yol.write_text(json.dumps(urun, ensure_ascii=False))
-        h, _, _ = vh.kart_kontrol(ROOT / "data" / "urun_kartlari.json", yol)
-        self.assertTrue(any("fazla ['Tosbi']" in x for x in h), h)
+        self.assertEqual([f["ad"] for f in urun["populer"]],
+                         ["Keloğlan", "Pamuk Prenses", "Pinokyo", "Alaaddin", "Nasreddin Hoca"])
+        self.assertEqual([f["ad"] for f in urun["temel"]], ["Bulut", "Zıpzıp", "Tontiş", "Bilge Baykuş", "Ejderha Yavrusu",
+                                                            "Tek Boynuzlu At", "Bip", "Fıstık"])
+        lisansli = {"Niloya", "Maşa", "Pepee", "Doru", "Hayri", "Şakir", "Elsa", "Chase", "Örümcek Adam", "Hello Kitty"}
+        self.assertTrue({"Tosbi", "Tekir", "Pamuk", "Karabaş"} | lisansli <= set(urun["cikarilanlar"]))
+        self.assertEqual({f["ad"] for f in urun["cikarilan_lisansli"]}, lisansli)
+        for ad in ("Tosbi", "Niloya"):
+            u = copy.deepcopy(urun)
+            u["cikarilanlar"].remove(ad)
+            yol = self.tmp / "urun.json"
+            yol.write_text(json.dumps(u, ensure_ascii=False))
+            h, _, _ = vh.kart_kontrol(ROOT / "data" / "urun_kartlari.json", yol)
+            self.assertTrue(any(f"fazla ['{ad}']" in x for x in h), h)
 
     def test_bozulmalar_yakalanir(self):
         bozuk = {
@@ -327,7 +335,7 @@ class KartKontrol(unittest.TestCase):
             "bilinmeyen_kaynak": lambda k: k["kartlar"][1]["tur"].__setitem__("kaynak", ["yok_boyle"]),
             "sapka": lambda k: k["kartlar"][2]["yerler"][0].__setitem__("tarif", "Kâğıt dolu bir oda."),
             "unlem": lambda k: k["kartlar"][8]["ozellikler"][0].__setitem__("deger", "Chase görevde!"),
-            "yer_sirasi": lambda k: k["kartlar"][0]["yerler"].reverse(),
+            "yer_sirasi": lambda k: kart_bul(k, "keloglan")["yerler"].reverse(),   # etkin figür: ürün listesiyle sıra
             "regex": lambda k: k["kartlar"][0]["dunya_kurallari"][0]["yasak_duzenli_ifadeler"].append("(("),
             "urun_dayanakli": lambda k: k["kartlar"][0]["yanlar"][0]["tur"].__setitem__("kaynak", ["urun_karari"]),
             "deyim": lambda k: k["kartlar"][3]["yerler"][0].__setitem__("tarif", "Herkesin içi rahat eder."),

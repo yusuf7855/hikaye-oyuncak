@@ -644,7 +644,8 @@ onmessage = (e) => {
 <!-- Sürümler: her geliştirmede başa bir kayıt eklenir (en yenisi başta). Dosyalar: m/<id>/model.b64.txt, meta.json (web/paketle.py) -->
 <script id="surumler" type="application/json">
 [
- {"id": "c3ft_karma", "ad": "v6 · 10 bin hikâye", "tarih": "6 Ekim 2026", "yeni": true, "baslik": "urun", "urun": true, "degisiklik": ["Aynı küçük model (ESP32'ye sığan 10,3 MB), ama 10 kat veri: 1030 hakemli + 9567 yeni hikâye ile eğitildi.", "Kör kıyasta v5'i (1030 hikâyeli) açık farkla geçti: genel kalite 127–37, olay örgüsü 112–41 (164 vaka).", "Hakem puanı 3,2 → 4,5 (10 üzerinden); karakter karışıklığı 13/41 → 2/41.", "Kartta çalışan yazılımla birebir aynı üretim (isim süzgeci + seçici)."]},
+ {"id": "c3ft_urun13", "ad": "v7 · 13 ürün figürü, 28 bin hikâye", "tarih": "10 Kasım 2026", "yeni": true, "baslik": "urun", "urun": true, "degisiklik": ["Aynı küçük model (ESP32'ye sığan 10,3 MB); 13 ürün figürü (Keloğlan, Pamuk Prenses, Pinokyo, Alaaddin, Nasreddin Hoca, Bulut, Zıpzıp, Tontiş, Bilge Baykuş, Ejderha Yavrusu, Tek Boynuzlu At, Bip, Fıstık).", "28 493 hikâye ile eğitildi (yeni figürlerin her birine ~1000 hikâye).", "Kör kıyasta ara modeli geçti (genel 102–78, olay örgüsü 99–73; 180 vaka); Keloğlan'da v6'yı geçti (34–14, 29–15; 48 vaka).", "Kartta çalışan yazılımla birebir aynı üretim (isim süzgeci + seçici)."]},
+ {"id": "c3ft_karma", "ad": "v6 · 10 bin hikâye", "tarih": "6 Ekim 2026", "baslik": "urun", "urun": true, "degisiklik": ["Aynı küçük model (ESP32'ye sığan 10,3 MB), ama 10 kat veri: 1030 hakemli + 9567 yeni hikâye ile eğitildi.", "Kör kıyasta v5'i (1030 hikâyeli) açık farkla geçti: genel kalite 127–37, olay örgüsü 112–41 (164 vaka).", "Hakem puanı 3,2 → 4,5 (10 üzerinden); karakter karışıklığı 13/41 → 2/41.", "Kartta çalışan yazılımla birebir aynı üretim (isim süzgeci + seçici)."]},
  {"id": "c3ft_urun740", "ad": "v5 · çizgi film figürleri", "tarih": "30 Eylül 2026", "baslik": "urun", "urun": true, "degisiklik": ["Ürün modeli: hayvan oyuncaklar yerine 11 çizgi film figürü (Niloya, Maşa, Pepee, Keloğlan, Doru, Hayri, Şakir, Elsa, Chase, Örümcek Adam, Hello Kitty).", "Yalnızca hakemlerden geçmiş 740 hikâyeyle ince ayar; model önce planını (Sorun / Çözüm), sonra hikâyeyi yazıyor.", "Çocuk tek bir figür seçer; yer figürün kartındaki yerlerden seçilir (rastgele ya da elle). Yan karakter isteğe bağlı, varsayılan kapalı: istemde Yan alanı ölçümde puanı düşürdü.", "İsim süzgeci: başka figürlerin ve onların yan karakterlerinin adları, tokenizer'da birkaç parçaya bölünseler de yazılamıyor (kartla aynı süzgeç).", "4 aday üretilir; seçici (kural cezaları + model güveni) en iyisini gösterir."]},
  {"id": "c2ft_plan", "ad": "v4 · önce plan (E3)", "tarih": "24 Eylül 2026", "baslik": "plan", "degisiklik": ["v3'ün aynısı; tek fark: model hikâyeden önce iki satırlık kendi planını yazıyor (Sorun: … / Çözüm: …), sonra hikâyeyi o plana göre anlatıyor.", "Plan hikâyenin üstünde gri satırda görünür; sesli okuma yalnızca hikâyeyi okur.", "Hakemler: şu ana kadarki en iyi model (4.89/10; sonda çözülen sorun %76). v3'e karşı 36 vakanın 21'inde tercih edildi — fark henüz kesin değil.", "v3 ile “Karşılaştır”dan aynı figür, yer ve seed'le yan yana dinleyebilirsiniz."], "olcum": {"hakem": "4.89/10", "sorun var / çözülüyor / olaylar bağlı": "%90 / %76 / %78", "plan uyumu": "%86"}},
  {"id": "c2ft", "ad": "v3 · tam model (R)", "tarih": "24 Eylül 2026", "baslik": "eski", "degisiklik": ["Ön-eğitimin tamamı (24 000 adım) üzerine oyuncak hikâyeleriyle 3000 adım ince ayar. Yeni temel sürüm.", "Doğrulama hikâyelerinin isim değiştirilmiş kopyaları (124 hikâye) eğitimden çıkarıldı; ölçüm daha dürüst.", "Temasız başlık, satır sonu yasağı, metin sonu öneki (E0 kararları).", "Hakemler: olay örgüsü belirgin daha iyi (sonda çözülen sorun %62 → %71, bağlı olaylar %71 → %82); toplam puan v1 ile benzer (4.58 / 4.74).", "Seçici artık çocuğa uygun olmayan içeriği (yaralanma, boğulma, derin su, tehlike) eliyor."], "olcum": {"hakem": "4.58/10", "sorun var / çözülüyor / olaylar bağlı": "%88 / %71 / %82"}},
@@ -998,7 +999,7 @@ const durum = {
   secili: saklaOku("secili", ["tavsan"]),
   yer: saklaOku("yer", "orman"),
   // ürün modu: tek figür (kimlik), yer (kart etiketi ya da "rastgele"), yan (kisa_ad, "rastgele" ya da "yok")
-  urunFigur: saklaOku("urun-figur", "niloya"),
+  urunFigur: saklaOku("urun-figur", "keloglan"),
   urunYer: saklaOku("urun-yer", "rastgele"),
   urunYan: saklaOku("urun-yan", "yok"),  // varsayılan yansız: ölçümde Yan'lı istem seçici puanını düşürdü
   calisiyor: false,
@@ -1088,9 +1089,13 @@ function destedenCek(kim, yer) {
 }
 
 // ---- arayüz: figürler ve yer ----
-const URUN_EMOJI = { niloya: "👧", masa: "🐻", pepee: "👦", keloglan: "🧒", doru: "🐴", hayri: "🧢", sakir: "🐱",
-  elsa: "❄️", chase: "🐕", orumcek_adam: "🕷️", hello_kitty: "🎀" };
-const YER_EMOJI = { orman: "🌲", deniz: "🌊", ev: "🏡", park: "🌳", "şato": "🏰", "dağ": "⛰️" };
+const URUN_EMOJI = { keloglan: "🧒", pamuk_prenses: "👸", pinokyo: "🪵", alaaddin: "🪔", nasreddin_hoca: "👳",
+  bulut: "🐱", zipzip: "🐰", tontis: "🦕", bilge_baykus: "🦉", ejderha_yavrusu: "🐉", tek_boynuzlu_at: "🦄", bip: "🤖",
+  fistik: "🐘",
+  // eski (lisanslı) figürler: 26 Ekim 2026'da üründen çıktı; eski model paketlerinde durur
+  niloya: "👧", masa: "🐻", pepee: "👦", doru: "🐴", hayri: "🧢", sakir: "🐱", elsa: "❄️", chase: "🐕",
+  orumcek_adam: "🕷️", hello_kitty: "🎀" };
+const YER_EMOJI = { orman: "🌲", deniz: "🌊", ev: "🏡", park: "🌳", "şato": "🏰", "dağ": "⛰️", "bahçe": "🌷", "gökyüzü": "☁️" };
 const URUN_AD = {};  // kimlik -> ad (karne için)
 const urunCizim = {};  // parça ("f", "y", "n", "fyn"…) başına son çizim: geç gelen eski meta yenisini ezmesin
 // Ürün meta'sı (figür kartları) seçili sürümden; figür yoksa çizim meta gelince tekrarlanır

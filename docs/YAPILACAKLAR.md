@@ -1,10 +1,31 @@
 # Yapılacaklar
 
+## Durum (2026-11-10): veri 28 bine çıktı, son model ürüne girdi
+
+- 13 ürün figürü (Keloğlan + 12 yeni) için figür başına ~1000 hikâye yazıldı (urun_v5, 11 974). Bütün veriyle
+  (28 493 hikâye) eğitilen son model **c3ft_urun13** (`modeller/c3ft_urun13`, eğitim etiketi c3ft_v5) kör kıyasta
+  ara modeli (102–78 / 99–73) ve Keloğlan'da eski ürün modelini (34–14 / 29–15) geçti. Model boyutu aynı (10,3 MB).
+- Kartın parmak izi `fp=8091ae97`. Sıradaki: ses.bin (PC'de `ses/pc_hepsi.py paket`), gerçek kartta ilk deneme.
+- Bekleyen küçük işler: halka renkleri (Tontiş = Keloğlan yeşili, Bulut beyazı boşta halkasıyla, Ejderha turkuazı
+  ayar kartına yakın; ürün sahibi şimdilik önemsiz dedi), `kapi.py` K1.plan_ad "tek tek" = "Tek Boynuzlu At" sanılıyor
+  (8 test bu yüzden kırmızı).
+
 ## Haftaya (2026-10-12 haftası): veriyi 20–30 bine çıkar
 
 Durum (2026-10-06): 10 597 hikâyeli c3ft_karma, 1030 hikâyeli c3ft_urun1030s2'yi kör kıyasta açık farkla geçti
 (genel 127–37, olay örgüsü 112–41; `degerlendirme/urun_kiyas_karma/OZET.md`). Veri artışı olay örgüsünü iyileştiren tek
 şey oldu; model boyutu aynı kalıyor (c3, 10,3 MB, ESP32-S3 N16R8'e sığar).
+
+Durum (2026-10-14): **urun_v4 hazır, toplu yazım başlamadı.** 11 figüre 775'er (8525) yeni tohum (tohum 4041, kimlik
+2001'den; urun_v3 ile kelime üçlüsü, (yer, tema, isim) hücresi ve kimlik çakışması 0) + gece figürü Ay Dede'ye 1500
+tohum (750 ninni, 750 uyku masalı; kart `gece`, kılavuz `degerlendirme/KILAVUZ_GECE.md`). 426 istem
+(`data/urun_v4/istem/`), iş listesi `data/urun_v4/isler.json` (424 iş; pilot istemleri niloya_1 ve gece_1 yazıldı).
+Toplama: `urun_hafif_topla.py topla urun_v4` + `birlestir urun_karma2 urun_v3 urun_v4` (40 gece metni
+`gece_ayri/` altında ayrı tutulur). Gece verisiyle eğitilen model pakete girince `urun_uret.GECE_MODELDE = True`.
+
+Karar (2026-10-15): **ninniler sabit** — kartta 100 anonim halk ninnisi (`firmware/hikaye_oyuncak/ninniler.txt`),
+gece figürü modeli hiç çalıştırmaz. urun_v4'teki gece (ninni/uyku masalı) verisi ürün modeline gerekmez; bir sonraki
+eğitimde `birlestir` gece metinlerini dışarıda bırakabilir.
 
 Adımlar:
 1. Yeni tohumlar: `data/urun_v3/tohum/` gibi figür başına ~950 → ~2000–2800 (farklı seed; mevcut tohumlarla çakışma
@@ -21,4 +42,4 @@ Adımlar:
 
 ## Sonra
 - ESP32 yazılımını ürün figürlerine (11 figür, kart kataloğu) uyarla ve c3ft_karma'yı cihaza koy; cihaz hâlâ eski hayvan
-  kataloğunu kullanıyor. Cihazda K=16 aday kuyruğu, web'de K=4.
+  kataloğunu kullanıyor. Cihazda K=5 aday kuyruğu (hazır yoksa yazdıkça okuma), web'de K=4.

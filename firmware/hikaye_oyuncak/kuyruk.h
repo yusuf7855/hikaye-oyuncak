@@ -11,7 +11,8 @@
 // geçersiz sayılır.
 //
 // Kullanım: KuyrukFlash fl = {kul, oku, yaz, sil, boyut}; Kuyruk q; kuyruk_kur(&q, &fl, imza);
-//   kuyruk_sonraki(&q, ...) -> sıradaki üretilecek (figür, yer) | kuyruk_yaz(...) | kuyruk_bul + kuyruk_oku +
+//   kuyruk_sonraki_sahip(&q, ..., sahip, ...) -> sıradaki üretilecek (figür, yer), yalnız tanınmış figürlerden |
+//   kuyruk_yer_ac + kuyruk_yaz(...) | kuyruk_bul + kuyruk_oku +
 //   kuyruk_tuket. Başlık hem C (tools/kuyruk_test.c) hem C++ (.ino) olarak derlenir; ESP'ye bağımlı değildir.
 #pragma once
 #include <stddef.h>
@@ -215,16 +216,51 @@ KUYRUK_API int kuyruk_yaz(Kuyruk *q, int f, int j, int K, float puan, const int1
   return i;
 }
 
-// Sıradaki üretilecek (figür, yer): hazır hikâyesi figur_basi'ndan az olan figürlerden en azı olanı (eşitse son
-// üretimi en eski olanı, o da eşitse küçük numaralısı); figürün yerlerinden hazırı en az olanı (eşitse son üretimi en
-// eski). yer_n[f]: figürün yer sayısı. Döner: 1 iş var, 0 kuyruk dolu.
-KUYRUK_API int kuyruk_sonraki(const Kuyruk *q, int figur_basi, int n_figur, const int8_t *yer_n, int *f_out, int *j_out) {
-  int bos = 0;
+// Tanınmış (sahip olunan) figürler: sahip maskesinin f. biti. Arka plan yalnız onlar için üretir; yuvalar onlara
+// bölünür: hedef = min(figur_maks, (yuva - pay) / tanınmış sayısı), en az 1. Tanınmış yoksa 0.
+KUYRUK_API int kuyruk_hedef(const Kuyruk *q, uint32_t sahip, int n_figur, int figur_maks, int pay) {
+  int k = 0;
+  for (int f = 0; f < n_figur; f++) k += (sahip >> f) & 1;
+  if (!k) return 0;
+  int h = (q->n_yuva - pay) / k;
+  if (h > figur_maks) h = figur_maks;
+  return h < 1 ? 1 : h;
+}
+
+// Boş (hazır olmayan) yuva yoksa yer açar: tanınmayan figürün, yoksa hedefinden fazla hikâyesi olan figürün en eski
+// hazır hikâyesini tüketilmiş sayar (hedef düşünce, ör. yeni figür tanınınca). Döner: açılan yuva; açılamazsa -1;
+// zaten boş yuva varsa onu döndürür (hiçbir şey tüketilmez).
+KUYRUK_API int kuyruk_yer_ac(Kuyruk *q, uint32_t sahip, int hedef) {
+  for (int i = 0; i < q->n_yuva; i++)
+    if (q->y[i].durum != KY_HAZIR) return i;
+  int en_f = -1, en_fazla = 0;
+  for (int f = 0; f < 32; f++) {
+    int say = kuyruk_say(q, f, -1);
+    int fazla = ((sahip >> f) & 1) ? say - hedef : say + 1000;  // tanınmayan önce
+    if (say > 0 && fazla > 0 && fazla > en_fazla) { en_f = f; en_fazla = fazla; }
+  }
+  if (en_f < 0) return -1;
+  int y = kuyruk_bul(q, en_f, -1);
+  return kuyruk_tuket(q, y) == 0 ? y : -1;
+}
+
+// Sıradaki üretilecek (figür, yer), yalnız tanınmış figürlerden: hazır hikâyesi hedeften az olan figürlerden en azı
+// olanı (eşitse son üretimi en eski olanı, o da eşitse küçük numaralısı); figürün yerlerinden hazırı en az olanı
+// (eşitse son üretimi en eski). Yerler böylece kendiliğinden döner. Bütün yuvalar doluysa iş ancak kuyruk_yer_ac'ın
+// açabileceği bir yer varsa verilir. yer_n[f]: figürün yer sayısı. Döner: 1 iş var, 0 yok.
+KUYRUK_API int kuyruk_sonraki_sahip(const Kuyruk *q, int figur_basi, int n_figur, const int8_t *yer_n, uint32_t sahip,
+                                    int *f_out, int *j_out) {
+  int bos = 0, fazla = 0;
   for (int i = 0; i < q->n_yuva; i++) bos += q->y[i].durum != KY_HAZIR;
-  if (!bos) return 0;
+  for (int f = 0; f < 32 && !bos && !fazla; f++) {
+    int say = kuyruk_say(q, f, -1);
+    fazla = say > (((sahip >> f) & 1) ? figur_basi : 0);
+  }
+  if (!bos && !fazla) return 0;
   int en_f = -1, en_say = 0;
   uint32_t en_sira = 0;
   for (int f = 0; f < n_figur; f++) {
+    if (!((sahip >> f) & 1)) continue;
     int say = kuyruk_say(q, f, -1);
     if (say >= figur_basi) continue;
     uint32_t son = 0;  // figürün en son üretilen hikâyesinin sırası (çalınmış olsa da; hiç yoksa 0)
@@ -245,4 +281,12 @@ KUYRUK_API int kuyruk_sonraki(const Kuyruk *q, int figur_basi, int n_figur, cons
   *f_out = en_f;
   *j_out = en_j;
   return 1;
+}
+
+// Eski arayüz: bütün figürler tanınmış sayılır, figur_basi sabit hedef.
+KUYRUK_API int kuyruk_sonraki(const Kuyruk *q, int figur_basi, int n_figur, const int8_t *yer_n, int *f_out, int *j_out) {
+  int bos = 0;
+  for (int i = 0; i < q->n_yuva; i++) bos += q->y[i].durum != KY_HAZIR;
+  if (!bos) return 0;
+  return kuyruk_sonraki_sahip(q, figur_basi, n_figur, yer_n, 0xFFFFFFFFu, f_out, j_out);
 }

@@ -7,7 +7,7 @@
 //
 // Girdi: gövdenin çözülmüş UTF-8 metni (Python'a giden metin gibi baştan/sondan kırpılmış), plan metni
 // ("Sorun: ...\nÇözüm: ..."; NULL ise plan kuralı yok), figür, yer (0 orman, 1 deniz, 2 ev, 3 park, 4 şato, 5 dağ;
-// < 0: yer kuralı yok), bitti, ortalama lp.
+// < 0 ya da >= 6, ör. istemler.h YER_AD'daki bahçe 6, gökyüzü 7: yer kuralı yok), bitti, ortalama lp.
 // Bellek ayırmaz: bütün çalışma alanı sabit statik diziler (~24 KB, SECICI_MAKS = 2048 harf; daha uzun metin
 // kırpılır). Yeniden girişli değil (tek görevden çağrılır).
 //

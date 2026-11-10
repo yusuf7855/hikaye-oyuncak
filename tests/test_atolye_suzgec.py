@@ -19,7 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "degerlendirme"))
 NODE = shutil.which("node")
-TOKENIZER = ROOT / "hf_c3ft_urun740" / "tokenizer.json"
+# ürün tokenizer'ı (c3 modellerinin hepsinde aynı): eski yerel kopya yoksa depodaki ürün modelininki
+TOKENIZER = next((t for t in (ROOT / "hf_c3ft_urun740" / "tokenizer.json", ROOT / "modeller" / "c3ft_karma" / "tokenizer.json")
+                  if t.exists()), ROOT / "hf_c3ft_urun740" / "tokenizer.json")
 
 
 def suzgec_kodu():
@@ -140,7 +142,8 @@ class JsCAyni(unittest.TestCase):
         tok = [bytes(harita[c] for c in (tk.id_to_token(i) or "") if c in harita) for i in range(V)]
         rng = random.Random(7)
         toplam_red = 0
-        for kimlik in ("elsa", "pepee", "niloya", "hayri"):
+        # eski (lisanslı) figürler ve ürün figürleri ('$'lı Bulut/Fıstık, çok kelimeli adlar)
+        for kimlik in ("elsa", "pepee", "niloya", "hayri", "pinokyo", "bulut", "tek_boynuzlu_at"):
             adlar = [a + ("$" if u.kelime_basi_mi(a) else "") for a in u.kadro_disi(kimlik)]
             duz = [a.rstrip("$") for a in adlar]
             ekler = ["", "'nin", "’ın", " ile", ",", ".", "sah", "ya", "cık", " de", "!\"", "lar"]

@@ -29,13 +29,15 @@ import urun_kayit as uk  # noqa: E402
 
 
 def _test_figur_listesi():
-    """Kapı mekaniği testleri Tosbi, Pamuk gibi temel figürlerle yazıldı; kullanıcı isteğiyle (yalnız çizgi film
-    karakterleri) bu figürler ürün listesinden çıktı ama kartları duruyor. Testler, çıkarılan temel figürlerin
-    etkin olduğu bir kopya listeyle koşar (kapi.FIGUR bu süreçte o kopyayı gösterir); gerçek listeyi
-    test_veri_hakem.KartKontrol sınar."""
+    """Kapı mekaniği testleri Tosbi, Pamuk gibi temel figürlerle ve Niloya, Elsa, Chase gibi lisanslı figürlerle
+    yazıldı; kullanıcı isteğiyle (önce yalnız çizgi film karakterleri, 26 Ekim 2026'da lisanslı figürler yerine
+    lisanssızlar) bu figürler ürün listesinden çıktı ama kartları duruyor. Testler, çıkarılan temel ve lisanslı
+    figürlerin de etkin olduğu bir kopya listeyle koşar (kapi.FIGUR bu süreçte o kopyayı gösterir); gerçek listeyi
+    test_veri_hakem.KartKontrol ve GercekFigurListesi sınar."""
     fig = json.loads((ROOT / "data" / "urun_figurleri.json").read_text(encoding="utf-8"))
-    geri = [f["ad"] for f in fig.get("cikarilan_temel", [])]
+    geri = [f["ad"] for f in fig.get("cikarilan_temel", []) + fig.get("cikarilan_lisansli", [])]
     fig["temel"] = fig["temel"] + fig.get("cikarilan_temel", [])
+    fig["populer"] = fig["populer"] + fig.get("cikarilan_lisansli", [])
     fig["cikarilanlar"] = [a for a in fig["cikarilanlar"] if a not in geri]
     fd, yol = tempfile.mkstemp(prefix="test_urun_figurleri_", suffix=".json")
     with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -418,8 +420,9 @@ if __name__ == "__main__":
 
 
 class GercekFigurListesi(unittest.TestCase):
-    """Kullanıcı isteği: yalnız çizgi film karakterleri. Gerçek ürün listesiyle 11 etkin figür (Hello Kitty dahil);
-    çıkarılan temel figürün (Tosbi) hikâyesi K1'de düşer ve 'hepsi' onu atlar."""
+    """Gerçek ürün listesi (26 Ekim 2026'dan beri): Keloğlan + 12 lisanssız figür = 13 etkin figür; çıkarılan temel
+    (Tosbi ...) ve lisanslı (Niloya, Elsa ...) figürlerin kartları durur, etkin değiller; çıkarılan figürün (Tosbi)
+    hikâyesi K1'de düşer ve 'hepsi' onu atlar."""
 
     def setUp(self):
         kapi.FIGUR, self._eski = GERCEK_FIGUR, kapi.FIGUR
@@ -430,9 +433,11 @@ class GercekFigurListesi(unittest.TestCase):
 
     def test_etkin_figurler(self):
         import veri_hakem as vh
-        self.assertEqual(len(self.bg.figurler), 11)
-        self.assertIn("Hello Kitty", self.bg.figurler)
-        for ad in ("Tosbi", "Tekir", "Pamuk", "Karabaş"):
+        self.assertEqual(self.bg.figurler, ["Keloğlan", "Pamuk Prenses", "Pinokyo", "Alaaddin", "Nasreddin Hoca", "Bulut",
+                                            "Zıpzıp", "Tontiş", "Bilge Baykuş", "Ejderha Yavrusu", "Tek Boynuzlu At",
+                                            "Bip", "Fıstık"])
+        for ad in ("Tosbi", "Tekir", "Pamuk", "Karabaş", "Niloya", "Maşa", "Pepee", "Doru", "Hayri", "Şakir", "Elsa",
+                   "Chase", "Örümcek Adam", "Hello Kitty"):
             self.assertNotIn(ad, self.bg.figurler)
             self.assertIn(ad, self.bg.cikarilanlar)
             self.assertIn(ad, self.bg.kartlar)            # kart durur

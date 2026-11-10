@@ -17,7 +17,12 @@ degerlendirme/<ad>/ altında (--kok <dizin> ile ikisi de <dizin>/data/<ad> ve <d
   kart-kontrol [--kilitle]            kart şeması, kaynaklar, D denetimi, kural düzenli ifadeleri; onaylı kartın
                                       sha1'i data/<ad>/kart_kilidi.json'a kilitlenir (Adım 1)
   tohum --figur F --n 400 --tohum 2026 [--denetle]   data/<ad>/tohum/<figür>.jsonl (Adım 3, 'Sistem tarafı')
-  yaz-istemi --figur F [--n 12]       yazar ajanının tam istemi: data/<ad>/istem/<figür>_<parti>.md (+ .json)
+        [--baslangic 2001] [--haric urun_v3]          yeni tur: kimlik numarası ve önceki turun kelime üçlüleri,
+                                      (yer, tema, isim) hücreleri ve kimlikleri yeniden kullanılmaz
+        --figur 'Ay Dede'             gece (uyku modu) tohumları: ayrı şema (tur ninni|uyku_masali, uyuyan, eşlik,
+                                      duyu, gece açılış/kapanış türleri; gece_tohum_uret, KILAVUZ_GECE.md)
+  yaz-istemi --figur F [--n 12]       yazar ajanının tam istemi: data/<ad>/istem/<figür>_<parti>.md (+ .json);
+        [--tur ninni=18 --tur uyku_masali=6]   gece figüründe kılavuz KILAVUZ_GECE.md, isteğe bağlı tür kotası
   kontrol <yazar dosyası>             yazarın öz-denetimi (Kural 10): kapılar + yama sayacı (en çok 1 yama)
   kapi --figur F | --hepsi            data/<ad>/aday/<figür>_*.txt -> data/<ad>/aday.jsonl (Adım 5)
   hazirla <ad> --lens M|D|K           hakem partileri (Adım 7): <= 10 hikâye, 0-2 kanarya, dolgu, karıştırma,
@@ -377,6 +382,7 @@ def kart_kontrol(kart_yolu, urun_yolu, kilit=None):
 
     urun_fig = {f["ad"]: ("populer", f) for f in urun["populer"]}
     urun_fig.update({f["ad"]: ("temel", f) for f in urun["temel"]})
+    urun_fig.update({f["ad"]: ("uyku", f) for f in urun.get("uyku", [])})     # mod figürü (gece: Ay Dede)
     kartlar = veri.get("kartlar", [])
     adlar = [_olgu(k.get("ad")) for k in kartlar]
     # ürün listesinin 'cikarilanlar'ındaki figürün kartı durabilir (etkin değil): yine denetlenir, sayılmaz
@@ -888,7 +894,20 @@ def tohum_kelimeleri(bg):
     return {t: sorted(w for w in bg.tohum_kelime[t] if w.rstrip("-") not in yasak) for t in ("isim", "fiil", "sifat")}
 
 
-def tohum_uret(fb, n, tohum, bg, baslangic=1):
+def onceki_tohumlar(adlar, fk, kok=None):
+    """Önceki veri turlarının bu figürdeki tohumları: (kelime üçlüleri, (yer, tema, isim) hücreleri, kimlikler).
+    Yeni tur (urun_v4) bunları yeniden kullanmaz: aynı kelime üçlüsü ya da hücre iki turda çıkmaz."""
+    ucluler, hucreler, idler = set(), set(), set()
+    for ad in adlar:
+        for t in jsonl_oku(Yollar(ad, kok).tohum(fk)):
+            ucluler.add((t["isim"], t["fiil"], t["sifat"]))
+            hucreler.add((t["yer"], t["tema"], t["isim"]))
+            idler.add(t["id"])
+    return ucluler, hucreler, idler
+
+
+def tohum_uret(fb, n, tohum, bg, baslangic=1, haric=None):
+    """haric: onceki_tohumlar() çıktısı ya da None; verilirse o üçlü ve hücreler bu turda kullanılmaz."""
     rng = random.Random(f"tohum:{fb.fk}:{tohum}")
     h = fb.hedefler()
     slotlar = [dict(zip(("yer", "tema", "yan_sayisi", "diyalog", "acilis", "kapanis", "ozellik"), x)) for x in zip(
@@ -899,7 +918,7 @@ def tohum_uret(fb, n, tohum, bg, baslangic=1):
     kullanim = collections.Counter()
     kel = tohum_kelimeleri(bg)
     deste = {t: _Deste(kel[t], rng) for t in kel}
-    ucluler, hucreler = set(), set()
+    ucluler, hucreler = (set(haric[0]), set(haric[1])) if haric else (set(), set())
     mastar = json_oku(_kapi().TOHUM_KELIME, {}).get("fiil_mastar", {})
     out = []
     for i, s in enumerate(slotlar):
@@ -928,7 +947,7 @@ def tohum_uret(fb, n, tohum, bg, baslangic=1):
     return out
 
 
-def tohum_denetle(tohumlar, fb, bg):
+def tohum_denetle(tohumlar, fb, bg, haric=None):
     """Adım 3 geçme şartı: paylar hedefin ±5 puanı içinde, tema <= %12, ahlaki çatışma temaları birlikte <= %30,
     (yer, tema, isim) ve kelime üçlüsü tekrarsız, kelimeler tohum_kelimeleri.json'da, yan ve özellik kaynaklı
     kartta, kısıtlar tutarlı."""
@@ -993,6 +1012,10 @@ def tohum_denetle(tohumlar, fb, bg):
     hatalar += [f"tohum kimliği tekrarlanıyor: {k}" for k, v in idler.items() if v > 1]
     hatalar += [f"kelime üçlüsü tekrarlanıyor: {k}" for k, v in ucluler.items() if v > 1]
     hatalar += [f"(yer, tema, isim) tekrarlanıyor: {k}" for k, v in hucreler.items() if v > 1]
+    if haric:
+        hatalar += [f"kelime üçlüsü önceki turda var: {k}" for k in ucluler if k in haric[0]]
+        hatalar += [f"(yer, tema, isim) önceki turda var: {k}" for k in hucreler if k in haric[1]]
+        hatalar += [f"tohum kimliği önceki turda var: {k}" for k in idler if k in haric[2]]
     return hatalar, pay
 
 
@@ -1017,18 +1040,23 @@ def cmd_tohum(a):
     Y = Yollar(a.ad, a.kok)
     bg = _bg(zemberek=False)
     figurler = etkin_kartlar(bg) if a.figur == "hepsi" else [_figur_bul(bg, a.figur)]
+    onceki = [x for x in (a.haric or "").split(",") if x]
     kod = 0
     for kart in figurler:
+        if kart.get("grup") == "uyku":                  # gece figürü: ayrı tohum şeması (gece_tohum_uret)
+            kod |= _cmd_gece_tohum(a, Y, bg, kart)
+            continue
         fb = FigurBilgi(kart, bg)
         yol = a.cikti if a.cikti and len(figurler) == 1 else Y.tohum(fb.fk)
+        haric = onceki_tohumlar(onceki, fb.fk, a.kok) if onceki else None
         if a.denetle:
             tohumlar = jsonl_oku(yol)
         else:
             if os.path.exists(yol) and not a.ustune_yaz:
                 raise SystemExit(f"{yol} var; üstüne yazmak için --ustune-yaz (tohum kimlikleri değişir)")
-            tohumlar = tohum_uret(fb, a.n, a.tohum, bg)
+            tohumlar = tohum_uret(fb, a.n, a.tohum, bg, baslangic=a.baslangic, haric=haric)
             jsonl_yaz(yol, tohumlar)
-        hatalar, pay = tohum_denetle(tohumlar, fb, bg)
+        hatalar, pay = tohum_denetle(tohumlar, fb, bg, haric)
         print(f"{fb.ad}: {len(tohumlar)} tohum -> {Y.goreli(yol)}; tema {len(fb.temalar)}/{len(TEMALAR)}, yan sayısı hedefi "
               f"{ {k: v for k, v in fb.yan_hedef.items()} }; {'GEÇTİ' if not hatalar else f'{len(hatalar)} HATA'}")
         if a.ayrinti:
@@ -1038,6 +1066,255 @@ def cmd_tohum(a):
             print("   HATA:", h)
         kod |= bool(hatalar)
     return kod
+
+
+# ---------------------------------------------------------------- gece tohumu (uyku modu: Ay Dede; KILAVUZ_GECE.md)
+
+GECE_TOHUM_SURUM = "gece_tohum/1"
+GECE_TUR = {"ninni": 0.5, "uyku_masali": 0.5}
+GECE_TUR_ADI = {"ninni": "ninni", "uyku_masali": "uyku masalı"}
+GECE_TEMALAR = {
+    "ninni": {
+        "herkes_uyuyor": "herkes uyuyor: dizeler sırayla uyuyanları anlatır, en son uyuyan da uyur",
+        "ay_bekliyor": "Ay Dede bütün gece uyuyanların başında bekler ve onlara ışık verir",
+        "buyusun": "uyusun da büyüsün: dinleyen çocuğa sevgi ve büyüme dileği",
+        "ruya_dilegi": "tatlı rüya dileği: uyuyana güzel ve sakin bir rüya dilenir",
+        "yumusak_sesler": "gecenin yumuşak sesleri (rüzgar, yapraklar, dalgalar) uyutur",
+    },
+    "uyku_masali": {
+        "iyi_geceler": "Ay Dede uyuyanlara tek tek iyi geceler der",
+        "uykusu_gelmeyen": "minik birinin uykusu gelmez; sakin bir şeyle (bir ses dinlemek, gökyüzüne bakmak) uykuya dalar",
+        "yildiz_saymak": "yıldızları birlikte yavaşça saymak; sayarken uyumak",
+        "yuva_hazirlamak": "yumuşak bir yatak ya da yuva hazırlamak (yaprak, ot, battaniye)",
+        "gece_sesleri": "gecenin yumuşak seslerini dinlemek ve uyumak",
+        "ninni_dinlemek": "Ay Dede'nin fısıldadığı bir ninniyi dinleyip uyumak",
+    },
+}
+GECE_ACILIS = {
+    "ninni": {"nakarat": "nakaratla başlar ('Ninni ninni, ...')", "ay_dede": "Ay Dede ile başlar ('Ay Dede gökte ...')",
+              "hitap": "dinleyen çocuğa seslenerek başlar ('Uyu yavrum, ...')"},
+    "uyku_masali": {"zaman": "bir gece ifadesiyle başlar ('Gece oldu.')", "ay_dede": "Ay Dede ile başlar ('Ay Dede ...')",
+                    "yer": "yerle başlar ('Ormanda ...', 'Odada ...')",
+                    "ses": "yumuşak bir sesle başlar ('Rüzgar usulca esiyordu.')"},
+}
+GECE_KAPANIS = {"ninni": {"nakarat": 0.35, "uyudu": 0.25, "iyi_geceler": 0.20, "ruya": 0.20},
+                "uyku_masali": {"uyudu": 0.45, "iyi_geceler": 0.30, "ruya": 0.25}}
+GECE_KAPANIS_TARIF = {
+    "uyudu": "uyuyanın ve herkesin uykuya dalmasıyla biter ('Herkes mışıl mışıl uyudu.')",
+    "iyi_geceler": "son cümle 'iyi geceler' dileğidir ('İyi geceler, yavrum.')",
+    "ruya": "son cümle tatlı rüya dileğidir ya da rüyayı anlatır ('Tatlı rüyalar gör, yavrum.')",
+    "nakarat": "son dize nakarattır, 'ninni' geçer ('Ninni ninni, uyu yavrum.')"}
+GECE_DIYALOG = {"ninni": {"yok": 1.0}, "uyku_masali": {"var": 0.4, "yok": 0.6}}
+GECE_YAN_SAYISI = {"ninni": {0: 0.25, 1: 0.75}, "uyku_masali": {1: 0.8, 2: 0.2}}
+GECE_YER = {"gökyüzü": 0.15, "bahçe": 0.20, "orman": 0.20, "ev": 0.30, "deniz": 0.15}
+# isim -> (duyu, yerler; None = her yer). Duyu öğesi metinde yumuşak bir ayrıntıdır (ses, ışık, dokunuş, koku).
+GECE_ISIM = {
+    "yıldız": ("görme", None), "bulut": ("görme", None), "perde": ("görme", ["ev"]), "fener": ("görme", ["deniz"]),
+    "parıltı": ("görme", None), "dal": ("görme", ["orman", "bahçe"]),
+    "rüzgar": ("işitme", None), "dalga": ("işitme", ["deniz"]), "yaprak": ("işitme", ["orman", "bahçe"]),
+    "battaniye": ("dokunma", ["ev"]), "yastık": ("dokunma", ["ev"]), "yorgan": ("dokunma", ["ev"]),
+    "tüy": ("dokunma", ["orman", "bahçe", "ev"]), "yuva": ("dokunma", ["orman", "bahçe"]), "kum": ("dokunma", ["deniz"]),
+    "ot": ("dokunma", ["bahçe", "orman"]), "kabuk": ("dokunma", ["deniz"]),
+    "çiçek": ("koku", ["bahçe"]), "çimen": ("koku", ["bahçe"]), "çam": ("koku", ["orman"]), "süt": ("tat", ["ev"]),
+}
+GECE_FIIL = {"salla-": "sallamak", "ört-": "örtmek", "esne-": "esnemek", "kıvrıl-": "kıvrılmak", "sarıl-": "sarılmak",
+             "dinle-": "dinlemek", "parla-": "parlamak", "say-": "saymak", "kapan-": "kapanmak", "uzan-": "uzanmak",
+             "dinlen-": "dinlenmek", "süzül-": "süzülmek", "yat-": "yatmak", "sallan-": "sallanmak",
+             "bekle-": "beklemek", "okşa-": "okşamak", "sokul-": "sokulmak", "sar-": "sarmak"}
+GECE_SIFAT = ["yumuşak", "sıcak", "sessiz", "tatlı", "minik", "parlak", "serin", "tüylü", "gümüş", "sakin", "mavi",
+              "hafif", "uykulu", "beyaz", "ılık", "yumuşacık"]
+
+
+class GeceBilgi:
+    """Gece kartı -> tohum dünyası: yerler, özellikler, yanların uyku rolü (uyuyan | eşlik) ve yerleri."""
+
+    def __init__(self, kart):
+        self.kart = kart
+        self.ad = _olgu(kart["ad"])
+        self.fk = kart["kimlik"]
+        self.yerler = [y["etiket"] for y in kart["yerler"]]
+        self.ozellikler = [o["anahtar_kok"] for o in kart["ozellikler"]]
+        self.yanlar = {y["kisa_ad"]: {"yerler": _olgu(y.get("yerler")) or list(self.yerler),
+                                      "rol": set(y.get("uyku_rolu") or ["uyuyan"])} for y in kart["yanlar"]}
+        self.sira = [y["kisa_ad"] for y in kart["yanlar"]]
+
+    def uyuyanlar(self, yer):
+        return [a for a in self.sira if "uyuyan" in self.yanlar[a]["rol"] and yer in self.yanlar[a]["yerler"]]
+
+    def eslikler(self, yer, uyuyan=None):
+        return [a for a in self.sira if "eslik" in self.yanlar[a]["rol"] and yer in self.yanlar[a]["yerler"]
+                and a != uyuyan]
+
+    def isimler(self, yer, yan=()):
+        return [w for w, (_, ys) in GECE_ISIM.items() if (ys is None or yer in ys) and w not in yan]
+
+    def hedefler(self, tur):
+        return {"yer": dict(GECE_YER), "tema": {t: 1 / len(GECE_TEMALAR[tur]) for t in GECE_TEMALAR[tur]},
+                "yan_sayisi": {str(k): v for k, v in GECE_YAN_SAYISI[tur].items()}, "diyalog": dict(GECE_DIYALOG[tur]),
+                "acilis": {k: 1 / len(GECE_ACILIS[tur]) for k in GECE_ACILIS[tur]}, "kapanis": dict(GECE_KAPANIS[tur]),
+                "ozellik": {o: 1 / len(self.ozellikler) for o in self.ozellikler}}
+
+
+def _gece_ihlal(s, gb):
+    """Yuva kısıtı: iki yan (uyuyan + eşlik) o yerde bir eşlikçi gerektirir."""
+    if s["yan_sayisi"] == 2:
+        return int(not any(gb.eslikler(s["yer"], u) for u in gb.uyuyanlar(s["yer"])))
+    if s["yan_sayisi"] == 1:
+        return int(not gb.uyuyanlar(s["yer"]))
+    return 0
+
+
+def gece_tohum_uret(gb, n, tohum, baslangic=1):
+    """Gece tohumları: tür payı GECE_TUR; her türde yer, tema, yan sayısı, diyalog, açılış, kapanış ve özellik
+    kotalı (largest-remainder); uyuyan ve eşlikçi o yerde en az kullanılanlardan; isim/fiil/sıfat desteden; (tür, yer,
+    yan, tema, isim, fiil, sıfat) birleşimi tekrarsız. Kimlikler karışık sırayla verilir (istemlerde iki tür karışık)."""
+    rng = random.Random(f"gece:{gb.fk}:{tohum}")
+    out = []
+    kullanim = collections.Counter()
+    gorulen = set()
+    deste = {"isim": _Deste(GECE_ISIM, rng), "fiil": _Deste(GECE_FIIL, rng), "sifat": _Deste(GECE_SIFAT, rng)}
+    turler = kota(n, GECE_TUR, rng)
+    for tur in GECE_TUR:
+        m = turler.count(tur)
+        h = gb.hedefler(tur)
+        alanlar = ("yer", "tema", "yan_sayisi", "diyalog", "acilis", "kapanis", "ozellik")
+        slotlar = [dict(zip(alanlar, x)) for x in zip(
+            kota(m, h["yer"], rng), kota(m, h["tema"], rng), kota(m, GECE_YAN_SAYISI[tur], rng),
+            kota(m, h["diyalog"], rng), kota(m, h["acilis"], rng), kota(m, h["kapanis"], rng),
+            kota(m, h["ozellik"], rng))]
+        for _ in range(200_000):                     # payları koruyan takas: iki yan yalnız eşlikçisi olan yerde
+            kotu = [i for i, x in enumerate(slotlar) if _gece_ihlal(x, gb)]
+            if not kotu:
+                break
+            i, j = rng.choice(kotu), rng.randrange(m)
+            once = _gece_ihlal(slotlar[i], gb) + _gece_ihlal(slotlar[j], gb)
+            slotlar[i]["yer"], slotlar[j]["yer"] = slotlar[j]["yer"], slotlar[i]["yer"]
+            if _gece_ihlal(slotlar[i], gb) + _gece_ihlal(slotlar[j], gb) > once:
+                slotlar[i]["yer"], slotlar[j]["yer"] = slotlar[j]["yer"], slotlar[i]["yer"]
+        else:
+            raise SystemExit("gece tohumu: yan kısıtları paylar korunarak sağlanamadı")
+        for s in slotlar:
+            yer = s["yer"]
+            uyuyan, eslik = "yavrum", None
+            if s["yan_sayisi"] >= 1:
+                adaylar = gb.uyuyanlar(yer)
+                if s["yan_sayisi"] == 2:
+                    adaylar = [u for u in adaylar if gb.eslikler(yer, u)]
+                en_az = min(kullanim[a] for a in adaylar)
+                uyuyan = rng.choice([a for a in adaylar if kullanim[a] == en_az])
+                kullanim[uyuyan] += 1
+            if s["yan_sayisi"] == 2:
+                es = gb.eslikler(yer, uyuyan)
+                en_az = min(kullanim["eslik:" + a] for a in es)
+                eslik = rng.choice([a for a in es if kullanim["eslik:" + a] == en_az])
+                kullanim["eslik:" + eslik] += 1
+            yan = sorted([a for a in (uyuyan, eslik) if a and a in gb.yanlar], key=gb.sira.index)
+            for _ in range(1000):
+                isim = deste["isim"].cek(lambda w: w in gb.isimler(yer, yan))
+                fiil, sifat = deste["fiil"].cek(), deste["sifat"].cek()
+                anahtar = (tur, yer, tuple(yan), s["tema"], isim, fiil, sifat)
+                if anahtar not in gorulen:
+                    break
+            else:
+                raise SystemExit("gece tohumu: tekrarsız birleşim bulunamadı")
+            gorulen.add(anahtar)
+            out.append({"figur": gb.ad, "tur": tur, "yer": yer, "tema": s["tema"], "yan": yan, "uyuyan": uyuyan,
+                        "eslik": eslik, "duyu": GECE_ISIM[isim][0], "ozellik": s["ozellik"], "isim": isim,
+                        "fiil": fiil, "fiil_mastar": GECE_FIIL[fiil], "sifat": sifat, "diyalog": s["diyalog"],
+                        "acilis": s["acilis"], "kapanis": s["kapanis"], "deneme": 1,
+                        "uretim": {"tohum": tohum, "surum": GECE_TOHUM_SURUM}})
+    rng.shuffle(out)
+    return [{"id": f"{gb.fk}-{baslangic + i:04d}", **t} for i, t in enumerate(out)]
+
+
+def gece_tohum_denetle(tohumlar, gb):
+    """Gece tohumlarının geçme şartı: tür payı ve her türde alan payları hedefin ±5 puanı içinde; yan kartta, o yerde
+    ve rolüne uygun (uyuyan, eşlik); isim o yere uygun; ninnide diyalog yok; birleşimler ve kimlikler tekrarsız."""
+    hatalar, pay = [], {}
+    n = len(tohumlar)
+    if not n:
+        return ["tohum yok"], {}
+    say = collections.Counter(t.get("tur") for t in tohumlar)
+    for tur, hedef in GECE_TUR.items():
+        if abs(say.get(tur, 0) / n - hedef) > PAY_TOLERANS + 1e-9:
+            hatalar.append(f"tur={tur}: pay %{100 * say.get(tur, 0) / n:.1f}, hedef %{100 * hedef:.0f}")
+    hatalar += [f"bilinmeyen tür: {k}" for k in say if k not in GECE_TUR]
+    for tur in GECE_TUR:
+        alt = [t for t in tohumlar if t.get("tur") == tur]
+        if not alt:
+            continue
+        for alan, hedef in gb.hedefler(tur).items():
+            c = collections.Counter(str(len(t["yan"])) if alan == "yan_sayisi" else t[alan] for t in alt)
+            for k in set(hedef) | set(c):
+                p = c.get(k, 0) / len(alt)
+                pay.setdefault(tur, {}).setdefault(alan, {})[k] = (round(p, 3), round(hedef.get(k, 0.0), 3))
+                if abs(p - hedef.get(k, 0.0)) > PAY_TOLERANS + 1e-9:
+                    hatalar.append(f"{tur} {alan}={k}: pay %{100 * p:.1f}, hedef %{100 * hedef.get(k, 0):.1f}")
+    idler, birlesim = collections.Counter(), collections.Counter()
+    for t in tohumlar:
+        i = t.get("id")
+        idler[i] += 1
+        birlesim[(t.get("tur"), t["yer"], tuple(t["yan"]), t.get("tema"), t["isim"], t["fiil"], t["sifat"])] += 1
+        if t.get("figur") != gb.ad:
+            hatalar.append(f"{i}: figür {t.get('figur')!r}")
+        if t["yer"] not in gb.yerler:
+            hatalar.append(f"{i}: yer {t['yer']!r} kartta yok")
+        if t.get("tema") not in GECE_TEMALAR.get(t.get("tur"), {}):
+            hatalar.append(f"{i}: tema {t.get('tema')!r} bu türde yok")
+        if t.get("ozellik") not in gb.ozellikler:
+            hatalar.append(f"{i}: özellik {t.get('ozellik')!r} kartta yok")
+        for y in t["yan"]:
+            if y not in gb.yanlar:
+                hatalar.append(f"{i}: yan {y!r} kartta yok")
+            elif t["yer"] not in gb.yanlar[y]["yerler"]:
+                hatalar.append(f"{i}: yan {y!r} {t['yer']!r} yerinde bulunmaz")
+        if t["yan"] != sorted(t["yan"], key=lambda a: gb.sira.index(a) if a in gb.sira else 99):
+            hatalar.append(f"{i}: yan sırası kart sırası değil")
+        u, e = t.get("uyuyan"), t.get("eslik")
+        if t["yan"] and (u not in t["yan"] or "uyuyan" not in gb.yanlar.get(u, {}).get("rol", ())):
+            hatalar.append(f"{i}: uyuyan {u!r} tohum yanı ya da uyuyan rolünde değil")
+        if not t["yan"] and u != "yavrum":
+            hatalar.append(f"{i}: yansız tohumda uyuyan 'yavrum' (dinleyen çocuk) olmalı")
+        if e is not None and (e not in t["yan"] or "eslik" not in gb.yanlar.get(e, {}).get("rol", ())):
+            hatalar.append(f"{i}: eşlik {e!r} tohum yanı ya da eşlik rolünde değil")
+        if len(t["yan"]) != (u in t["yan"]) + (e is not None):
+            hatalar.append(f"{i}: yan listesi uyuyan + eşlikten oluşmalı ({t['yan']})")
+        if t["isim"] not in gb.isimler(t["yer"], t["yan"]):
+            hatalar.append(f"{i}: isim {t['isim']!r} {t['yer']!r} yerine uymuyor ya da yanla aynı")
+        if t.get("duyu") != GECE_ISIM.get(t["isim"], (None,))[0]:
+            hatalar.append(f"{i}: duyu {t.get('duyu')!r} isimle tutmuyor")
+        if t["fiil"] not in GECE_FIIL or t["sifat"] not in GECE_SIFAT:
+            hatalar.append(f"{i}: fiil ya da sıfat gece listesinde değil")
+        if t.get("tur") == "ninni" and t.get("diyalog") != "yok":
+            hatalar.append(f"{i}: ninnide diyalog olmaz")
+        if t.get("kapanis") not in GECE_KAPANIS.get(t.get("tur"), {}):
+            hatalar.append(f"{i}: kapanış {t.get('kapanis')!r} bu türde yok")
+    hatalar += [f"tohum kimliği tekrarlanıyor: {k}" for k, v in idler.items() if v > 1]
+    hatalar += [f"birleşim tekrarlanıyor: {k}" for k, v in birlesim.items() if v > 1]
+    return hatalar, pay
+
+
+def _cmd_gece_tohum(a, Y, bg, kart):
+    gb = GeceBilgi(kart)
+    yol = a.cikti or Y.tohum(gb.fk)
+    if a.denetle:
+        tohumlar = jsonl_oku(yol)
+    else:
+        if os.path.exists(yol) and not a.ustune_yaz:
+            raise SystemExit(f"{yol} var; üstüne yazmak için --ustune-yaz (tohum kimlikleri değişir)")
+        tohumlar = gece_tohum_uret(gb, a.n, a.tohum, baslangic=a.baslangic)
+        jsonl_yaz(yol, tohumlar)
+    hatalar, pay = gece_tohum_denetle(tohumlar, gb)
+    tur = collections.Counter(t.get("tur") for t in tohumlar)
+    print(f"{gb.ad}: {len(tohumlar)} gece tohumu -> {Y.goreli(yol)}; {dict(tur)}; "
+          f"{'GEÇTİ' if not hatalar else f'{len(hatalar)} HATA'}")
+    if a.ayrinti:
+        for t_, d in pay.items():
+            for alan, x in d.items():
+                print(f"   {t_} {alan}: " + ", ".join(f"{k} %{100 * p:.0f}/{100 * h:.0f}" for k, (p, h) in sorted(x.items())))
+    for h in hatalar[:20]:
+        print("   HATA:", h)
+    return int(bool(hatalar))
 
 
 # ---------------------------------------------------------------- kontrol ve kapi (Adım 4-5)
@@ -2457,18 +2734,44 @@ def _tohum_metni(t, kart):
 
 
 KILAVUZ_YOLU = os.path.join(HERE, "KILAVUZ_URUN.md")
+KILAVUZ_GECE_YOLU = os.path.join(HERE, "KILAVUZ_GECE.md")     # uyku modu (Ay Dede): ninni ve uyku masalı
 
 
-def _kilavuz_metni():
+def _gece_tohum_metni(t, kart):
+    """Gece tohumunun yazara gösterilen hâli (KILAVUZ_GECE.md 'Tohum alanları')."""
+    oz = _ozellik_satiri(kart, t["ozellik"])
+    yan = ", ".join(t["yan"]) or "-"
+    yer = next((y for y in kart["yerler"] if y["etiket"] == t["yer"]), {})
+    tur = t["tur"]
+    plan = "'ninni, <kimi uyutuyor> | <nasıl uyutuyor>'" if tur == "ninni" else \
+        "'masal, <küçük durum> | <nasıl yatıştı>'"
+    uyuyan = "yavrum (dinleyen çocuk; yan yok)" if t["uyuyan"] == "yavrum" else t["uyuyan"]
+    return "\n".join([
+        f"### {t['figur']} | {t['yer']} | {yan}", f"@tohum: {t['id']}",
+        f"- tür: {GECE_TUR_ADI[tur]} (plan satırı {plan})",
+        f"- yer: {t['yer']} ({yer.get('tarif', '')})",
+        f"- tema: {GECE_TEMALAR[tur].get(t['tema'], t['tema'])}",
+        f"- uyuyan: {uyuyan}; eşlik: {t.get('eslik') or '-'}",
+        f"- duyu: {t['duyu']} (isim '{t['isim']}' metinde yumuşak bir ayrıntı olarak geçer)",
+        f"- özellik: {t['ozellik']} ({oz['deger']})",
+        f"- kelimeler: isim '{t['isim']}', fiil '{t.get('fiil_mastar') or t['fiil']}', sıfat '{t['sifat']}'",
+        f"- diyalog: {t['diyalog']}" + (" (replik yok, tırnak yok)" if t["diyalog"] == "yok" else
+                                         " (en çok 2 kısa, yumuşak replik; konuşan belli)"),
+        f"- açılış: {GECE_ACILIS[tur].get(t['acilis'], t['acilis'])}",
+        f"- kapanış: {t['kapanis']} ({GECE_KAPANIS_TARIF.get(t['kapanis'], '')})"])
+
+
+def _kilavuz_metni(yol=None):
     """(yol, metin): yazara (ve editöre) giden kılavuz; kullanıcı onaylı örnek yoksa yer tutucu çıkarılır."""
-    with open(KILAVUZ_YOLU, encoding="utf-8") as f:
+    yol = yol or KILAVUZ_YOLU
+    with open(yol, encoding="utf-8") as f:
         kilavuz = f.read().strip()
     yer_tutucu = re.compile(r"^\[KULLANICI ONAYLI[^\]]*\]\s*$", re.M)
     if yer_tutucu.search(kilavuz):      # onaylı iyi örnekler henüz yok: yer tutucu yazara gitmez
         print("UYARI: KILAVUZ_URUN.md'de kullanıcı onaylı örnek yok; istem örneksiz yazıldı")
         kilavuz = yer_tutucu.sub("", re.sub(r"^\*\*İyi örnekler\*\*.*$", "", kilavuz, flags=re.M))
         kilavuz = re.sub(r"\n{3,}", "\n\n", kilavuz).strip()
-    return KILAVUZ_YOLU, kilavuz
+    return yol, kilavuz
 
 
 def _kontrol_komutu(Y, dosya_rel, taslak_kart):
@@ -2478,10 +2781,12 @@ def _kontrol_komutu(Y, dosya_rel, taslak_kart):
             + (" --taslak-kart" if taslak_kart else ""))
 
 
-def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None, ozellik_haric=()):
+def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None, ozellik_haric=(), tur_kota=None):
+    """tur_kota (yalnız gece): {'ninni': 18, 'uyku_masali': 6} -> istemdeki tohumların türlere göre sayısı."""
     bg = bg or _bg(zemberek=False)
     kart = _figur_bul(bg, figur)
     ad, fk = _olgu(kart["ad"]), kart["kimlik"]
+    gece = kart.get("grup") == "uyku"
     if not kart.get("onayli") and not taslak_kart:
         raise SystemExit(f"{ad} kartı onaylı değil; onaysız kartla hikâye yazılmaz (duman testi için --taslak-kart)")
     atanan = collections.defaultdict(set)
@@ -2495,19 +2800,25 @@ def yaz_istemi(Y, figur, n=12, taslak_kart=False, bg=None, ozellik_haric=()):
     secilen = [t for t in jsonl_oku(Y.v("kuyruk.jsonl")) if t["figur"] == ad and t["deneme"] <= YAZIM_TAVANI
                and not any(d >= t["deneme"] for d in atanan[t["id"]]) and t.get("ozellik") not in ozellik_haric]
     secilen = secilen[:n]
+    kalan = dict(tur_kota) if tur_kota else None
     for t in jsonl_oku(Y.tohum(fk)):
         if len(secilen) >= n:
             break
+        if kalan is not None:
+            if kalan.get(t.get("tur"), 0) <= 0:
+                continue
         if t["id"] not in atanan and t.get("ozellik") not in ozellik_haric:
             secilen.append({**t, "deneme": 1})
+            if kalan is not None:
+                kalan[t["tur"]] -= 1
     if not secilen:
         raise SystemExit(f"{ad}: yazılacak tohum yok ({Y.goreli(Y.tohum(fk))} ve kuyruk)")
     parti = max(partiler) + 1
     dosya_rel = f"aday/{fk}_{parti}.txt"
     istem_yolu = Y.v("istem", f"{fk}_{parti}.md")
-    kilavuz_yolu, kilavuz = _kilavuz_metni()
+    kilavuz_yolu, kilavuz = _kilavuz_metni(KILAVUZ_GECE_YOLU if gece else None)
     kontrol = _kontrol_komutu(Y, dosya_rel, taslak_kart)
-    metin = f"""# Yazar görevi: {ad}, parti {parti}
+    metin = _gece_istemi(Y, kart, parti, secilen, dosya_rel, kilavuz, kontrol) if gece else f"""# Yazar görevi: {ad}, parti {parti}
 
 Sen bir çocuk hikâyesi yazarısın. Aşağıdaki {len(secilen)} tohumun her birinden BİR hikâye yaz. Hikâyeler 3-6 yaş
 çocuklara okunacak ve küçük bir dil modelini eğitecek.
@@ -2553,9 +2864,56 @@ Sen bir çocuk hikâyesi yazarısın. Aşağıdaki {len(secilen)} tohumun her bi
     return istem_yolu, secilen
 
 
+def _gece_istemi(Y, kart, parti, secilen, dosya_rel, kilavuz, kontrol):
+    """Gece figürünün (Ay Dede) yazar istemi: ninni ve uyku masalı; kılavuz KILAVUZ_GECE.md."""
+    ad = _olgu(kart["ad"])
+    say = collections.Counter(t.get("tur") for t in secilen)
+    return f"""# Yazar görevi: {ad} (uyku modu), parti {parti}
+
+Sen bir çocuk ninnisi ve uyku masalı yazarısın. Aşağıdaki {len(secilen)} tohumun her birinden, tohumdaki türde BİR
+metin yaz ({say.get('ninni', 0)} ninni, {say.get('uyku_masali', 0)} uyku masalı). Metinler 3-6 yaş çocuklara uyumadan
+önce yumuşak bir sesle okunacak ve küçük bir dil modelini eğitecek.
+
+## Kurallar
+
+- Çıktı dosyan: `{Y.goreli(Y.v(dosya_rel))}`. YALNIZ bu dosyaya yaz; başka dosya yaratma ya da değiştirme. Commit
+  yalnız bu dosyayı içerir. Başka yazarların çıktısını, ret kayıtlarını açma.
+- Kelimeler için `data/sade_sozluk_sik.txt` dosyasını oku (sık kökler; fiiller 'koş-' biçiminde).
+- Her metin tam dört parçadır: başlık, @plan, @tohum, gövde (tek satır, tek paragraf; ninnide dizeler art arda,
+  her dize noktayla biter). Başlık ve @tohum satırını aşağıdaki tohumdan birebir kopyala; metinler arasında bir boş
+  satır bırak:
+
+```
+### {ad} | <yer> | <yan ya da ->
+@plan: <ninni, ... | ...> ya da <masal, ... | ...>
+@tohum: <tohum kimliği>
+<gövde>
+```
+
+- Tohumdaki üç kelimeden (isim, fiil, sıfat) en çok birini listeden başka bir kelimeyle değiştirebilirsin; o zaman
+  @tohum satırının altına `@degisim: <eski> -> <yeni>` yaz.
+- Hepsini yazdıktan sonra koş: `{kontrol}`
+  İşaretlenen metinde EN ÇOK 1 yerel düzeltme yap ve kontrolü bir kez daha koş. Yine geçmeyen metnin bütün
+  bloğunu (başlık dahil) dosyadan sil; zorlama. Geçen metne dokunma (her değişiklik bir yama sayılır).
+
+## Yazım kılavuzu (uyku modu)
+
+{kilavuz}
+
+## Kart: {ad} (kaynaklı, kapalı dünya)
+
+{_kart_metni(kart)}
+
+## Tohumlar
+
+""" + "\n\n".join(_gece_tohum_metni(t, kart) for t in secilen) + "\n"
+
+
 def cmd_yaz_istemi(a):
     Y = Yollar(a.ad, a.kok)
-    yol, secilen = yaz_istemi(Y, a.figur, a.n, a.taslak_kart, ozellik_haric=tuple(a.ozellik_haric or ()))
+    tur_kota = {k: int(v) for k, v in (x.split("=") for x in (a.tur or []))} or None
+    yol, secilen = yaz_istemi(Y, a.figur, a.n, a.taslak_kart, ozellik_haric=tuple(a.ozellik_haric or ()),
+                              tur_kota=tur_kota)
     d2 = sum(t["deneme"] > 1 for t in secilen)
     print(f"{len(secilen)} tohum ({d2} ikinci deneme) -> {Y.goreli(yol)}")
     return 0
@@ -2822,11 +3180,15 @@ def main(argv=None):
     t.add_argument("--ustune-yaz", action="store_true")
     t.add_argument("--denetle", action="store_true", help="üretmeden var olan dosyayı denetle")
     t.add_argument("--ayrinti", action="store_true")
+    t.add_argument("--baslangic", type=int, default=1, help="ilk tohum kimliğinin numarası (yeni turda ör. 2001)")
+    t.add_argument("--haric", default=None, help="önceki turlar (virgülle, ör. urun_v3): kelime üçlüsü, (yer, tema, "
+                                                 "isim) hücresi ve kimlik tekrar etmez")
     y = urun(alt.add_parser("yaz-istemi"))
     y.add_argument("--figur", required=True)
     y.add_argument("--n", type=int, default=12)
     y.add_argument("--taslak-kart", action="store_true")
     y.add_argument("--ozellik-haric", action="append", help="bu özellikteki tohumlar yeni yazıma verilmez (tekrarlanabilir)")
+    y.add_argument("--tur", action="append", help="yalnız gece: türe göre tohum sayısı, ör. --tur ninni=18 --tur uyku_masali=6")
     on = urun(alt.add_parser("onar-istemi"))
     g = on.add_mutually_exclusive_group(required=True)
     g.add_argument("--figur")
