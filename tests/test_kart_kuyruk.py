@@ -21,10 +21,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "firmware" / "hikaye_oyuncak" / "tools"
-# model: HIKAYE_MODEL (dizin) ya da hf_c3ft_karma, o da yoksa depodaki ürün modeli (tools/kuyruk_test.py ile aynı seçim)
+# model: HIKAYE_MODEL (dizin) ya da depodaki ürün modeli c3ft_urun13, o da yoksa c3ft_karma (tools/kuyruk_test.py ile aynı seçim)
 MODEL = next((m / "model.bin" for m in ([Path(os.environ["HIKAYE_MODEL"])] if os.environ.get("HIKAYE_MODEL") else [])
-              + [ROOT / "hf_c3ft_karma", ROOT / "modeller" / "c3ft_karma"] if (m / "model.bin").exists()),
-             ROOT / "hf_c3ft_karma" / "model.bin")
+              + [ROOT / "modeller" / "c3ft_urun13", ROOT / "modeller" / "c3ft_karma"] if (m / "model.bin").exists()),
+             ROOT / "modeller" / "c3ft_urun13" / "model.bin")
 
 
 @unittest.skipUnless(shutil.which("cc"), "C derleyicisi yok")

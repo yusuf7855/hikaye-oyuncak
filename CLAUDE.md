@@ -13,14 +13,14 @@ ve bir yer seçer (liste `data/urun_figurleri.json`, NFC no ve halka rengi `data
 `model.bin` 10,3 MB) her seferinde yeni bir hikâye yazar ve kartın kendi ses modeli (~4,3 MB) kadın sesiyle okur.
 Model **daha büyük olamaz**: 16 MB flash / 8 MB PSRAM sınırı kesin.
 
-## 2. Şu anki durum (2026-10-07)
+## 2. Şu anki durum (2026-11-10)
 
 | Parça | Durum |
 |---|---|
-| Hikâye modeli | **c3ft_karma** (10 597 hikâye: 1030 hakemli + 9567 hafif hat). Kör kıyasta eski 1030s2'yi açık farkla geçti (genel 127–37, olay 112–41); rubrik 3,17 → 4,51 / 10. Dosya: `modeller/c3ft_karma/model.bin` (depoda). Ayrıntı `degerlendirme/urun_kiyas_karma/OZET.md`. |
-| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ara model `hf_c3ft_v5a` ile doğrulandı (`kart_pc_karsilastir.py --model hf_c3ft_v5a`: 52/52 aday; seçici C = Python 0 uyuşmazlık). `modeller/c3ft_karma` yeni figürleri bilmez: son model (urun_v5 bitince) eğitilene kadar yeni figür hikâyeleri zayıf olur. **Gerçek kartta henüz denenmedi.** |
-| Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim **henüz yapılmadı** — bu bilgisayarın asıl işi bu (aşağıda). Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
-| Sıradaki büyük iş | Veriyi 20–30 bin hikâyeye çıkarıp yeniden eğitmek (`docs/YAPILACAKLAR.md`). |
+| Hikâye modeli | **c3ft_urun13** (eğitim etiketi c3ft_v5; 28 493 hikâye: 1030 hakemli + 9567 urun_v3 + 5922 urun_v4 + 11 974 urun_v5 yeni 13 figür; 15 000 adım, en iyi val 1,888). Kör kıyasta ara modeli geçti (genel 102–78, olay 99–73; `degerlendirme/urun_kiyas_v5/OZET.md`), Keloğlan'da eski ürün modeli c3ft_karma'yı geçti (34–14, 29–15; `urun_kiyas_v5_kel`). Dosya: `modeller/c3ft_urun13/model.bin` (depoda; `modeller/c3ft_v5` adlı klasör ayrı, eski bir Ekim deneyi). Önceki ürün modeli `modeller/c3ft_karma` (yeni figürleri bilmez). |
+| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ürün modeli c3ft_urun13 ile doğrulandı (`kart_pc_karsilastir.py`, varsayılan model artık `modeller/c3ft_urun13`; seçici C = Python). **Gerçek kartta henüz denenmedi.** |
+| Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim bu bilgisayarda yapıldı (10 Kasım 2026): akustik, vocoder 600 bin + GTA 50 bin adım (`egit_vocoder.py --gta --adim 650000`, kayıt `ses_calisma/vocoder/son.pt`; `vocoder_gta/` yok). `ses.bin` 4 344 208 B (sığar) ve `deneme.wav` çıktı; ürün sahibi dinledi: "şimdilik iyi, idare eder". C = PyTorch denemesi (`ses_test.py`) PC'de C derleyicisi olmadığından yapılmadı. Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
+| Sıradaki iş | Model + ses ile gerçek kartta ilk deneme (3.3). Veri 28 bine çıkarıldı ve son model eğitildi (bulutta, 9 Kasım 2026). |
 
 ## 3. Bu bilgisayarda yapılacak işler (öncelik sırasıyla)
 
@@ -58,10 +58,10 @@ TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 
 - Arduino IDE 2 ya da `arduino-cli` (esp32 by Espressif 3.x). Ayarlar `firmware/hikaye_oyuncak/README.md`:
   ESP32S3 Dev Module, 16MB, **OPI PSRAM**, Partition **Custom** (`partitions.csv`), USB CDC On Boot.
 - Model ve ses: `python -m esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x1D0000
-  modeller\c3ft_karma\model.bin 0xBB0000 ses.bin` (Ekim 2026'dan beri model 0x1D0000'de; adresleri README'den doğrula).
+  modeller\c3ft_urun13\model.bin 0xBB0000 ses.bin` (Ekim 2026'dan beri model 0x1D0000'de; adresleri README'den doğrula).
 - Ürün davranışı (Merhaba Eko, yalnız standdaki oyuncak, Ay Dede ninni modu, halka, ayar kartı, pinler): `docs/URUN_TANIMI.md`;
   donanım ve 3B tasarım: `docs/DONANIM.md`, `cad/`.
-- Seri monitör 115200: açılışta model parmak izi `fp=00ea3e55`; `?` figür listesi, `1 1` hikâye, `b` hız testi.
+- Seri monitör 115200: açılışta model parmak izi `fp=8091ae97` (eski c3ft_karma: 00ea3e55); `?` figür listesi, `1 1` hikâye, `b` hız testi.
   Çıktıyı (hız, profil satırı, birkaç hikâye) kaydet ve ürün sahibine özetle.
 
 ## 4. Depo haritası

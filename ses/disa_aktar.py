@@ -231,7 +231,7 @@ def main():
     ap.add_argument("--cikti", default="ses.bin")
     ap.add_argument("--altin", default=None, help="altın örnek dosyası (C denemesi için)")
     ap.add_argument("--cumle", action="append", default=None, help="altın cümle (birden çok verilebilir)")
-    ap.add_argument("--butce", type=float, default=0x440000, help="ses bölümü (bayt)")
+    ap.add_argument("--butce", type=float, default=0x430000, help="ses bölümü (bayt; partitions.csv, Ekim 2026)")
     a = ap.parse_args()
     torch.set_num_threads(1)
     print(f"akustik: {a.akustik}\nvocoder: {a.vocoder}")

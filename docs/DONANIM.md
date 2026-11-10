@@ -226,7 +226,7 @@ sonra kutuya yerleştirilir.
 |---|---|---|---|
 | 1 | Güç vermeden | Ölçü aleti: 5V–GND ve 3V3–GND arası direnç | Kısa devre yok (> 100 Ω; kondansatör şarj olurken yükselir) |
 | 2 | Yalnız USB-C kartı + adaptör | 5V yıldız noktası | 4,9–5,2 V; C-C kabloyla da (CC dirençleri doğru) |
-| 3 | DevKit takılı | 3V3 ucu; seri monitör 115200 | 3,25–3,35 V; açılış satırları, `fp=00ea3e55` (README) |
+| 3 | DevKit takılı | 3V3 ucu; seri monitör 115200 | 3,25–3,35 V; açılış satırları, `fp=8091ae97` (README) |
 | 4 | Halka bağlı | Açılış | Gökkuşağı tek tur, sonra söner; titreme yok (1000 µF + 330 Ω) |
 | 5 | Yükselteç + hoparlör | Seri monitörde `s Merhaba` (README 5) | Net ses, hışırtı yok; SD LOW iken sessizlikte tamamen sessiz |
 | 6 | RC522 | Figür tabanını (etiketli) RC522'nin üstüne 4 mm'lik plastikle koy | Seri monitörde etiket okunur, halka figür renginde dolar |

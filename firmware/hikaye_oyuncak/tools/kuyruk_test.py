@@ -15,8 +15,8 @@ kartı yeniden başlatmaktır.
   tools/dugme_test.c.)
 
 Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/kuyruk_test.py [--K 3] [--basi 2] [--urun]
-Model: HIKAYE_MODEL ortam değişkeni (model.bin + tokenizer.json dizini); yoksa hf_c3ft_karma, o da yoksa
-modeller/c3ft_karma. Figürler ve yer sayıları generated/istemler.h'den (kartın derlendiği tablolar).
+Model: HIKAYE_MODEL ortam değişkeni (model.bin + tokenizer.json dizini); yoksa ürün modeli modeller/c3ft_urun13,
+o da yoksa modeller/c3ft_karma. Figürler ve yer sayıları generated/istemler.h'den (kartın derlendiği tablolar).
 Çıkış kodu: hata varsa 1.
 """
 import argparse
@@ -33,8 +33,8 @@ TOOLS = os.path.dirname(os.path.abspath(__file__))
 SKETCH = os.path.dirname(TOOLS)
 ROOT = os.path.dirname(os.path.dirname(SKETCH))
 MODEL = os.environ.get("HIKAYE_MODEL") or next(
-    (m for m in (os.path.join(ROOT, "hf_c3ft_karma"), os.path.join(ROOT, "modeller", "c3ft_karma"))
-     if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "hf_c3ft_karma"))
+    (m for m in (os.path.join(ROOT, "modeller", "c3ft_urun13"), os.path.join(ROOT, "modeller", "c3ft_karma"))
+     if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "modeller", "c3ft_urun13"))
 KUYRUK_OFS, KUYRUK_BOYUT, SEKTOR = 0xFE0000, 0x20000, 4096
 
 

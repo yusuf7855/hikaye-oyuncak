@@ -20,7 +20,7 @@ seferinde aynı çıktıyı verir. Kuyruk K=2 aday, figür başına en çok 2 hi
                 hatası; ayarların kalıcılığı (selamda ad).
 
 Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/urun_akis_test.py [--dizin D]   (çıkış kodu: hata varsa 1)
-Model: HIKAYE_MODEL (dizin; yoksa hf_c3ft_karma, o da yoksa modeller/c3ft_karma). Figürler: generated/istemler.h ve
+Model: HIKAYE_MODEL (dizin; yoksa modeller/c3ft_urun13, o da yoksa modeller/c3ft_karma). Figürler: generated/istemler.h ve
 data/figur_donanim.json'un üründe kalan figürleri (generated/figur_donanim.h sırası).
 """
 import argparse

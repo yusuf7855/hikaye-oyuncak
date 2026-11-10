@@ -13,12 +13,13 @@ takılıysa hikâyeyi kartın kendisinde sesli okur (bkz. **5. Ses**).
   önceden hazırlayıp flash'a saklar (hikâye kuyruğu, 16 aday + seçici).
 - **Seri monitörden** (bilgisayarla deneme, bkz. **4**): test komutları çalışır (geliştirme içindir).
 
-Şu an yüklenecek model: **c3ft_karma** (`modeller/c3ft_karma/model.bin`, 10,3 MB; C3: d192, 12 katman, FFN 512, PLE 56,
-V16384) — ürün modeli (10 bin hikâyeli karma veri; kör kıyasta 1030s2'yi geçti, `degerlendirme/urun_kiyas_karma`).
+Şu an yüklenecek model: **c3ft_urun13** (`modeller/c3ft_urun13/model.bin`, 10,3 MB; C3: d192, 12 katman, FFN 512, PLE 56,
+V16384) — 13 ürün figürünü bilen ürün modeli (28 493 hikâye; eğitim etiketi c3ft_v5). Kör kıyasta ara modeli
+(`degerlendirme/urun_kiyas_v5`) ve Keloğlan'da eski ürün modeli c3ft_karma'yı (`degerlendirme/urun_kiyas_v5_kel`) geçti.
 Figürler ve yerleri `data/urun_kartlari.json`'dan; üretim ve seçim bilgisayardaki `degerlendirme/urun_uret.py` ile
 aynıdır (istem, isim süzgeci, plan modu, seçici; bkz. **Geliştirici notları**).
 
-> `model.bin` depoda (ZIP'te de var): `modeller/c3ft_karma/model.bin` (SHA-256 `modeller/SHA256SUMS`'ta). Tokenizer C2
+> `model.bin` depoda (ZIP'te de var): `modeller/c3ft_urun13/model.bin` (SHA-256 `modeller/SHA256SUMS`'ta). Tokenizer C2
 > ile aynıdır (`modeller/c2_tokenizer.json`).
 
 ## Gerekenler
@@ -65,7 +66,7 @@ Flash düzeni (`partitions.csv`):
 |---|---|---|---|
 | nvs | 0x9000 | 20 KB | ayarlar: ad, ses, uyku, halka, çekilince, müzik, tanınmış oyuncaklar |
 | factory (uygulama) | 0x10000 | 0x1C0000 (1,75 MB) | Arduino'nun yüklediği yazılım (1 690 224 B, %92) |
-| model | **0x1D0000** | 0x9E0000 (9,9 MB) | LLM `model.bin`: C3 c3ft_karma 10 331 252 B (0x9DA474), pay 23 436 B |
+| model | **0x1D0000** | 0x9E0000 (9,9 MB) | LLM `model.bin`: C3 c3ft_urun13 10 331 252 B (0x9DA474), pay 23 436 B |
 | ses | **0xBB0000** | 0x430000 (4,19 MB) | ses modeli `ses.bin` (4 344 208 B; pay 46 704 B; `ses/disa_aktar.py` üretir) |
 | kuyruk | 0xFE0000 | 0x20000 (128 KB) | hazır hikâyeler: 32 yuva × 4 KB (yazılım kendisi doldurur; yüklenecek dosya yok) |
 
@@ -82,9 +83,9 @@ Kart takılıyken, depo klasöründe bir komut penceresi açıp (portu kendinizi
 
 ```bash
 # Windows
-python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x1D0000 modeller\c3ft_karma\model.bin 0xBB0000 ses.bin
+python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x1D0000 modeller\c3ft_urun13\model.bin 0xBB0000 ses.bin
 # Mac / Linux
-python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x1D0000 modeller/c3ft_karma/model.bin 0xBB0000 ses.bin
+python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x1D0000 modeller/c3ft_urun13/model.bin 0xBB0000 ses.bin
 ```
 
 `ses.bin` henüz yoksa komuttan `0xBB0000 ses.bin` kısmını çıkarın: kart konuşmadan çalışır (hikâyeler seri porta
@@ -106,7 +107,7 @@ model: V=16384 D=192 L=12 H=4 F=512 P=56 bağlam=224
 PSRAM: KV + logits 4.06 MB, süzgeç 0.12 MB, çekirdek 4-bit 2.93 MB (int8 5.65 MB gerekirdi)
 head: 4-bit hızlı yol, kodlar flash'ta (1.50 MB)
 PSRAM toplam (LLM): 7.25 MB
-model.bin: 10331252 B, parmak izi fp=00ea3e55
+model.bin: 10331252 B, parmak izi fp=8091ae97
 ...
 kuyruk: 32 yuva (0x20000 @ 0xFE0000), hazır 0 hikâye | figür başına 2 (en çok 6), K=5 | arka plan açık
 stand NFC: RC522 | mikrofon: açık (Merhaba Eko) | halka: 16 LED, GPIO 18 | ses seviyesi 5/7 (en çok 7) | bekçi 30 s
@@ -114,7 +115,7 @@ ayarlar: ad "", uyku 20 dk, parlaklık 60, çekilince cümle sonunda dur, müzik
 tanınmış oyuncaklar: (yok: standa konan oyuncak tanınır)
 ```
 
-`model.bin` satırındaki **fp=00ea3e55** doğru model yüklendiğini gösterir. Figür ve yer numaraları (`?` listeler):
+`model.bin` satırındaki **fp=8091ae97** doğru model yüklendiğini gösterir (eski ürün modeli c3ft_karma: fp=00ea3e55; o yüklüyse yeni figürlerin hikâyeleri zayıf olur, modeli yeniden yükleyin). Figür ve yer numaraları (`?` listeler):
 
 | No | Figür | Yerleri |
 |---|---|---|
@@ -182,7 +183,7 @@ Açılışta `head: 4-bit hızlı yol, kodlar PSRAM'de` satırı görünür. `b`
 - Çok adayda istem (~15 token) bir kez işlenir: sonraki adaylar istemin KV'sini ve son logit'lerini yeniden kullanır
   (sonuç aynı, aday başına ~%10 daha az hesap).
 
-**C3 (c3ft_karma) ile:** çekirdek C2'nin ~1,9 katı (5,7 M parametre), int8 açılımı (5,65 MB) float KV ile (4,13 MB)
+**C3 (c3ft_karma, c3ft_urun13) ile:** çekirdek C2'nin ~1,9 katı (5,7 M parametre), int8 açılımı (5,65 MB) float KV ile (4,13 MB)
 8 MB PSRAM'e sığmaz. Bu yüzden çekirdek dosyadaki gibi **4-bit** olarak PSRAM'e kopyalanır (2,93 MB, ölçekler float)
 ve hiz.h'nin hızlı 4-bit yolu (q4f) iki çekirdekte çalışır; sonuçlar int8 yolla bit bit aynı. Head (1,5 MB) flash'ta
 kalır (PSRAM'de yer yok). Açılışta `çekirdek 4-bit` yazar. Beklenen hız ≈3–4 token/s (docs/ESP32_BUTCE.md C3 tahmini
@@ -385,7 +386,7 @@ tablosuyla kullanılabilir).
 | `model bölümü yok` | Partition Scheme **Custom** seçilmemiş; seçip yazılımı yeniden yükleyin. |
 | `model okunamadı` | model.bin yüklenmemiş ya da yanlış adrese yüklenmiş: 3. adım, adres **0x1D0000** (Ekim 2026'dan önce 0x110000'dı: yeniden yükleyin). |
 | `HATA: PSRAM ayrılamadı` | PSRAM ayarı **OPI PSRAM** değil. |
-| `HATA: tokenizer/model uyuşmuyor` ya da anlamsız metin | Eski model (C2) ya da yanlış dosya yüklü: `fp=00ea3e55` olmalı. |
+| `HATA: tokenizer/model uyuşmuyor` ya da anlamsız metin | Eski model (C2) ya da yanlış dosya yüklü: `fp=8091ae97` olmalı. |
 | `çekirdek flash'ta 4-bit (PSRAM yetmedi, yavaş)` ya da `UYARI: isim süzgeci için PSRAM yok` | PSRAM eksik görünüyor; açılış çıktısını bana gönderin. |
 | `ses bölümü yok` | Yeni `partitions.csv` ile yazılım yeniden yüklenmemiş (Partition Scheme **Custom**). |
 | `kuyruk bölümü yok` | Aynı: Partition Scheme **Custom** ve bu klasördeki `partitions.csv` ile yeniden yükleyin. Kart yine çalışır, hikâyeler hep canlı yazılır. |

@@ -14,6 +14,9 @@ Büyük eğitim dosyaları (`runs/`, `hf_*/`) depoya girmez; buradakiler yeniden
 | `c2ft_temiz/` | R-temiz: R'nin aynısı, denetimde bozuk bulunan 289 hikâye çıkarılmış | 59 MB |
 | `c2ft_hiz/` | E2: R'nin aynısı, eğitim pencereleri hikâye başına hizalı | 59 MB |
 | `c2ft_plan/` | E3: R'nin aynısı, model önce "Sorun / Çözüm" planı yazar (web paketi: `paketle.py --plan`) | 59 MB |
+| `c3ft_karma/` | Önceki ürün modeli (10 597 hikâye, 11 eski figür; kartta fp=00ea3e55); yalnız model.bin + tokenizer | 11 MB |
+| **`c3ft_urun13/`** | **Ürün modeli** (eğitim etiketi c3ft_v5): 13 ürün figürü, 28 493 hikâye, 15 000 adım, en iyi val 1,888 (adım 14 250); kartta fp=8091ae97. `kaydet.py c3ft_v5=c3ft_urun13` | 56 MB |
+| `c3ft_v5/` | Eski bir Ekim deneyi (aynı etiket, başka veri; val 2,38) — ürün modeli değil | 55 MB |
 
 Her model klasöründe: `agirliklar_fp16.pt` (ince ayara devam için), `model.bin` (kartta çalışan 4-bit model),
 `golden.txt` (C motoru doğrulaması: `./gen_verify model.bin golden.txt`), `bilgi.json`. Yeni bir modeli eklemek:

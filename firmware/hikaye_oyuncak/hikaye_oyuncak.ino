@@ -1,6 +1,6 @@
 // Hikâye Oyuncağı (ESP32-S3 N16R8): ürün yazılımı + seri monitör test komutları.
 //
-// Model: c3ft_karma (C3: d192 L12 F512 P56, V16384; model.bin 10 331 252 B), flash'taki "model" bölümünde
+// Model: c3ft_urun13 (C3: d192 L12 F512 P56, V16384; model.bin 10 331 252 B, fp=8091ae97), flash'taki "model" bölümünde
 // (0x1D0000). Figürler data/urun_figurleri.json'daki 13 ürün figürü (kartları ve yerleri data/urun_kartlari.json;
 // lisanslı figürler 26 Ekim 2026'da çıktı, generated/ başlıklarına girmez); üretim bilgisayardaki
 // degerlendirme/urun_uret.py ile aynı (runtime/ornekle.h + runtime/isim_suzgec.h, generated/ altına kopya):

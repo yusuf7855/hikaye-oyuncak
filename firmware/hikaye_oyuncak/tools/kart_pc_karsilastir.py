@@ -10,9 +10,9 @@ Kart int8 aktivasyon kullanır (LLM_INT8_ACT; çekirdek ve head q4f/int8 yollar�
 derlenmiş kopyasıyla yapılır (GEN ortam değişkeni; urun_uret aynen çalışır). --float: ayrıca ./gen (float) ile
 kaç adayın aynı çıktığını bilgi olarak yazar (fark beklenir: aktivasyon nicemlemesi).
 
-Kullanım: python firmware/hikaye_oyuncak/tools/kart_pc_karsilastir.py [--model hf_c3ft_karma] [--vaka N] [--aday 4]
+Kullanım: python firmware/hikaye_oyuncak/tools/kart_pc_karsilastir.py [--model modeller/c3ft_urun13] [--vaka N] [--aday 4]
           [--hepsi] [--float]
-  --model: varsayılan hf_c3ft_karma, yoksa modeller/c3ft_karma (yeni figürleri bilen ara model: --model hf_c3ft_v5a)
+  --model: varsayılan ürün modeli modeller/c3ft_urun13 (13 ürün figürü; eski ürün modeli: --model modeller/c3ft_karma)
   --vaka N: figür başına ilk vakadan başlayarak N vaka (varsayılan: ürün figürü sayısı, her figürden bir; figürler
   urun_uret.FIGURLER = generated/istemler.h); --hepsi: bütün figür × kart yeri vakaları (13 figürde 45).
 Çıkış kodu: uyuşmazlık varsa 1.
@@ -59,8 +59,8 @@ def kart_kos(kart, model, komutlar):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=next(
-        (m for m in (os.path.join(ROOT, "hf_c3ft_karma"), os.path.join(ROOT, "modeller", "c3ft_karma"))
-         if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "hf_c3ft_karma")))
+        (m for m in (os.path.join(ROOT, "modeller", "c3ft_urun13"), os.path.join(ROOT, "modeller", "c3ft_karma"))
+         if os.path.exists(os.path.join(m, "model.bin"))), os.path.join(ROOT, "modeller", "c3ft_urun13")))
     ap.add_argument("--vaka", type=int, default=None, help="varsayılan: figür sayısı (her figürden bir vaka)")
     ap.add_argument("--aday", type=int, default=4)
     ap.add_argument("--hepsi", action="store_true")
