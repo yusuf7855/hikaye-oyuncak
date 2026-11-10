@@ -65,8 +65,7 @@ def main():
     for i, (k, c) in enumerate(kalan, 1):
         yol = os.path.join(a.cikti, "mp3", k + ".mp3")
         try:
-            wav = model.generate(text=c, cfg_value=a.cfg, inference_timesteps=a.adim,
-                                 seed=int(k[1:]) if k[1:].isdigit() else 0, **ek)
+            wav = model.generate(text=c, cfg_value=a.cfg, inference_timesteps=a.adim, **ek)
             x = np.asarray(wav, dtype=np.float32).ravel()
             if sr != SR:
                 x = resample_poly(x, SR // g, sr // g).astype(np.float32)
