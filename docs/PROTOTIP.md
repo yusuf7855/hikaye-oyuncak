@@ -44,7 +44,7 @@ Pin haritası kesindir (`docs/URUN_TANIMI.md`); kart üstündeki RGB LED kullan�
 
 1. Kartı yalnız USB ile bağlayıp yazılımı ve `modeller/c3ft_urun13/model.bin`'i **0x1D0000**'e yükle (README bölüm 2–3).
    Seri monitörde `fp=8091ae97` ve `?` ile figür listesi → `1 1` ile bir hikâye → `b` ile hız testi.
-2. Ses modeli hazır olunca `ses.bin`'i 0xBB0000'e yükle; MAX98357A ve hoparlörü bağla; `s Merhaba` ile dene.
+2. Ses modelini (`modeller/ses/ses.bin`) 0xBB0000'e yükle (1. adımdaki komutla birlikte de olur); MAX98357A ve hoparlörü bağla; `s Merhaba` ile dene.
 3. RC522, mikrofon ve halkayı bağla. Ayar kartını ve figür etiketlerini ayar sayfasından "oyuncak tanıt" ile yaz
    (README 6). Her figürü bir kez standa koy (tanınsın); ilk gece kartı USB'de açık bırak: tanınan figürlerin
    kuyruğu dolsun.

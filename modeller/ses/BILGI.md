@@ -32,6 +32,10 @@
 
 ## Notlar
 - `ses_test.py` PC'de çalışmadı (C derleyicisi yok, WSL'de torch yok)
+- C = PyTorch denemesi bulutta yapıldı (10 Kasım 2026): `ses_test.py --akustik modeller/ses/akustik.pt --vocoder
+  modeller/ses/vocoder.pt` → **TAMAM** (varsayılan ve küçük parça). Akustik süreler aynı, mel göreli fark ≤ 5,3e-6;
+  dalga en büyük göreli fark 1,1e-3 (uzun cümlede tek örnek 29/32767), SNR 79–92 dB. Bulutta yeniden üretilen
+  ses.bin bu dosyayla bit bit aynı (SHA-256 eşit). Kart tahmini: 200 MMAC/s'de 1,39 s hesap / s ses, 300'de 0,93.
 - Ürün sahibinin yorumu: "şimdilik iyi, idare eder"
 
 ## Dosyalar

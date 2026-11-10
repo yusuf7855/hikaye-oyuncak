@@ -19,7 +19,7 @@ Model **daha büyük olamaz**: 16 MB flash / 8 MB PSRAM sınırı kesin.
 |---|---|
 | Hikâye modeli | **c3ft_urun13** (eğitim etiketi c3ft_v5; 28 493 hikâye: 1030 hakemli + 9567 urun_v3 + 5922 urun_v4 + 11 974 urun_v5 yeni 13 figür; 15 000 adım, en iyi val 1,888). Kör kıyasta ara modeli geçti (genel 102–78, olay 99–73; `degerlendirme/urun_kiyas_v5/OZET.md`), Keloğlan'da eski ürün modeli c3ft_karma'yı geçti (34–14, 29–15; `urun_kiyas_v5_kel`). Dosya: `modeller/c3ft_urun13/model.bin` (depoda; `modeller/c3ft_v5` adlı klasör ayrı, eski bir Ekim deneyi). Önceki ürün modeli `modeller/c3ft_karma` (yeni figürleri bilmez). |
 | Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ürün modeli c3ft_urun13 ile doğrulandı (`kart_pc_karsilastir.py`, varsayılan model artık `modeller/c3ft_urun13`; seçici C = Python). **Gerçek kartta henüz denenmedi.** |
-| Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim bu bilgisayarda yapıldı (10 Kasım 2026): akustik, vocoder 600 bin + GTA 50 bin adım (`egit_vocoder.py --gta --adim 650000`, kayıt `ses_calisma/vocoder/son.pt`; `vocoder_gta/` yok). `ses.bin` 4 344 208 B (sığar) ve `deneme.wav` çıktı; ürün sahibi dinledi: "şimdilik iyi, idare eder". C = PyTorch denemesi (`ses_test.py`) PC'de C derleyicisi olmadığından yapılmadı. Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
+| Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim bu bilgisayarda yapıldı (10 Kasım 2026): akustik, vocoder 600 bin + GTA 50 bin adım (`egit_vocoder.py --gta --adim 650000`, kayıt `ses_calisma/vocoder/son.pt`; `vocoder_gta/` yok). `ses.bin` 4 344 208 B (sığar) ve `deneme.wav` çıktı; ürün sahibi dinledi: "şimdilik iyi, idare eder". **Depoda:** `modeller/ses/` (ses.bin, ses_altin.bin, yalnız-üretici ağırlıklar akustik.pt / vocoder.pt, ayırt edici fp16, günlükler, BILGI.md). C = PyTorch denemesi (`ses_test.py`) bulutta geçti (mel göreli fark ≤ 5e-6, dalga SNR ≥ 79 dB, küçük parçayla da aynı). Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
 | Sıradaki iş | Model + ses ile gerçek kartta ilk deneme (3.3). Veri 28 bine çıkarıldı ve son model eğitildi (bulutta, 9 Kasım 2026). |
 
 ## 3. Bu bilgisayarda yapılacak işler (öncelik sırasıyla)
@@ -41,9 +41,9 @@ python ses/pc_hepsi.py
 - [1] başladıktan sonra ilk ~250 cümlenin süresinden toplam süreyi hesaplayıp ürün sahibine söyle. Birkaç mp3'ü
   dinlet: ses referansa benzemiyorsa (`ses/referans_ses.mp3`), `veri_uret_vox.py --referans-metin "<referansın tam
   metni>"` ile tam klonlama denenebilir (metin bilinmiyor; Whisper ile çıkarılabilir).
-- Bitince: `deneme.wav`'ı dinlet; `ses.bin` karta 0xBB0000 adresine yüklenir (3.3).
-- Kontrol: `python firmware/hikaye_oyuncak/tools/ses_test.py --akustik ses_calisma/akustik/son.pt --vocoder
-  ses_calisma/vocoder_gta/son.pt` (C çıkarımı = PyTorch).
+- Bitince: `deneme.wav`'ı dinlet; `ses.bin` karta 0xBB0000 adresine yüklenir (3.3). (Kasım 2026'da bitti: `modeller/ses/`.)
+- Kontrol: `python firmware/hikaye_oyuncak/tools/ses_test.py --akustik modeller/ses/akustik.pt --vocoder
+  modeller/ses/vocoder.pt` (C çıkarımı = PyTorch; C derleyicisi gerekir, Windows'ta yoksa bulut oturumu yapar).
 
 ### 3.2 Hikâye modelini GPU'da eğitmek (bulutta CPU ile ~2,5 saat; 4090'da dakikalar)
 Eğitim zinciri bash betiği: Windows'ta **Git Bash** ya da **WSL** ile çalıştır.
@@ -58,7 +58,7 @@ TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 
 - Arduino IDE 2 ya da `arduino-cli` (esp32 by Espressif 3.x). Ayarlar `firmware/hikaye_oyuncak/README.md`:
   ESP32S3 Dev Module, 16MB, **OPI PSRAM**, Partition **Custom** (`partitions.csv`), USB CDC On Boot.
 - Model ve ses: `python -m esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x1D0000
-  modeller\c3ft_urun13\model.bin 0xBB0000 ses.bin` (Ekim 2026'dan beri model 0x1D0000'de; adresleri README'den doğrula).
+  modeller\c3ft_urun13\model.bin 0xBB0000 modeller\ses\ses.bin` (Ekim 2026'dan beri model 0x1D0000'de; adresleri README'den doğrula).
 - Ürün davranışı (Merhaba Eko, yalnız standdaki oyuncak, Ay Dede ninni modu, halka, ayar kartı, pinler): `docs/URUN_TANIMI.md`;
   donanım ve 3B tasarım: `docs/DONANIM.md`, `cad/`.
 - Seri monitör 115200: açılışta model parmak izi `fp=8091ae97` (eski c3ft_karma: 00ea3e55); `?` figür listesi, `1 1` hikâye, `b` hız testi.

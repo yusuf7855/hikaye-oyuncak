@@ -50,7 +50,7 @@ def ozetle():
                 continue
             yol = os.path.join(kok, ad)
             h = hashlib.sha256(open(yol, "rb").read()).hexdigest()
-            satirlar.append(f"{h}  {os.path.relpath(yol, BURA)}")
+            satirlar.append(f"{h}  {os.path.relpath(yol, BURA).replace(os.sep, '/')}")  # Windows'ta da / (sha256sum -c)
     open(os.path.join(BURA, "SHA256SUMS"), "w").write("\n".join(satirlar) + "\n")
 
 

@@ -83,13 +83,14 @@ Kart takılıyken, depo klasöründe bir komut penceresi açıp (portu kendinizi
 
 ```bash
 # Windows
-python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x1D0000 modeller\c3ft_urun13\model.bin 0xBB0000 ses.bin
+python -m esptool --chip esp32s3 --port COM5 --baud 921600 write_flash 0x1D0000 modeller\c3ft_urun13\model.bin 0xBB0000 modeller\ses\ses.bin
 # Mac / Linux
-python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x1D0000 modeller/c3ft_urun13/model.bin 0xBB0000 ses.bin
+python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 write_flash 0x1D0000 modeller/c3ft_urun13/model.bin 0xBB0000 modeller/ses/ses.bin
 ```
 
-`ses.bin` henüz yoksa komuttan `0xBB0000 ses.bin` kısmını çıkarın: kart konuşmadan çalışır (hikâyeler seri porta
-yazılır). Yalnız ses modelini değiştirmek için: `... write_flash 0xBB0000 ses.bin`.
+`ses.bin` depoda: `modeller/ses/ses.bin` (Kasım 2026, VoxCPM2 kadın sesi; ayrıntı `modeller/ses/BILGI.md`). Sessiz
+denemek için komuttan `0xBB0000 ...ses.bin` kısmını çıkarın: kart konuşmadan çalışır (hikâyeler seri porta
+yazılır). Yalnız ses modelini değiştirmek için: `... write_flash 0xBB0000 modeller/ses/ses.bin`.
 
 Yükleme ~1–1,5 dakika sürer. Kart yükleme modundan çıkmazsa **RST** düğmesine basın. (Sıra önemli değil: yazılım ve
 modeller flash'ın farklı yerlerine yazılır.) Yazılım ile model birlikte değişti: eski yazılım yeni modelle (ya da
@@ -226,7 +227,8 @@ python ses/disa_aktar.py --akustik ses_calisma/akustik/son.pt --vocoder ses_cali
     --cikti ses.bin --altin ses_altin.bin
 ```
 
-(GTA ince ayarı yoksa `ses_calisma/vocoder/son.pt`.) Boyutu ve bölüme sığdığını yazar. Kartın C kodunun aynı modelle
+(GTA ince ayarı yoksa `ses_calisma/vocoder/son.pt`. Depodaki ürün sesi `modeller/ses/akustik.pt` ve
+`modeller/ses/vocoder.pt`'den aynı `ses.bin` bit bit yeniden üretilir.) Boyutu ve bölüme sığdığını yazar. Kartın C kodunun aynı modelle
 PyTorch'la aynı sonucu verdiğini bilgisayarda denemek için:
 `python firmware/hikaye_oyuncak/tools/ses_test.py --akustik ses_calisma/akustik/son.pt --vocoder ses_calisma/vocoder_gta/son.pt`
 

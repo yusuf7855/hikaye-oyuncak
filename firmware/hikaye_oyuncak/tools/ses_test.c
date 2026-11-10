@@ -2,6 +2,9 @@
 // Derle:    cc -O2 -I.. -o /tmp/ses_test ses_test.c -lm
 // Çalıştır: /tmp/ses_test ses.bin ses_altin.bin [MMAC/s ...]
 // Sürücü (model oluşturur, dışa aktarır, derler, çalıştırır): python firmware/hikaye_oyuncak/tools/ses_test.py
+// Dalga ölçütü: en büyük göreli fark <= 1e-3; aşarsa <= 5e-3 ve SNR >= 70 dB yeter. Eğitilmiş vocoder (kasım 2026,
+// modeller/ses) float yuvarlamasını büyütür: mel farkı ~5e-6 iken uzun cümlede dalga 1,1e-3 (tek örnekte 29/32767),
+// SNR 79 dB — duyulmaz; rastgele ağırlıkla fark ~1e-6.
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +67,7 @@ int main(int argc, char **argv) {
   if (memcmp(rp, "SESA", 4)) { fprintf(stderr, "altın dosyası değil\n"); return 2; }
   rp += 4;
   int n_ornek = (int)u32(), hata = 0, n_metin = 0, metin_hata = 0;
-  double top_sn = 0, top_ses = 0, top_mac = 0, en_mel_rel = 0, en_dalga_rel = 0;
+  double top_sn = 0, top_ses = 0, top_mac = 0, en_mel_rel = 0, en_dalga_rel = 0, en_snr = 1e9;
   for (int e = 0; e < n_ornek; e++) {
     uint32_t mb = u32();
     const char *metin = (const char *)rp; rp += mb;
@@ -107,6 +110,14 @@ int main(int argc, char **argv) {
     double mel_rel = mel_en / (mel_ref > 0 ? mel_ref : 1), d_rel = d_en / (d_ref > 0 ? d_ref : 1);
     if (mel_rel > en_mel_rel) en_mel_rel = mel_rel;
     if (d_rel > en_dalga_rel) en_dalga_rel = d_rel;
+    double se = 0, sr = 0;  // dalga SNR (PyTorch'a göre)
+    for (long i = 0; boy_ok && i < (long)ns; i++) {
+      double d = (double)t.dalga[i] - dalga[i];
+      se += d * d; sr += (double)dalga[i] * dalga[i];
+    }
+    double snr = se > 0 ? 10 * log10(sr / se) : 200;
+    if (snr < en_snr) en_snr = snr;
+    int dalga_ok = d_rel <= 1e-3 || (d_rel <= 5e-3 && snr >= 70);
     // int16 yolu: ses_ornek_ver'deki dönüşümle aynı mı
     int pcm_fark = 0;
     for (uint32_t i = 0; boy_ok && i < ns; i++) {
@@ -128,12 +139,12 @@ int main(int argc, char **argv) {
     double ses_sn = ns / (double)s.sr;
     top_sn += sn; top_ses += ses_sn; top_mac += s.mac;
     printf("[%d] %u sembol, %u kare, %.2f s ses | süreler %s | mel en büyük fark %.2e (|ref| %.2f, göreli %.1e) | "
-           "dalga %.2e (|ref| %.3f, göreli %.1e) | pcm %s | 2 işçi %s | %.3f s, %.1f M çarpma\n",
-           e, n, T, ses_sn, sure_ayni ? "AYNI" : "FARKLI", mel_en, mel_ref, mel_rel, d_en, d_ref, d_rel,
+           "dalga %.2e (|ref| %.3f, göreli %.1e, SNR %.0f dB) | pcm %s | 2 işçi %s | %.3f s, %.1f M çarpma\n",
+           e, n, T, ses_sn, sure_ayni ? "AYNI" : "FARKLI", mel_en, mel_ref, mel_rel, d_en, d_ref, d_rel, snr,
            pcm_fark ? "FARKLI" : "aynı", par_ayni ? "bit bit aynı" : "FARKLI", sn, s.mac / 1e6);
     if (!boy_ok) printf("    uzunluk farklı: mel %d/%u, dalga %ld/%u, pcm %ld\n", t.n_mel, T, t.n_dalga, ns, t.n_pcm);
     if (!sure_ayni) printf("    %d süre farklı\n", sure_fark);
-    if (!sure_ayni || !boy_ok || mel_rel > 1e-3 || d_rel > 1e-3 || pcm_fark > 2 || !par_ayni) hata++;
+    if (!sure_ayni || !boy_ok || mel_rel > 1e-3 || !dalga_ok || pcm_fark > 2 || !par_ayni) hata++;
     free(t.sure); free(t.mel); free(t.dalga); free(t.pcm); free(t2.sure); free(t2.mel); free(t2.dalga);
   }
   // cümle bölme (ses_metin) ve uzun cümle (SES_MAX_SEMBOL üstü: boşluktan bölünür)
@@ -162,8 +173,8 @@ int main(int argc, char **argv) {
     printf("uzun cümle: %d sembol (> %d, bölünerek) -> %ld örnek, %.2f s\n", nu, SES_MAX_SEMBOL, r, simdi() - t0);
     if (r <= 0 || t.n_pcm != r) hata++;
   }
-  printf("metin: %d/%d aynı | en büyük göreli fark: mel %.1e, dalga %.1e\n", n_metin - metin_hata, n_metin,
-         en_mel_rel, en_dalga_rel);
+  printf("metin: %d/%d aynı | en büyük göreli fark: mel %.1e, dalga %.1e | en düşük dalga SNR %.0f dB\n",
+         n_metin - metin_hata, n_metin, en_mel_rel, en_dalga_rel, en_snr);
   if (top_ses > 0) {
     double mac_sn = top_mac / top_ses;
     printf("bilgisayar (tek çekirdek, -O2): %.3f s hesap / s ses | %.1f M çarpma / s ses\n", top_sn / top_ses, mac_sn / 1e6);

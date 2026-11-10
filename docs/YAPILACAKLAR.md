@@ -5,7 +5,8 @@
 - 13 ürün figürü (Keloğlan + 12 yeni) için figür başına ~1000 hikâye yazıldı (urun_v5, 11 974). Bütün veriyle
   (28 493 hikâye) eğitilen son model **c3ft_urun13** (`modeller/c3ft_urun13`, eğitim etiketi c3ft_v5) kör kıyasta
   ara modeli (102–78 / 99–73) ve Keloğlan'da eski ürün modelini (34–14 / 29–15) geçti. Model boyutu aynı (10,3 MB).
-- Kartın parmak izi `fp=8091ae97`. Sıradaki: ses.bin (PC'de `ses/pc_hepsi.py paket`), gerçek kartta ilk deneme.
+- Kartın parmak izi `fp=8091ae97`. Ses modeli de hazır: `modeller/ses/ses.bin` (C = PyTorch denemesi geçti). Sıradaki:
+  gerçek kartta ilk deneme (model + ses).
 - Bekleyen küçük işler: halka renkleri (Tontiş = Keloğlan yeşili, Bulut beyazı boşta halkasıyla, Ejderha turkuazı
   ayar kartına yakın; ürün sahibi şimdilik önemsiz dedi), `kapi.py` K1.plan_ad "tek tek" = "Tek Boynuzlu At" sanılıyor
   (8 test bu yüzden kırmızı).
