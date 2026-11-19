@@ -24,6 +24,26 @@ hikâye. Ardından "Merhaba Eko, başka" → yeni hikâye.
 **Konuşma:** "Gördüğünüz her şey bu küçük kartın içinde oluyor. Hikâyeyi yazan model de, okuyan ses de, sesli
 komutu duyan model de. İnternet yok, uygulama yok, abonelik yok."
 
+### Demo videosu çekim planı (gerçek kartta, kart denemesinden sonra)
+
+Videonun işi "bu gerçekten cihazda çalışıyor" demek. Komisyon kurgu şüphesine karşı şunları görmek ister:
+
+1. **Kesintisiz tek çekim** (telefon sabit, ≈60 sn). Hikâyenin ortası hızlandırılacaksa ekranda "2× hızlı"
+   yazsın; kesme yapmayın.
+2. **İnternet yok kanıtı:** çekimin başında evdeki modemin kapalı olduğunu ya da kartın Wi-Fi'sının kapalı
+   olduğunu gösterin (seri monitördeki açılış satırı da olur).
+3. **Aynı figür, iki farklı hikâye:** Keloğlan'ı koyun, hikâye başlasın; "Merhaba Eko, başka" deyin, yeni hikâye
+   başlasın. "Her seferinde yeni" iddiasının kanıtı bu.
+4. **Kartın boyu:** son 5 saniyede standın altını açıp ESP32 kartını parmak yanında gösterin.
+5. Ses net olsun: telefonu hoparlöre ≈50 cm yakın tutun, odada başka ses olmasın.
+6. Videoya altyazı olarak hikâyenin metnini koymak isterseniz seri monitör çıktısını kullanın; metni
+   **düzeltmeyin**.
+
+Figür konduktan sonra hikâyenin ilk cümlesinin ne kadar sürede başladığı kartta henüz ölçülmedi. Ürün
+tanımına göre bu arada Eko selam verir ve halkada figür renginde bir nokta yavaşça döner
+(`docs/URUN_TANIMI.md`, halka tablosu). Bekleme uzunsa saklamayın; komisyonun ilk sorularından biri olur.
+Kart denemesinde bu süreyi ve hızı (`b` komutu) ölçüp sunuma yazın.
+
 ## Slayt 3 — Problem
 
 - Ebeveynler ekransız içerik istiyor, ama mevcut ses kutuları **hep aynı kaydı** çalıyor; çocuk sıkılıyor.
