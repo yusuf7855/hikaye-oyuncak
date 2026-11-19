@@ -10,6 +10,12 @@
 - Bekleyen küçük işler: halka renkleri (Tontiş = Keloğlan yeşili, Bulut beyazı boşta halkasıyla, Ejderha turkuazı
   ayar kartına yakın; ürün sahibi şimdilik önemsiz dedi), `kapi.py` K1.plan_ad "tek tek" = "Tek Boynuzlu At" sanılıyor
   (8 test bu yüzden kırmızı).
+- Bulgu (19 Kasım 2026, ön kayıt sayfası için 11 örnek hikâye; Keloğlan, Nasreddin Hoca, Bulut; 5 aday):
+  **insan figürlerinde hayvan uzvu** kayıyor: "Hoca lekeyi patisiyle kuruladı", "Keloğlan topu burnuyla itti". Keloğlan
+  ve Hoca'nın 40 adayının 4'ünde var ve seçici 8 hikâyenin 2'sinde bunu seçti (seçici bu hatayı cezalandırmıyor).
+  Ucuz çare: insan figürleri (Keloğlan, Pamuk Prenses, Pinokyo, Alaaddin, Nasreddin Hoca) için seçiciye "pati /
+  burnuyla / gagası / kuyruğu / kanatları" cezası; C seçici de değişir, `secici_karsilastir.py --urun` ile eşitlik.
+  Kalıcı çare: bu figürlerin verisinde bu kalıpları ara ve temizle. Ürün sahibinin onayı bekleniyor.
 
 ## Haftaya (2026-10-12 haftası): veriyi 20–30 bine çıkar
 

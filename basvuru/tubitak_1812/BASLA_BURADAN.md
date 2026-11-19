@@ -118,6 +118,8 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 | `06_SUNUM_METNI.md` | Komisyon/panel sunumu (10 slayt) ve 1 dakikalık tanıtım | ✅ |
 | `07_EKSIKLER_VE_UYARILAR.md` | Uygunluk şartları, fikri mülkiyet uyarıları, doldurmanız gereken bilgiler | ✅ okuyun |
 | `08_IS_PLANI_27_ADIM.md` | Hızlandırma programının 27 iş planı bileşenine karşılıklar | ✅ |
+| `09_ON_KAYIT_VE_TALEP_TESTI.md` | Talep testi: hedefler, Google Formu soruları, KVKK aydınlatma metni | ✅ başlatılacak |
+| `on_kayit/` | Ön kayıt sayfası (A/B fiyat testi) ve kartın sesiyle okunmuş 2 örnek hikâye; form bağlantıları eklenecek | ✅ taslak |
 | `resmi/` | TÜBİTAK'tan indirilen resmi belgeler, formlar ve örnek şirket kuruluş evrakı | indirildiği gibi |
 | `metin/` | Resmi PDF'lerin metin halleri (arama için) | — |
 | `hazirla/` | Belgeleri üreten betikler: `icerik.py` (metinler), `finans.py` (rakamlar), `doldur.py` (formlar) | — |

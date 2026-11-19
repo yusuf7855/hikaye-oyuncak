@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eko – her gece yeni bir masal</title>
+<meta name="description" content="Eko: internete bağlanmayan, her seferinde yeni bir Türkçe masal anlatan hikâye oyuncağı. Ön kayıt.">
+<!--
+  Ön kayıt (talep testi) sayfası. Yayınlamadan önce:
+  1) Aşağıdaki FORM_A ve FORM_B değerlerine iki Google Formu bağlantısını yazın
+     (A = 2.499 TL, B = 2.999 TL sürümü; formlar aynı, yalnız fiyat sorusu farklı).
+  2) ornek1.mp3 / ornek2.mp3: ürün modeli (c3ft_urun13, 5 aday + seçici) ile yazılıp kart sesiyle (4/8 bit
+     kuantize, sentezle.py --kuant) okunmuş örnekler; metinleri ornek1.txt / ornek2.txt (düzeltilmedi). 11 hikâyeden
+     en düzgün ikisi seçildi. Demo videosu çekilince VIDEO değişkenine bağlantısını yazın (boşsa gösterilmez).
+  3) Sayfa ?fiyat=2499 ya da ?fiyat=2999 ile açılırsa o fiyatı gösterir; parametre yoksa ziyaretçiye rastgele biri
+     atanır ve tarayıcıda hatırlanır. Ayrıntı: ../09_ON_KAYIT_VE_TALEP_TESTI.md
+-->
+<style>
+  :root {
+    --zemin: #ffffff; --zemin2: #eef1fb; --yazi: #1b2147; --yazi2: #4a5280; --vurgu: #f4b942;
+    --vurgu-yazi: #1b2147; --gece: #1b2147; --gece-yazi: #ffffff; --cizgi: #d5daec; --yesil: #2f9c8f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --zemin: #11152e; --zemin2: #1b2147; --yazi: #eef1fb; --yazi2: #b6bddb; --vurgu: #f4b942;
+      --vurgu-yazi: #1b2147; --gece: #0b0e20; --gece-yazi: #ffffff; --cizgi: #2e3a7a; --yesil: #4fc1b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --zemin: #11152e; --zemin2: #1b2147; --yazi: #eef1fb; --yazi2: #b6bddb; --vurgu: #f4b942;
+    --vurgu-yazi: #1b2147; --gece: #0b0e20; --gece-yazi: #ffffff; --cizgi: #2e3a7a; --yesil: #4fc1b2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--zemin); color: var(--yazi);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .kap { max-width: 920px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  header { background: var(--gece); color: var(--gece-yazi); padding: 56px 0 64px; }
+  .ust { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: center; }
+  h1 { font-family: Cambria, Georgia, serif; font-size: clamp(44px, 9vw, 72px); margin: 0 0 8px; }
+  .alt { font-size: clamp(19px, 3.2vw, 24px); margin: 0 0 16px; }
+  .slogan { color: var(--vurgu); font-style: italic; margin: 0 0 28px; }
+  .dugme { display: inline-block; background: var(--vurgu); color: var(--vurgu-yazi); font-weight: 700;
+           padding: 14px 24px; border-radius: 999px; text-decoration: none; font-size: 18px; }
+  .dugme:focus-visible { outline: 3px solid var(--gece-yazi); outline-offset: 3px; }
+  .halka { width: 100%; max-width: 280px; aspect-ratio: 1; margin: 0 auto; position: relative; }
+  .halka span { position: absolute; width: 7%; height: 7%; border-radius: 50%; background: var(--vurgu);
+                left: 46.5%; top: 46.5%; animation: nefes 3s ease-in-out infinite; }
+  @keyframes nefes { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) { .halka span { animation: none; } }
+  .figur { position: absolute; inset: 27%; border-radius: 50%; background: #2e3a7a; display: grid;
+           place-items: center; font-size: clamp(40px, 9vw, 64px); }
+  section { padding-top: 40px; padding-bottom: 8px; }
+  main { padding-bottom: 24px; }
+  h2 { font-family: Cambria, Georgia, serif; font-size: clamp(26px, 5vw, 34px); margin: 0 0 20px; }
+  .kartlar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .kart { background: var(--zemin2); border-radius: 16px; padding: 20px; }
+  .kart b { display: block; font-size: 19px; margin-bottom: 6px; }
+  .adimlar { counter-reset: a; list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .adimlar li { counter-increment: a; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+  .adimlar li::before { content: counter(a); width: 44px; height: 44px; border-radius: 50%; background: var(--vurgu);
+                        color: var(--vurgu-yazi); font-weight: 700; display: grid; place-items: center; }
+  audio { width: 100%; margin-top: 8px; }
+  .ornek { background: var(--zemin2); border-radius: 16px; padding: 16px 20px; margin-top: 12px; }
+  .ornek details { border: 0; padding: 4px 0 0; }
+  a { color: inherit; }
+  .fiyat { background: var(--zemin2); border-radius: 16px; padding: 24px; display: flex; flex-wrap: wrap;
+           gap: 16px 32px; align-items: center; justify-content: space-between; }
+  .fiyat .tutar { font-family: Cambria, Georgia, serif; font-size: 40px; font-weight: 700; }
+  details { border-bottom: 1px solid var(--cizgi); padding: 12px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  footer { color: var(--yazi2); font-size: 14px; padding: 32px 0 48px; }
+  .not { color: var(--yazi2); font-size: 15px; }
+  @media (max-width: 720px) {
+    .ust { grid-template-columns: 1fr; }
+    .halka { max-width: 200px; }
+    .kartlar { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="kap ust">
+    <div>
+      <h1>Eko</h1>
+      <p class="alt">İnternete bağlanmayan, her seferinde yeni bir Türkçe masal anlatan hikâye oyuncağı.</p>
+      <p class="slogan">Ekransız. Aboneliksiz. Çocuğunuzun sesi hiçbir yere gitmez.</p>
+      <a class="dugme" id="cta1" href="#">Çıkınca haber ver</a>
+    </div>
+    <div class="halka" id="halka" aria-hidden="true"><div class="figur">🧒</div></div>
+  </div>
+</header>
+
+<main>
+  <section class="kap">
+    <h2>Neden Eko?</h2>
+    <div class="kartlar">
+      <div class="kart"><b>Her gece yeni masal</b>Hikâyeyi oyuncağın içindeki yapay zekâ o anda yazar. Aynı kaydı tekrar tekrar çalan ses kutularından farklı.</div>
+      <div class="kart"><b>İnternet yok, kayıt yok</b>Wi-Fi'a, uygulamaya, hesaba gerek yok. Ses kaydı tutmaz, hiçbir bilgiyi dışarı göndermez.</div>
+      <div class="kart"><b>Türkçe ve bizden</b>Keloğlan, Nasreddin Hoca, Pinokyo ve kendi karakterlerimiz. Uyku için Ay Dede ile halk ninnileri.</div>
+    </div>
+  </section>
+
+  <section class="kap">
+    <h2>Nasıl çalışır?</h2>
+    <ol class="adimlar">
+      <li><div><b>Figürü standa koyun.</b> Eko figürü tanır, ışık halkası figürün renginde dolar.</div></li>
+      <li><div><b>Eko selam verir ve masalı anlatır.</b> Hikâye o figürün dünyasında geçer, yaşa uygundur ve kısa sürer.</div></li>
+      <li><div><b>"Merhaba Eko, başka!"</b> Çocuk sesle yeni bir hikâye isteyebilir, durdurabilir, sesini açıp kısabilir. Düğme yok.</div></li>
+    </ol>
+  </section>
+
+  <section class="kap">
+    <h2>Eko'nun sesinden bir masal dinleyin</h2>
+    <p class="not">Bu iki hikâyeyi Eko'nun kendi küçük yapay zekâsı yazdı ve kendi sesiyle okudu; metne dokunulmadı.
+      Deneme sürümüdür, ses ve hikâyeler geliştirilmeye devam ediyor.</p>
+    <div class="ornek">
+      <b>Bulut bahçede</b>
+      <audio controls preload="none" src="ornek1.mp3">Tarayıcınız ses çalmayı desteklemiyor.</audio>
+      <details><summary>Metni göster</summary><p>Bir sabah Bulut bahçede bir çiçeğin yanında oturuyordu. Çiçeğin üstünde küçük bir kelebek vardı. Birden rüzgar esti ve çiçek sapını devirdi. Çiçek yere düştü ve biraz daha eğildi. &quot;Çiçeklerim bu çiçeğe hiç giremiyorum,&quot; dedi kelebek. Bulut çiçeğin sapını nazikçe çözdü. Sonra çiçeğin sapını yavaşça çiçeğin sapına bağladı. Bu kez sap sağlam kaldı ve çiçek dik durdu. Kelebek çiçeğe kondu ve kanatlarını açtı. &quot;Teşekkürler, Bulut, sen çok iyisin!&quot; dedi kelebek.</p></details>
+    </div>
+    <div class="ornek">
+      <b>Keloğlan şatoda</b>
+      <audio controls preload="none" src="ornek2.mp3">Tarayıcınız ses çalmayı desteklemiyor.</audio>
+      <details><summary>Metni göster</summary><p>Şatonun bahçesinde rüzgar çok sert esiyordu. Keloğlan, geniş bir dalı çiçek bahçesinin yanında tutuyordu. Birden rüzgar esti ve Keloğlan&#x27;ın uzun ayağının altından garip bir ses geldi. Keloğlan başını kaldırdı ama hiçbir şey göremedi. Dalın ucunu sıkıca tuttu ve dikkatle yürüdü. Sonra başını kaldırıp dala baktı. Dalın altında küçük bir koza vardı. Rüzgar esince dal sallandı ve kozayı yere düşürdü. Demek ki dal, ince bir dala takılmıştı. Keloğlan dalı dikkatle çıkardı ve dala taktı. Dal artık sallanmıyordu. Keloğlan çok sevindi, çünkü garip sesi yapan şeyi kendi kendisi bulmuştu.</p></details>
+    </div>
+    <p id="video" class="not" hidden><a id="video-a" href="#" target="_blank" rel="noopener">Eko'yu çalışırken izleyin (video)</a></p>
+  </section>
+
+  <section class="kap">
+    <div class="fiyat">
+      <div>
+        <div class="not">Başlangıç seti (Eko + 3 figür + Ay Dede), planlanan fiyat</div>
+        <div class="tutar"><span id="fiyat">2.999</span> TL</div>
+        <div class="not">Ek figür paketleri ayrıca. Abonelik yok.</div>
+      </div>
+      <a class="dugme" id="cta2" href="#">Ön kayıt ol</a>
+    </div>
+  </section>
+
+  <section class="kap">
+    <h2>Sık sorulanlar</h2>
+    <details><summary>Gerçekten internete bağlanmıyor mu?</summary><p>Evet. Hikâyeyi yazan model de, okuyan ses de, "Merhaba Eko"yu duyan model de oyuncağın içindeki küçük kartta çalışır. Ayarlar için yalnız ebeveynin kartıyla, kısa süreli ve yerel bir Wi-Fi açılır; internete çıkılmaz.</p></details>
+    <details><summary>Hikâyeler çocuğa uygun mu?</summary><p>Her karakterin kuralları var: korku, şiddet ve uygunsuz konular hikâyeye girmez. Hikâyeler yardımlaşma, paylaşma ve merak etrafında kurulur. Hikâyeleri küçük bir yapay zekâ yazdığı için bazen tuhaf ya da anlamsız bir cümle çıkabilir; bunu azaltmak için ailelerle deneme yapıyoruz.</p></details>
+    <details><summary>Ne zaman çıkacak?</summary><p>Önce ailelerle deneme yapacağız, sonra güvenlik belgelerini (CE) alıp üretime geçeceğiz. Ön kayıt olanlara ilk haber verilir; isteyenler denemeye katılabilir.</p></details>
+    <details><summary>Bilgilerimi ne yapıyorsunuz?</summary><p>Yalnız e-posta adresinizi ve kısa anket yanıtlarınızı, ürün çıkınca size haber vermek için saklıyoruz. Çocuğunuzla ilgili hiçbir kişisel bilgi istemiyoruz. Ayrıntı formdaki aydınlatma metninde.</p></details>
+  </section>
+</main>
+
+<footer class="kap">
+  Eko bir girişim projesidir. Hikâyeleri yapay zekâ yazar, ses yapay zekâ ile üretilmiştir. · İletişim: [E-POSTA]
+</footer>
+
+<script>
+  // Ön kayıt formları (A = 2.499 TL, B = 2.999 TL). Yayınlamadan önce doldurun.
+  const FORM_A = "FORM_BAGLANTISI_A";
+  const FORM_B = "FORM_BAGLANTISI_B";
+  const VIDEO = "";  // demo videosu bağlantısı (YouTube vb.); boşsa gösterilmez
+
+  // Fiyat seçeneği: URL'deki ?fiyat=2499|2999, yoksa rastgele atanır ve hatırlanır (A/B testi).
+  function oku(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function yaz(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* özel pencere: hatırlanmaz */ } }
+  const q = new URLSearchParams(location.search).get("fiyat");
+  let fiyat = (q === "2499" || q === "2999") ? q : oku("eko_fiyat");
+  if (fiyat !== "2499" && fiyat !== "2999") { fiyat = Math.random() < 0.5 ? "2499" : "2999"; }
+  yaz("eko_fiyat", fiyat);
+  document.getElementById("fiyat").textContent = fiyat === "2499" ? "2.499" : "2.999";
+  const form = fiyat === "2499" ? FORM_A : FORM_B;
+  for (const id of ["cta1", "cta2"]) {
+    const a = document.getElementById(id);
+    a.href = form; a.target = "_blank"; a.rel = "noopener";
+  }
+
+  if (VIDEO) {
+    document.getElementById("video-a").href = VIDEO;
+    document.getElementById("video").hidden = false;
+  }
+
+  // Işık halkası: 16 LED
+  const h = document.getElementById("halka");
+  for (let i = 0; i < 16; i++) {
+    const s = document.createElement("span");
+    const aci = (2 * Math.PI * i) / 16;
+    s.style.transform = `translate(${Math.cos(aci) * 640}%, ${Math.sin(aci) * 640}%)`;
+    s.style.animationDelay = (i * 0.12) + "s";
+    h.appendChild(s);
+  }
+</script>
+</body>
+</html>
