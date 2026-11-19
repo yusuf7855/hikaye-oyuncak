@@ -12,13 +12,14 @@
   2) ornek1.mp3 / ornek2.mp3: ürün modeli (c3ft_urun13, 5 aday + seçici) ile yazılıp kart sesiyle (4/8 bit
      kuantize, sentezle.py --kuant) okunmuş örnekler; metinleri ornek1.txt / ornek2.txt (düzeltilmedi). 11 hikâyeden
      en düzgün ikisi seçildi. Demo videosu çekilince VIDEO değişkenine bağlantısını yazın (boşsa gösterilmez).
-  3) Sayfa ?fiyat=2499 ya da ?fiyat=2999 ile açılırsa o fiyatı gösterir; parametre yoksa ziyaretçiye rastgele biri
-     atanır ve tarayıcıda hatırlanır. Ayrıntı: ../09_ON_KAYIT_VE_TALEP_TESTI.md
+  3) Sayfa ?fiyat=2499 / ?fiyat=2999 (ya da #2499 / #2999) ile açılırsa o fiyatı gösterir; yoksa ziyaretçiye
+     rastgele biri atanır ve tarayıcıda hatırlanır. Form bağlantısı eklenmemişse düğme bir uyarı gösterir. Ayrıntı: ../09_ON_KAYIT_VE_TALEP_TESTI.md
 -->
 <style>
   :root {
     --zemin: #ffffff; --zemin2: #eef1fb; --yazi: #1b2147; --yazi2: #4a5280; --vurgu: #f4b942;
     --vurgu-yazi: #1b2147; --gece: #1b2147; --gece-yazi: #ffffff; --cizgi: #d5daec; --yesil: #2f9c8f;
+    --halka-ic: #2e3a7a;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -33,7 +34,8 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--zemin); color: var(--yazi);
          font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-  .kap { max-width: 920px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  .kap { max-width: 920px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px));
+         padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   header { background: var(--gece); color: var(--gece-yazi); padding: 56px 0 64px; }
   .ust { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: center; }
   h1 { font-family: Cambria, Georgia, serif; font-size: clamp(44px, 9vw, 72px); margin: 0 0 8px; }
@@ -47,7 +49,7 @@
                 left: 46.5%; top: 46.5%; animation: nefes 3s ease-in-out infinite; }
   @keyframes nefes { 50% { opacity: .45; } }
   @media (prefers-reduced-motion: reduce) { .halka span { animation: none; } }
-  .figur { position: absolute; inset: 27%; border-radius: 50%; background: #2e3a7a; display: grid;
+  .figur { position: absolute; inset: 27%; border-radius: 50%; background: var(--halka-ic); display: grid;
            place-items: center; font-size: clamp(40px, 9vw, 64px); }
   section { padding-top: 40px; padding-bottom: 8px; }
   main { padding-bottom: 24px; }
@@ -70,6 +72,8 @@
   summary { cursor: pointer; font-weight: 600; }
   footer { color: var(--yazi2); font-size: 14px; padding: 32px 0 48px; }
   .not { color: var(--yazi2); font-size: 15px; }
+  .uyari { font-size: 14px; margin: 8px 0 0; }
+  header .uyari { color: var(--gece-yazi); }
   @media (max-width: 720px) {
     .ust { grid-template-columns: 1fr; }
     .halka { max-width: 200px; }
@@ -85,6 +89,7 @@
       <p class="alt">İnternete bağlanmayan, her seferinde yeni bir Türkçe masal anlatan hikâye oyuncağı.</p>
       <p class="slogan">Ekransız. Aboneliksiz. Çocuğunuzun sesi hiçbir yere gitmez.</p>
       <a class="dugme" id="cta1" href="#">Çıkınca haber ver</a>
+      <p class="uyari" id="uyari1" hidden>Ön kayıt formu henüz bağlanmadı.</p>
     </div>
     <div class="halka" id="halka" aria-hidden="true"><div class="figur">🧒</div></div>
   </div>
@@ -133,7 +138,10 @@
         <div class="tutar"><span id="fiyat">2.999</span> TL</div>
         <div class="not">Ek figür paketleri ayrıca. Abonelik yok.</div>
       </div>
-      <a class="dugme" id="cta2" href="#">Ön kayıt ol</a>
+      <div>
+        <a class="dugme" id="cta2" href="#">Ön kayıt ol</a>
+        <p class="uyari not" id="uyari2" hidden>Ön kayıt formu henüz bağlanmadı.</p>
+      </div>
     </div>
   </section>
 
@@ -159,15 +167,20 @@
   // Fiyat seçeneği: URL'deki ?fiyat=2499|2999, yoksa rastgele atanır ve hatırlanır (A/B testi).
   function oku(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function yaz(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* özel pencere: hatırlanmaz */ } }
-  const q = new URLSearchParams(location.search).get("fiyat");
+  const q = new URLSearchParams(location.search).get("fiyat") || location.hash.replace("#", "");
   let fiyat = (q === "2499" || q === "2999") ? q : oku("eko_fiyat");
   if (fiyat !== "2499" && fiyat !== "2999") { fiyat = Math.random() < 0.5 ? "2499" : "2999"; }
   yaz("eko_fiyat", fiyat);
   document.getElementById("fiyat").textContent = fiyat === "2499" ? "2.499" : "2.999";
   const form = fiyat === "2499" ? FORM_A : FORM_B;
-  for (const id of ["cta1", "cta2"]) {
-    const a = document.getElementById(id);
-    a.href = form; a.target = "_blank"; a.rel = "noopener";
+  const formHazir = form.startsWith("https://");
+  for (const n of ["1", "2"]) {
+    const a = document.getElementById("cta" + n);
+    if (formHazir) {
+      a.href = form; a.target = "_blank"; a.rel = "noopener";
+    } else {
+      a.addEventListener("click", e => { e.preventDefault(); document.getElementById("uyari" + n).hidden = false; });
+    }
   }
 
   if (VIDEO) {
