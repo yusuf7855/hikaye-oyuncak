@@ -55,7 +55,8 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 5. **Fikri mülkiyet temizliği:** Keloğlan'ın yan karakterlerinden TRT dizisine ait olanları (Bilgecan Dede vb.)
    değiştirin. TÜRKPATENT'te "Eko" marka araştırması yapın.
 6. **Hızlandırma programını seçin** (`04_HIZLANDIRICI_SECIMI.md`). Kısa listedeki 2–3 programa e-posta atıp
-   bir sonraki dönem tarihlerini ve eş yatırım yapıp yapmadıklarını sorun.
+   bir sonraki dönem tarihlerini ve eş yatırım yapıp yapmadıklarını sorun. Taslaklar ve bulunan iletişim
+   adresleri: `11_E_POSTA_TASLAKLARI.md` (anaokulu niyet mektubu isteği de orada).
 
 ### Hızlandırma programına başvuru (çağrı açılınca)
 
@@ -122,6 +123,7 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 | `08_IS_PLANI_27_ADIM.md` | Hızlandırma programının 27 iş planı bileşenine karşılıklar | ✅ |
 | `09_ON_KAYIT_VE_TALEP_TESTI.md` | Talep testi: hedefler, Google Formu soruları, KVKK aydınlatma metni | ✅ başlatılacak |
 | `10_OZGECMIS_TASLAGI.md` | Özgeçmiş taslağı (siz + aranan ekip üyeleri); resmi form PRODİS'ten indirilir | ✅ kişisel bilgiler eklenecek |
+| `11_E_POSTA_TASLAKLARI.md` | Hızlandırıcılara bilgi isteği, TÜBİTAK'a uygunluk sorusu, anaokuluna niyet mektubu isteği | ✅ |
 | `on_kayit/` | Ön kayıt sayfası (A/B fiyat testi) ve kartın sesiyle okunmuş 2 örnek hikâye; form bağlantıları eklenecek | ✅ taslak |
 | `resmi/` | TÜBİTAK'tan indirilen resmi belgeler, formlar ve örnek şirket kuruluş evrakı | indirildiği gibi |
 | `metin/` | Resmi PDF'lerin metin halleri (arama için) | — |
