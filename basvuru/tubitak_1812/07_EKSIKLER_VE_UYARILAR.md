@@ -69,6 +69,12 @@
 5. **Marka araştırması.**
    - "Eko" çok yaygın bir sözcük; tescil zor olabilir. TÜRKPATENT'te 9, 16, 28 ve 41. sınıflarda arayın.
      Gerekirse "Eko Masal", "Merhaba Eko" gibi birleşik bir ad kullanın.
+   - 19 Kasım 2026 web taraması: Türkiye etiketli **"eko toys"** adında bir oyuncak/eğitim logosu bir logo
+     veritabanında kayıtlı görünüyor (whatthelogo.com; hangi firma olduğu ve tescil durumu yazmıyor). 28. sınıfta
+     benzer bir marka varsa "Eko" adıyla oyuncak tescili reddedilebilir ya da itiraz gelebilir. TÜRKPATENT
+     araştırmasını (<https://www.turkpatent.gov.tr>, "Marka Araştırma"; e-Devlet ile) **Ocak 2027 başvurusundan
+     önce** yapın; ücretli bir marka vekiline benzerlik araştırması da yaptırılabilir. Ad değişecekse sunum,
+     sayfa ve figür ambalajı basılmadan değiştirmek ucuzdur.
    - Özgün karakter adlarını da arayın: Zıpzıp, Tontiş, Bip, Fıstık, Bulut.
    - Siz projeye "Eco AI" diyorsunuz; başvuruda tek bir yazım seçin (Türkçe ürün için "Eko" önerilir).
 
