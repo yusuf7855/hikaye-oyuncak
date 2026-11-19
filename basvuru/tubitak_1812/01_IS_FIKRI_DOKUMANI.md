@@ -177,7 +177,8 @@ Kalıp (≈700 bin TL), tam CE/RED belgelendirmesi (≈450 bin TL) ve ilk üreti
 
 - ön satış (kitle fonlama, hedef 600+ set),
 - ilk dönem raporundan sonra devam yatırımı talebi (≤1.350.000 TL),
-- KOSGEB/teknopark destekleri.
+- teknopark vergi istisnaları. Aynı iş planının giderleri için başka kamu hibesi kullanılmaz; kullanılırsa
+  TÜBİTAK'a beyan edilir ve destekten mahsup edilir.
 
 **Takvim (hedef):**
 

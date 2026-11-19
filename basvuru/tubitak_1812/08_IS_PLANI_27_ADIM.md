@@ -191,7 +191,8 @@
     1. BİGG Fonu 1,35 M TL (%3).
     2. Ön satış ≈1,5 M TL.
     3. Devam yatırımı ≤1,35 M TL (tetikleyici: ≥600 ön sipariş ya da kurumsal sipariş).
-    4. Teknopark/KOSGEB destekleri.
+    4. Teknopark vergi istisnaları. KOSGEB ya da TÜBİTAK 1507 yalnız bu iş planından ayrı yeni projeler
+       için; aynı giderler için başka kamu hibesi alınırsa beyan edilir ve mahsup edilir.
     5. BiGG+ tohum (≤8 M TL, ≤%10) + melek/GSYF eş yatırımı ≈4 M TL (ticarileşmenin 1. yılı).
     6. A serisi (3.–4. yıl).
 

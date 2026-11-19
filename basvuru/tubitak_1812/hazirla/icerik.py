@@ -108,7 +108,7 @@ ALANLAR["1_7_engelleyici_faktorler"] = """1. Hikâye kalitesi ve içerik güvenl
 
 5. Üretim ve tedarik: ESP32-S3 modülü ve bileşenlerde fiyat/kur dalgalanması; kalıp yatırımı; oyuncakta TAREKS denetimi. Önlem: Türkiye'de son montaj (bitmiş oyuncak ithal edilmez), ikinci kaynaklı bileşenler, ilk partide 3B baskı/alüminyum kalıp.
 
-6. Finansman ve nakit: İlk partinin üretimi ve stok ihtiyacı. Önlem: ön satış (kitle fonlama) ile ilk partiyi finanse etmek; ilk dönem raporuyla devam yatırımı başvurusu; KOSGEB ve TÜBİTAK 1507 gibi tamamlayıcı destekler.
+6. Finansman ve nakit: İlk partinin üretimi ve stok ihtiyacı. Önlem: ön satış (kitle fonlama) ile ilk partiyi finanse etmek; ilk dönem raporuyla devam yatırımı başvurusu; kalıp ve belgelendirmenin gerekirse ilk partiden sonraya kaydırılması. Aynı iş planının giderleri için başka kamu hibesi kullanılmaz (1812 taahhütnamesi: kullanılırsa beyan edilir ve mahsup edilir).
 
 7. Pazar kabulü: Ebeveynlerin "yapay zekâ" kelimesine temkinli yaklaşması. Önlem: iletişimde "internetsiz, veri toplamayan" vurgusu, çocuk gelişimci görüşleri, ücretsiz deneme sesi örnekleri ve iade garantisi."""
 
@@ -383,7 +383,7 @@ ALANLAR["4_5_yatirimci_iliskisi"] = """Yatırımcı ilişkileri yaklaşımı: Ş
 Finansman yol haritası:
 1. Tohum öncesi (Aşama 2): TÜBİTAK BİGG Fonu 1.350.000 TL (%3 pay). İlk dönem raporundan sonra tetikleyici koşullar (kitle fonlamada ≥600 ön sipariş, kurumsal sipariş, seri üretime geçiş) belgelenerek ≤1.350.000 TL devam yatırımı talebi (fon payı toplamda ≤ %5).
 2. Ön satış geliri: Kitle fonlama ve kaparolu ön sipariş (≈1,5 milyon TL hedef) ilk üretim partisinin malzeme ve kalıp giderlerini karşılar; hisse seyreltmesi olmadan çalışma sermayesi.
-3. Tamamlayıcı hibe ve teşvikler: Teknopark Ar-Ge personel teşvikleri, KOSGEB Ar-Ge ve İnovasyon, TÜBİTAK 1507 (KOBİ Ar-Ge Başlangıç) — yeni dil ve ürün sürümleri için.
+3. Teşvikler ve sonraki projeler: Teknopark vergi istisnaları; bu iş planından ayrı yeni projeler (yeni dil ve ürün sürümleri) için ileride KOSGEB Ar-Ge ve İnovasyon ya da TÜBİTAK 1507. Bu iş planının giderleri için başka kamu hibesi kullanılmaz; kullanılırsa TÜBİTAK'a beyan edilir ve mahsup edilir.
 4. Tohum turu (Aşama 3, ticarileşmenin 1. yılı): BiGG+ tohum yatırım çağrısı (2026-1 çağrısında üst sınır 8 milyon TL, fon payı ≤ %10) ve melek yatırımcı/girişim sermayesi eş yatırımıyla toplam ≈12 milyon TL [V]; seri üretim (10.000 adet ölçeği), stok, pazarlama ve yurt dışı açılım için.
 5. A serisi (3.–4. yıl): Çok dilli ürün ve teknoloji lisansı için oyuncak/eğitim teknolojisi odaklı girişim sermayesi fonları ya da stratejik yatırımcı (oyuncak üreticisi, yayınevi).
 
@@ -409,5 +409,5 @@ RISK_AYRINTI = """1. **Hikâye kalitesi ebeveyni tatmin etmez** (olasılık orta
 2. **Ses sentezi kartta gerçek zamanlı değil** (orta/orta). PC ölçümüne göre ESP32-S3'te saniyelik ses için 0,7–1,4 sn hesap tahmin ediliyor. Önlem: ESP32-S3 vektör (SIMD) komutlarıyla vocoder, iki çekirdekte paralel işlem. B planı: Daha hafif vocoder ya da hikâyenin sesinin boşta önceden sentezlenip flaş/PSRAM önbelleğinde tutulması.
 3. **CE/RED belgelendirmede gecikme ya da başarısızlık** (orta/yüksek). Önlem: Standartlara uygun tasarım (vidalı pil kapağı, NFC anten uyumu), DVT'de ön uygunluk taraması. B planı: İkinci akredite laboratuvar; takvime 2 ay tampon; gerekirse Wi-Fi ayar modu yerine NFC-yalnız ayar.
 4. **Bileşen fiyatı ve kur artışı** (yüksek/orta). Önlem: ESP32 modülü için ikinci kaynak, ön satışta fiyat sabitleme, toplu alım. B planı: Set içeriği (figür sayısı) ve fiyatın dönemsel güncellenmesi.
-5. **Kitle fonlama hedefi tutmaz** (orta/yüksek). Önlem: Kampanya öncesi ≥1.000 ön kayıt, pilot referansları, basın. B planı: Kurumsal satış (anaokulları) ve 300 adetlik küçük parti; devam yatırımı ve KOSGEB desteği.
+5. **Kitle fonlama hedefi tutmaz** (orta/yüksek). Önlem: Kampanya öncesi ≥1.000 ön kayıt, pilot referansları, basın. B planı: Kurumsal satış (anaokulları) ve 300 adetlik küçük parti; kalıp yerine 3B baskı/alüminyum kalıp ile düşük yatırım; devam yatırımı.
 6. **Marka ya da karakter tasarımına hukuki itiraz** (düşük/orta). Önlem: Avukat görüşü, TÜRKPATENT marka/tasarım araştırması, halk figürlerinin modern uyarlamalarından uzak durma. B planı: Ürün ya da karakter adının değiştirilmesi."""

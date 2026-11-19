@@ -28,14 +28,30 @@
    şirkete devredilir. Depodaki her şeyin sizin ya da açık kaynak lisansla kullanılabilir olduğundan emin olun
    (aşağıdaki 🟠 maddelere bakın).
 
+6. **Başka kamu hibesiyle çifte destek yok.** Taahhütnameye göre aynı iş planının giderleri için başka bir
+   kamu kurumundan geri ödemesiz nakit Ar-Ge desteği alınırsa TÜBİTAK'a beyan edilir ve TÜBİTAK desteğinden
+   düşülür. Başvurudan önce başka fonla karşılanmış giderler de iş planına yazılamaz. KOSGEB ya da başka hibeleri
+   ancak bu iş planından ayrı projeler için planlayın.
+
 ## 🟠 Fikri mülkiyet: başvurudan önce düzeltilmesi önerilenler
 
-1. **Keloğlan'ın yan karakterleri.** `data/urun_figurleri.json`'da Keloğlan'ın yanındakiler arasında
-   **Bilgecan Dede**, **Balkız** ve **Karakaçan** var. Pazar araştırmamız (`docs/PAZAR_ARASTIRMASI.md`
-   §3.1) Bilgecan Dede'nin TRT'nin *Keloğlan Masalları* çizgi filmine ait bir karakter olduğunu belirtiyor.
-   Diğer ikisi de aynı diziden olabilir.
-   - Öneri: bu adları masal geleneğindeki anonim figürlerle değiştirin (anası, padişah, dev, eşeği) ve Keloğlan
-     verisini/modelini güncelleyin. Hızlıca yapabilirim.
+1. **Keloğlan'ın yan karakterleri TRT dizisinden (doğrulandı, 19 Kasım 2026).**
+   - Ürünün Keloğlan kartında (`data/urun_figurleri.json`, `data/urun_kartlari.json`) yan karakter olarak
+     **Bilgecan Dede**, **Balkız** ve **Karakaçan** var.
+   - Marmara Üniversitesi'nin TRT *Keloğlan Masalları* çizgi filmi üzerine çalışması
+     ([kutuphane.marmara.edu.tr](https://kutuphane.marmara.edu.tr/dosya/kutuphane/form-files/382//1584008399.pdf))
+     üçünü de dizinin sürekli karakterleri arasında sayıyor.
+   - Kart tanımları da diziyle aynı: icat ve iksir yapan bilge dede; sarı saçlı, zeki Balkız.
+   - Bu adlar eğitim verisinde ≈400 dosyada, binlerce kez geçiyor. Son modelin Keloğlan hikâyelerinde de
+     çıkıyor.
+   - Risk: masal figürü Keloğlan serbest, ama TRT'nin yarattığı yan karakterler işleme eser sayılabilir. Ticari
+     üründe ve tanıtımda kullanılmamalı.
+   - Öneri:
+     - kart ve verideki bu adları anonim masal figürleriyle değiştirmek ("köyün yaşlı dedesi", "komşu kız",
+       "eşeği");
+     - bu üç adı isim süzgecinde yasaklamak;
+     - modeli yeniden eğitip kör kıyasla kontrol etmek (bulutta ≈5–6 saat).
+     İsterseniz hemen yaparım.
 2. **Eğitim verisinde lisanslı karakterler.** Modeller, üründen çıkarılan lisanslı karakterlerin (Niloya, Elsa
    vb.) hikâyeleriyle de eğitildi. Bu adlar isim süzgeciyle engelleniyor ve ürün bu karakterlerle hikâye
    anlatmıyor. Yine de yatırım öncesi incelemede soru gelebilir.
