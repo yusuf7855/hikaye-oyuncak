@@ -111,6 +111,8 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 | `cikti/AGY112_Is_Plani_Eko.docx` / `.pdf` | İş planının Word ve PDF hali | ✅ |
 | `cikti/Tahmini_Maliyet_Formlari_Eko.docx` / `.pdf` | Personel, seyahat, alet, hizmet, malzeme ve dönemsel maliyet formları (M011–M030) | ✅ |
 | `cikti/Eko_Finansal_Model.xlsx` | Varsayımlar, 6,5 yıllık projeksiyon, başa baş, birim ekonomisi, proje bütçesi | ✅ |
+| `cikti/Eko_Sunum.pptx` / `.pdf` | 10 slaytlık komisyon/panel sunumu (konuşma notları içinde); demo videosu ve kişisel bilgiler eklenecek | ✅ taslak |
+| `cikti/01_Is_Fikri_Dokumani.docx`, `cikti/05_Etik_Kurul_ve_Pilot.docx` | İş fikri dokümanı ile etik kurul/pilot belgelerinin Word kopyaları | ✅ |
 | `04_HIZLANDIRICI_SECIMI.md` | 35 hızlandırma programı ve Eko için kısa liste | ✅ |
 | `05_ETIK_KURUL_VE_PILOT.md` | Pilot çalışma planı, veli onam formu, anket ve görüşme soruları | ✅ |
 | `06_SUNUM_METNI.md` | Komisyon/panel sunumu (10 slayt) ve 1 dakikalık tanıtım | ✅ |

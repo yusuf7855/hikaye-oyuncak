@@ -490,6 +490,10 @@ def main():
     word_pdf(md, "AGY112_Is_Plani_Eko")
     maliyet_formu()
     excel(oz)
+    # diğer belgelerin Word kopyaları (şablonlara yapıştırmak ve yazdırmak için)
+    for md_ad, ad in [("01_IS_FIKRI_DOKUMANI.md", "01_Is_Fikri_Dokumani"),
+                      ("05_ETIK_KURUL_VE_PILOT.md", "05_Etik_Kurul_ve_Pilot")]:
+        word_pdf(os.path.join(KOK, md_ad), ad)
 
 
 if __name__ == "__main__":
