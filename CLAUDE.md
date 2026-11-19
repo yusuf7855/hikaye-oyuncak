@@ -18,7 +18,7 @@ Model **daha büyük olamaz**: 16 MB flash / 8 MB PSRAM sınırı kesin.
 | Parça | Durum |
 |---|---|
 | Hikâye modeli | **c3ft_urun13** (eğitim etiketi c3ft_v5; 28 493 hikâye: 1030 hakemli + 9567 urun_v3 + 5922 urun_v4 + 11 974 urun_v5 yeni 13 figür; 15 000 adım, en iyi val 1,888). Kör kıyasta ara modeli geçti (genel 102–78, olay 99–73; `degerlendirme/urun_kiyas_v5/OZET.md`), Keloğlan'da eski ürün modeli c3ft_karma'yı geçti (34–14, 29–15; `urun_kiyas_v5_kel`). Dosya: `modeller/c3ft_urun13/model.bin` (depoda; `modeller/c3ft_v5` adlı klasör ayrı, eski bir Ekim deneyi). Önceki ürün modeli `modeller/c3ft_karma` (yeni figürleri bilmez). |
-| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ürün modeli c3ft_urun13 ile doğrulandı (`kart_pc_karsilastir.py`, varsayılan model artık `modeller/c3ft_urun13`; seçici C = Python). **Gerçek kartta henüz denenmedi.** |
+| Kart yazılımı | `firmware/hikaye_oyuncak/` yeni 13 figüre taşındı (9 Kasım 2026; `generated/` başlıkları, NFC 4, 12, 13–24); PC'de sahte ESP32 başlıklarıyla `urun_uret.py` ile birebir aynı çıktı ürün modeli c3ft_urun13 ile doğrulandı (`kart_pc_karsilastir.py`, varsayılan model artık `modeller/c3ft_urun13`; seçici C = Python). 19 Kasım 2026: ayar kartına telefonla dokunma (NDEF Wi-Fi), saat + alarm + gün doğumu ışığı, yatma vakti, gece kilidi, adın okunuşu, sürpriz mesaj, alarm sesi yükleme (yeni "alarm" bölümü; bölüm tablosu değişti, model/ses adresleri aynı; `docs/YAPILACAKLAR.md`). **Gerçek kartta henüz denenmedi.** |
 | Ses | Öğretmen ses: ürün sahibinin seçtiği **VoxCPM2** kadın sesi (`ses/referans_ses.mp3`, Apache-2.0). Eğitim bu bilgisayarda yapıldı (10 Kasım 2026): akustik, vocoder 600 bin + GTA 50 bin adım (`egit_vocoder.py --gta --adim 650000`, kayıt `ses_calisma/vocoder/son.pt`; `vocoder_gta/` yok). `ses.bin` 4 344 208 B (sığar) ve `deneme.wav` çıktı; ürün sahibi dinledi: "şimdilik iyi, idare eder". **Depoda:** `modeller/ses/` (ses.bin, ses_altin.bin, yalnız-üretici ağırlıklar akustik.pt / vocoder.pt, ayırt edici fp16, günlükler, BILGI.md). C = PyTorch denemesi (`ses_test.py`) bulutta geçti (mel göreli fark ≤ 5e-6, dalga SNR ≥ 79 dB, küçük parçayla da aynı). Emel/edge-tts sesi Microsoft koşulları yüzünden üründe KULLANILMAZ. |
 | Sıradaki iş | Model + ses ile gerçek kartta ilk deneme (3.3). Veri 28 bine çıkarıldı ve son model eğitildi (bulutta, 9 Kasım 2026). |
 
@@ -62,6 +62,9 @@ TAG=c3ft_karma2 IZIN=data/urun_karma/izin.txt TEKRAR=2 GENEL=4000000 STEPS=6000 
 - Ürün davranışı (Merhaba Eko, yalnız standdaki oyuncak, Ay Dede ninni modu, halka, ayar kartı, pinler): `docs/URUN_TANIMI.md`;
   donanım ve 3B tasarım: `docs/DONANIM.md`, `cad/`.
 - Seri monitör 115200: açılışta model parmak izi `fp=8091ae97` (eski c3ft_karma: 00ea3e55); `?` figür listesi, `1 1` hikâye, `b` hız testi.
+- Ayar kartı ve zamanlı işler (Kasım 2026): ayar kartını standa koyup Android telefonla karta dokunmayı, sayfada alarmı
+  ve alarm sesi yüklemeyi deneyin; `alarm` (kısa deneme) ve `zaman` (saat özeti) seri komutları. Ayrıntı
+  `firmware/hikaye_oyuncak/README.md` "Ayar kartı" ve "Saat, alarm".
   Çıktıyı (hız, profil satırı, birkaç hikâye) kaydet ve ürün sahibine özetle.
 
 ## 4. Depo haritası

@@ -1,4 +1,7 @@
-// Ürün parçalarının bilgisayarda denemesi (saf C başlıklar): etiket kaydı (etiket.h: kodla/çöz/CRC, bozulmalar),
+// Ürün parçalarının bilgisayarda denemesi (saf C başlıklar): saat ve zamanlı işler (saat.h: gün/dakika, alarm penceresi,
+// gün doğumu, yatma, gece kilidi, saat ayarlanınca hemen çalmama), alarm sesi (alarm_ses.h: ADPCM, CRC, başlık),
+// ayar kartı (ayar_karti.h + nfc.h: NDEF yazma, sayfa 36 kaydı, yarıda kesilen yazma), mesaj ve sayılar (ayarlar.h,
+// selam.h), etiket kaydı (etiket.h: kodla/çöz/CRC, bozulmalar),
 // taslak NFC sürücüsünde etiket belleğine yazma + doğrulama (nfc.h, NFC_OKUYUCU 0), selamlama ekleri (selam.h:
 // donanım figürlerinin hepsi, üründen çıkan eski figürlerin adları, adsız, ninni), ayar formu doğrulaması (ayarlar.h),
 // halka durumları ve sınırları (halka.h), müzik kutusu (muzik_kutusu.h), donanım figürü tablosu
@@ -20,6 +23,9 @@
 #include "../muzik_kutusu.h"
 #include "../generated/figur_donanim.h"
 #include "../yerlesik.h"
+#include "../saat.h"
+#include "../alarm_ses.h"
+#include <math.h>
 
 static int hata = 0;
 // Donanım tablosunda kimliği k olan figür (yoksa -1)
@@ -87,6 +93,217 @@ static void nfc_denemesi(void) {
   DENE(nfc_uid_oku(u, sizeof u) == 7 && nfc_etiket_no(u, 7, NULL) == 12, "programlanmış gece figürü");
   nfc_sahte_kaldir();
   DENE(nfc_uid_oku(u, sizeof u) == 0, "kalkan etiket görüldü");
+}
+
+// ---- ayar kartı: NDEF Wi-Fi + sayfa 36 kaydı; yazma hangi sayfada kesilirse kesilsin kart tanınır ----
+static void ayar_karti_denemesi(void) {
+  const uint8_t uid[7] = {0x04, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22}, mac[6] = {0x24, 0xA1, 0x60, 0x12, 0x3F, 0x7A};
+  uint8_t u[10], t[AYAR_KARTI_TLV_MAKS];
+  int nt = ayar_karti_tlv("Masalci-Ayar-3F7A", "48201937", mac, t, sizeof t);
+  DENE(nt > 0 && nt % 4 == 0 && nt <= AYAR_KARTI_TLV_MAKS && t[0] == NDEF_TLV && t[2] == 0xD2, "TLV (%d)", nt);
+  DENE(ayar_karti_tlv("Masalci-Ayar-3F7A", "1234567", mac, t, sizeof t) < 0, "7 haneli şifre kabul edildi");
+  nfc_sahte_koy_no(ETIKET_AYAR_NO);
+  nfc_uid_oku(u, sizeof u);
+  const uint8_t *ku = nfc_sahte.uid;
+  DENE(nfc_ayar_karti_yaz(ETIKET_AYAR_NO, "Masalci-Ayar-3F7A", "48201937", mac, ku, 7) == NFC_YAZ_TAMAM, "ayar kartına yazılamadı");
+  DENE(nfc_sahte.bellek[16] == NDEF_TLV && !memcmp(nfc_sahte.bellek + 16, t, (size_t)nt), "sayfa 4'te NDEF yok");
+  DENE(nfc_etiket_no(u, 7, NULL) == ETIKET_AYAR_NO, "NDEF düzenindeki ayar kartı tanınmadı");
+  DENE(!memcmp(nfc_sahte.bellek + 12, "\xE1\x10\x12\x00", 4), "yetenek kabı bozuldu");
+  // yarıda kesilen yazma: eski düzenden (sayfa 4-5 kayıt) başlayıp k sayfa yazıldıktan sonra kesilir
+  int sayfalar = ETIKET_BAYT / 4 + nt / 4;
+  for (int k = 0; k <= sayfalar; k++) {
+    nfc_sahte_koy_no(ETIKET_AYAR_NO);
+    uint8_t son[NFC_SAHTE_SAYFA * 4];
+    nfc_ayar_karti_yaz(ETIKET_AYAR_NO, "Masalci-Ayar-3F7A", "48201937", mac, nfc_sahte.uid, 7);
+    memcpy(son, nfc_sahte.bellek, sizeof son);
+    nfc_sahte_koy_no(ETIKET_AYAR_NO);
+    // ilk k yazma (sırası: sayfa 36, 37, sonra 4, 5, ...) uygulanmış bellek
+    for (int y = 0; y < k; y++) {
+      int sayfa = y < 2 ? AYAR_KARTI_EK_SAYFA + y : ETIKET_SAYFA + (y - 2);
+      memcpy(nfc_sahte.bellek + sayfa * 4, son + sayfa * 4, 4);
+    }
+    DENE(nfc_etiket_no(u, 7, NULL) == ETIKET_AYAR_NO, "yazma %d. sayfada kesilince kart tanınmadı", k);
+  }
+  (void)uid;
+  // figür etiketi (eski düzen) hâlâ sayfa 4'ten
+  nfc_sahte_koy_no(13);
+  DENE(nfc_etiket_no(u, 7, NULL) == 13, "figür etiketi");
+  nfc_sahte_kaldir();
+}
+
+// ---- saat ve zamanlı işler ----
+static int64_t yerel(int y, int ay, int g, int sa, int dk, int sn) {  // yerel tarih -> yerel saniye (UTC gibi)
+  static const int G[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  int64_t gun = (int64_t)(y - 1970) * 365 + (y - 1969) / 4 + G[ay - 1] + (g - 1) + (ay > 2 && y % 4 == 0);
+  return gun * 86400 + sa * 3600 + dk * 60 + sn;
+}
+static void saat_denemesi(void) {
+  DENE(saat_hafta_gunu(saat_gun(yerel(2026, 11, 23, 12, 0, 0))) == 0, "23 Kasım 2026 pazartesi");
+  DENE(saat_hafta_gunu(saat_gun(yerel(2026, 11, 29, 0, 0, 0))) == 6, "29 Kasım 2026 pazar");
+  DENE(saat_hafta_gunu(saat_gun(yerel(1970, 1, 1, 0, 0, 0))) == 3, "1 Ocak 1970 perşembe");
+  DENE(saat_gun_dakika(yerel(2026, 11, 23, 7, 5, 59)) == 7 * 60 + 5, "dakika");
+  uint8_t sa, dk;
+  DENE(saat_coz("07:05", &sa, &dk) && sa == 7 && dk == 5 && saat_coz("7:05", &sa, &dk) && sa == 7, "saat_coz");
+  DENE(!saat_coz("24:00", &sa, &dk) && !saat_coz("07:60", &sa, &dk) && !saat_coz("07:5", &sa, &dk) &&
+       !saat_coz("07:05x", &sa, &dk) && !saat_coz("", &sa, &dk), "geçersiz saat kabul edildi");
+  SaatAyar a;
+  saat_varsayilan(&a);
+  a.alarm_acik = 1; a.alarm_saat = 7; a.alarm_dk = 0; a.alarm_gunler = SAAT_HAFTA_ICI; a.alarm_gunes = 10;
+  SaatDurum d = {-1, -1};
+  int b = -1, alarm = 0, gunes = 0, son_binde = -1, artiyor = 1;
+  for (int64_t t = yerel(2026, 11, 23, 6, 40, 0); t < yerel(2026, 11, 23, 7, 30, 0); t++) {  // pazartesi, her saniye
+    int o = saat_olay(&a, &d, t, &b);
+    if (o == SAAT_ALARM) { alarm++; DENE(t == yerel(2026, 11, 23, 7, 0, 0), "alarm anı"); }
+    if (o == SAAT_GUNES) {
+      gunes++;
+      if (b < son_binde) artiyor = 0;
+      son_binde = b;
+      DENE(t >= yerel(2026, 11, 23, 6, 50, 0) && t < yerel(2026, 11, 23, 7, 0, 0), "gün doğumu penceresi");
+    }
+  }
+  DENE(alarm == 1 && gunes == 600 && artiyor && son_binde >= 998, "alarm bir kez (%d), gün doğumu 10 dk (%d s)", alarm, gunes);
+  d.alarm_son = d.yatma_son = -1;
+  alarm = 0;
+  for (int64_t t = yerel(2026, 11, 28, 6, 0, 0); t < yerel(2026, 11, 28, 8, 0, 0); t += 30)  // cumartesi
+    alarm += saat_olay(&a, &d, t, &b) != SAAT_YOK;
+  DENE(alarm == 0, "hafta sonu alarm/gün doğumu");
+  // meşgulken kaçan alarm: pencere içinde (07:09) çalar, sonra (07:10) çalmaz
+  d.alarm_son = -1;
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 24, 7, 9, 30), &b) == SAAT_ALARM, "pencere içinde geç alarm");
+  d.alarm_son = -1;
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 24, 7, 10, 0), &b) != SAAT_ALARM, "pencere dışında alarm");
+  // saat 07:03'te ayarlandı: o günün alarmı hemen çalmaz; ertesi gün çalar
+  saat_durum_kur(&a, &d, yerel(2026, 11, 24, 7, 3, 0));
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 24, 7, 3, 1), &b) == SAAT_YOK, "saat ayarlanınca alarm hemen çaldı");
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 25, 7, 0, 0), &b) == SAAT_ALARM, "ertesi gün alarm");
+  // gece yarısına yakın alarm (00:05, gün doğumu 15 dk önceki günden başlar; gün: alarmın günü)
+  a.alarm_saat = 0; a.alarm_dk = 5; a.alarm_gunes = 15; a.alarm_gunler = 1;  // yalnız pazartesi
+  d.alarm_son = -1;
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 22, 23, 55, 0), &b) == SAAT_GUNES, "gece yarısını aşan gün doğumu");
+  DENE(saat_olay(&a, &d, yerel(2026, 11, 23, 0, 5, 0), &b) == SAAT_ALARM, "00:05 alarmı");
+  // yatma hatırlatması ve gece kilidi (21:00 - 07:00, gece yarısını aşar)
+  saat_varsayilan(&a);
+  a.yatma_acik = 1; a.yatma_saat = 21; a.yatma_dk = 0; a.kilit = 1; a.sabah_saat = 7; a.sabah_dk = 0;
+  d.alarm_son = d.yatma_son = -1;
+  int yatma = 0;
+  for (int64_t t = yerel(2026, 11, 23, 20, 0, 0); t < yerel(2026, 11, 23, 23, 0, 0); t += 10)
+    yatma += saat_olay(&a, &d, t, &b) == SAAT_YATMA;
+  DENE(yatma == 1, "yatma hatırlatması bir kez (%d)", yatma);
+  DENE(saat_gece_mi(&a, yerel(2026, 11, 23, 21, 0, 0)) && saat_gece_mi(&a, yerel(2026, 11, 24, 3, 0, 0)) &&
+       !saat_gece_mi(&a, yerel(2026, 11, 24, 7, 0, 0)) && !saat_gece_mi(&a, yerel(2026, 11, 23, 20, 59, 59)), "gece kilidi");
+  a.kilit = 0;
+  DENE(!saat_gece_mi(&a, yerel(2026, 11, 23, 23, 0, 0)), "kilit kapalıyken gece");
+  a.kilit = 1; a.yatma_saat = 13; a.yatma_dk = 0; a.sabah_saat = 15; a.sabah_dk = 0;  // gün içinde (öğle uykusu)
+  DENE(saat_gece_mi(&a, yerel(2026, 11, 23, 14, 0, 0)) && !saat_gece_mi(&a, yerel(2026, 11, 23, 16, 0, 0)), "öğle kilidi");
+}
+
+// ---- alarm sesi: ADPCM, CRC, başlık ----
+static void alarm_ses_denemesi(void) {
+  DENE(alarm_crc32(0, (const uint8_t *)"123456789", 9) == 0xCBF43926u, "CRC-32 denetim değeri");
+  enum { N = 8000 };
+  static int16_t x[N], y[N], z[2 * N], z2[2 * N];
+  static uint8_t v[N / 2];
+  for (int i = 0; i < N; i++) x[i] = (int16_t)(12000 * sin(2 * M_PI * 440 * i / 8000.0) * exp(-i / 4000.0));
+  Adpcm s = {0, 0}, c = {0, 0};
+  adpcm_kodla(&s, x, N, v);
+  adpcm_coz(&c, v, N, y);
+  double se = 0, sx = 0;
+  for (int i = 0; i < N; i++) { double e = y[i] - x[i]; se += e * e; sx += (double)x[i] * x[i]; }
+  DENE(10 * log10(sx / se) > 20, "ADPCM SNR %.1f dB", 10 * log10(sx / se));
+  int16_t o1 = 0, o2 = 0;
+  alarm_ses_iki_kat(&o1, y, N, z);
+  for (int i = 0; i < N; i += 100) alarm_ses_iki_kat(&o2, y + i, N - i < 100 ? N - i : 100, z2 + 2 * i);
+  DENE(!memcmp(z, z2, sizeof z) && z[1] == y[0] && z[3] == y[1] && z[2] == (y[0] + y[1]) / 2, "16 kHz'e çıkarma");
+  int16_t uc[3] = {32767, -32768, 32767};
+  uint8_t uv[2];
+  Adpcm us = {0, 0};
+  adpcm_kodla(&us, uc, 3, uv);  // uçlar taşmaz
+  DENE(us.tahmin >= -32768 && us.tahmin <= 32767 && us.indeks >= 0 && us.indeks <= 88, "ADPCM uç değerler");
+  AlarmSesBaslik b;
+  memset(&b, 0, sizeof b);
+  b.sihir = ALARM_SES_SIHIR; b.surum = ALARM_SES_SURUM; b.sr = ALARM_SES_SR; b.n = N;
+  strcpy(b.ad, "deneme");
+  DENE(alarm_ses_baslik_gecerli(&b, 0xB000), "geçerli başlık");
+  b.n = ALARM_SES_ORNEK_MAKS + 1;
+  DENE(!alarm_ses_baslik_gecerli(&b, 0xB000), "uzun ses kabul edildi");
+  b.n = 0x20000;
+  DENE(!alarm_ses_baslik_gecerli(&b, 0xB000), "bölüme sığmayan ses");
+  b.n = N; b.sr = 16000;
+  DENE(!alarm_ses_baslik_gecerli(&b, 0xB000), "yanlış örnek hızı");
+  b.sr = ALARM_SES_SR;
+  memset(b.ad, 'a', sizeof b.ad);
+  DENE(!alarm_ses_baslik_gecerli(&b, 0xB000), "NUL'süz ad");
+  DENE(ALARM_SES_BASLIK + ALARM_SES_ORNEK_MAKS / 2 <= 0xB000, "en uzun ses alarm bölümüne sığmıyor");
+}
+
+// ---- mesaj, sayılar, yeni konuşma kalıpları ----
+typedef struct { const char *k, *v; } KV;
+static const char *kv_al(void *kul, const char *ad) {
+  for (const KV *p = (const KV *)kul; p->k; p++) if (!strcmp(p->k, ad)) return p->v;
+  return NULL;
+}
+static void mesaj_denemesi(void) {
+  char o[AYAR_MESAJ_BAYT], b[1024];
+  DENE(mesaj_temizle("  Bugün   2 kurabiye var!  ", o) == AD_TAMAM && !strcmp(o, "Bugün 2 kurabiye var!"), "mesaj: %s", o);
+  DENE(mesaj_temizle("Saat 8\xE2\x80\x99" "de \xE2\x80\x9C" "\xC3\xA7\xC4\xB1" "k\xE2\x80\x9D\xE2\x80\xA6", o) == AD_TAMAM &&
+       !strcmp(o, "Saat 8'de '\xC3\xA7\xC4\xB1" "k'..."), "kıvrık tırnak / üç nokta: %s", o);
+  DENE(mesaj_temizle("<b>", o) == AD_HARF && mesaj_temizle("a\"b", o) == AD_HARF && mesaj_temizle("a\\b", o) == AD_HARF,
+       "izinsiz karakter kabul edildi");
+  char uzun[200];
+  memset(uzun, 'a', 121);
+  uzun[121] = 0;
+  DENE(mesaj_temizle(uzun, o) == AD_UZUN, "121 karakter kabul edildi");
+  uzun[120] = 0;
+  DENE(mesaj_temizle(uzun, o) == AD_TAMAM, "120 karakter reddedildi");
+  sayi_yazi(0, b, sizeof b);
+  DENE(!strcmp(b, "sıfır"), "0: %s", b);
+  sayi_yazi(1234567, b, sizeof b);
+  DENE(!strcmp(b, "bir milyon iki yüz otuz dört bin beş yüz altmış yedi"), "1234567: %s", b);
+  sayi_yazi(1000, b, sizeof b);
+  DENE(!strcmp(b, "bin"), "1000: %s", b);
+  sayi_yazi(100, b, sizeof b);
+  DENE(!strcmp(b, "yüz"), "100: %s", b);
+  sayi_yazi(2019, b, sizeof b);
+  DENE(!strcmp(b, "iki bin on dokuz"), "2019: %s", b);
+  sayilari_yaz("Saat 07:30'da 3 kek, 8'de çık", b, sizeof b);
+  DENE(!strcmp(b, "Saat yedi otuzda üç kek, sekizde çık"), "sayilari_yaz: %s", b);
+  sayilari_yaz("Kod 12345678901", b, sizeof b);
+  DENE(!strcmp(b, "Kod bir, iki, üç, dört, beş, altı, yedi, sekiz, dokuz, sıfır, bir"), "uzun dizi: %s", b);
+  alarm_metni("Emre", "Bugün 2 kurabiye var!", b, sizeof b);
+  DENE(!strcmp(b, "Günaydın Emre! Kalkma vakti geldi. Bugün iki kurabiye var!"), "alarm: %s", b);
+  alarm_metni("", "", b, sizeof b);
+  DENE(!strcmp(b, "Günaydın! Kalkma vakti geldi."), "adsız alarm: %s", b);
+  surpriz_metni("Emre", "Seni seviyorum", b, sizeof b);
+  DENE(!strcmp(b, "Emre, sana bir mesaj var: Seni seviyorum"), "sürpriz: %s", b);
+  for (int c = 0; c < 6; c++) {
+    selam_metni_cesit(c, "Emre", "Keloğlan", b, sizeof b);
+    DENE(strstr(b, "Emre") && strstr(b, "Keloğlan"), "selam çeşidi %d: %s", c, b);
+  }
+  selam_metni_cesit(0, "Emre", "Keloğlan", b, sizeof b);
+  DENE(!strcmp(b, "Merhaba Emre, şimdi sana Keloğlan'ın hikâyesini okuyacağım."), "ilk selam değişti: %s", b);
+  selam_metni_cesit(1, NULL, "Bip", b, sizeof b);
+  DENE(!strcmp(b, "Bak kim geldi: Bip! Dinlemeye hazır mısın?"), "adsız selam 1: %s", b);
+  // form: yeni alanlar
+  Ayarlar a;
+  ayar_varsayilan(&a);
+  char h[160];
+  KV F[] = {{"alarm_acik", "1"}, {"alarm_saat", "06:45"}, {"alarm_gunler", "65"},
+                                       {"alarm_gunes", "15"}, {"alarm_tur", "2"}, {"okunus", "Yasmin"},
+                                       {"alarm_mesaj", "Kalk bakalım!"}, {"yatma_acik", "1"}, {"yatma_saat", "20:15"},
+                                       {"kilit", "1"}, {"sabah_saat", "06:30"}, {NULL, NULL}};
+  DENE(ayar_form_uygula(&a, kv_al, F, h, sizeof h) == 0, "yeni alanlar: %s", h);
+  DENE(a.zaman.alarm_acik && a.zaman.alarm_saat == 6 && a.zaman.alarm_dk == 45 && a.zaman.alarm_gunler == 65 &&
+       a.zaman.alarm_gunes == 15 && a.alarm_tur == ALARM_YUKLENEN && !strcmp(a.okunus, "Yasmin") &&
+       !strcmp(a.alarm_mesaj, "Kalk bakalım!") && a.zaman.yatma_saat == 20 && a.zaman.yatma_dk == 15 && a.zaman.kilit &&
+       a.zaman.sabah_saat == 6 && a.zaman.sabah_dk == 30, "yeni alanlar uygulanmadı");
+  char j[1024];
+  ayar_json(&a, j, sizeof j);
+  DENE(strstr(j, "\"alarm_saat\":\"06:45\"") && strstr(j, "\"okunus\":\"Yasmin\"") && strstr(j, "\"tz_dk\":180"), "json: %s", j);
+  KV G1[] = {{"alarm_gunes", "45"}, {NULL, NULL}}, G2[] = {{"alarm_tur", "3"}, {NULL, NULL}},
+     G3[] = {{"okunus", "Ya5min"}, {NULL, NULL}};
+  Ayarlar e = a;
+  DENE(ayar_form_uygula(&a, kv_al, G1, h, sizeof h) < 0 && ayar_form_uygula(&a, kv_al, G2, h, sizeof h) < 0 &&
+       ayar_form_uygula(&a, kv_al, G3, h, sizeof h) < 0 && !memcmp(&a, &e, sizeof a), "geçersiz yeni alanlar");
 }
 
 // ---- selam ----
@@ -368,6 +585,10 @@ static void donanim_denemesi(void) {
 int main(void) {
   etiket_denemesi();
   nfc_denemesi();
+  ayar_karti_denemesi();
+  saat_denemesi();
+  alarm_ses_denemesi();
+  mesaj_denemesi();
   selam_denemesi();
   ayar_denemesi();
   halka_denemesi();

@@ -20,6 +20,22 @@
   ile eşitlik.
   Kalıcı çare: bu figürlerin verisinde bu kalıpları ara ve temizle. Ürün sahibinin onayı bekleniyor.
 
+## Kart yazılımı (2026-11-19): ayar kartı ve zamanlı işler
+
+- Ürün sahibinin isteğiyle eklendi (PC'de sahte donanımla sınandı, **gerçek kartta denenmedi**):
+  - ayar kartına telefonla dokunarak bağlanma (NDEF Wi-Fi kaydı; Android). Kart kaldırılınca ayar modu açık kalır.
+  - saat (telefondan), sabah alarmı (Eko'nun sesi + mesaj / müzik kutusu / yüklenen ses), gün doğumu ışığı.
+  - yatma vakti hatırlatması, gece kilidi (yalnız ninni), sürpriz mesaj.
+  - adın okunuşu ve "Adı dinle", selam çeşitleri.
+  - alarm sesi yükleme: telefonda 8 kHz ADPCM, en çok 10 s; yeni "alarm" bölümü 44 KB, ses bölümünün sonundan.
+- Bölüm tablosu değişti (ses 0x425000 + alarm 0xFD5000): yazılım yeniden yüklenmeli; model ve ses adresleri aynı.
+- Kartta denenecekler (3.3 ile birlikte):
+  - Android telefonla ayar kartına dokunma (hangi telefonlar soruyor?), iPhone'da sesli şifre.
+  - Uygulama boyutu (önceki 1 690 224 B, %92; yeni sayfa ve kodla ≈ +30 KB beklenir).
+  - Bir gecelik saat kayması (`zaman` komutu akşam/sabah).
+  - Alarm ses seviyesi, gün doğumu renkleri, yüklenen sesin kalitesi (8 kHz).
+- Karar bekleyen: saat için 32,768 kHz kristal (mikrofon uçları taşınmalı) ya da pilli saat modülü (`docs/DONANIM.md`).
+
 ## Haftaya (2026-10-12 haftası): veriyi 20–30 bine çıkar
 
 Durum (2026-10-06): 10 597 hikâyeli c3ft_karma, 1030 hikâyeli c3ft_urun1030s2'yi kör kıyasta açık farkla geçti

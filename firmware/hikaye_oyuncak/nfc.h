@@ -6,8 +6,10 @@
 //   nfc_oku16(sayfa, b)      sayfa..sayfa+3 (16 B) okur (NTAG READ); 0 tamam
 //   nfc_sayfa_yaz(sayfa, b)  bir sayfa (4 B) yazar (NTAG WRITE); 0 tamam
 // Ortak:
-//   nfc_etiket_no(u, n)      etiketin nfc_no'su: önce kayıt (sayfa 4), yoksa UID tablosu (NFC_TABLO); yoksa -1
+//   nfc_etiket_no(u, n)      etiketin nfc_no'su: önce kayıt (sayfa 4; orada NDEF varsa sayfa 36: ayar kartı,
+//                            ayar_karti.h), yoksa UID tablosu (NFC_TABLO); yoksa -1
 //   nfc_kayit_yaz(no, u, n)  "oyuncak tanıt": UID'si u olan etikete kaydı yazar, geri okuyup doğrular
+//   nfc_ayar_karti_yaz(...)  ayar modu: standdaki ayar kartına kayıt (sayfa 36) + Wi-Fi NDEF'i (sayfa 4..) yazar
 //
 // NFC_OKUYUCU (donanim.h): 1 = RC522 (ürün; SPI, "MFRC522" kütüphanesi), 2 = PN532 (aynı SPI uçlarında; modülün
 // anahtarları SPI'ye alınır; "Adafruit PN532" kütüphanesi), 0 = taslak: okuyucu yok, alan bellekte taklit edilir
@@ -19,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "etiket.h"
+#include "ayar_karti.h"
 
 typedef struct {
   uint8_t uid[10];
@@ -178,7 +181,11 @@ static const char *NFC_AD = "taslak (okuyucu yok)";
 // Etiketin nfc_no'su: kayıt, yoksa UID tablosu; ikisi de yoksa -1. kayit_var: kayıttan mı okundu.
 static int nfc_etiket_no(const uint8_t *uid, int n, bool *kayit_var) {
   uint8_t b[16];
-  int no = nfc_oku16(ETIKET_SAYFA, b) == 0 ? etiket_coz(b) : -1;
+  int no = -1;
+  if (nfc_oku16(ETIKET_SAYFA, b) == 0) {
+    no = etiket_coz(b);
+    if (no < 0 && b[0] == NDEF_TLV && nfc_oku16(AYAR_KARTI_EK_SAYFA, b) == 0) no = etiket_coz(b);  // ayar kartı
+  }
   if (kayit_var) *kayit_var = no > 0;
   return no > 0 ? no : nfc_tablo_no(uid, n);
 }
@@ -198,5 +205,29 @@ static int nfc_kayit_yaz(int no, const uint8_t *uid, int n) {
     if (r) return NFC_YAZ_OLMADI;
   }
   if (nfc_oku16(ETIKET_SAYFA, b) || memcmp(b, k, ETIKET_BAYT) || etiket_coz(b) != no) return NFC_YAZ_DOGRULANMADI;
+  return NFC_YAZ_TAMAM;
+}
+
+// Ayar modu: UID'si uid olan etikete (standdaki ayar kartı) önce oyuncağın kaydını (sayfa 36-37), sonra sayfa 4'ten
+// Wi-Fi NDEF'ini (ayar_karti.h) yazar, hepsini geri okuyup karşılaştırır. Döner: NFC_YAZ_* (NFC_YAZ_OLMADI: NDEF sığmadı).
+static int nfc_ayar_karti_yaz(int no, const char *ssid, const char *sifre, const uint8_t mac[6], const uint8_t *uid,
+                              int n) {
+  uint8_t u[10], k[ETIKET_BAYT], t[AYAR_KARTI_TLV_MAKS], b[16];
+  if (nfc_uid_oku(u, sizeof u) != n || memcmp(u, uid, (size_t)n)) return NFC_YAZ_ETIKET_YOK;
+  int nt = ayar_karti_tlv(ssid, sifre, mac, t, (int)sizeof t);
+  if (nt <= 0) return NFC_YAZ_OLMADI;
+  etiket_kodla(no, k);
+  for (int p = 0; p < ETIKET_BAYT / 4; p++) {
+    int r = nfc_sayfa_yaz(AYAR_KARTI_EK_SAYFA + p, k + 4 * p);
+    if (r == -2) return NFC_YAZ_NTAG_DEGIL;
+    if (r) return NFC_YAZ_OLMADI;
+  }
+  for (int p = 0; p < nt / 4; p++)
+    if (nfc_sayfa_yaz(ETIKET_SAYFA + p, t + 4 * p)) return NFC_YAZ_OLMADI;
+  if (nfc_oku16(AYAR_KARTI_EK_SAYFA, b) || etiket_coz(b) != no) return NFC_YAZ_DOGRULANMADI;
+  for (int p = 0; p < nt; p += 16) {
+    if (nfc_oku16(ETIKET_SAYFA + p / 4, b)) return NFC_YAZ_DOGRULANMADI;
+    if (memcmp(b, t + p, (size_t)(nt - p < 16 ? nt - p : 16))) return NFC_YAZ_DOGRULANMADI;
+  }
   return NFC_YAZ_TAMAM;
 }

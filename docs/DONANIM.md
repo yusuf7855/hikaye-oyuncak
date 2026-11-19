@@ -252,3 +252,15 @@ sonra kutuya yerleştirilir.
 - **Sabitleme:** DevKit ve RC522'nin montaj deliği yok/ölçüsü yayımlanmamış → DevKit taşıyıcıya takılır,
   taşıyıcı 4 köşe kenetiyle; RC522 tutucu çerçeveyle kapağa; amp ve mikrofon üstten kayan yuvalarda; USB-C
   epoksi + arka dayanak (fiş kuvvetini gövde taşır). Kapak–gövde: 3 × M3 ısıl gömme somun + alttan gizli vida.
+- **Saat (Kasım 2026, alarm ve yatma vakti için):** prototipte (DevKitC-1) ayrı saat parçası yok. Saat, ayar sayfası
+  açılınca telefondan alınır ve ESP32'nin zamanlayıcısıyla sayılır; piller çıkınca kaybolur. Uyku modunda hafif
+  uykudayken zamanlayıcı iç 136 kHz RC osilatörüyle ilerler ve sıcaklıkla kayar (gecede dakikalar mertebesi
+  beklenir; kartta ölçülmedi). Ürün kartı için iki yol:
+  - **32,768 kHz kristal** (± 20 ppm, iki 12 pF kondansatör) ESP32-S3'ün sabit XTAL_32K_P/N uçlarına: GPIO15/16.
+    Gecede 2 saniyeden az kayma; yazılımda RTC yavaş saat kaynağı `RTC_SLOW_CLK_SRC_XTAL32K`. **Ama bugünkü pin
+    haritasında GPIO15/16 INMP441 mikrofonunda** (SCK/WS): mikrofon boş iki uca taşınmalı (I2S her uca
+    yönlendirilebilir); bu pin haritası değişikliği bütün belgelerde birlikte yapılır.
+  - **DS3231 benzeri pilli saat modülü** (I2C, ± 2 ppm, düğme pil): piller değişse de saat kalır, alarm çıkışıyla
+    kartı uyandırabilir; 2 uç ve ≈ 1–2 $ ek.
+  Ürün kararı bekliyor; o zamana kadar saat her ayar açılışında telefondan düzelir. Gerçek kartta bir gecelik
+  kayma ölçülmeli (seri port `zaman` komutu, akşam ve sabah).

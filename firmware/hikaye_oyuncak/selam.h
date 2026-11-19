@@ -1,5 +1,7 @@
-// Oyuncağın söylediği kalıp cümleler: selamlama (doğru Türkçe tamlayan/iyelik ekiyle), ninni selamı, veda, ayar
-// şifresi.
+// Oyuncağın söylediği kalıp cümleler: selamlama (doğru Türkçe tamlayan/iyelik ekiyle; SELAM_CESIT çeşit, sırayla),
+// ninni selamı, veda, ayar şifresi, alarm (günaydın + mesaj), yatma vakti, gece kilidi, sürpriz mesaj, ad denemesi.
+// Ebeveynin yazdığı mesajlardaki rakamlar sözcüğe çevrilir (sayilari_yaz: "8'de" -> "sekizde", "07:30" -> "yedi
+// otuz"); ses modeli rakam okumaz.
 //
 //   selam_iyelik("Keloğlan") -> "Keloğlan'ın" | "Pinokyo" -> "Pinokyo'nun" | "Bulut" -> "Bulut'un" |
 //   "Tek Boynuzlu At" -> "Tek Boynuzlu At'ın" (çok sözcüklü adda son sözcük) | "Hello Kitty" -> "Hello Kitty'nin" |
@@ -108,4 +110,123 @@ static int rakam_metni(const char *rakamlar, char *out, int kap) {
     n += k;
   }
   return n;
+}
+
+// ---- selam çeşitleri: 0 her açılışta ilk selam (eski selam), sonra sırayla ----
+#define SELAM_CESIT 3
+static int selam_metni_cesit(int cesit, const char *cocuk, const char *figur, char *out, int kap) {
+  int ad = cocuk && *cocuk;
+  int n;
+  switch (((cesit % SELAM_CESIT) + SELAM_CESIT) % SELAM_CESIT) {
+    case 1:
+      n = ad ? snprintf(out, (size_t)kap, "%s, bak kim geldi: %s! Dinlemeye hazır mısın?", cocuk, figur)
+             : snprintf(out, (size_t)kap, "Bak kim geldi: %s! Dinlemeye hazır mısın?", figur);
+      break;
+    case 2:
+      n = ad ? snprintf(out, (size_t)kap, "Hoş geldin %s! %s yeni bir maceraya çıkıyor.", cocuk, figur)
+             : snprintf(out, (size_t)kap, "Hoş geldin! %s yeni bir maceraya çıkıyor.", figur);
+      break;
+    default:
+      return selam_metni(cocuk, figur, out, kap);
+  }
+  return n < kap ? n : kap - 1;
+}
+
+// ---- rakamlar sözcüğe ----
+// 0..999 999 999 arası sayı: "iki yüz otuz dört bin beş yüz"; döner uzunluk
+static int sayi_yazi(long v, char *out, int kap) {
+  static const char *const BIR[10] = {"", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"};
+  static const char *const ON[10] = {"", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"};
+  int n = 0;
+  if (kap > 0) out[0] = 0;
+  if (v == 0) return snprintf(out, (size_t)kap, "sıfır");
+#define SY_EKLE(x) do { int k_ = snprintf(out + n, (size_t)(kap - n), "%s%s", n ? " " : "", (x)); if (k_ < 0 || n + k_ >= kap) return n; n += k_; } while (0)
+  static const char *const BOLUK[3] = {"milyon", "bin", ""};
+  long b[3] = {v / 1000000 % 1000, v / 1000 % 1000, v % 1000};
+  for (int i = 0; i < 3; i++) {
+    long u = b[i];
+    if (!u) continue;
+    int y = (int)(u / 100), o = (int)(u / 10 % 10), r = (int)(u % 10);
+    if (y > 1) SY_EKLE(BIR[y]);
+    if (y) SY_EKLE("yüz");
+    if (o) SY_EKLE(ON[o]);
+    if (r && !(i == 1 && u == 1)) SY_EKLE(BIR[r]);  // "bin", "bir bin" değil
+    if (*BOLUK[i]) SY_EKLE(BOLUK[i]);
+  }
+#undef SY_EKLE
+  return n;
+}
+
+// Metindeki rakam dizilerini sözcüğe çevirir: "8'de" -> "sekizde" (sayıdan sonraki kesme işareti düşer), "07:30" ->
+// "yedi otuz", 9 haneden uzun diziler tek tek okunur. Döner uzunluk.
+static int sayilari_yaz(const char *in, char *out, int kap) {
+  int n = 0;
+  if (kap > 0) out[0] = 0;
+  for (const char *p = in; *p && n < kap - 1;) {
+    if (*p >= '0' && *p <= '9') {
+      const char *b = p;
+      while (*p >= '0' && *p <= '9') p++;
+      char sayi[160];
+      if (p - b <= 9) {
+        long v = 0;
+        for (const char *q = b; q < p; q++) v = v * 10 + (*q - '0');
+        sayi_yazi(v, sayi, sizeof sayi);
+      } else {
+        char r[16];
+        int k = 0;
+        for (const char *q = b; q < p && k < 15; q++) r[k++] = *q;
+        r[k] = 0;
+        rakam_metni(r, sayi, sizeof sayi);
+      }
+      int k = snprintf(out + n, (size_t)(kap - n), "%s", sayi);
+      if (k < 0 || n + k >= kap) break;
+      n += k;
+      if (*p == '\'' && ((p[1] >= 'a' && p[1] <= 'z') || (unsigned char)p[1] >= 0x80)) p++;  // "8'de" -> "sekizde"
+      if (*p == ':' && p[1] >= '0' && p[1] <= '9') { out[n++] = ' '; p++; }                  // "07:30"
+      continue;
+    }
+    out[n++] = *p++;
+  }
+  out[n < kap ? n : kap - 1] = 0;
+  return n;
+}
+
+// ---- alarm, yatma vakti, gece kilidi, sürpriz mesaj, ad denemesi ----
+static int alarm_metni(const char *cocuk, const char *mesaj, char *out, int kap) {
+  char m[512];
+  m[0] = 0;
+  if (mesaj && *mesaj) sayilari_yaz(mesaj, m, sizeof m);
+  int n = (cocuk && *cocuk) ? snprintf(out, (size_t)kap, "Günaydın %s! Kalkma vakti geldi.%s%s", cocuk, *m ? " " : "", m)
+                            : snprintf(out, (size_t)kap, "Günaydın! Kalkma vakti geldi.%s%s", *m ? " " : "", m);
+  return n < kap ? n : kap - 1;
+}
+
+static int yatma_metni(const char *cocuk, char *out, int kap) {
+  int n = (cocuk && *cocuk)
+              ? snprintf(out, (size_t)kap, "%s, uyku vakti geldi. Ay Dede'yi standa koyarsan sana ninni söylerim.", cocuk)
+              : snprintf(out, (size_t)kap, "Uyku vakti geldi. Ay Dede'yi standa koyarsan sana ninni söylerim.");
+  return n < kap ? n : kap - 1;
+}
+
+static int gece_kilit_metni(const char *cocuk, char *out, int kap) {
+  int n = (cocuk && *cocuk)
+              ? snprintf(out, (size_t)kap, "%s, şimdi uyku vakti. Hikâyeler sabah devam edecek. İstersen Ay Dede'yi koy, "
+                                           "sana ninni söyleyeyim.", cocuk)
+              : snprintf(out, (size_t)kap, "Şimdi uyku vakti. Hikâyeler sabah devam edecek. İstersen Ay Dede'yi koy, "
+                                           "sana ninni söyleyeyim.");
+  return n < kap ? n : kap - 1;
+}
+
+static int surpriz_metni(const char *cocuk, const char *mesaj, char *out, int kap) {
+  char m[512];
+  sayilari_yaz(mesaj ? mesaj : "", m, sizeof m);
+  int n = (cocuk && *cocuk) ? snprintf(out, (size_t)kap, "%s, sana bir mesaj var: %s", cocuk, m)
+                            : snprintf(out, (size_t)kap, "Sana bir mesaj var: %s", m);
+  return n < kap ? n : kap - 1;
+}
+
+static int ad_dene_metni(const char *cocuk, char *out, int kap) {
+  int n = (cocuk && *cocuk) ? snprintf(out, (size_t)kap, "Merhaba %s! Adını doğru söylüyor muyum?", cocuk)
+                            : snprintf(out, (size_t)kap, "Merhaba! Henüz bir ad yazılmadı.");
+  return n < kap ? n : kap - 1;
 }

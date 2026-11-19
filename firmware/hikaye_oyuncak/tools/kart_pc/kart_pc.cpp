@@ -23,6 +23,9 @@
 //   "#w OLAY"                sesli komut (uyandirma, dur, devam, baska, bir_daha, sesi_ac, sesi_kis)
 //   "#sonra MS SATIR"        MS sonra (saatle) SATIR'ı uygula (okuma/üretim sürerken etiket kaldırmak, komut vermek)
 //   "#http GET|POST /yol [gövde]"  ayar sayfası isteği; stderr'e "HTTP kod gövde"
+//   "#http YUKLE /yol DOSYA [KES]" dosya yükleme (çok parçalı form taklidi; KES bayttan sonra yarıda kesilir)
+//   "#wifi istemci N"        erişim noktasına bağlı telefon sayısı (softAPgetStationNum)
+// KART_ALARM=dosya: alarm sesi bölümü bu dosyada kalır.
 //   "#halka"                 stderr'e "HALKA durum | r,g,b ..." (RMT bitlerinden çözülen son kare)
 // Her halka durumu değişiminde stderr'e "HALKA_D durum". KART_SAAT=sahte ile saat yalnız taklitle ilerler.
 #define SESSIZ_MS_HARF 40
@@ -147,6 +150,26 @@ static bool harness_satir(const char *satir) {
     std::string s = son;
     while (!s.empty() && s.back() == '\n') s.pop_back();
     if (zamanli_n < 32) zamanli[zamanli_n++] = {esp_timer_get_time() + (int64_t)ms * 1000, s};
+    return true;
+  }
+  if (!strncmp(satir, "#wifi istemci ", 14)) {
+    WiFi.istemci = atoi(satir + 14);
+    return true;
+  }
+  if (!strncmp(satir, "#http YUKLE ", 12)) {
+    char yol[128] = "", dosya[512] = "";
+    long kes = 0;
+    sscanf(satir + 12, "%127s %511s %ld", yol, dosya, &kes);
+    FILE *f = fopen(dosya, "rb");
+    std::string veri;
+    if (f) {
+      char b[4096];
+      size_t n;
+      while ((n = fread(b, 1, sizeof b, f)) > 0) veri.append(b, n);
+      fclose(f);
+    }
+    int kod = web.sahte_yukle(yol, veri, dosya, kes);
+    fprintf(stderr, "HTTP %d %s\n", kod, web.yanit.c_str());
     return true;
   }
   if (!strncmp(satir, "#http ", 6)) {

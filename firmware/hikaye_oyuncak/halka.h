@@ -29,10 +29,10 @@
 #endif
 
 enum { HT_KAPALI, HT_ACILIS, HT_BOSTA, HT_DOLMA, HT_OKUMA, HT_HAZIRLA, HT_ARKA, HT_GECE, HT_AYAR, HT_HATA, HT_OYUNCAK,
-       HT_N };
+       HT_GUNES, HT_ALARM, HT_N };
 enum { HU_YOK, HU_DINLE, HU_ONAY, HU_ANLASILMADI, HU_SES, HU_N };
 static const char *const HT_AD[HT_N] = {"kapali", "acilis", "bosta", "dolma", "okuma", "hazirlik", "arka", "gece",
-                                        "ayar", "hata", "oyuncak"};
+                                        "ayar", "hata", "oyuncak", "gunes", "alarm"};
 static const char *const HU_AD[HU_N] = {"-", "dinle", "onay", "anlasilmadi", "ses"};
 
 #define HALKA_ACILIS_MS 1500   // gökkuşağı turu
@@ -56,6 +56,7 @@ typedef struct {
   uint8_t nefes;             // boşta nefes açık mı
   uint32_t sonme_ms;         // gece: sönmenin başladığı an (0 yok)
   uint16_t akim_ma;          // son karenin akım tahmini (kısılmış)
+  uint16_t gunes;            // gün doğumu ilerlemesi 0..1000 (HT_GUNES: kırmızıdan sıcak beyaza, sönükten parlağa)
 } Halka;
 
 static inline void halka_kur(Halka *h, int n, int sinir, int akim_sinir) {
@@ -179,6 +180,20 @@ static inline void halka_ciz(Halka *h, uint32_t ms, uint8_t (*k)[3]) {
     case HT_HATA:
       if ((t / 400) % 2 == 0) for (int i = 0; i < n; i++) halka_koy(k[i], KIRMIZI, 1.f);
       break;
+    case HT_GUNES: {  // gün doğumu: koyu kırmızı -> turuncu -> sıcak beyaz, parlaklık ilerlemenin karesiyle
+      static const uint8_t R0[3] = {255, 40, 0}, R1[3] = {255, 140, 40}, R2[3] = {255, 210, 140};
+      float x = h->gunes > 1000 ? 1.f : h->gunes / 1000.f, u = x < .6f ? x / .6f : (x - .6f) / .4f;
+      const uint8_t *a = x < .6f ? R0 : R1, *b = x < .6f ? R1 : R2;
+      uint8_t c[3];
+      for (int j = 0; j < 3; j++) c[j] = (uint8_t)(a[j] + (b[j] - a[j]) * u);
+      for (int i = 0; i < n; i++) halka_koy(k[i], c, .03f + .97f * x * x);
+      break;
+    }
+    case HT_ALARM: {  // alarm çalıyor: sıcak beyaz, saniyede bir nabız
+      static const uint8_t SICAK[3] = {255, 200, 120};
+      for (int i = 0; i < n; i++) halka_koy(k[i], SICAK, .45f + .55f * (.5f - .5f * cosf(PI2 * (float)(t % 1200) / 1200.f)));
+      break;
+    }
     default: break;
   }
   uint32_t u = ms - h->ust_ms;

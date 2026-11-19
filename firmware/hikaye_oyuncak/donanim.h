@@ -82,6 +82,8 @@
 #define AYAR_SURE_MS (10UL * 60 * 1000)   // en çok 10 dakika açık
 #define AYAR_TANIT_MS 60000    // "oyuncak tanıt": etiket bu kadar beklenir
 #define AYAR_BOS_KAPAT_MS 60000 // tanıtmadan sonra stand bu kadar boş kalırsa ayar modu kapanır
+#define AYAR_KARTSIZ_MS 180000  // ayar kartı kaldırıldı (telefona dokundurmak için), telefon bağlanmazsa kapanır
+#define AYAR_ISTEMCISIZ_MS 120000 // bağlanan telefon ayrıldıktan bu kadar sonra kapanır
 #define AYAR_SSID_ONEK "Masalci-Ayar-"
 
 // ---- güç, ses ----

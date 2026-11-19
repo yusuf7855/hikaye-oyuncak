@@ -16,8 +16,17 @@ seferinde aynı çıktıyı verir. Kuyruk K=2 aday, figür başına en çok 2 hi
   5. gece:      Ay Dede: ninni selamı, yerleşik ninniler art arda, zamanlayıcı -> sönme -> kapanma (hafif uyku),
                 başka oyuncakla uyanma; gece figürü için arka planda üretim yok.
   6. ayar:      ayar kartı: WPA2 erişim noktası + söylenen şifre, captive yönlendirme, /durum, /kaydet (geçerli ve
-                geçersiz), oyuncak tanıt (etiket belleği dosyası), /sil, /bitir; kart çekilince kapanma, 10 dk, Wi-Fi
-                hatası; ayarların kalıcılığı (selamda ad).
+                geçersiz), oyuncak tanıt (etiket belleği dosyası), /sil, /bitir; kart çekilince telefon bağlanmazsa
+                3 dk'da kapanma, 10 dk, Wi-Fi hatası; ayarların kalıcılığı (selamda ad).
+  7. dokunma:   ayar kartına Wi-Fi NDEF'i yazılır (bağımsız çözücüyle: ağ adı, şifre, MAC), kayıt sayfa 36'da; kart
+                yeni düzeniyle yine ayar kartı tanınır, her oturumda yeni şifre; kart kaldırılınca açık kalır; telefon
+                ayrılınca 2 dk'da kapanır; kilitli kartta eski yol (sesli şifre).
+  8. zaman:     /saat, alarm/yatma/gece kilidi/okunuş/mesaj formu (geçerli ve geçersiz), gün doğumu ışığı, alarm
+                (günaydın + ad okunuşu + mesajdaki rakamlar yazıyla), oyuncak koyunca susma ve hikâye, sürpriz mesaj
+                bir kez, selam çeşitleri, yatma hatırlatması, gece kilidi (hikâye yok, Ay Dede serbest), alarm günü
+                değilse çalmama.
+  9. alarm sesi: ayar sayfasının kodlayıcısının paketi yüklenir (/alarm_ses), bozuk paket reddedilir ve silinir,
+                dinle/dene, ad dinle; açılışta bölümden okunur, alarmda yüklenen ses çalar.
 
 Kullanım: .venv/bin/python firmware/hikaye_oyuncak/tools/urun_akis_test.py [--dizin D]   (çıkış kodu: hata varsa 1)
 Model: HIKAYE_MODEL (dizin; yoksa modeller/c3ft_urun13, o da yoksa modeller/c3ft_karma). Figürler: generated/istemler.h ve
@@ -80,6 +89,7 @@ class Kart:
     def kos(self, satirlar, ek_env=None):
         env = dict(os.environ, KART_MODEL=MODEL, KART_BOLUMLER=os.path.join(SKETCH, "partitions.csv"),
                    KART_KUYRUK=os.path.join(self.d, "kuyruk.bin"), KART_NVS=os.path.join(self.d, "nvs.txt"),
+                   KART_ALARM=os.path.join(self.d, "alarm.bin"),
                    KART_SAAT="sahte")
         env.update(ek_env or {})
         r = subprocess.run([self.kart], input="".join(s + "\n" for s in satirlar), capture_output=True, text=True,
@@ -90,7 +100,7 @@ class Kart:
         return r.stdout, r.stderr.splitlines()
 
     def sifirla(self):
-        for ad in ("kuyruk.bin", "nvs.txt"):
+        for ad in ("kuyruk.bin", "nvs.txt", "alarm.bin"):
             p = os.path.join(self.d, ad)
             if os.path.exists(p):
                 os.remove(p)
@@ -349,14 +359,206 @@ def ayar(k):
          "ayarlar kalıcı değil")
     dene("ses seviyesi 4/7 (en çok 4)" in out, "ses seviyesi en yüksek sese inmedi")
     dene("[Merhaba Çağrı Emre, şimdi sana Pinokyo'nun hikâyesini okuyacağım.]" in out, "selamda ad yok")
-    # kart çekilince kapanır; 10 dakika; Wi-Fi açılamazsa hata
-    out, err = k.kos(["#etiket koy 200", "#bekle 9000", "#etiket kaldir", "#bekle 3000", "#durum"])
-    dene("[ayar modu kapandı: ayar kartı kaldırıldı]" in out and durum(err)[-1][7] == 0, "kart çekilince kapanmadı")
+    # kart çekilince telefon bağlanmazsa 3 dakikada kapanır; 10 dakika; Wi-Fi açılamazsa hata
+    out, err = k.kos(["#etiket koy 200", "#bekle 9000", "#etiket kaldir", "#bekle 3000", "#durum", "#bekle 180000", "#durum"])
+    d = durum(err)
+    dene("[ayar modu] ayar kartı kaldırıldı: telefon bağlanana kadar açık" in out and d[0][7] == 1, "kart çekilince hemen kapandı")
+    dene("[ayar modu kapandı: ayar kartı kaldırıldı, telefon bağlanmadı]" in out and d[-1][7] == 0,
+         "kart çekilip telefon bağlanmayınca 3 dakikada kapanmadı")
     out, err = k.kos(["#etiket koy 200", "#bekle 610000", "#durum"])
     dene("[ayar modu kapandı: 10 dakika doldu]" in out, "10 dakikada kapanmadı")
     out, err = k.kos(["#etiket koy 200", "#bekle 5000", "#durum"], {"KART_WIFI_HATA": "1"})
     dene("HATA: Wi-Fi erişim noktası açılamadı" in out and "HALKA_D hata -" in err, "Wi-Fi hatası")
     print("  erişim noktası, şifre, captive, form, tanıt (etiket dosyası), sil, bitir, kalıcılık, kapanmalar tamam")
+
+
+# ---- 7. telefonla dokunma ----
+sys.path.insert(0, TOOLS)
+import ndef_test  # noqa: E402  (bağımsız NDEF / WSC çözücü)
+
+NFC_SAYFA = 45
+
+
+def ayar_karti_dosyasi(yol):
+    """Ayar kartı (nfc_no 200) etiket belleği: kart_pc "#etiket dosya" biçimi (uid_n, uid[7], 45 sayfa)."""
+    uid = bytes([0x04, 0xA7, 0x4E, 0x00, 0xC8, 0x5A, 0x81])
+    b = bytearray(NFC_SAYFA * 4)
+    b[0:7] = uid
+    b[12:16] = bytes([0xE1, 0x10, 0x12, 0x00])
+    kayit = b"EKO\x01" + (200).to_bytes(2, "little")
+    kayit += crc16(kayit).to_bytes(2, "little")
+    b[16:24] = kayit
+    with open(yol, "wb") as f:
+        f.write(bytes([7]) + uid + bytes(b))
+
+
+def etiket_bellek(yol):
+    with open(yol, "rb") as f:
+        return f.read()[8:]
+
+
+def ndef_denetle(bellek, ssid, sifre):
+    mesaj, son, _ = ndef_test.tlv_coz(bellek[16:16 + 128])
+    if not dene(mesaj is not None and son, "kartta NDEF yok"):
+        return
+    _, tur, yuk = ndef_test.ndef_coz(mesaj)
+    kim = dict(ndef_test.wsc_coz(dict(ndef_test.wsc_coz(yuk))[0x100E]))
+    dene(tur == b"application/vnd.wfa.wsc" and kim[0x1045] == ssid.encode() and kim[0x1027] == sifre.encode(),
+         f"karttaki Wi-Fi kaydı oturumla uyuşmuyor: {kim.get(0x1045)} {kim.get(0x1027)}")
+    kayit = bellek[36 * 4:36 * 4 + 8]
+    dene(kayit[:4] == b"EKO\x01" and kayit[4] | kayit[5] << 8 == 200 and crc16(kayit[:6]) == kayit[6] | kayit[7] << 8,
+         f"sayfa 36'da ayar kartı kaydı yok: {kayit.hex()}")
+
+
+def dokunma(k):
+    print("7. ayar kartı: telefonla dokunma (NDEF Wi-Fi), kart kaldırılınca açık kalma, kapanmalar")
+    k.sifirla()
+    yol = os.path.join(k.d, "ayar_karti.bin")
+    ayar_karti_dosyasi(yol)
+    sifreler = []
+    for tur in range(2):  # 2. turda kart artık NDEF düzeninde: yine ayar kartı tanınmalı, şifre yenilenmeli
+        out, err = k.kos([f"#etiket dosya {yol}", "#bekle 12000", "#http GET /durum", "#etiket kaldir", "#bekle 3000",
+                          "#durum", "#bekle 125000", "#durum"])
+        ap = [s.split() for s in err if s.startswith("WIFI ap Masalci")]
+        if not dene(ap, f"{tur + 1}. tur: ayar modu açılmadı (kart tanınmadı)"):
+            return
+        ssid, sifre = ap[0][2], ap[0][3]
+        sifreler.append(sifre)
+        dene("[ayar modu] ayar kartına Wi-Fi bilgisi yazıldı: kartı telefona dokundurun" in out, f"{tur + 1}. tur: yazılmadı")
+        dene("Ayar kartını telefonunun arkasına dokundur ya da telefonunla Masalcı Ayar ağına bağlan" in out,
+             "dokunma yönergesi söylenmedi")
+        ndef_denetle(etiket_bellek(yol), ssid, sifre)
+        j = json.loads(http(err)[0][1])
+        dene(j["kart_yazildi"] == 1, "durum: kart_yazildi değil")
+        d = durum(err)
+        dene(d[0][7] == 1, "kart kaldırılınca ayar modu kapandı")
+        dene("[ayar modu kapandı: telefon ayrıldı]" in out and d[-1][7] == 0, "telefon ayrılınca 2 dakikada kapanmadı")
+    # aynı açılışta iki oturum: şifre yenilenir (sahte esp_random her süreçte aynı diziyle başlar)
+    out, err = k.kos(["#etiket koy 200", "#bekle 12000", "#http POST /bitir", "#bekle 3000", "#etiket kaldir", "#bekle 2000",
+                      "#etiket koy 200", "#bekle 12000", "#http POST /bitir", "#bekle 3000"])
+    ap = [s.split()[3] for s in err if s.startswith("WIFI ap Masalci")]
+    dene(len(ap) == 2 and ap[0] != ap[1], f"her oturumda yeni şifre yazılmadı: {ap}")
+    # telefon bağlıyken (istasyon sayısı) kart kaldırılsa da açık kalır
+    out, err = k.kos(["#wifi istemci 1", "#etiket koy 200", "#bekle 12000", "#etiket kaldir", "#bekle 240000", "#durum",
+                      "#wifi istemci 0", "#bekle 125000", "#durum"])
+    d = durum(err)
+    dene(d[0][7] == 1 and d[-1][7] == 0 and "[ayar modu kapandı: telefon ayrıldı]" in out,
+         f"telefon bağlıyken açık kalma / ayrılınca kapanma: {d}")
+    # kilitli kart: yazılamaz, eski yol (sesli şifre)
+    out, err = k.kos(["#etiket koy 200", "#etiket kilitle", "#bekle 12000", "#http POST /bitir", "#bekle 2000"])
+    dene("ayar kartına Wi-Fi bilgisi yazılamadı: yazılamadı (kilitli?)" in out and
+         "Ayar modu açık. Telefonunla Masalcı Ayar ağına bağlan." in out, "kilitli kartta eski yol")
+    print("  NDEF Wi-Fi kaydı (bağımsız çözücü), sayfa 36 kaydı, yeni düzenin tanınması, yeni şifre, açık kalma, "
+          "kapanmalar, kilitli kart tamam")
+
+
+# ---- 8. saat ve zamanlı işler ----
+def epoch(yerel, tz_dk=180):
+    import datetime as dt
+    t = dt.datetime.strptime(yerel, "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone(dt.timedelta(minutes=tz_dk)))
+    return int(t.timestamp())
+
+
+def zaman(k):
+    print("8. saat ve zamanlı işler: alarm, gün doğumu, sürpriz mesaj, selam çeşitleri, yatma vakti, gece kilidi")
+    k.sifirla()
+    from urllib.parse import quote
+    form = ("ad=Emre&okunus=Emrecik&alarm_acik=1&alarm_saat=07:00&alarm_gunler=31&alarm_gunes=1&alarm_tur=0"
+            f"&alarm_mesaj={quote('Bugün 2 kurabiye var, saat 8’de çıkıyoruz!')}&yatma_acik=1&yatma_saat=07:30"
+            "&kilit=1&sabah_saat=08:00")
+    out, err = k.kos([f"sahip +{PP['nfc_no']}", "#etiket koy 200", "#bekle 10000",
+                      f"#http POST /saat t={epoch('2026-11-23 06:00:00')}&tz=180",  # pazartesi
+                      f"#http POST /kaydet {form}", "#http GET /durum",
+                      f"#http POST /surpriz mesaj={quote('Annen seni çok seviyor')}",
+                      "#http POST /kaydet alarm_saat=25:00", "#http POST /kaydet alarm_mesaj=%3Cb%3E",
+                      "#http POST /kaydet alarm_acik=1&alarm_gunler=0", "#http POST /kaydet kilit=1&sabah_saat=07:30",
+                      "#http POST /saat t=12&tz=180", "#http POST /bitir", "#bekle 3000"])
+    h = http(err)
+    dene(h[0][0] == 200 and h[1][0] == 200, f"saat/kaydet {h[:2]}")
+    j = json.loads(h[2][1])
+    a = j["ayar"]
+    dene(j["saat"]["gecerli"] == 1 and j["saat"]["simdi"] == "06:00" and j["saat"]["gun"] == 0, f"saat {j['saat']}")
+    dene((a["alarm_acik"], a["alarm_saat"], a["alarm_gunler"], a["okunus"], a["kilit"], a["sabah_saat"]) ==
+         (1, "07:00", 31, "Emrecik", 1, "08:00"), f"ayar {a}")
+    dene(a["alarm_mesaj"] == "Bugün 2 kurabiye var, saat 8'de çıkıyoruz!", f"mesaj (kıvrık kesme düzleşmeli) {a['alarm_mesaj']!r}")
+    dene(h[3][0] == 200, f"sürpriz {h[3]}")
+    dene(h[4][0] == 400 and "SS:DD" in h[4][1], f"geçersiz saat {h[4]}")
+    dene(h[5][0] == 400 and "yalnız harf" in h[5][1], f"geçersiz mesaj {h[5]}")
+    dene(h[6][0] == 400 and "en az bir gün" in h[6][1], f"gün yok {h[6]}")
+    dene(h[7][0] == 400 and "farklı" in h[7][1], f"kilit yatma = sabah {h[7]}")
+    dene(h[8][0] == 400, f"geçersiz saat (epoch) {h[8]}")
+    dene("[ayar] saat telefondan alındı: saat 06:00 |" in out and
+         "[ayar] saat 06:00 | alarm açık 07:00 (Pzt,Sal,Çar,Per,Cum; gün doğumu 1 dk; Eko'nun sesi) | yatma vakti açık "
+         "07:30 | gece kilidi açık (sabah 08:00)" in out, "saat özeti")
+    # alarm: 06:59:30 (gün doğumu sürüyor) -> 07:00 çalar; oyuncak konunca susar, hikâye + sürpriz mesaj; ikinci selam
+    out, err = k.kos([f"saat {epoch('2026-11-23 06:59:30')} 180", "#bekle 20000", "#halka",
+                      f"#sonra 25000 #etiket koy {PP['nfc_no']}", "#bekle 90000", "#etiket kaldir", "#bekle 3000",
+                      f"#etiket koy {PP['nfc_no']}", "#bekle 4000", "#etiket kaldir", "#bekle 2000",
+                      f"#etiket koy {PP['nfc_no']}", "#bekle 4000"])
+    dene("[gün doğumu: alarmdan 1 dk önce]" in out and "gunes -" in halka_d(err), "gün doğumu yok")
+    gunes = [s for s in err if s.startswith("HALKA gunes")]
+    if dene(gunes, "gün doğumu halka karesi yok"):
+        r, g, b = map(int, gunes[0].split("|")[3].split()[0].split(","))
+        dene(r > g > b and r > 0, f"gün doğumu rengi kırmızı-turuncu değil: {r},{g},{b}")
+    dene("[alarm] çalıyor: Eko'nun sesi" in out and "alarm -" in halka_d(err), "alarm çalmadı")
+    dene("[Günaydın Emrecik! Kalkma vakti geldi. Bugün iki kurabiye var, saat sekizde çıkıyoruz!]" in out,
+         "alarm metni (okunuş, rakamlar yazıyla)")
+    dene("[alarm] durdu: standa dokunuldu" in out, "oyuncak konunca alarm susmadı")
+    dene("[Merhaba Emrecik, şimdi sana Pamuk Prenses'in hikâyesini okuyacağım. Emrecik, sana bir mesaj var: Annen seni "
+         "çok seviyor]" in out and out.count("[sürpriz mesaj söyleniyor]") == 1, "sürpriz mesaj selamdan sonra bir kez")
+    dene("[Emrecik, bak kim geldi: Pamuk Prenses! Dinlemeye hazır mısın?]" in out and
+         "[Hoş geldin Emrecik! Pamuk Prenses yeni bir maceraya çıkıyor.]" in out, "selam çeşitleri sırayla")
+    dene(out.count("[alarm] çalıyor") == 1, "alarm iki kez çaldı")
+    # yatma vakti 07:30 hatırlatma; gece kilidi 07:30-08:00: Pinokyo yok, Ay Dede serbest; 08:00'de kilit biter
+    out, err = k.kos([f"saat {epoch('2026-11-23 07:29:50')} 180", "#bekle 20000", f"#etiket koy {PN['nfc_no']}",
+                      "#bekle 15000", "#etiket kaldir", "#bekle 2000", "#sonra 8000 #etiket kaldir", "#etiket koy 12",
+                      "#bekle 12000", f"saat {epoch('2026-11-23 08:00:10')} 180", f"#etiket koy {PN['nfc_no']}", "#bekle 4000"])
+    dene("[yatma vakti]" in out and "[Emrecik, uyku vakti geldi. Ay Dede'yi standa koyarsan sana ninni söylerim.]" in out,
+         "yatma hatırlatması")
+    dene("[gece kilidi: hikâye yerine ninni önerildi]" in out and "Emrecik, şimdi uyku vakti. Hikâyeler sabah devam edecek." in out,
+         "gece kilidi")
+    dene("[İyi geceler Emrecik, şimdi sana bir ninni söyleyeceğim.]" in out, "gece kilidinde Ay Dede serbest değil")
+    son = out.split("[oyuncak: Pinokyo]")[-1].strip().split("\n")[0]
+    dene(out.count("[gece kilidi") == 1 and "Pinokyo" in son and "uyku vakti" not in son,
+         f"08:00'den sonra kilit kalkmadı: {son[:80]}")
+    # cumartesi: alarm (hafta içi) çalmaz
+    out, err = k.kos([f"saat {epoch('2026-11-28 06:59:50')} 180", "#bekle 30000"])
+    dene("[alarm] çalıyor" not in out and "[gün doğumu" not in out, "cumartesi alarm çaldı")
+    print("  saat, form, gün doğumu, alarm (okunuş, rakamlar), susma + hikâye, sürpriz mesaj, selam çeşitleri, yatma, "
+          "gece kilidi, gün seçimi tamam")
+
+
+# ---- 9. alarm sesi yükleme ----
+def alarm_sesi(k):
+    print("9. alarm sesi: yükleme, bozuk paket, dinle/dene, açılışta okuma, alarmda çalma")
+    pak = os.path.join(k.d, "alarm.eko")
+    subprocess.run([sys.executable, os.path.join(TOOLS, "alarm_ses_test.py"), "--paket", pak], check=True,
+                   capture_output=True)
+    bozuk = os.path.join(k.d, "bozuk.eko")
+    with open(pak, "rb") as f:
+        b = bytearray(f.read())
+    b[1000] ^= 0x55
+    with open(bozuk, "wb") as f:
+        f.write(bytes(b))
+    out, err = k.kos(["#etiket koy 200", "#bekle 10000", f"#http YUKLE /alarm_ses {bozuk}", "#http GET /durum",
+                      f"#http YUKLE /alarm_ses {pak} 20000", "#http GET /durum",
+                      f"#http YUKLE /alarm_ses {pak}", "#http GET /durum", "#http POST /kaydet alarm_tur=2",
+                      "#http POST /alarm_ses_dinle", "#bekle 15000", "#http POST /dinle", "#bekle 5000",
+                      "#http POST /alarm_dene", "#bekle 20000", "#http POST /bitir", "#bekle 2000"])
+    h = http(err)
+    dene(h[0][0] == 400 and "bozuk" in h[0][1] and json.loads(h[1][1])["alarm_ses"]["var"] == 0, f"bozuk paket {h[0]}")
+    dene(h[2][0] == 0 and json.loads(h[3][1])["alarm_ses"]["var"] == 0 and "Yükleme yarıda kesildi" in out,
+         f"yarım yükleme (bağlantı koptu: yanıt yok) {h[2]}")
+    j = json.loads(h[5][1])["alarm_ses"]
+    dene(h[4][0] == 200 and j["var"] == 1 and abs(j["sn"] - 10.0) < .05 and j["ad"].startswith("Deneme şarkısı"),
+         f"yükleme {h[4]} {j}")
+    dene("[alarm denemesi] çalıyor: yüklenen ses" in out and "[alarm denemesi] durdu: deneme bitti" in out, "sesi dinle")
+    dene("[Merhaba Emrecik! Adını doğru söylüyor muyum?]" in out or "[Merhaba! Henüz bir ad yazılmadı.]" in out,
+         "adı dinle")
+    out, err = k.kos([f"saat {epoch('2026-11-24 06:59:58')} 180", f"#sonra 8000 #etiket koy {PP['nfc_no']}", "#bekle 12000"])
+    dene("alarm sesi: Deneme şarkısı" in out, "açılışta alarm sesi okunmadı")
+    dene("[alarm] çalıyor: yüklenen ses" in out and "[alarm] durdu: standa dokunuldu" in out, "alarmda yüklenen ses")
+    print("  bozuk ve yarım paket reddi, yükleme (10 s), dinle, dene, açılışta okuma, alarmda yüklenen ses tamam")
 
 
 def main():
@@ -372,6 +574,9 @@ def main():
     etiket(k)
     gece(k)
     ayar(k)
+    dokunma(k)
+    zaman(k)
+    alarm_sesi(k)
     print(f"\nurun_akis_test.py: {'HATA ' + str(len(hatalar)) if hatalar else 'hepsi geçti'} ({d})")
     if not a.dizin and not hatalar:
         shutil.rmtree(d, ignore_errors=True)

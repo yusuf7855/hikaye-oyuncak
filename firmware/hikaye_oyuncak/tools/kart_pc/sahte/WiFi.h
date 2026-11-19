@@ -24,5 +24,7 @@ struct SahteWiFi {
   }
   bool softAPdisconnect(bool) { ap = false; fprintf(stderr, "WIFI ap kapandi\n"); return true; }
   IPAddress softAPIP() { return IPAddress(192, 168, 4, 1); }
+  int istemci = 0;  // kart_pc "#wifi istemci N": erişim noktasına bağlı telefon sayısı
+  int softAPgetStationNum() { return ap ? istemci : 0; }
 };
 static SahteWiFi WiFi;

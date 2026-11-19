@@ -122,12 +122,16 @@ static inline esp_err_t esp_partition_mmap(const esp_partition_t *p, size_t ofs,
 // Yazılabilir bölüm (kuyruk): içerik KART_KUYRUK dosyasından (yoksa 0xFF), her yazma/silmede dosyaya geri yazılır.
 // KART_FLASH_KES=N: N bayt yazıldıktan sonra yazmalar tutmaz (güç kesilmesi taklidi).
 static long sahte_flash_yazilan = 0, sahte_flash_sil_n = 0;
+// Yazılabilir bölümün dosyası: "alarm" bölümü KART_ALARM, öteki (kuyruk) KART_KUYRUK
+static const char *sahte_bolum_dosya(const esp_partition_t *p) {
+  return getenv(!strcmp(p->label, "alarm") ? "KART_ALARM" : "KART_KUYRUK");
+}
 static uint8_t *sahte_bolum_ac(const esp_partition_t *p) {
   int i = (int)(p - sahte_bolum);
   if (!sahte_bolum_veri[i]) {
     uint8_t *b = (uint8_t *)malloc(p->size);
     memset(b, 0xFF, p->size);
-    const char *yol = getenv("KART_KUYRUK");
+    const char *yol = sahte_bolum_dosya(p);
     FILE *f = yol ? fopen(yol, "rb") : NULL;
     if (f) { size_t n = fread(b, 1, p->size, f); (void)n; fclose(f); }
     sahte_bolum_veri[i] = b;
@@ -135,7 +139,7 @@ static uint8_t *sahte_bolum_ac(const esp_partition_t *p) {
   return sahte_bolum_veri[i];
 }
 static void sahte_bolum_kaydet(const esp_partition_t *p) {
-  const char *yol = getenv("KART_KUYRUK");
+  const char *yol = sahte_bolum_dosya(p);
   if (!yol) return;
   FILE *f = fopen(yol, "wb");
   if (!f) { perror(yol); exit(2); }
@@ -411,6 +415,8 @@ struct Preferences {
   void koy(const char *k, long v) { m[k] = v; kaydet(); }
   uint8_t getUChar(const char *k, uint8_t v) { return (uint8_t)al(k, v); }
   int8_t getChar(const char *k, int8_t v) { return (int8_t)al(k, v); }
+  int16_t getShort(const char *k, int16_t v) { return (int16_t)al(k, v); }
+  size_t putShort(const char *k, int16_t v) { koy(k, v); return 2; }
   bool getBool(const char *k, bool v) { return al(k, v) != 0; }
   uint32_t getUInt(const char *k, uint32_t v) { return (uint32_t)al(k, v); }
   String getString(const char *k, const String &v) { auto i = ms.find(k); return i == ms.end() ? v : String(i->second); }

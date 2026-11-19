@@ -67,8 +67,14 @@ Flash düzeni (`partitions.csv`):
 | nvs | 0x9000 | 20 KB | ayarlar: ad, ses, uyku, halka, çekilince, müzik, tanınmış oyuncaklar |
 | factory (uygulama) | 0x10000 | 0x1C0000 (1,75 MB) | Arduino'nun yüklediği yazılım (1 690 224 B, %92) |
 | model | **0x1D0000** | 0x9E0000 (9,9 MB) | LLM `model.bin`: C3 c3ft_urun13 10 331 252 B (0x9DA474), pay 23 436 B |
-| ses | **0xBB0000** | 0x430000 (4,19 MB) | ses modeli `ses.bin` (4 344 208 B; pay 46 704 B; `ses/disa_aktar.py` üretir) |
+| ses | **0xBB0000** | 0x425000 (4,14 MB) | ses modeli `ses.bin` (4 344 208 B; pay 1 648 B; `ses/disa_aktar.py` üretir ve sığdığını denetler) |
+| alarm | 0xFD5000 | 0xB000 (44 KB) | ayar sayfasından yüklenen alarm sesi (`alarm_ses.h`: başlık + IMA ADPCM, en çok 10 s; yüklenecek dosya yok) |
 | kuyruk | 0xFE0000 | 0x20000 (128 KB) | hazır hikâyeler: 32 yuva × 4 KB (yazılım kendisi doldurur; yüklenecek dosya yok) |
+
+> **Kasım 2026 (alarm sesi) değişikliği:** ses bölümü `ses.bin`'in boyuna indi (adresi aynı, 0xBB0000); boşalan 44 KB
+> "alarm" bölümü oldu. Model, ses ve kuyruk adresleri değişmedi: yalnız yazılımı (Partition Scheme **Custom**,
+> yeni `partitions.csv`) yeniden yükleyin. İleride `ses.bin` 1 648 B'tan fazla büyürse alarm bölümü küçültülmeli
+> (`ses/disa_aktar.py --butce` bölüm boyunu denetler).
 
 > **Ekim 2026 (ayar modu) değişikliği — model yeniden yüklenmeli:** Wi-Fi + WebServer uygulamayı ~0,6 MB büyüttü
 > (1 MB'a sığmaz). Uygulama 1,75 MB oldu; model bölümü `model.bin`'in boyuna indirildi ve **0x110000'dan 0x1D0000'e
@@ -324,25 +330,54 @@ LED sayısı `HALKA_LED_SAYISI` (16: NeoPixel 16'lı halka, Ø44,5 / Ø31,75 mm)
 Ayar kartı = kaydında **nfc_no 200** yazan etiket. Standa konunca:
 
 1. Halka turkuaz nefes alır; kart Wi-Fi erişim noktası açar: ad **`Masalci-Ayar-XXXX`** (XXXX: kartın MAC'inin son
-   iki baytı), **WPA2**, şifre her açılışta yeni **8 haneli** sayı; oyuncak şifreyi **sesli iki kez söyler** (seri
-   porta da yazar).
-2. Telefon ağa bağlanınca ayar sayfası kendiliğinden açılır (DNS her adı karta yönlendirir; açılmazsa tarayıcıda
-   `http://192.168.4.1`). İnternet hiç kullanılmaz.
-3. Sayfada: çocuğun adı (en çok 20 harf, yalnız harf ve boşluk; Türkçe harfler), en yüksek ses (1–7), uyku
-   zamanlayıcısı (10/20/30 dk), halka parlaklığı, boşta nefes ışığı, hazırlık ışığı, ninnide müzik kutusu, oyuncak
-   alınınca ne olsun, **oyuncak tanıt**, **hikâyeleri sil** (isteğe bağlı: tanınan oyuncakları da unut). Doğrulama
-   kartta (`ayarlar.h`); geçersiz form hiç uygulanmaz. Ayarlar NVS'te (Preferences) kalır.
-4. Wi-Fi yalnız ayar modunda açıktır; kapanır: ayar kartı alınınca, sayfadan "Bitir"le ya da **10 dakika** sonra
-   ("oyuncak tanıt" kullanıldıysa kart alınması beklenen bir adımdır: o zaman stand 1 dk boş kalınca kapanır). Ayar
-   modunda arka plan üretimi ve sesli komutlar durur.
+   iki baytı), **WPA2**, şifre her açılışta yeni **8 haneli** sayı (radyo açıldıktan sonra `esp_random`: gerçek
+   rastgele); oyuncak şifreyi **sesli iki kez söyler** (seri porta da yazar).
+2. **Telefonla dokunma** (`ayar_karti.h`): kart, standdaki ayar kartına bu oturumun ağ adını ve şifresini NDEF Wi-Fi
+   kaydı olarak yazar (MIME `application/vnd.wfa.wsc`, WPA2-Kişisel/AES; sayfa 4'ten 108 B). Kart kaldırılıp
+   telefonun arkasına dokundurulunca Android ağa bağlanmayı önerir. Kartın kendi kaydı (nfc_no 200) NDEF'ten sonra
+   sayfa 36-37'ye taşınır; kart bu düzende de ayar kartı olarak tanınır, yazma yarıda kesilse de (önce sayfa 36,
+   sonra sayfa 4'ten başlayarak yazılır). Kart kilitliyse ya da NTAG değilse yalnız sesli şifre kalır.
+3. Telefon ağa bağlanınca ayar sayfası kendiliğinden açılır (DNS her adı karta yönlendirir; açılmazsa tarayıcıda
+   `http://192.168.4.1`). Sayfa açılınca telefonun saati karta gönderilir (`/saat`). İnternet hiç kullanılmaz.
+4. Sayfada: çocuğun adı ve okunuşu (en çok 20 harf, yalnız harf ve boşluk; Türkçe harfler; "Adı dinle"), **alarm**
+   (saat, günler, gün doğumu ışığı 0–30 dk, Eko'nun sesi / müzik kutusu / yüklenen ses, mesaj), **alarm sesi yükle**
+   (telefonda 8 kHz ADPCM'e çevrilir, en çok 10 s; dinle, sil), **yatma vakti** (hatırlatma, gece kilidi + sabah
+   saati), **sürpriz mesaj**, en yüksek ses (1–7), uyku zamanlayıcısı (10/20/30 dk), halka parlaklığı, boşta nefes
+   ışığı, hazırlık ışığı, ninnide müzik kutusu, oyuncak alınınca ne olsun, **oyuncak tanıt**, **hikâyeleri sil**
+   (isteğe bağlı: tanınan oyuncakları da unut). Mesajlarda harf, rakam, boşluk ve `. , ! ? ' - : ;` (en çok 120;
+   telefonun kıvrık tırnakları düzleşir; rakamlar okunurken yazıya çevrilir). Doğrulama kartta (`ayarlar.h`);
+   geçersiz form hiç uygulanmaz. Ayarlar NVS'te (Preferences) kalır.
+5. Wi-Fi yalnız ayar modunda açıktır. Kart kaldırılınca **kapanmaz** (telefona dokundurmak için); kapanır: telefon
+   3 dakikada bağlanmazsa, bağlanan telefon ayrıldıktan 2 dakika sonra, sayfadan "Bitir"le ya da **10 dakika** sonra
+   ("oyuncak tanıt" kullanıldıysa stand 1 dk boş kalınca). Ayar modunda arka plan üretimi ve sesli komutlar durur.
+
+Uç noktalar: `GET /`, `GET /durum`, `POST /kaydet`, `/saat` (t = UTC saniye, tz = dk), `/dinle`, `/surpriz`,
+`/alarm_dene`, `/alarm_ses` (çok parçalı dosya), `/alarm_ses_dinle`, `/alarm_ses_sil`, `/tanit`, `/sil`, `/bitir`.
+
+### Saat, alarm, yatma vakti, gece kilidi (`saat.h`)
+
+- Kartta pil destekli saat yok: saat ayar sayfası açılınca telefondan alınır, oyuncak açık kaldıkça `esp_timer` ile
+  sayılır. Piller çıkarılınca kaybolur (zamanlı işler, sayfa yeniden açılana kadar çalışmaz). Hafif uykuda iç RC
+  saati dakikalar mertebesinde kayabilir: ürün kartında 32,768 kHz kristal önerilir (`docs/DONANIM.md`).
+- **Alarm:** seçili günlerde; meşgulse (okuma sürüyorsa) 10 dakika içinde çalar. En çok 3 dakika; standa oyuncak
+  koymak / kaldırmak ya da "Merhaba Eko, dur" susturur (olay ana döngüye kalır: konan oyuncağın hikâyesi başlar).
+  Ses seviyesi alarmda en az 4. Saat ya da alarm o dakikanın içinde ayarlanırsa o günkü alarm hemen çalmaz.
+- **Gün doğumu ışığı:** alarmdan önce halka (`HT_GUNES`) koyu kırmızı → turuncu → sıcak beyaz, parlaklık ilerlemenin
+  karesiyle; uyku modundaki oyuncak uyanır.
+- **Yatma vakti:** her gün seçilen saatte bir kez hatırlatma (30 dakika içinde, okuma sürüyorsa sonra); ninni
+  çalıyorsa söylenmez. **Gece kilidi:** yatma vaktinden sabah saatine kadar hikâye figürü konunca hikâye yerine
+  ninni önerilir; Ay Dede serbest.
+- Seri port: `zaman` (özet), `saat UTC_SANİYE [DİLİM_DK]` (geliştirme: sayfasız saat), `alarm` (kısa deneme).
 
 **Neden açık ağ değil, WPA2 + söylenen şifre?** Ayar sayfası çocuğun adını gösterir ve değiştirir, etiket yazar,
 hikâyeleri siler. Açık ağda o 10 dakika içinde yakındaki herhangi biri (komşu, okul servisi) bağlanabilir ve trafik
 (çocuğun adı) şifresiz geçer. WPA2 trafiği şifreler; şifrenin her seferinde yeni olması ve **yalnız oyuncağın
 yanındakinin duyacağı şekilde söylenmesi**, ayar kartına ve oyuncağa fiziksel olarak erişen yetişkini (kartı
 standa koyan kişi) yetkili sayar; etikete/kutuya basılı sabit şifre gerekmez, kaybolmaz, kopyalanamaz. En çok 2
-bağlantı, 10 dakika sınırı ve kartın çekilmesiyle kapanma açık kalma süresini kısaltır. Bedeli: ebeveyn 8 rakam
-yazar (yılda birkaç kez).
+bağlantı, 10 dakika sınırı ve telefon bağlanmayınca 3 dakikada kapanma açık kalma süresini kısaltır. Telefonla
+dokunma (Kasım 2026) bu modeli bozmaz: şifre o oturumda karta yazılır, yani kartı ve oyuncağı elinde tutan yetişkin
+yetkilidir; oturum bitince karttaki şifre işe yaramaz (bir sonraki oturumda yenisi yazılır). Android'de 8 rakam
+yazmaya gerek kalmaz; iPhone'da sesli şifre yolu sürer.
 
 ### Oyuncak tanıtma (figür etiketlerini programlamak)
 

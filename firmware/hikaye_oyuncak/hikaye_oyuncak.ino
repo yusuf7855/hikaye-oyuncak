@@ -71,6 +71,7 @@
 #include "halka.h"
 #include "selam.h"
 #include "ayarlar.h"
+#include "alarm_ses.h"
 #include "kws.h"
 #include "muzik_kutusu.h"
 #include "generated/figur_donanim.h"
@@ -540,15 +541,45 @@ static const char *const UYKU_AD[4] = {"yok", "ninni", "sönüyor", "kapalı"};
 static struct { int durum; uint32_t bitis_ms, sonme_ms; } uyku;
 // Ayar modu (ayar kartı standda): Wi-Fi erişim noktası + ayar sayfası
 enum { TANIT_YOK, TANIT_BEKLE, TANIT_SONUC };
+enum { AYAR_IS_YOK, AYAR_IS_DINLE, AYAR_IS_ALARM, AYAR_IS_ALARM_SES };
 static struct {
   bool acik, tanit_oldu, kapat_iste, tanit_tamam;
   uint32_t bas_ms, bos_ms, tanit_ms;
   int tanit, tanit_no;
   char mesaj[128];
+  bool kart_yazildi;                 // ayar kartına bu oturumun Wi-Fi bilgisi yazıldı (telefonla dokunulabilir)
+  bool istemci_oldu;                 // bir telefon bağlandı (ya da sayfa istendi)
+  uint32_t kart_kalkti_ms, istemci_son_ms;
+  int is;                            // sayfanın istediği, ana döngüde yapılacak iş (AYAR_IS_*)
 } ayr;
 static uint32_t son_etkinlik_ms = 0;          // son olay / seri komut
 static bool uretim_serbest = false;          // geliştirme (seri "2 4"): standda oyuncak olmasa da üret
 static bool ayar_kirli = false;
+// Saat (ayar sayfası açılınca telefondan alınır; saat.h) ve zamanlı işler: alarm, gün doğumu, yatma vakti, gece kilidi
+static struct { bool gecerli; int64_t utc_s, us; } yerel;  // telefonun verdiği UTC saniye ve o anki esp_timer
+static SaatDurum saat_d = {-1, -1};
+static struct { bool aktif; int binde; } gunes;           // alarmdan önce halka yavaşça aydınlanıyor
+static char surpriz[AYAR_MESAJ_BAYT];                     // ebeveynin bir kerelik mesajı: sonraki oyuncakta söylenir
+static int selam_sira = 0;                                 // selam çeşidi (açılışta 0: ilk selam hep aynı)
+static int64_t yerel_simdi() { return yerel.utc_s + (esp_timer_get_time() - yerel.us) / 1000000 + (int64_t)ay.tz_dk * 60; }
+static const char *hitap() { return ay.okunus[0] ? ay.okunus : ay.ad; }  // konuşmada çocuğun adı (okunuşu)
+static void alarm_cal(bool deneme);
+// Saat ve zamanlı işlerin özeti (seri port)
+static void zaman_yaz(const char *on) {
+  const SaatAyar *z = &ay.zaman;
+  char g[48] = "", saat[16] = "-";
+  int n = 0;
+  for (int i = 0; i < 7; i++)
+    if ((z->alarm_gunler >> i) & 1) n += snprintf(g + n, sizeof g - n, "%s%s", n ? "," : "", SAAT_GUN_KISA[i]);
+  if (yerel.gecerli) {
+    int m = saat_gun_dakika(yerel_simdi());
+    saat_yaz(m / 60, m % 60, saat, sizeof saat);
+  }
+  Serial.printf("%ssaat %s | alarm %s %02d:%02d (%s; gün doğumu %d dk; %s) | yatma vakti %s %02d:%02d | gece kilidi %s "
+                "(sabah %02d:%02d)\n", on, saat, z->alarm_acik ? "açık" : "kapalı", z->alarm_saat, z->alarm_dk, n ? g : "gün yok",
+                z->alarm_gunes, ALARM_TUR_AD[ay.alarm_tur], z->yatma_acik ? "açık" : "kapalı", z->yatma_saat, z->yatma_dk,
+                z->kilit ? "açık" : "kapalı", z->sabah_saat, z->sabah_dk);
+}
 
 static int donanim_bul(int no) {
   for (int d = 0; d < DONANIM_N; d++)
@@ -1456,10 +1487,16 @@ static void uyku_uyan() {
   uyku.durum = UYKU_YOK;
 }
 
-// Halkanın boştaki durumu: ayar > uyku > hata (model yok) > standda oyuncak > boşta
+// Halkanın boştaki durumu: ayar > gün doğumu > uyku > hata (model yok) > standda oyuncak > boşta
+static void halka_gunes(int binde) {
+  portENTER_CRITICAL(&halka_kilit);
+  halka.gunes = (uint16_t)(binde < 0 ? 0 : binde > 1000 ? 1000 : binde);
+  portEXIT_CRITICAL(&halka_kilit);
+}
 static void halka_bosta() {
   halka_bitti_ms = 0;
   if (ayr.acik) halka_durum(HT_AYAR);
+  else if (gunes.aktif) { halka_gunes(gunes.binde); if (halka.taban != HT_GUNES) halka_durum(HT_GUNES); }
   else if (uyku.durum == UYKU_KAPALI) halka_durum(HT_KAPALI);
   else if (uyku.durum == UYKU_SONUYOR) {}  // gece sönmesi sürüyor
   else if (uyku.durum == UYKU_NINNI) halka_durum(HT_GECE);
@@ -1745,6 +1782,28 @@ static void ayar_yukle() {
   ay.nefes = prefs.getUChar("nefes", ay.nefes);
   ay.arka_goster = prefs.getUChar("arka_gos", ay.arka_goster);
   ay.muzik = prefs.getUChar("muzik", ay.muzik);
+  String ok = prefs.getString("okunus", "");
+  if (ad_temizle(ok.c_str(), t) == AD_TAMAM) snprintf(ay.okunus, sizeof ay.okunus, "%s", t);
+  SaatAyar *z = &ay.zaman;
+  z->alarm_acik = prefs.getUChar("al_acik", z->alarm_acik);
+  z->alarm_saat = prefs.getUChar("al_sa", z->alarm_saat);
+  z->alarm_dk = prefs.getUChar("al_dk", z->alarm_dk);
+  z->alarm_gunler = prefs.getUChar("al_gun", z->alarm_gunler);
+  z->alarm_gunes = prefs.getUChar("al_gunes", z->alarm_gunes);
+  z->yatma_acik = prefs.getUChar("ya_acik", z->yatma_acik);
+  z->yatma_saat = prefs.getUChar("ya_sa", z->yatma_saat);
+  z->yatma_dk = prefs.getUChar("ya_dk", z->yatma_dk);
+  z->kilit = prefs.getUChar("kilit", z->kilit);
+  z->sabah_saat = prefs.getUChar("sb_sa", z->sabah_saat);
+  z->sabah_dk = prefs.getUChar("sb_dk", z->sabah_dk);
+  ay.alarm_tur = prefs.getUChar("al_tur", ay.alarm_tur);
+  ay.tz_dk = prefs.getShort("tz", ay.tz_dk);
+  {
+    static char m[AYAR_MESAJ_BAYT];
+    String am = prefs.getString("al_mesaj", ""), sp = prefs.getString("surpriz", "");
+    if (mesaj_temizle(am.c_str(), m) == AD_TAMAM) snprintf(ay.alarm_mesaj, sizeof ay.alarm_mesaj, "%s", m);
+    if (mesaj_temizle(sp.c_str(), m) == AD_TAMAM) snprintf(surpriz, sizeof surpriz, "%s", m);
+  }
   sahip_maske = prefs.getUInt("sahip", 0) & ((1u << DONANIM_N) - 1);
   arka_acik = prefs.getBool("arka", true);
   if (ses_seviye < 0 || ses_seviye >= SES_SEVIYE_N) ses_seviye = SES_SEVIYE_VARSAYILAN;
@@ -1762,6 +1821,23 @@ static void ayar_kaydet_simdi() {
   prefs.putUChar("nefes", ay.nefes);
   prefs.putUChar("arka_gos", ay.arka_goster);
   prefs.putUChar("muzik", ay.muzik);
+  prefs.putString("okunus", ay.okunus);
+  const SaatAyar *z = &ay.zaman;
+  prefs.putUChar("al_acik", z->alarm_acik);
+  prefs.putUChar("al_sa", z->alarm_saat);
+  prefs.putUChar("al_dk", z->alarm_dk);
+  prefs.putUChar("al_gun", z->alarm_gunler);
+  prefs.putUChar("al_gunes", z->alarm_gunes);
+  prefs.putUChar("ya_acik", z->yatma_acik);
+  prefs.putUChar("ya_sa", z->yatma_saat);
+  prefs.putUChar("ya_dk", z->yatma_dk);
+  prefs.putUChar("kilit", z->kilit);
+  prefs.putUChar("sb_sa", z->sabah_saat);
+  prefs.putUChar("sb_dk", z->sabah_dk);
+  prefs.putUChar("al_tur", ay.alarm_tur);
+  prefs.putShort("tz", ay.tz_dk);
+  prefs.putString("al_mesaj", ay.alarm_mesaj);
+  prefs.putString("surpriz", surpriz);
   prefs.putUInt("sahip", sahip_maske);
   prefs.putBool("arka", arka_acik);
 }
@@ -1852,7 +1928,9 @@ static char ayar_sifre[9], ayar_ssid[33];
 static bool web_kuruldu = false;
 
 static void web_json(int kod, const char *govde) { web.send(kod, "application/json; charset=utf-8", govde); }
+static void web_etkin() { ayr.istemci_oldu = true; ayr.istemci_son_ms = millis(); }  // telefon bağlı (sayfa isteği)
 static void web_yonlendir() {
+  web_etkin();
   web.sendHeader("Location", "http://192.168.4.1/", true);
   web.send(302, "text/plain", "");
 }
@@ -1862,9 +1940,52 @@ static const char *web_alan(void *, const char *ad) {
   s = web.arg(ad);
   return s.c_str();
 }
-static void web_sayfa() { web.send(200, "text/html; charset=utf-8", AYAR_SAYFA); }
+static void web_sayfa() { web_etkin(); web.send(200, "text/html; charset=utf-8", AYAR_SAYFA); }
+
+// ---- alarm sesi bölümü (alarm_ses.h): başlık + IMA ADPCM ----
+static const esp_partition_t *alarm_bolum = NULL;
+static AlarmSesBaslik alarm_b;
+static bool alarm_ses_var = false;
+static bool alarm_ses_dogrula() {  // başlık + CRC; geçerliyse alarm_b dolu
+  alarm_ses_var = false;
+  if (!alarm_bolum || esp_partition_read(alarm_bolum, 0, &alarm_b, sizeof alarm_b) != ESP_OK) return false;
+  if (!alarm_ses_baslik_gecerli(&alarm_b, alarm_bolum->size)) return false;
+  static uint8_t b[512];
+  uint32_t crc = 0, ofs = ALARM_SES_BASLIK;
+  for (int kalan = alarm_ses_veri_bayt(alarm_b.n); kalan > 0;) {
+    int k = kalan < (int)sizeof b ? kalan : (int)sizeof b;
+    if (esp_partition_read(alarm_bolum, ofs, b, (size_t)k) != ESP_OK) return false;
+    crc = alarm_crc32(crc, b, k);
+    ofs += (uint32_t)k;
+    kalan -= k;
+  }
+  alarm_ses_var = crc == alarm_b.crc;
+  return alarm_ses_var;
+}
+static void alarm_ses_hazirla() {
+  alarm_bolum = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, (esp_partition_subtype_t)0x43, "alarm");
+  if (!alarm_bolum) { Serial.println("alarm bölümü yok (eski partitions.csv): yüklenen alarm sesi yok"); return; }
+  alarm_ses_dogrula();
+}
+static void alarm_ses_sil() {
+  if (alarm_bolum) esp_partition_erase_range(alarm_bolum, 0, 4096);
+  alarm_ses_var = false;
+}
+// JSON dizgesi için kaçış (" \ ve denetim karakterleri)
+static int json_kacis(const char *in, char *out, int kap) {
+  int n = 0;
+  for (const unsigned char *p = (const unsigned char *)in; *p && n < kap - 2; p++) {
+    if (*p < 0x20) continue;
+    if (*p == '"' || *p == '\\') out[n++] = '\\';
+    out[n++] = (char)*p;
+  }
+  out[n] = 0;
+  return n;
+}
+
 static void web_durum() {
-  static char b[2560];
+  web_etkin();
+  static char b[4096];
   int n = snprintf(b, sizeof b, "{\"ayar\":{");
   n += ayar_json(&ay, b + n, sizeof b - n);
   long kalan = (long)(AYAR_SURE_MS - (millis() - ayr.bas_ms)) / 1000;
@@ -1876,11 +1997,27 @@ static void web_durum() {
                   DONANIM_NFC[d], DONANIM_AD[d], (int)((sahip_maske >> d) & 1),
                   f >= 0 && kuyruk_var ? kuyruk_say(&kq, f, -1) : -1, DONANIM_MOD[d] == MOD_UYKU);
   }
-  snprintf(b + n, sizeof b - n, "],\"ayar_karti\":%d,\"tanit\":{\"durum\":%d,\"no\":%d,\"tamam\":%d,\"mesaj\":\"%s\"}}",
-           AYAR_KARTI_NFC, ayr.tanit, ayr.tanit_no, ayr.tanit_tamam, ayr.mesaj);
+  n += snprintf(b + n, sizeof b - n, "],\"ayar_karti\":%d,\"tanit\":{\"durum\":%d,\"no\":%d,\"tamam\":%d,\"mesaj\":\"%s\"}",
+                AYAR_KARTI_NFC, ayr.tanit, ayr.tanit_no, ayr.tanit_tamam, ayr.mesaj);
+  char saat[16] = "";
+  int gun = -1;
+  if (yerel.gecerli) {
+    int64_t y = yerel_simdi();
+    int m = saat_gun_dakika(y);
+    saat_yaz(m / 60, m % 60, saat, sizeof saat);
+    gun = saat_hafta_gunu(saat_gun(y));
+  }
+  char ad[2 * sizeof alarm_b.ad];
+  json_kacis(alarm_ses_var ? alarm_b.ad : "", ad, sizeof ad);
+  snprintf(b + n, sizeof b - n,
+           ",\"saat\":{\"gecerli\":%d,\"simdi\":\"%s\",\"gun\":%d},\"alarm_ses\":{\"bolum\":%d,\"var\":%d,\"sn\":%.1f,"
+           "\"ad\":\"%s\",\"en_cok_sn\":%d},\"surpriz\":\"%s\",\"kart_yazildi\":%d}",
+           (int)yerel.gecerli, saat, gun, alarm_bolum != NULL, (int)alarm_ses_var,
+           alarm_ses_var ? alarm_b.n / (double)ALARM_SES_SR : 0.0, ad, ALARM_SES_SN, surpriz, (int)ayr.kart_yazildi);
   web_json(200, b);
 }
 static void web_kaydet() {
+  web_etkin();
   char h[128], b[192];
   if (ayar_form_uygula(&ay, web_alan, NULL, h, sizeof h)) {
     snprintf(b, sizeof b, "{\"tamam\":false,\"hata\":\"%s\"}", h);
@@ -1889,12 +2026,115 @@ static void web_kaydet() {
   }
   ayar_uygula();
   ayar_kaydet_simdi();
+  if (yerel.gecerli) saat_durum_kur(&ay.zaman, &saat_d, yerel_simdi());  // yeni alarm, penceresi içindeyse hemen çalmasın
   Serial.printf("[ayar] kaydedildi: ad \"%s\", en yüksek ses %d, uyku %d dk, parlaklık %d, çekilince %s, nefes %d, "
                 "hazırlık ışığı %d, müzik %d\n", ay.ad, ay.ses_maks, ay.uyku_dk, ay.parlaklik, CEKILINCE_AD[ay.cekilince],
                 ay.nefes, ay.arka_goster, ay.muzik);
+  zaman_yaz("[ayar] ");
   web_json(200, "{\"tamam\":true}");
 }
+// Telefonun saati: t = UTC saniye, tz = saat dilimi (dakika; Türkiye 180)
+static void web_saat() {
+  web_etkin();
+  long long t = web.hasArg("t") ? atoll(web.arg("t").c_str()) : 0;
+  int tz = web.hasArg("tz") ? atoi(web.arg("tz").c_str()) : ay.tz_dk;
+  if (t < 1700000000LL || t > 4102444800LL || tz < -720 || tz > 840) {
+    web_json(400, "{\"tamam\":false,\"hata\":\"Saat geçersiz.\"}");
+    return;
+  }
+  yerel.utc_s = t;
+  yerel.us = esp_timer_get_time();
+  yerel.gecerli = true;
+  if (ay.tz_dk != tz) { ay.tz_dk = (int16_t)tz; ayar_kaydet_simdi(); }
+  saat_durum_kur(&ay.zaman, &saat_d, yerel_simdi());
+  zaman_yaz("[ayar] saat telefondan alındı: ");
+  web_json(200, "{\"tamam\":true}");
+}
+static void web_is(int is) {
+  web_etkin();
+  ayr.is = is;
+  web_json(200, "{\"tamam\":true}");
+}
+static void web_dinle() { web_is(AYAR_IS_DINLE); }
+static void web_alarm_dene() { web_is(AYAR_IS_ALARM); }
+static void web_alarm_ses_dinle() {
+  if (!alarm_ses_var) { web_json(400, "{\"tamam\":false,\"hata\":\"Yüklenmiş alarm sesi yok.\"}"); return; }
+  web_is(AYAR_IS_ALARM_SES);
+}
+static void web_alarm_ses_sil() {
+  web_etkin();
+  alarm_ses_sil();
+  Serial.println("[ayar] alarm sesi silindi");
+  web_json(200, "{\"tamam\":true}");
+}
+// Sürpriz mesaj: bir sonraki oyuncakta selamdan sonra bir kez söylenir ("" siler)
+static void web_surpriz() {
+  web_etkin();
+  static char m[AYAR_MESAJ_BAYT];
+  int r = mesaj_temizle(web.hasArg("mesaj") ? web.arg("mesaj").c_str() : "", m);
+  if (r != AD_TAMAM) {
+    web_json(400, r == AD_UZUN ? "{\"tamam\":false,\"hata\":\"Mesaj en çok 120 karakter olabilir.\"}"
+                               : "{\"tamam\":false,\"hata\":\"Mesajda yalnız harf, rakam, boşluk ve . , ! ? ' - : ; olabilir.\"}");
+    return;
+  }
+  snprintf(surpriz, sizeof surpriz, "%s", m);
+  ayar_kaydet_simdi();
+  Serial.printf("[ayar] sürpriz mesaj: %s\n", *surpriz ? surpriz : "(silindi)");
+  web_json(200, "{\"tamam\":true}");
+}
+// Alarm sesi yükleme (çok parçalı form, tek dosya: AlarmSesBaslik + ADPCM; sayfanın kodlayıcısı üretir). Parçalar
+// geldikçe bölüme yazılır; sonunda başlık ve CRC denetlenir, tutmazsa silinir.
+static struct { bool hata; uint32_t yazilan; char mesaj[96]; } yukle;
+static void web_alarm_ses_parca() {
+  HTTPUpload &u = web.upload();
+  if (u.status == UPLOAD_FILE_START) {
+    web_etkin();
+    memset(&yukle, 0, sizeof yukle);
+    if (!alarm_bolum) { yukle.hata = true; snprintf(yukle.mesaj, sizeof yukle.mesaj, "Alarm bölümü yok (eski bölüm tablosu)."); return; }
+    alarm_ses_var = false;
+    esp_partition_erase_range(alarm_bolum, 0, alarm_bolum->size);
+  } else if (u.status == UPLOAD_FILE_WRITE) {
+    if (yukle.hata) return;
+    if (yukle.yazilan + u.currentSize > alarm_bolum->size) {
+      yukle.hata = true;
+      snprintf(yukle.mesaj, sizeof yukle.mesaj, "Ses çok uzun (en çok %d saniye).", ALARM_SES_SN);
+      return;
+    }
+    if (esp_partition_write(alarm_bolum, yukle.yazilan, u.buf, u.currentSize) != ESP_OK) {
+      yukle.hata = true;
+      snprintf(yukle.mesaj, sizeof yukle.mesaj, "Flash'a yazılamadı.");
+      return;
+    }
+    yukle.yazilan += (uint32_t)u.currentSize;
+  } else if (u.status == UPLOAD_FILE_ABORTED) {  // bağlantı koptu: son işleyici çağrılmaz, yarım ses silinir
+    yukle.hata = true;
+    snprintf(yukle.mesaj, sizeof yukle.mesaj, "Yükleme yarıda kesildi.");
+    alarm_ses_sil();
+    Serial.printf("[ayar] alarm sesi yüklenemedi: %s\n", yukle.mesaj);
+  }
+}
+static void web_alarm_ses() {
+  web_etkin();
+  if (!yukle.hata) {
+    if (!alarm_ses_dogrula() || yukle.yazilan != ALARM_SES_BASLIK + (uint32_t)alarm_ses_veri_bayt(alarm_b.n)) {
+      yukle.hata = true;
+      snprintf(yukle.mesaj, sizeof yukle.mesaj, "Ses dosyası bozuk geldi; yeniden deneyin.");
+    }
+  }
+  char b[192];
+  if (yukle.hata) {
+    alarm_ses_sil();
+    Serial.printf("[ayar] alarm sesi yüklenemedi: %s\n", yukle.mesaj);
+    snprintf(b, sizeof b, "{\"tamam\":false,\"hata\":\"%s\"}", yukle.mesaj);
+    web_json(400, b);
+    return;
+  }
+  Serial.printf("[ayar] alarm sesi yüklendi: \"%s\", %.1f s\n", alarm_b.ad, alarm_b.n / (double)ALARM_SES_SR);
+  snprintf(b, sizeof b, "{\"tamam\":true,\"sn\":%.1f}", alarm_b.n / (double)ALARM_SES_SR);
+  web_json(200, b);
+}
 static void web_tanit() {
+  web_etkin();
   int no = 0;
   if (!web.hasArg("no") || !ayar_sayi(web.arg("no").c_str(), &no) || (donanim_bul(no) < 0 && no != AYAR_KARTI_NFC)) {
     web_json(400, "{\"tamam\":false,\"hata\":\"Figür seçin.\"}");
@@ -1910,6 +2150,7 @@ static void web_tanit() {
   web_json(200, "{\"tamam\":true}");
 }
 static void web_sil() {
+  web_etkin();
   bool unut = web.hasArg("unut") && web.arg("unut") == "1";
   int n = kuyruk_var ? kuyruk_temizle(&kq) : 0;
   arka.aktif = false;
@@ -1920,6 +2161,7 @@ static void web_sil() {
   web_json(200, b);
 }
 static void web_bitir() {
+  web_etkin();
   web_json(200, "{\"tamam\":true}");
   ayr.kapat_iste = true;
 }
@@ -1931,6 +2173,13 @@ static void web_kur() {
   web.on("/tanit", HTTP_POST, web_tanit);
   web.on("/sil", HTTP_POST, web_sil);
   web.on("/bitir", HTTP_POST, web_bitir);
+  web.on("/saat", HTTP_POST, web_saat);
+  web.on("/dinle", HTTP_POST, web_dinle);
+  web.on("/surpriz", HTTP_POST, web_surpriz);
+  web.on("/alarm_dene", HTTP_POST, web_alarm_dene);
+  web.on("/alarm_ses", HTTP_POST, web_alarm_ses, web_alarm_ses_parca);
+  web.on("/alarm_ses_dinle", HTTP_POST, web_alarm_ses_dinle);
+  web.on("/alarm_ses_sil", HTTP_POST, web_alarm_ses_sil);
   // telefonların "internet var mı" denemeleri: sayfaya yönlendir (captive portal penceresi açılır)
   static const char *const YOKLAMA[] = {"/generate_204", "/gen_204", "/hotspot-detect.html", "/library/test/success.html",
                                         "/connecttest.txt", "/ncsi.txt", "/redirect", "/canonical.html", "/fwlink"};
@@ -1945,8 +2194,6 @@ static void ayar_modu_ac() {
   ayr.acik = true;
   ayr.bas_ms = ayr.bos_ms = millis();
   durak.var = false;
-  for (int i = 0; i < 8; i++) ayar_sifre[i] = (char)('0' + esp_random() % 10);
-  ayar_sifre[8] = 0;
   uint8_t mac[6] = {0};
   esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
   snprintf(ayar_ssid, sizeof ayar_ssid, "%s%02X%02X", AYAR_SSID_ONEK, mac[4], mac[5]);
@@ -1954,6 +2201,9 @@ static void ayar_modu_ac() {
   Serial.printf("[ayar modu] boş SRAM %u B, PSRAM %u B\n", (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
                 (unsigned)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
   WiFi.mode(WIFI_AP);
+  // Şifre radyo açıldıktan sonra: esp_random() ancak Wi-Fi/BT açıkken gerçek rastgele (ESP-IDF belgesi)
+  for (int i = 0; i < 8; i++) ayar_sifre[i] = (char)('0' + esp_random() % 10);
+  ayar_sifre[8] = 0;
   IPAddress ip(192, 168, 4, 1), ag(255, 255, 255, 0);
   WiFi.softAPConfig(ip, ip, ag);
   if (!WiFi.softAP(ayar_ssid, ayar_sifre, 1, 0, 2)) {  // WPA2-PSK, kanal 1, görünür, en çok 2 bağlantı
@@ -1970,9 +2220,20 @@ static void ayar_modu_ac() {
   web.begin();
   Serial.printf("[ayar modu] Wi-Fi: %s | şifre: %s | sayfa: http://192.168.4.1 | en çok %lu dk\n", ayar_ssid,
                 ayar_sifre, AYAR_SURE_MS / 60000);
-  char r[128], m[400];
+  // Telefonla dokunma: standdaki ayar kartına bu oturumun ağ adı ve şifresi (NDEF, ayar_karti.h)
+  if (stand.dolu && stand.no == AYAR_KARTI_NFC) {
+    int w = nfc_ayar_karti_yaz(AYAR_KARTI_NFC, ayar_ssid, ayar_sifre, mac, stand.uid, stand.uid_n);
+    ayr.kart_yazildi = w == NFC_YAZ_TAMAM;
+    Serial.printf("[ayar modu] ayar kartına Wi-Fi bilgisi %s%s\n", ayr.kart_yazildi ? "yazıldı: kartı telefona dokundurun" : "yazılamadı: ",
+                  ayr.kart_yazildi ? "" : NFC_YAZ_AD[-w]);
+  }
+  char r[128], m[480];
   rakam_metni(ayar_sifre, r, sizeof r);
-  snprintf(m, sizeof m, "Ayar modu açık. Telefonunla Masalcı Ayar ağına bağlan. Şifre: %s. Tekrar ediyorum: %s.", r, r);
+  if (ayr.kart_yazildi)
+    snprintf(m, sizeof m, "Ayar modu açık. Ayar kartını telefonunun arkasına dokundur ya da telefonunla Masalcı Ayar "
+                          "ağına bağlan. Şifre: %s. Tekrar ediyorum: %s.", r, r);
+  else
+    snprintf(m, sizeof m, "Ayar modu açık. Telefonunla Masalcı Ayar ağına bağlan. Şifre: %s. Tekrar ediyorum: %s.", r, r);
   konus(m);
 }
 
@@ -2023,10 +2284,30 @@ static void ayar_dongu() {
     if (o.tur == OLAY_STAND_KONDU || o.tur == OLAY_STAND_BILINMEYEN) {
       bool ayar_karti = o.tur == OLAY_STAND_KONDU && o.deger == AYAR_KARTI_NFC;
       if (ayr.tanit == TANIT_BEKLE && (!ayar_karti || ayr.tanit_no == AYAR_KARTI_NFC)) tanit_yaz();
-    } else if (o.tur == OLAY_STAND_KALKTI && !ayr.tanit_oldu) {
-      ayar_modu_kapat("ayar kartı kaldırıldı");
-      return;
+    } else if (o.tur == OLAY_STAND_KALKTI && !ayr.tanit_oldu && !ayr.kart_kalkti_ms) {
+      ayr.kart_kalkti_ms = simdi ? simdi : 1;  // telefona dokundurmak için kaldırıldı olabilir: hemen kapanmaz
+      Serial.println("[ayar modu] ayar kartı kaldırıldı: telefon bağlanana kadar açık");
     }  // sesli komutlar ve düğmeler ayar modunda yok sayılır
+  }
+  if (WiFi.softAPgetStationNum() > 0) { ayr.istemci_oldu = true; ayr.istemci_son_ms = simdi; }
+  if (ayr.is != AYAR_IS_YOK) {  // sayfanın istediği sesli işler (yanıt gittikten sonra)
+    int is = ayr.is;
+    ayr.is = AYAR_IS_YOK;
+    if (is == AYAR_IS_DINLE) {
+      static char m[160];
+      ad_dene_metni(hitap(), m, sizeof m);
+      konus(m);
+    } else if (is == AYAR_IS_ALARM) {
+      alarm_cal(true);
+    } else if (is == AYAR_IS_ALARM_SES) {
+      int eski = ay.alarm_tur;
+      ay.alarm_tur = ALARM_YUKLENEN;
+      alarm_cal(true);
+      ay.alarm_tur = (uint8_t)eski;
+    }
+    halka_durum(HT_AYAR);
+    simdi = millis();
+    ayr.istemci_son_ms = simdi;
   }
   if (ayr.tanit == TANIT_BEKLE && simdi - ayr.tanit_ms > AYAR_TANIT_MS) {
     ayr.tanit = TANIT_SONUC;
@@ -2037,6 +2318,156 @@ static void ayar_dongu() {
   if (ayr.kapat_iste) ayar_modu_kapat("sayfadan bitirildi");
   else if (simdi - ayr.bas_ms >= AYAR_SURE_MS) ayar_modu_kapat("10 dakika doldu");
   else if (ayr.tanit_oldu && simdi - ayr.bos_ms >= AYAR_BOS_KAPAT_MS) ayar_modu_kapat("stand 1 dakikadır boş");
+  else if (ayr.kart_kalkti_ms && !ayr.istemci_oldu && simdi - ayr.kart_kalkti_ms >= AYAR_KARTSIZ_MS)
+    ayar_modu_kapat("ayar kartı kaldırıldı, telefon bağlanmadı");
+  else if (ayr.istemci_oldu && WiFi.softAPgetStationNum() == 0 && simdi - ayr.istemci_son_ms >= AYAR_ISTEMCISIZ_MS)
+    ayar_modu_kapat("telefon ayrıldı");
+}
+
+// ---- alarm, gün doğumu, yatma vakti (saat.h; zamanlayicilar() her saniye bakar) ----
+// Alarm en çok ALARM_SURE_MS çalar. Durdurmak için: standa oyuncak koymak ya da kaldırmak, "Merhaba Eko, dur" (ya da
+// başka bir komut). Olay ana döngüye bırakılır: alarmı oyuncak koyarak susturan çocuk hikâyesini de dinler.
+#define ALARM_SURE_MS 180000UL
+#define ALARM_DENEME_MS 12000UL   // ayar sayfasındaki "dene": kısa
+#define ALARM_SEVIYE_EN_AZ 4      // alarm sesi en az bu seviyede (en yüksek ses ayarını aşmadan)
+#define ALARM_MUZIK_KAT 16        // müzik kutusu tepe 900 -> alarmda ~14 400
+static MuzikKutusu alarm_mk;
+
+static bool alarm_durdu_mu(int stand_no, const char **neden) {
+  olaylari_topla();
+  if ((stand.dolu ? stand.no : -1) != stand_no) { *neden = "standa dokunuldu"; return true; }
+  Olay o;
+  while (olay_bak_(&o)) {
+    if (o.tur == OLAY_SESLI && sesli_yerinde_mi(o.deger)) {  // "Merhaba Eko", ses aç/kıs: yerinde
+      olay_al_(&o);
+      sesli_yerinde(o.deger);
+      continue;
+    }
+    *neden = o.tur == OLAY_SESLI ? "sesli komut" : "standa dokunuldu";
+    return true;
+  }
+  if (Serial.available()) { *neden = "seri port"; return true; }
+  return false;
+}
+static bool alarm_pcm(const int16_t *x, int n, int stand_no, const char **neden) {
+  if (hoparlor_var) pcm_yaz(NULL, x, n);
+  else delay((uint32_t)(n * 1000 / SES_SR) + 1);  // hoparlör yok (bilgisayardaki deneme): süre taklidi
+  bekci_besle();
+  return alarm_durdu_mu(stand_no, neden);
+}
+// Müzik kutusu ezgisi (yüksek), sure_ms boyunca. Döner: durduruldu mu
+static bool alarm_muzik(uint32_t sure_ms, int stand_no, const char **neden) {
+  static int16_t b[256];
+  for (uint32_t bas = millis(); millis() - bas < sure_ms;) {
+    for (int i = 0; i < 256; i++) {
+      int32_t v = (int32_t)mk_ornek(&alarm_mk) * ALARM_MUZIK_KAT;
+      b[i] = (int16_t)(v > 32767 ? 32767 : v < -32768 ? -32768 : v);
+    }
+    if (alarm_pcm(b, 256, stand_no, neden)) return true;
+  }
+  return false;
+}
+// Yüklenen sesi bir kez çalar (8 kHz ADPCM -> 16 kHz). Döner: durduruldu mu
+static bool alarm_yuklenen(int stand_no, const char **neden) {
+  static uint8_t in[256];
+  static int16_t x[512], y[1024];
+  Adpcm st = {0, 0};
+  int16_t onceki = 0;
+  uint32_t ofs = ALARM_SES_BASLIK, kalan = alarm_b.n;
+  while (kalan) {
+    int k = kalan > 512 ? 512 : (int)kalan, nb = (k + 1) / 2;
+    if (esp_partition_read(alarm_bolum, ofs, in, (size_t)nb) != ESP_OK) return false;
+    adpcm_coz(&st, in, k, x);
+    alarm_ses_iki_kat(&onceki, x, k, y);
+    for (int i = 0; i < 2 * k; i += 256)
+      if (alarm_pcm(y + i, 2 * k - i < 256 ? 2 * k - i : 256, stand_no, neden)) return true;
+    ofs += (uint32_t)nb;
+    kalan -= (uint32_t)k;
+  }
+  return false;
+}
+// Sessizlik (olaylara bakarak). Döner: durduruldu mu
+static bool alarm_bekle(uint32_t ms, int stand_no, const char **neden) {
+  for (uint32_t bas = millis(); millis() - bas < ms;) {
+    delay(50);
+    if (alarm_durdu_mu(stand_no, neden)) return true;
+  }
+  return false;
+}
+
+static void alarm_cal(bool deneme) {
+  int stand_no = stand.dolu ? stand.no : -1;
+  int tur = ay.alarm_tur;
+  if (tur == ALARM_YUKLENEN && !alarm_ses_var) tur = ALARM_MUZIK;
+  uyku_uyan();
+  gunes.aktif = false;
+  halka_durum(HT_ALARM);
+  static char m[768];
+  alarm_metni(hitap(), ay.alarm_mesaj, m, sizeof m);
+  Serial.printf("[alarm%s] çalıyor: %s\n", deneme ? " denemesi" : "", ALARM_TUR_AD[tur]);
+  int sv = ses_seviye < ALARM_SEVIYE_EN_AZ ? (ALARM_SEVIYE_EN_AZ < ay.ses_maks ? ALARM_SEVIYE_EN_AZ : ay.ses_maks) : ses_seviye;
+  cal_kazanc = SES_KAZANC[sv];
+  if (hoparlor_var) { amp(true); mk_kur(&alarm_mk); }
+  else mk_kur(&alarm_mk);
+  konusma_kesildi = false;
+  konusma_kesilebilir = false;
+  const char *neden = deneme ? "deneme bitti" : "süre doldu";
+  bool durdu = false;
+  uint32_t bas = millis(), sinir = deneme ? ALARM_DENEME_MS : ALARM_SURE_MS;
+  for (int tur_n = 0; !durdu && millis() - bas < sinir; tur_n++) {
+    bool soyle = tur == ALARM_SES || tur_n == 1;  // müzik/yüklenen: ilk turdan sonra bir kez günaydın
+    if (soyle) {
+      konus(m);
+      cal_kazanc = SES_KAZANC[sv];  // konuşma kesilince kazanç değişmiş olabilir
+      if (alarm_durdu_mu(stand_no, &neden)) { durdu = true; break; }
+    }
+    if (tur == ALARM_SES) durdu = alarm_bekle(3000, stand_no, &neden);
+    else if (tur == ALARM_YUKLENEN) durdu = alarm_yuklenen(stand_no, &neden) || alarm_bekle(600, stand_no, &neden);
+    else durdu = alarm_muzik(deneme ? 6000 : 21600, stand_no, &neden);
+    if (deneme && tur_n >= 1) break;
+  }
+  if (hoparlor_var) {
+    cal_sustur = true;
+    cal_bitir();
+    if (!muzik_acik) amp(false);
+  }
+  konusma_seviye = 0;
+  kazanc_guncelle();
+  Serial.printf("[alarm%s] durdu: %s (%lu sn)\n", deneme ? " denemesi" : "", neden, (unsigned long)((millis() - bas) / 1000));
+  son_etkinlik_ms = millis();
+  if (!deneme) halka_bosta();
+}
+
+static void yatma_hatirlat() {
+  if (uyku.durum == UYKU_NINNI || uyku.durum == UYKU_SONUYOR) { Serial.println("[yatma vakti: ninni zaten çalıyor]"); return; }
+  uyku_uyan();
+  for (int d = 0; d < DONANIM_N; d++)
+    if (DONANIM_MOD[d] == MOD_UYKU) { halka_figur(d); break; }  // gece mavisi: Ay Dede'nin rengi
+  halka_durum(HT_GECE);
+  static char m[256];
+  yatma_metni(hitap(), m, sizeof m);
+  Serial.println("[yatma vakti]");
+  konus(m);
+  halka_bitti_ms = millis();
+  son_etkinlik_ms = millis();
+}
+
+// Her saniye: gün doğumu ışığı, alarm, yatma hatırlatması (saat ayarlıysa)
+static void saat_isleri() {
+  static uint32_t son = 0;
+  if (!yerel.gecerli || millis() - son < 1000) return;
+  son = millis();
+  int binde = 0, o = saat_olay(&ay.zaman, &saat_d, yerel_simdi(), &binde);
+  if (o == SAAT_GUNES) {
+    if (!gunes.aktif) { uyku_uyan(); Serial.printf("[gün doğumu: alarmdan %d dk önce]\n", ay.zaman.alarm_gunes); }
+    gunes.aktif = true;
+    gunes.binde = binde;
+    halka_bosta();
+    return;
+  }
+  if (gunes.aktif && o != SAAT_GUNES) { gunes.aktif = false; if (o == SAAT_YOK) halka_bosta(); }
+  if (o == SAAT_ALARM) alarm_cal(false);
+  else if (o == SAAT_YATMA) yatma_hatirlat();
 }
 
 // ---- olaylar (okuma dışında, ana döngüde) ----
@@ -2060,15 +2491,34 @@ static void stand_kondu(int no) {
   sahip_ekle(d);
   durak.var = false;
   Serial.printf("\n[oyuncak: %s]\n", DONANIM_AD[d]);
+  if (DONANIM_MOD[d] != MOD_UYKU && yerel.gecerli && saat_gece_mi(&ay.zaman, yerel_simdi())) {  // gece kilidi
+    Serial.println("[gece kilidi: hikâye yerine ninni önerildi]");
+    for (int g = 0; g < DONANIM_N; g++)
+      if (DONANIM_MOD[g] == MOD_UYKU) { halka_figur(g); break; }
+    halka_durum(HT_GECE);
+    static char m[256];
+    gece_kilit_metni(hitap(), m, sizeof m);
+    konus(m);
+    halka_bitti_ms = millis();
+    return;
+  }
   halka_figur(d);
   halka_durum(HT_DOLMA);
   bekle_olayli(HALKA_DOLMA_MS);
   if (!stand.dolu || stand.no != no) return;  // dolarken kalktı
   bool gece = DONANIM_MOD[d] == MOD_UYKU;
   if (gece) uyku_baslat();
-  static char s[256];
-  if (gece) ninni_selam_metni(ay.ad, s, sizeof s);
-  else selam_metni(ay.ad, DONANIM_AD[d], s, sizeof s);
+  static char s[1024];
+  if (gece) ninni_selam_metni(hitap(), s, sizeof s);
+  else selam_metni_cesit(selam_sira++, hitap(), DONANIM_AD[d], s, sizeof s);
+  if (*surpriz) {  // ebeveynin mesajı: selamdan sonra bir kez
+    size_t n = strlen(s);
+    s[n++] = ' ';
+    surpriz_metni(hitap(), surpriz, s + n, (int)(sizeof s - n));
+    surpriz[0] = 0;
+    ayar_kaydet_simdi();
+    Serial.println("[sürpriz mesaj söyleniyor]");
+  }
   Serial.printf("[%s]\n", s);
   oyna_(d, OYNA_YENI, -1, s);  // selam + içerik (hazır yoksa selam çalarken model yazmaya başlar)
 }
@@ -2143,6 +2593,7 @@ static void olay_isle(const Olay &o) {
 
 // Ana döngünün süreleri: okuma bitince halka, ninni zamanlayıcısı, gece sönmesi, açılış
 static void zamanlayicilar() {
+  saat_isleri();
   uint32_t s = millis();
   if (acilis_bekliyor && halka.taban != HT_ACILIS) { acilis_bekliyor = false; halka_bosta(); }
   if (halka_bitti_ms && s - halka_bitti_ms >= 3000) halka_bosta();
@@ -2261,6 +2712,19 @@ static void seri_komut(String g) {
   }
 #endif
   if (g == "a") { ayar_modu_ac(); return; }
+  if (g == "alarm") { alarm_cal(true); return; }
+  if (g == "zaman") { zaman_yaz(""); return; }
+  if (g.startsWith("saat ")) {  // geliştirme: "saat UTC_SANİYE [DİLİM_DK]" (ayar sayfası olmadan saat)
+    long long t = 0;
+    int tz = ay.tz_dk;
+    sscanf(g.c_str() + 5, "%lld %d", &t, &tz);
+    if (t > 1700000000LL) {
+      yerel.utc_s = t; yerel.us = esp_timer_get_time(); yerel.gecerli = true; ay.tz_dk = (int16_t)tz;
+      saat_durum_kur(&ay.zaman, &saat_d, yerel_simdi());
+    }
+    zaman_yaz("");
+    return;
+  }
   if (g == "a kapat") { if (ayr.acik) ayar_modu_kapat("seri komut"); return; }
   if (g == "sahip" || g.startsWith("sahip ")) {  // tanınmış oyuncaklar: "sahip hepsi|yok|+3|-3" (nfc_no)
     const char *p = g.c_str() + 5;
@@ -2354,6 +2818,7 @@ void setup() {
   llm_var = llm_kur();
   ses_kur();  // LLM'den sonra: LLM'in PSRAM yerleşimi (head kopyası) eskisi gibi kalsın, ses kalanı kullanır
   kuyruk_hazirla();
+  alarm_ses_hazirla();
   nfc_var = nfc_kur();
 #if MIK_ACIK
   kws_var = kws_kur();
@@ -2372,6 +2837,8 @@ void setup() {
                 BEKCI_SN, bekci_var ? "" : " (kurulamadı)");
   Serial.printf("ayarlar: ad \"%s\", uyku %d dk, parlaklık %d, çekilince %s, müzik kutusu %s\n", ay.ad, ay.uyku_dk,
                 ay.parlaklik, CEKILINCE_AD[ay.cekilince], ay.muzik ? "açık" : "kapalı");
+  zaman_yaz("zamanlı işler: ");
+  if (alarm_bolum) Serial.printf("alarm sesi: %s\n", alarm_ses_var ? alarm_b.ad : "yüklenmedi (müzik kutusu çalar)");
   sahip_yaz();
   liste();
   son_etkinlik_ms = millis();

@@ -2,8 +2,11 @@
 # Ekim 2026 (ayar modu, Wi-Fi): uygulama 1 MB -> 1,75 MB. Model bölümü model.bin'e göre kısaldı (10 331 252 B ->
 # 0x9E0000, pay 23 436 B) ve 0x1D0000'e kaydı; ses adresi (0xBB0000) aynı, ses bölümü 64 KB kısaldı (ses.bin
 # 4 344 208 B -> pay 46 704 B); kuyruk 32 yuva, flash'ın sonunda; coredump bölümü yok (yer kalmadı).
+# Kasım 2026 (alarm sesi): ses bölümü ses.bin'e göre kısaldı (0x425000, pay 1 648 B; adres aynı), boşalan 44 KB
+# "alarm" bölümü oldu (yüklenen alarm sesi, alarm_ses.h: en çok 10 s). Kuyruk ve öteki adresler değişmedi.
 nvs,       data, nvs,     0x9000,    0x5000,
 factory,   app,  factory, 0x10000,   0x1C0000,
 model,     data, 0x40,    0x1D0000,  0x9E0000,
-ses,       data, 0x41,    0xBB0000,  0x430000,
+ses,       data, 0x41,    0xBB0000,  0x425000,
+alarm,     data, 0x43,    0xFD5000,  0xB000,
 kuyruk,    data, 0x42,    0xFE0000,  0x20000,
