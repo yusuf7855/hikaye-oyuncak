@@ -60,7 +60,9 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 ### Hızlandırma programına başvuru (çağrı açılınca)
 
 1. PRODİS → Hızlandırma Çağrıları → programı seçin → **İş Fikri Formu**.
-2. Genel bilgileri ve öğrenim durumunuzu girin. YÖK'ten çekilemiyorsa belgeyi yükleyin.
+2. Genel bilgileri ve öğrenim durumunuzu girin. YÖK'ten çekilemiyorsa belgeyi yükleyin. **Özgeçmiş formunu**
+   indirip doldurun ve PDF olarak ekleyin; taslak `10_OZGECMIS_TASLAGI.md`. Ekip üyelerinin özgeçmişleri
+   "Ekler" bölümüne yüklenir.
 3. **İş fikri adını** girin: *"Eko: İnternetsiz Çalışan, Cihaz İçi Yapay Zekâlı Türkçe Hikâye Oyuncağı"*.
    Bu ad sonradan değiştirilemez.
 4. Programın **İş Fikri Başvurusu Dokümanı** (Word) şablonunu indirin. `01_IS_FIKRI_DOKUMANI.md`'deki metinleri
@@ -119,6 +121,7 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 | `07_EKSIKLER_VE_UYARILAR.md` | Uygunluk şartları, fikri mülkiyet uyarıları, doldurmanız gereken bilgiler | ✅ okuyun |
 | `08_IS_PLANI_27_ADIM.md` | Hızlandırma programının 27 iş planı bileşenine karşılıklar | ✅ |
 | `09_ON_KAYIT_VE_TALEP_TESTI.md` | Talep testi: hedefler, Google Formu soruları, KVKK aydınlatma metni | ✅ başlatılacak |
+| `10_OZGECMIS_TASLAGI.md` | Özgeçmiş taslağı (siz + aranan ekip üyeleri); resmi form PRODİS'ten indirilir | ✅ kişisel bilgiler eklenecek |
 | `on_kayit/` | Ön kayıt sayfası (A/B fiyat testi) ve kartın sesiyle okunmuş 2 örnek hikâye; form bağlantıları eklenecek | ✅ taslak |
 | `resmi/` | TÜBİTAK'tan indirilen resmi belgeler, formlar ve örnek şirket kuruluş evrakı | indirildiği gibi |
 | `metin/` | Resmi PDF'lerin metin halleri (arama için) | — |
