@@ -39,7 +39,7 @@ oyuncaklar (Moxie) çalışmaz oldu. Türkçe içerik ise her iki grupta da yok 
 
 **Çözüm.** Eko, hikâyeyi cihazın içinde üretir:
 
-- **Türkçe dil modeli:** 5,7 milyon çekirdek parametreli, 10,3 MB, 4 bit. Önce kısa bir "Sorun/Çözüm" planı,
+- **Türkçe dil modeli:** ≈19,9 M parametre (5,7 M çekirdek + flaşta duran sözcük tablosu), 10,3 MB, 4 bit. Önce kısa bir "Sorun/Çözüm" planı,
   sonra hikâye yazar. 28.493 özgün çocuk hikâyesiyle eğitildi.
 - **Konuşma sentezi:** Karta özel, 4,3 MB. Ticari kullanıma açık bir öğretmen sesten (VoxCPM2, Apache-2.0)
   damıtıldı. Gece modunda yavaş ve kısık okur.
@@ -67,7 +67,8 @@ TinyStories demoları var.
 - Kart yazılımı PC'de ESP32 başlıklarıyla derlenip referans üretimle karşılaştırıldı: 52/52 aday ve seçicide
   872/872 birebir aynı.
 - Ses modelinin C çıkarımı PyTorch ile aynı sonucu veriyor (SNR ≥ 79 dB).
-- Eklenen her veri setiyle kalite kör kıyasta anlamlı olarak arttı:
+- Eklenen her veri setiyle kalite kör kıyasta anlamlı olarak arttı (hakemler yapay zekâ; insan hakemli kör test
+  pilotta yapılacak):
   - son model ara modeli 180 vakada 102–78 (genel) ve 99–73 (olay örgüsü) yendi;
   - Keloğlan'da önceki ürün modelini 48 vakada 34–14 ve 29–15 yendi.
 
@@ -83,8 +84,10 @@ TinyStories demoları var.
 **Pazar büyüklüğü.**
 
 - Türkiye'de 2028'de ≈3,8–3,9 milyon 3–6 yaş çocuk ve ≈3,3 milyon hane (TÜİK doğum verilerinden türetildi).
-  2.999 TL'lik setle bu, ≈9,9 milyar TL'lik bir toplam pazar; her yıl ≈0,93 milyon yeni çocuk bu yaşa girer.
-- Ulaşılabilir pazar (kentli, orta-üst gelir, ≈%30): ≈1,0 milyon hane, ≈3,0 milyar TL.
+  KDV hariç 2.499 TL'lik setle bu, ≈8,2 milyar TL'lik bir toplam pazar; her yıl ≈0,93 milyon yeni çocuk bu yaşa
+  girer (≈2,3 milyar TL).
+- Ulaşılabilir pazar (kentli, orta-üst gelir, ≈%30): ≈1,0 milyon hane, ≈2,5 milyar TL. Ek olarak MEB'e bağlı ≈17,6
+  bin anaokulu ve özel kreşler.
 - Dünyada ekransız ses oyuncakları hızla büyüyor: tonies 2025'te 630 M€ ciro yaptı (+%31), Yoto ≈95 M£.
 - Türkiye oyuncak pazarı ≈1 milyar USD ve %85'i ithal.
 

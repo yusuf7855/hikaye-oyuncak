@@ -58,34 +58,38 @@ ARGE_EK = [MALZEME_PROTOTIP_Y0 + HIZMET_Y0 + SEYAHAT_Y0, 300000, 600000, 800000,
 # --- Finansman (V) ---
 BIGG = 1350000                                           # TÜBİTAK BİGG Fonu, %3 pay (2026-2 çağrısı tutarı)
 BIGG_DEVAM = 1350000                                     # ilk dönem raporu sonrası devam yatırımı (tetikleyici şartlı)
-TOHUM = 12000000                                         # Y1 başı: BiGG+ (≤8 M TL, ≤%10) + eş yatırımcı ≈4 M TL
+TOHUM = 8000000                                          # Y1 başı: BiGG+ ≈5 M TL (≤%10) + eş yatırımcı ≈3 M TL
 ISLETME_SERMAYESI_ORANI = 0.15                           # stok + alacak, ciro payı
 
 
-def hesapla():
+def hesapla(adet_carpan=1.0, devam=True, tohum=None, sabit_carpan=1.0, kalip_ertele=False):
+    """Kötümser senaryo: satış ve Y1+ sabit giderler (ekip, pazarlama, kira, genel yönetim, Ar-Ge) çarpanla küçülür;
+    devam yatırımı gelmezse kalıp (700 bin TL) Y1'e ertelenir."""
     y = []
     kasa = 0.0
     onceki_ns = 0.0
     for i in range(6):
-        adet = ADET[i]
+        adet = round(ADET[i] * adet_carpan)
         paket = round(adet * EK_PAKET_ORANI)
         gelir_cihaz = adet * FIYAT
         gelir_paket = paket * EK_PAKET_FIYAT
         birim = MALZEME[i] + PERSONEL_BIRIM + ENERJI_BIRIM + DAGITIM_BIRIM + DIGER_BIRIM
         degisken = adet * birim + paket * (EK_PAKET_MALZEME + EK_PAKET_DAGITIM)
-        sabit = (PERSONEL[i] + MAKINE[i] + KIRA[i] + PAZARLAMA[i] + BELGELENDIRME[i] + GENEL_YONETIM[i]
-                 + ARGE_EK[i])
+        k = 1.0 if i == 0 else sabit_carpan
+        makine = MAKINE[i] + ((-700000 if i == 0 else 700000 if i == 1 else 0) if kalip_ertele else 0)
+        sabit = (k * (PERSONEL[i] + KIRA[i] + GENEL_YONETIM[i] + ARGE_EK[i]) + (PAZARLAMA[i] if i == 0 else k * PAZARLAMA[i])
+                 + makine + BELGELENDIRME[i])
         ciro = gelir_cihaz + gelir_paket
         favok = ciro - degisken - sabit
         ns = ISLETME_SERMAYESI_ORANI * ciro
-        finansman = (BIGG + BIGG_DEVAM if i == 0 else 0) + (TOHUM if i == 1 else 0)
+        finansman = (BIGG + (BIGG_DEVAM if devam else 0) if i == 0 else 0) + ((TOHUM if tohum is None else tohum) if i == 1 else 0)
         kasa += favok - (ns - onceki_ns) + finansman
         onceki_ns = ns
         y.append(dict(yil=YILLAR[i], kisa=KISA[i], adet=adet, ek_paket=paket, ciro=ciro, gelir_cihaz=gelir_cihaz,
                       gelir_paket=gelir_paket, birim_degisken=birim, degisken=degisken,
-                      brut_katki=ciro - degisken, personel=PERSONEL[i], makine=MAKINE[i], kira=KIRA[i],
-                      pazarlama=PAZARLAMA[i], belgelendirme=BELGELENDIRME[i], genel_yonetim=GENEL_YONETIM[i],
-                      arge=ARGE_EK[i], sabit=sabit, favok=favok, isletme_sermayesi=ns, finansman=finansman,
+                      brut_katki=ciro - degisken, personel=PERSONEL[i] * k, makine=makine, kira=KIRA[i] * k,
+                      pazarlama=PAZARLAMA[i] * (1.0 if i == 0 else sabit_carpan), belgelendirme=BELGELENDIRME[i],
+                      genel_yonetim=GENEL_YONETIM[i] * k, arge=ARGE_EK[i] * k, sabit=sabit, favok=favok, isletme_sermayesi=ns, finansman=finansman,
                       kasa_sonu=kasa, ekip=EKIP[i]))
     return y
 
@@ -104,24 +108,25 @@ def basa_bas(y):
     diger_sabit = sum(PERSONEL) + sum(PAZARLAMA) + sum(BELGELENDIRME) + sum(GENEL_YONETIM) + sum(ARGE_EK) \
         + paket_degisken
     toplam_sabit = makine + kira + diger_sabit
-    marj = FIYAT - birim
+    marj = round(FIYAT - birim)
     return dict(adet=toplam_adet, fiyat=FIYAT, satis=satis, diger_gelir=diger_gelir, toplam_gelir=satis + diger_gelir,
                 personel=PERSONEL_BIRIM, malzeme=round(malzeme_ort), enerji=ENERJI_BIRIM, dagitim=DAGITIM_BIRIM,
                 diger_degisken=DIGER_BIRIM, birim=round(birim), makine=makine, amortisman=0, kira=kira,
                 diger_sabit=round(diger_sabit), toplam_sabit=round(toplam_sabit), marj=round(marj),
                 basabas=round(toplam_sabit / marj), paket_degisken=paket_degisken, ek_paket=paket,
+                basabas_paketli=round((toplam_sabit - paket_degisken) / (marj + EK_PAKET_ORANI * (EK_PAKET_FIYAT - EK_PAKET_MALZEME - EK_PAKET_DAGITIM))),
                 diger_sabit_kalemler=dict(personel=sum(PERSONEL), pazarlama=sum(PAZARLAMA),
                                           belgelendirme=sum(BELGELENDIRME), genel_yonetim=sum(GENEL_YONETIM),
                                           arge_ve_proje_hizmetleri=sum(ARGE_EK), ek_paket_degisken=paket_degisken))
 
 
-def birim_ekonomisi():
-    katkı_cihaz = FIYAT - (MALZEME[3] + PERSONEL_BIRIM + ENERJI_BIRIM + DAGITIM_BIRIM + DIGER_BIRIM)
+def birim_ekonomisi(bb):
+    katkı_cihaz = bb["marj"]
     katkı_paket = EK_PAKET_FIYAT - EK_PAKET_MALZEME - EK_PAKET_DAGITIM
     ltv = katkı_cihaz + EK_PAKET_ORANI * katkı_paket
     cac = 450
     return dict(katki_cihaz=katkı_cihaz, katki_paket=katkı_paket, ltv=round(ltv), cac=cac,
-                ltv_cac=round(ltv / cac, 1), not_="Y3 malzeme maliyetiyle; LTV = cihaz katkısı + 0,8 ek paket katkısı")
+                ltv_cac=round(ltv / cac, 1), not_="6,5 yıl ağırlıklı birim maliyetle; LTV = cihaz katkısı + 0,8 ek paket katkısı")
 
 
 # --- 1812 Aşama 2 proje bütçesi (1.350.000 TL), Tahmini Maliyet Formları ile aynı ---
@@ -196,10 +201,11 @@ def main():
     os.makedirs(CIKTI, exist_ok=True)
     y = hesapla()
     bb = basa_bas(y)
-    be = birim_ekonomisi()
+    be = birim_ekonomisi(bb)
+    kotu = hesapla(adet_carpan=0.6, devam=False, tohum=5000000, sabit_carpan=0.6, kalip_ertele=True)
     bt = butce_toplam()
     assert bt["toplam"] == 1350000, bt["toplam"]
-    ozet = dict(yillar=y, basa_bas=bb, birim_ekonomisi=be, butce=bt, kanal=KANAL,
+    ozet = dict(yillar=y, basa_bas=bb, birim_ekonomisi=be, butce=bt, kanal=KANAL, kotumser=kotu,
                 varsayim=dict(kur=KUR, fiyat=FIYAT, ek_paket_orani=EK_PAKET_ORANI, ek_paket_fiyat=EK_PAKET_FIYAT,
                               bigg=BIGG, bigg_devam=BIGG_DEVAM, tohum=TOHUM, isletme_sermayesi=ISLETME_SERMAYESI_ORANI,
                               kisi_aylik=KISI_AYLIK))
@@ -208,6 +214,8 @@ def main():
     for r in y:
         print(f"{r['kisa']}: adet {r['adet']:>6} ciro {r['ciro']/1e6:6.2f} M  değişken {r['degisken']/1e6:6.2f} M  "
               f"sabit {r['sabit']/1e6:6.2f} M  FAVÖK {r['favok']/1e6:6.2f} M  kasa {r['kasa_sonu']/1e6:6.2f} M")
+    for r in kotu:
+        print(f"  kötümser {r['kisa']}: adet {r['adet']:>6} FAVÖK {r['favok']/1e6:6.2f} M  kasa {r['kasa_sonu']/1e6:6.2f} M")
     print("başa baş:", {k: v for k, v in bb.items() if k != 'diger_sabit_kalemler'})
     print("birim ekonomisi:", be)
     print("kanal:", {k: round(v) for k, v in KANAL.items()}, round(sum(KANAL.values())))

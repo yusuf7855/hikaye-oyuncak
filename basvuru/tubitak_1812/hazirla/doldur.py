@@ -287,7 +287,18 @@ def markdown(bb, oz):
                 s.append(f"| {r['yil']} | {tl(r['adet'])} | {tl(r['ciro']/1e6, 2)} | {tl(r['degisken']/1e6, 2)} | "
                          f"{tl(r['sabit']/1e6, 2)} | {tl(r['favok']/1e6, 2)} | {tl(r['kasa_sonu']/1e6, 2)} |")
             s += ["", "Kasa, finansmanı içerir: Y0'da BİGG Fonu 1,35 M TL + devam yatırımı 1,35 M TL; Y1 başında "
-                  "tohum turu (BiGG+ ve eş yatırım) ≈12 M TL [V]. İşletme sermayesi cironun %15'i.", ""]
+                  "tohum turu (BiGG+ ≈5 M TL ve eş yatırım ≈3 M TL) ≈8 M TL [V]. İşletme sermayesi cironun %15'i.", "",
+                  f"**Başa başın iki ek görünümü:** (a) Ek paket katkısı birim kâra eklenirse (cihaz başına 0,8 paket × 214 TL) "
+                  f"başa baş ≈{tl(bb['basabas_paketli'])} set olur. (b) Yıllık bakıldığında FAVÖK ticarileşmenin 2. yılında "
+                  "(9.000 set) pozitife döner; kümülatif FAVÖK 3. yılda artıya geçer.", "",
+                  "**Kötümser senaryo** (satışlar %40 düşük, devam yatırımı yok, tohum turu 5 M TL; ekip, pazarlama ve diğer "
+                  "sabit giderler Y1'den itibaren %40 küçültülür, kalıp Y1'e ertelenir):", "",
+                  "| Yıl | Adet | FAVÖK (M TL) | Dönem sonu kasa (M TL) |", "|---|---:|---:|---:|"]
+            for r in oz["kotumser"]:
+                s.append(f"| {r['kisa']} | {tl(r['adet'])} | {tl(r['favok']/1e6, 2)} | {tl(r['kasa_sonu']/1e6, 2)} |")
+            s += ["", "Kötümser senaryoda proje döneminin sonunda ≈0,7 M TL açık oluşur. Bu açık ön sipariş kaparoları, "
+                  "ilk partinin 600 setle sınırlanması ve belgelendirmenin parçalara bölünmesiyle kapatılır. FAVÖK 2. "
+                  "yılda başa başa gelir.", ""]
             continue
         if k == "RISK":
             s += ["### 5.1 Projenin Yürütülmesi Sırasında Karşılaşılabilecek Riskler ve Alınacak Önlemler", "",
@@ -456,15 +467,26 @@ def excel(oz):
         ["Birim ürün maliyeti", bb["birim"]], ["Makine ve teçhizat", bb["makine"]], ["Bina amortismanı", 0],
         ["Kira", bb["kira"]], ["Diğer sabit", bb["diger_sabit"]], ["Toplam sabit maliyet", bb["toplam_sabit"]],
         ["Kâr marjı (birim)", bb["marj"]], ["Başa baş noktası (adet)", bb["basabas"]],
+        ["Başa baş, ek paket katkısıyla (adet)", bb["basabas_paketli"]],
     ], [40, 20])
     be = oz["birim_ekonomisi"]
     sayfa("Birim ekonomisi", ["Gösterge", "Değer", "Not"], [
-        ["Cihaz katkı payı (TL)", be["katki_cihaz"], "2.499 − birim değişken maliyet (Y3)"],
+        ["Cihaz katkı payı (TL)", be["katki_cihaz"], "2.499 − ağırlıklı birim değişken maliyet"],
         ["Ek paket katkı payı (TL)", be["katki_paket"], "374 − 70 malzeme − 90 dağıtım"],
         ["Müşteri yaşam boyu değeri, LTV (TL)", be["ltv"], be["not_"]],
         ["Hedef müşteri edinme maliyeti, CAC (TL)", be["cac"], "karma: organik + performans pazarlaması"],
         ["LTV / CAC", be["ltv_cac"], "≥ 3 hedeflenir; pilot ve ön satışla ölçülecek"],
     ], [38, 14, 50])
+    kot = [["Kalem"] + [r["yil"] for r in oz["kotumser"]]]
+    for et, k in [("Satılan set", "adet"), ("Ciro (TL)", "ciro"), ("Sabit gider (TL)", "sabit"), ("FAVÖK (TL)", "favok"),
+                  ("Finansman girişi (TL)", "finansman"), ("Dönem sonu kasa (TL)", "kasa_sonu")]:
+        kot.append([et] + [round(r[k]) for r in oz["kotumser"]])
+    ws = sayfa("Kötümser senaryo", kot[0], kot[1:], [24, 16, 16, 16, 16, 16, 16])
+    ws.append([])
+    ws.append(["Varsayım: satış −%40, devam yatırımı yok, tohum turu 5 M TL, Y1+ sabit giderler −%40, kalıp Y1'e ertelendi"])
+    for row in ws.iter_rows(min_row=2, max_row=7):
+        for c in row[1:]:
+            c.number_format = "#,##0"
     bt = oz["butce"]
     rows = []
     for k, ad in [("personel", "Personel (M011)"), ("seyahat", "Seyahat (M012)"),

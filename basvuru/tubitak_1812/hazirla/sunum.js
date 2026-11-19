@@ -155,7 +155,7 @@ async function ikon(Bilesen, renk, boy = 256) {
   s.addImage({ data: ICON.cip, x: 0.75, y: 1.37, w: 0.5, h: 0.5, objectName: "cip-ikon" });
   s.addText("ESP32-S3  ·  16 MB flash  ·  8 MB PSRAM  ·  4 × AA pil", { x: 1.45, y: 1.25, w: 7.8, h: 0.75, fontSize: 18, bold: true, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "cip-metin" });
   const modeller = [
-    [ICON.beyin, "10,3 MB", "Hikâye modeli", "5,7 M parametre; önce plan, sonra hikâye"],
+    [ICON.beyin, "10,3 MB", "Hikâye modeli", "≈19,9 M parametre (4 bit); önce plan, sonra hikâye"],
     [ICON.ses, "4,3 MB", "Ses modeli", "Kadın sesi; gece modunda yavaş ve kısık"],
     [ICON.mik, "110 KB", "“Merhaba Eko”", "Uyandırma sözcüğü ve 6 sesli komut"],
   ];
@@ -181,7 +181,7 @@ async function ikon(Bilesen, renk, boy = 256) {
   s.addText("Kalite ölçüldü, yazılım doğrulandı", { placeholder: "title" });
   const kanit = [
     ["28.493", "özgün hikâyeyle eğitildi"],
-    ["102–78", "kör kıyas: son model ara modeli yendi (180 vaka)"],
+    ["102–78", "kör kıyas (yapay zekâ hakemli): son model ara modeli yendi"],
     ["52 / 52", "kart yazılımı PC referansıyla birebir aynı aday"],
     ["≥ 79 dB", "ses: kartın C kodu = PyTorch (SNR)"],
   ];
@@ -198,15 +198,15 @@ async function ikon(Bilesen, renk, boy = 256) {
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.05, w: 0.92, h: 0.42, rectRadius: 0.08, fill: { color: renk }, line: { color: renk, width: 0 }, objectName: `trl${i}` });
     s.addText(`TRL ${i}`, { x, y: 4.05, w: 0.92, h: 0.42, fontSize: 12, bold: true, color: i <= 8 ? C.text1 : C.accent6, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: `trl${i}-metin` });
   }
-  s.addText("Bugün TRL 4 (yeşil)  →  18. ayda TRL 8: CE belgeli, ailelerle pilotta doğrulanmış ürün (sarı)", { x: 0.5, y: 4.55, w: 9, h: 0.35, fontSize: 12, color: C.text2, margin: 0, isTextBox: true, objectName: "trl-not" });
-  s.addNotes("Modeli 28.493 özgün hikâyeyle eğittik. Kaliteyi kör kıyasla ölçtük: hakemler hangi modelin yazdığını bilmeden seçiyor. Son model ara modeli 180 vakada 102'ye 78, olay örgüsünde 99'a 73 yendi; Keloğlan'da önceki ürün modelini 34'e 14 yendi. Kart yazılımı PC'de referans üretimle birebir aynı; ses modelinin C kodu PyTorch ile aynı sonucu veriyor. Bugün TRL 4'teyiz; proje sonunda CE belgeli ürünle TRL 8.");
+  s.addText("Bugün yazılım ve modeller TRL 4, donanım TRL 3 (yeşil)  →  18. ayda TRL 8: CE belgeli, pilotta doğrulanmış ürün (sarı)", { x: 0.5, y: 4.55, w: 9, h: 0.35, fontSize: 12, color: C.text2, margin: 0, isTextBox: true, objectName: "trl-not" });
+  s.addNotes("Modeli 28.493 özgün hikâyeyle eğittik. Kaliteyi kör kıyasla ölçtük: yapay zekâ hakemleri hangi modelin yazdığını bilmeden seçiyor; insan hakemli kör testi pilotta yapacağız. Son model ara modeli 180 vakada 102'ye 78, olay örgüsünde 99'a 73 yendi; Keloğlan'da önceki ürün modelini 34'e 14 yendi. Kart yazılımı PC'de referans üretimle birebir aynı; ses modelinin C kodu PyTorch ile aynı sonucu veriyor. Bugün TRL 4'teyiz; proje sonunda CE belgeli ürünle TRL 8.");
 
   // ---- 6 Pazar ----
   s = pres.addSlide({ masterName: "ICERIK", sectionTitle: "Kanıt ve pazar" });
   s.addText("3,3 milyon hane, büyüyen bir kategori", { placeholder: "title" });
   const katmanlar = [
-    [0.5, 1.25, 5.2, 3.65, C.background2, "TAM  ≈9,9 milyar TL", "≈3,3 milyon hane (3–6 yaş), her yıl ≈0,93 milyon yeni çocuk", C.text1],
-    [0.85, 2.3, 4.5, 2.4, C.accent4, "SAM  ≈3,0 milyar TL", "kentli, orta-üst gelirli ≈1 milyon hane", C.background1],
+    [0.5, 1.25, 5.2, 3.65, C.background2, "TAM  ≈8,2 milyar TL", "≈3,3 milyon hane (3–6 yaş), her yıl ≈0,93 milyon yeni çocuk", C.text1],
+    [0.85, 2.3, 4.5, 2.4, C.accent4, "SAM  ≈2,5 milyar TL", "kentli, orta-üst gelirli ≈1 milyon hane", C.background1],
     [1.2, 3.3, 3.8, 1.2, C.text1, "SOM  86.000 set", "6,5 yılda, KDV hariç ≈240 M TL ciro", C.background1],
   ];
   katmanlar.forEach(([x, y, w, h, dolgu, bas, alt, renk], i) => {
@@ -221,7 +221,7 @@ async function ikon(Bilesen, renk, boy = 256) {
     s.addText(et, { x: 6.0, y: y + 0.6, w: 3.5, h: 0.45, fontSize: 13, color: C.text1, margin: 0, isTextBox: true, objectName: `istat${i + 1}-etiket` });
   });
   s.addText("Kaynak: TÜİK doğum istatistikleri, TOYDER, tonies; segment payları ve SOM varsayımdır.", { x: 6.0, y: 4.85, w: 3.5, h: 0.3, fontSize: 10, color: C.accent6, margin: 0, isTextBox: true, objectName: "pazar-kaynak" });
-  s.addNotes("2028'de Türkiye'de yaklaşık 3,9 milyon 3–6 yaş çocuk ve 3,3 milyon hane olacak; toplam pazar yaklaşık 9,9 milyar TL. Hedef segmentimiz kentli, orta-üst gelirli 1 milyon hane. Dünyada kategori ekran kaygısıyla büyüyor: tonies 2025'te 630 milyon euro ciro yaptı. Türkiye'de 2.500–3.500 TL bandı boş.");
+  s.addNotes("2028'de Türkiye'de yaklaşık 3,9 milyon 3–6 yaş çocuk ve 3,3 milyon hane olacak; KDV hariç toplam pazar yaklaşık 8,2 milyar TL. Hedef segmentimiz kentli, orta-üst gelirli 1 milyon hane. Dünyada kategori ekran kaygısıyla büyüyor: tonies 2025'te 630 milyon euro ciro yaptı. Türkiye'de 2.500–3.500 TL bandı boş.");
 
   // ---- 7 Rakipler ----
   s = pres.addSlide({ masterName: "ICERIK", sectionTitle: "Kanıt ve pazar" });
@@ -271,7 +271,7 @@ async function ikon(Bilesen, renk, boy = 256) {
   // ---- 9 18 aylık plan ----
   s = pres.addSlide({ masterName: "ICERIK", sectionTitle: "İş planı" });
   s.addText("18 ayda pilotta doğrulanmış, CE belgeli ürün", { placeholder: "title" });
-  const kt = [["1–2", "Şirket, İP devri, kartta prototip"], ["3–4", "Kendi kartımız (EVT), marka, etik kurul"], ["5–7", "30–50 aile + 3–5 okul pilotu"], ["8–9", "DVT 60 cihaz, ön uygunluk testi"], ["12", "Kitle fonlama ≥600 ön sipariş"], ["15–17", "CE/RED belgeleri, ilk 1.000 set"], ["18", "Web, pazaryeri, kurum satışı"]];
+  const kt = [["1–2", "Şirket, İP devri, hız/ses/pil ölçümü"], ["3–4", "Kendi kartımız (EVT), marka/tasarım"], ["5–7", "60 cihaz; 30–50 aile + 3–5 okul pilotu"], ["8–9", "DVT, ön uygunluk testi"], ["12", "Kitle fonlama ≥600 ön sipariş"], ["15–17", "CE/RED belgeleri, ilk 1.000 set"], ["18", "Web, pazaryeri, kurum satışı"]];
   s.addShape(pres.shapes.LINE, { x: 0.75, y: 1.62, w: 8.55, h: 0, line: { color: HEX.accent6, width: 1.5 }, objectName: "zaman-cizgisi" });
   kt.forEach(([ay, is], i) => {
     const x = 0.5 + i * 1.27;
@@ -299,7 +299,7 @@ async function ikon(Bilesen, renk, boy = 256) {
     { text: "TÜBİTAK BİGG Fonu tohum öncesi yatırımı, 18 ay", options: { fontSize: 13, breakLine: true } },
     { text: "Kalıp, belgelendirme ve ilk üretim: ön satış + devam yatırımı", options: { fontSize: 13 } },
   ], { x: 4.0, y: 3.3, w: 5.3, h: 1.65, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "butce-metin" });
-  s.addNotes("İlk iki ayda şirket ve prototip; 3–4. ayda kendi devre kartımız ve etik kurul; 5–7. ayda aileler ve okullarla pilot; 8–9. ayda 60 cihazlık DVT ve ön uygunluk testi; 12. ayda kitle fonlama; 15–17. ayda CE/RED belgeleri ve ilk 1.000 set. Bütçenin %54'ü personel, %29'u hizmet alımı (test laboratuvarı, PCB, endüstriyel tasarım, patent/marka, çocuk gelişimi), %11'i malzeme.");
+  s.addNotes("İlk iki ayda şirket kuruluşu ve kartta hız, ses ve pil ölçümleri; 3–4. ayda kendi devre kartımız ve marka başvurusu; 5. ayda 60 cihazlık pilot serisi, 6–7. ayda aileler ve okullarla pilot (etik kurul onayı hızlandırma programında alınmış olacak); 8–9. ayda DVT ve ön uygunluk testi; 12. ayda kitle fonlama; 15–17. ayda CE/RED belgeleri ve ilk 1.000 set. Bütçenin %54'ü personel, %29'u hizmet alımı (test laboratuvarı, PCB, endüstriyel tasarım, patent/marka, çocuk gelişimi), %11'i malzeme.");
 
   // ---- 10 Ekip ve istek ----
   pres.addSection({ title: "Kapanış" });

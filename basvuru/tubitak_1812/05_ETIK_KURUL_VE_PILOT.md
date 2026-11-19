@@ -28,7 +28,7 @@ bulunmadığını ölçmek; fiyat ve kullanım varsayımlarını doğrulamak.
 | Tasarım | 4 haftalık ev kullanımı + kör kalite değerlendirmesi + anket ve yarı yapılandırılmış görüşme |
 | Katılımcılar | 30–50 aile (3–6 yaş en az bir çocuk, gönüllü) ve 3–5 anaokulu sınıfı (öğretmen ve veliler onaylı) |
 | Seçim | Ön kayıt sayfası ve ebeveyn toplulukları; farklı il, gelir ve eğitim düzeylerinden dengeli örneklem |
-| Cihaz | DVT prototipi (Eko + 6 figür + Ay Dede), çalışma sonunda ailede kalabilir (teşekkür) |
+| Cihaz | Pilot serisi (60 cihaz, Mayıs 2028; Eko + 6 figür + Ay Dede), çalışma sonunda ailede kalabilir (teşekkür) |
 | Veri toplama | Haftalık kısa çevrimiçi anket (ebeveyn), ilk ve son hafta 30 dk görüşme, öğretmen gözlem formu |
 | Kör kalite testi | Ebeveyn, aynı figür için Eko'nun cihazda yazdığı hikâyelerle hakem denetiminden geçmiş örnek (kontrol) hikâyelerin karışık okunduğu kısa bir oturumda, hangisinin hangi kaynaktan geldiğini bilmeden puan verir |
 | Analiz | Betimsel istatistik, oranlar ve %95 güven aralıkları; açık uçlu yanıtlarda tematik analiz |
@@ -62,8 +62,8 @@ bulunmadığını ölçmek; fiyat ve kullanım varsayımlarını doğrulamak.
 | Ay (hızlandırma programı ↔ Aşama 2) | İş |
 |---|---|
 | Hızlandırma programı 2.–4. hafta | Etik kurul başvurusu (bu belge + formlar), üniversite danışmanı |
-| Kurul onayı (≈4–8 hafta) | Katılımcı seçimi, prototip hazırlığı |
-| Aşama 2, 4.–7. ay | 4 haftalık pilot (gruplar halinde), görüşmeler |
+| Kurul onayı (≈4–8 hafta; Aşama 2 başvurusundan önce) | Onay belgesi iş planına eklenir; katılımcı havuzu (ön kayıt sayfasından) |
+| Aşama 2, 6.–7. ay (Haziran–Temmuz 2028) | 4 haftalık pilot (gruplar halinde), görüşmeler |
 | Aşama 2, 8.–9. ay | Analiz ve rapor; sonuçlar kitle fonlama kampanyasında (izinli) kullanılır |
 
 > Not: Proje bütçesi pilotu 60 DVT cihazı (≈72.000 TL) ve "çocuk gelişimi uzmanı + etik kurul" hizmeti

@@ -13,11 +13,11 @@ ALANLAR = {}
 
 ALANLAR["1_1_urun_tanimi"] = """Eko, 3–6 yaş çocuklar için internete hiç bağlanmadan çalışan, her seferinde yeni bir Türkçe hikâye yazıp kendi sesiyle okuyan bir hikâye oyuncağıdır. Çocuk sevdiği figürü (Keloğlan, Nasreddin Hoca, Pinokyo, kendi tasarımımız Bulut kedi, Zıpzıp tavşan, Bip robot vb.) Eko'nun standına koyar; cihaz figürü NFC ile tanır, çocuğu adıyla selamlar ve o figürün dünyasında geçen, daha önce hiç anlatılmamış bir hikâye okur. "Merhaba Eko, başka masal" gibi kısa sesli komutlarla durdurulur, sürdürülür, yenisi istenir. Gece figürü (Ay Dede) konunca yavaş ve kısık sesle ninni moduna geçer.
 
-Yenilik, bütün yapay zekânın 16 MB flash ve 8 MB PSRAM'li tek bir ESP32-S3 mikrodenetleyicide çalışmasıdır: (1) 5,7 milyon çekirdek parametreli Türkçe dil modeli (10,3 MB, 4 bit) hikâyeyi önce "Sorun/Çözüm" planı, sonra metin olarak yazar; (2) kendi eğittiğimiz 4,3 MB'lık konuşma sentezi modeli metni kadın sesiyle okur; (3) ~110 KB'lık uyandırma sözcüğü ve komut modeli mikrofonu cihaz içinde dinler. İsim süzgeci (başka figür adlarını yazamaz), kapalı sözcük dağarcığı, yasaklı içerik kuralları ve 5 aday arasından en iyisini seçen bir seçici cihazda çalışır; boşta kalan zamanda hazır hikâyeler üretilip kuyrukta saklanır, oyuncak konunca beklemeden okunur.
+Yenilik, bütün yapay zekânın 16 MB flash ve 8 MB PSRAM'li tek bir ESP32-S3 mikrodenetleyicide çalışmasıdır: (1) Türkçe dil modeli (≈19,9 M parametre: 5,7 M çekirdek + flaşta duran sözcük tablosu; 4 bit, 10,3 MB) hikâyeyi önce "Sorun/Çözüm" planı, sonra metin olarak yazar; (2) kendi eğittiğimiz 4,3 MB'lık konuşma sentezi modeli metni kadın sesiyle okur; (3) ~110 KB'lık uyandırma sözcüğü ve komut modeli mikrofonu cihaz içinde dinler. İsim süzgeci (başka figür adlarını yazamaz), kapalı sözcük dağarcığı, yasaklı içerik kuralları ve 5 aday arasından en iyisini seçen bir seçici cihazda çalışır; boşta kalan zamanda hazır hikâyeler üretilip kuyrukta saklanır, oyuncak konunca beklemeden okunur. Hikâyeler 3–6 yaşa göre kısadır (ortalama ≈75 sözcük, ≈45–60 sn); uyku öncesinde art arda birkaç hikâye dinlenir.
 
 Çözdüğü problem: Ebeveynler çocukları için ekransız ama zengin içerik arıyor. Mevcut ses kutuları (Toniebox, Yoto) her figür için hep aynı kaydı çalar; çocuk birkaç dinlemede sıkılır. Bulut yapay zekâlı oyuncaklar (Miko, FoloToy, Bondu) ise çocuğun sesini ve bilgisini sunuculara gönderir; 2025–2026'da uygunsuz yanıt verme ve on binlerce çocuk sohbetinin açığa çıkması gibi olaylar yaşandı, sunucusu kapanan ürünler çalışmaz oldu (Moxie). Eko hiçbir veri göndermez, abonelik ve sunucu gerektirmez, şirket kapansa da çalışmaya devam eder; Türkçe ve yerel masal kültürüyle tasarlanmıştır.
 
-Bugünkü durum (Kasım 2026, TRL 4): Dil modeli 28 493 özgün hikâyeyle eğitildi; kör hakem kıyaslarında önceki sürümleri anlamlı farkla geçti. Kart yazılımı PC'de ESP32 başlıklarıyla birebir aynı çıktıyı verdiği doğrulandı (52/52 aday, seçicide 872/872). Ses modeli eğitildi; C çıkarımı PyTorch ile aynı sonucu veriyor (SNR ≥ 79 dB). Proje sonunda (18 ay) hedef: kendi devre kartımız, kasa ve figürleriyle CE belgeli, 30–50 ailelik pilotta doğrulanmış ve ilk 1.000 adedi satışa çıkmış ürün (TRL 8)."""
+Bugünkü durum (Kasım 2026; yazılım ve modeller TRL 4, donanım TRL 3): Dil modeli 28.493 hikâyeyle eğitildi; yapay zekâ hakemli kör kıyaslarda önceki sürümleri anlamlı farkla geçti. Kart yazılımının PC'de ESP32 başlıklarıyla birebir aynı çıktıyı verdiği doğrulandı (52/52 aday, seçicide 872/872). Ses modeli eğitildi; C çıkarımı PyTorch ile aynı sonucu veriyor (SNR ≥ 79 dB). Gerçek kartta uçtan uca deneme: [TARİH — başvurudan önce yapılacak; ölçülen hız, ses ve tüketim buraya]. Proje sonunda (18 ay) hedef: kendi devre kartımız, kasa ve figürleriyle CE belgeli, 30–50 ailelik pilotta doğrulanmış ve ilk 1.000 adedi satışa çıkmış ürün (TRL 8)."""
 
 ALANLAR["1_2_musteri_tanimi"] = """Birincil müşteri (satın alan): 3–6 yaşında çocuğu olan, kentte yaşayan, orta ve üst-orta gelirli ebeveynler; çoğunlukla 28–42 yaş, üniversite mezunu, çalışan anne ve babalar. Satın alma kararını çoğunlukla anne verir ya da başlatır [T]. Bu ebeveynler çocuklarının ekran süresinden kaygılı, okul öncesi gelişime önem veren, Instagram'daki çocuk gelişimi ve "ekransız oyun" hesaplarını takip eden, oyuncak ve kitabı çoğunlukla Trendyol, Hepsiburada ve kitap/oyuncak zincirlerinden alan kişilerdir. Uyku öncesi masal okuma rutinleri vardır, ama yorgunluk ve zaman baskısı nedeniyle bunu her gece sürdüremediklerini söylerler. Yapay zekâya merakla ama temkinle bakarlar: çocuk verisinin toplanması ve uygunsuz içerik en büyük kaygılarıdır.
 
@@ -48,9 +48,9 @@ ALANLAR["1_3_musteri_ihtiyaclari"] = """Görüşmelerde ve pazar araştırmamız
 
 Hiçbir mevcut ürün bu yedi ihtiyacı birlikte karşılamıyor; en yakın ürünler ya içerik çeşitliliğinden (ses kutuları) ya da gizlilikten (bulut yapay zekâ) ödün veriyor. Bu ihtiyaçların sıralaması ve ödeme isteği hızlandırma programında ebeveyn görüşmeleri, anket ve ön kayıt sayfasıyla ölçülecektir."""
 
-ALANLAR["1_4_pazar_buyuklugu"] = """Toplam pazar (TAM, Türkiye): TÜİK doğum verilerine göre (2022: ≈1,04 milyon, 2023: 958 bin, 2024: 937.559) 2028'de 3–6 yaş arasında ≈3,8–3,9 milyon çocuk olacak [T]. Bu çocukların yaşadığı ≈3,3 milyon hane, 2.999 TL'lik başlangıç setiyle bir kerelik ≈9,9 milyar TL'lik bir cihaz pazarı demektir; her yıl ≈0,93 milyon yeni çocuk bu yaşa girer (yıllık yenilenen pazar ≈2,5 milyar TL). Türkiye oyuncak pazarı ≈1 milyar USD ve %85'i ithaldir (TOYDER).
+ALANLAR["1_4_pazar_buyuklugu"] = """Toplam pazar (TAM, Türkiye): TÜİK doğum verilerine göre (2022: ≈1,04 milyon, 2023: 958 bin, 2024: 937.559) 2028'de 3–6 yaş arasında ≈3,8–3,9 milyon çocuk olacak [T]. Bu çocukların yaşadığı ≈3,3 milyon hane, KDV hariç 2.499 TL'lik başlangıç setiyle bir kerelik ≈8,2 milyar TL'lik bir cihaz pazarı demektir; her yıl ≈0,93 milyon yeni çocuk bu yaşa girer (yıllık ≈2,3 milyar TL). Türkiye oyuncak pazarı ≈1 milyar USD ve %85'i ithaldir (TOYDER).
 
-Ulaşılabilir pazar (SAM): Kentli, orta ve üst gelirli, ekran süresine duyarlı aileler hanelerin ≈%30'u kabul edildiğinde ≈1,0 milyon hane ve ≈3,0 milyar TL [V]. Buna ≈20 bin özel anaokulu ve kreş (5 cihazlık set, ≈12.000 TL) ile yurt dışındaki Türkçe konuşan ailelerin 3–6 yaş çocukları (yalnız Almanya'da ≈3 milyon Türkiye kökenli kişi; ≈100 bin çocuk [T]) eklenir.
+Ulaşılabilir pazar (SAM): Kentli, orta ve üst gelirli, ekran süresine duyarlı aileler hanelerin ≈%30'u kabul edildiğinde ≈1,0 milyon hane ve ≈2,5 milyar TL [V]. Buna MEB'e bağlı ≈17,6 bin anaokulu (2024–25; okul öncesi öğrencilerin %18,8'i özel kurumlarda) ve Aile ve Sosyal Hizmetler Bakanlığı'na bağlı özel kreşler (5 cihazlık set, 12.000 TL) ile yurt dışındaki Türkçe konuşan ailelerin 3–6 yaş çocukları (yalnız Almanya'da ≈3 milyon Türkiye kökenli kişi; ≈100 bin çocuk [T]) eklenir.
 
 Elde edilebilir pazar (SOM, 5 yıl): Proje süresinde 1.000 set, ticarileşmenin 1.–5. yıllarında sırasıyla 4.000, 9.000, 16.000, 24.000 ve 32.000 set; toplam 86.000 set, SAM'ın ≈%8'i [V]. Ek figür paketleriyle birlikte 6,5 yılda KDV hariç ≈240 milyon TL ciro (sabit 2026 fiyatlarıyla).
 
@@ -64,7 +64,7 @@ ALANLAR["1_5_rekabet_durumu"] = """Pazar üç gruba ayrılıyor; hiçbiri "her s
 • tonies (Almanya): Toniebox 2, 119,99 €'dan; 10 yılda ≈12 milyon cihaz, 150 milyon figür sattı; 2025 cirosu 630 M€. Figür başına sabit içerik. Patentleri: EP3092043B2, US10960320B2 (figürle oynatma). Türkiye'de resmî dağıtım ve Türkçe içerik yok. 2024'te bulutta yapay zekâ hikâye üretimini 1.000 kullanıcıyla denedi.
 • Yoto (İngiltere): Player 119,99 £, Mini 89,99 £; kartla içerik, aylık kulüp aboneliği; 2024 cirosu ≈95 M£.
 • Storypod (ABD): 99,99 USD; RFID'li örgü figürler.
-Konum: Pazar lideri, güçlü marka ve içerik kütüphanesi; zayıf yanı içerik tekrarı ve Türkçe yokluğu.
+Konum: Pazar lideri, güçlü marka ve içerik kütüphanesi; zayıf yanı içerik tekrarı ve Türkçe yokluğu. Ayrıca Çin'de 30–50 USD'lik bulut yapay zekâlı peluşlar hızla yaygınlaşıyor [T]; fiyat baskısı yaratabilir.
 
 2. Bulut yapay zekâlı oyuncaklar:
 • Miko 3 (Hindistan/ABD): 199–299 USD + ayda 15 USD abonelik.
@@ -92,7 +92,7 @@ ALANLAR["1_6_rekabet_stratejisi"] = """1. Konumlandırma — "dinleme oyuncağı
 
 4. Pazara giriş (ilk 18 ay): (i) Hızlandırma programında ön kayıt sayfası ve ebeveyn toplulukları; (ii) 30–50 aile ve 3–5 anaokuluyla pilot, ebeveyn videoları ve çocuk gelişimci görüşleri; (iii) Fongogo/kendi sitemizde ön satış kampanyası (hedef 600+ set); (iv) ilk teslimatlardan sonra Trendyol, Hepsiburada ve kendi web sitemiz.
 
-5. Tutunma ve savunma: (a) Veri ve kalite: 28 bin+ hikâyelik özgün Türkçe veri seti, hakem süreçleri ve kör kıyas yöntemi; rakip için aylar süren bir iş. (b) Teknik derinlik: 16 MB flaşa sığan dil modeli + ses sentezi + uyandırma sözcüğünün tek mikrodenetleyicide birlikte çalışması; bit düzeyinde doğrulanmış C çıkarımı. (c) Marka ve karakterler: Bulut, Zıpzıp, Bip gibi özgün karakterlerin marka ve tasarım tescili; okul öncesi kurumlarla ilişkiler. (d) Güven: "veri toplamayan oyuncak" sertifikasyonu ve bağımsız güvenlik raporu.
+5. Tutunma ve savunma: (a) Ürün bütünlüğü ve hız: Veri seti tek başına kalıcı bir engel değildir (yapay zekâyla üretildi; benzer yöntemle üretilebilir). Asıl birikim; verinin, modelin, seçicinin, süzgeçlerin ve sesin 16 MB'lık cihaz kısıtına göre birlikte ayarlanması ve bunun ölçüm altyapısıdır. Önce pazara çıkmak ve kurum ilişkileri bu avantajı korur. (b) Teknik derinlik: 16 MB flaşa sığan dil modeli + ses sentezi + uyandırma sözcüğünün tek mikrodenetleyicide birlikte çalışması; bit düzeyinde doğrulanmış C çıkarımı. (c) Marka ve karakterler: Bulut, Zıpzıp, Bip gibi özgün karakterlerin marka ve tasarım tescili; okul öncesi kurumlarla ilişkiler. (d) Güven: "veri toplamayan oyuncak" sertifikasyonu ve bağımsız güvenlik raporu.
 
 6. Kanal stratejisi: İlk yıl doğrudan satış (web + pazaryeri) ve kurumsal okul öncesi seti; ikinci yıl oyuncak/kitap zincirleri (Toyzz Shop, D&R, idefix); üçüncü yıldan itibaren yurt dışındaki Türk diasporası (Almanya, Hollanda) için Amazon.de ve dernek/okul işbirlikleri.
 
@@ -100,7 +100,7 @@ ALANLAR["1_6_rekabet_stratejisi"] = """1. Konumlandırma — "dinleme oyuncağı
 
 ALANLAR["1_7_engelleyici_faktorler"] = """1. Hikâye kalitesi ve içerik güvenliği: Küçük modelin ara sıra mantık ya da dil hatası yapması ebeveyn güvenini zedeleyebilir. Önlem: her hikâye için 5 aday üretip seçiciyle en iyisini saklamak, isim süzgeci, kapalı sözcük dağarcığı ve figür kartlarıyla kapalı dünya; veri artırımı (kalitenin veriyle arttığı kör kıyaslarla gösterildi); 30–50 ailelik kör pilotla kabul eşiği ("hikâyelerin ≥%90'ı anlaşılır ve uygun") tanımlanması; satıştan önce bağımsız içerik denetimi.
 
-2. Cihaz üzerindeki hız: Hikâye yazımı ≈3,7 token/s (≈36 sn/hikâye) tahmin ediliyor; ses sentezinin gerçek zamanlı olup olmadığı kartta ölçülecek. Önlem: boştayken önceden hikâye üreten kuyruk (oyuncak konunca bekleme yok), iki çekirdekli işleme, ESP32-S3 SIMD komutlarıyla vocoder optimizasyonu; gerekirse daha hafif vocoder.
+2. Cihaz üzerindeki hız ve pil: Hikâye yazımı ≈3,7 token/s (≈36 sn/hikâye; 5 adaylı kuyruk hikâyesi ≈3 dk, boşta) tahmin ediliyor; kart 5 V'ta ≈0,5–0,9 A çektiği için 4 × AA ile hesapla yalnız ≈2–3 saat okuma çıkıyor; ses sentezinin gerçek zamanlı olup olmadığı kartta ölçülecek. Önlem: boştayken önceden hikâye üreten kuyruk (oyuncak konunca bekleme yok), iki çekirdekli işleme, ESP32-S3 SIMD komutlarıyla vocoder optimizasyonu; gerekirse daha hafif vocoder; boşta hikâye üretiminin yalnız adaptöre takılıyken yapılması, EVT'de USB-C güç girişi ve şarjlı pil seçeneği.
 
 3. Belgelendirme ve uygunluk: CE için EN 71-1/2/3, EN IEC 62115 ve NFC okuyucu nedeniyle RED (EN 300 330, EN 301 489) testleri; pil ve RoHS beyanları; AEEE/TAP kayıtları. Maliyet ≈7–13 bin USD ve süre 2–3 ay. Önlem: tasarımın baştan bu standartlara göre yapılması (vidalı pil kapağı, küçük parça kontrolü), DVT aşamasında ön uygunluk taraması, akredite laboratuvarla erken görüşme.
 
@@ -136,7 +136,7 @@ Etki göstergeleri: ulaşılan çocuk sayısı, kurum sayısı, ebeveyn anketind
 
 ALANLAR["2_1_deger_onerisi"] = """Özellik → müşteri gereksinimi eşleştirmesi:
 
-• Cihaz içi Türkçe dil modeli (her seferinde yeni hikâye) → "çocuk sıkılmasın, her gece yeni masal". Her figür × yer ikilisi için sınırsız özgün hikâye; aynı hikâye bir daha gelmez. Ölçüt: ebeveyn pilotunda haftalık kullanım sıklığı ve "çocuk sıkıldı" beyanı.
+• Cihaz içi Türkçe dil modeli (her seferinde yeni hikâye) → "çocuk sıkılmasın, her gece yeni masal". Her istekte yeniden yazılan hikâye; çeşitlilik ve tekrar oranı pilotta ölçülecek. Ölçüt: ebeveyn pilotunda haftalık kullanım sıklığı ve "çocuk sıkıldı" beyanı.
 
 • İnternetsiz ve veri toplamayan mimari → "çocuğumun sesi ve bilgisi bir yere gitmesin". Mikrofon yalnız cihaz içinde uyandırma sözcüğü ve 6 komut için dinler, kayıt tutulmaz; ağ bağlantısı yoktur. Ölçüt: bağımsız güvenlik incelemesi (ağ trafiği yok, kayıt yok).
 
@@ -151,7 +151,7 @@ ALANLAR["2_1_deger_onerisi"] = """Özellik → müşteri gereksinimi eşleştirm
 • Türkçe ve yerel figürler → "kültürümüzü tanısın". Keloğlan, Nasreddin Hoca ve özgün Türk karakterleri.
 
 Doğrulama çalışmaları (yapılan):
-• Kalite: Hikâye modeli 6 kez yeniden eğitildi; her sürüm kör ikili kıyasla (hangi modelin yazdığı gizli, iki ayrı hakem: genel kalite ve olay örgüsü) ölçüldü. Son model, ara modeli 180 vakada 102–78 ve 99–73; Keloğlan'da önceki ürün modelini 48 vakada 34–14 ve 29–15 yendi (işaret testi p < 0,05). 10 puanlık rubrikte ürün modeli 3,17'den 4,51'e çıktı; yeni modelle yeniden ölçülecek.
+• Kalite: Hikâye modeli 6 kez yeniden eğitildi; her sürüm kör ikili kıyasla (hangi modelin yazdığı gizli; iki ayrı yapay zekâ hakemi: genel kalite ve olay örgüsü; 8 aday + seçici, kartta 5 aday) ölçüldü. Son model, ara modeli 180 vakada 102–78 ve 99–73; Keloğlan'da önceki ürün modelini 48 vakada 34–14 ve 29–15 yendi (işaret testi p < 0,05). 10 puanlık rubrikte önceki ürün modeli 3,17'den 4,51'e çıkmıştı (yapay zekâ hakemli); son model insan hakemli kör testle ölçülecek.
 • Teknik: Kart yazılımı, PC'de sahte ESP32 başlıklarıyla derlenip referans Python üretimiyle bit bit karşılaştırıldı (52/52 aday, seçicide 872/872 eşleşme). Ses modelinin C çıkarımı PyTorch ile karşılaştırıldı (SNR ≥ 79 dB). Uyandırma modeli görülmemiş seslerde %87–93 uyanma, saatte 0,3–1,9 yanlış uyanma.
 
 Doğrulama çalışmaları (planlanan, hızlandırma ve Aşama 2): 30+ ebeveyn görüşmesi; ön kayıt sayfası (hedef 1.000 kayıt, fiyat testi); 30–50 aile ve 3–5 anaokuluyla 4 haftalık pilot (etik kurul onaylı), kör kalite testi ve kullanım anketi."""
@@ -169,7 +169,7 @@ ALANLAR["2_2_teknolojik_rekabet"] = """Müşteri gereksinimine göre karşılaş
 
 Teknik farklılaşma (rakiplerin kolayca kopyalayamayacağı kısım):
 1. Bütün zincir tek mikrodenetleyicide: 10,3 MB'lık 4 bit dil modeli flash'ta (Per-Layer Embeddings: sözcük tablosu flash'ta, çekirdek PSRAM'de), 4,3 MB ses modeli, 110 KB uyandırma modeli 16 MB flash ve 8 MB PSRAM'e birlikte sığıyor. Model büyütülmeden kalite veriyle artırıldı.
-2. Türkçeye özgü veri ve süreç: 28.493 özgün çocuk hikâyesi; figür kartları, kapalı dünya kuralları, otomatik hakem denetimleri ve kör ikili kıyas yöntemi. Kalitenin veri hacmiyle arttığı ölçüldü (10 kat veri olay örgüsünü düzeltti).
+2. Türkçeye özgü veri ve süreç: 28.493 çocuk hikâyesi (figür kartlarıyla yönlendirilen yapay zekâ yazarlarıyla üretildi; kod kurallarıyla ve yapay zekâ hakemleriyle denetlendi), kapalı dünya kuralları ve kör ikili kıyas yöntemi. Kalitenin veri hacmiyle arttığı ölçüldü (10 kat veri olay örgüsünü düzeltti).
 3. Güvenlik mühendisliği: Başka figür adlarını yazmayı engelleyen isim süzgeci ve uydurma ad/sözcük kurallarıyla çalışan seçici, PC referansıyla bit düzeyinde aynı çalışıyor; davranış öngörülebilir ve test edilebilir.
 4. Ses: Ticari kullanıma açık (Apache-2.0) bir öğretmen sesten damıtılmış, karta özel 4 bit akustik + 8 bit vocoder; gece modu için hız, perde ve duraklama ayarı.
 
@@ -209,30 +209,25 @@ TEKNIK_DURUM = [
     ("Spielzeug (Tonies/Toniebox)", "EP3092043B2", "Figür konunca ses dosyası çalar", "Eko kayıt çalmaz, hikâyeyi üretir"),
     ("Toy (Boxine/Toniebox)", "US10960320B2", "Figürle oynatma, sensör", "Cihaz içi LLM + TTS + KWS"),
     ("Müzik/hikâye oyuncağı (Tonies)", "EP4282503A1", "Oyuncakla kayıtlı hikâye çalma", "İnternetsiz, veri göndermez"),
-    ("Not: Cihaz içi yapay zekâ ile", "hikâye üreten oyuncak", "patentine rastlanmadı", "Profesyonel tarama İP5'te"),
-]
+    ]
 
-ALANLAR["2_6_fikri_mulkiyet_haklari"] = """Mevcut fikri mülkiyet ve şirkete aktarımı:
-• Yazılım ve modeller (FSEK kapsamında eser): kart yazılımı (C), eğitim ve değerlendirme kodu (Python), eğitilmiş model ağırlıkları (hikâye, ses, uyandırma modelleri), 28.493 hikâyelik eğitim veri seti, figür kartları, 100 ninnilik derleme, CAD dosyaları (kasa ve figürler). Bunların tamamı kurucunun özel Git deposunda sürüm geçmişiyle kayıtlıdır (tarih ispatı). Mükemmeliyet Mührü sonrasında, şirket kuruluşuyla eş zamanlı olarak kurucu ile şirket arasında bedelsiz "fikri mülkiyet devir sözleşmesi" imzalanacak; depo şirket hesabına taşınacaktır. Kurucunun herhangi bir yükseköğretim kurumunda patent ya da başka hak sahipliği yoktur [DOĞRULA].
-• Açık kaynak bileşenler: Cihaz içi çıkarım motorunun temeli MIT lisanslı açık kaynak bir projedir (ESP32 üzerinde PLE mimarili dil modeli; lisans ve atıf korunur). Ön eğitim verisi TinyStories Türkçe çevirisi (CDLA-Sharing-1.0; eğitilmiş model "sonuç" sayılır, paylaşım yükümlülüğü doğurmaz). Ses için öğretmen model VoxCPM2 (Apache-2.0) ile üretilen sentetik veri kullanıldı; uyandırma modelinde Supertonic (Open RAIL-M) sesleri. Ticari kullanıma kapalı kaynaklar (ör. bazı TTS sesleri) bilinçli olarak kullanılmadı. Üçüncü taraf lisans envanteri iş planı ekinde verilecektir.
+ALANLAR["2_6_fikri_mulkiyet_haklari"] = """Mevcut fikri mülkiyet ve şirkete aktarımı: Kart yazılımı (C), eğitim/değerlendirme kodu (Python), eğitilmiş modeller (hikâye, ses, uyandırma), 28.493 hikâyelik veri seti, figür kartları, 100 ninnilik derleme ve CAD dosyaları kurucunun özel Git deposunda sürüm geçmişiyle kayıtlıdır. Mükemmeliyet Mührü sonrasında şirket kuruluşuyla birlikte bedelsiz fikri mülkiyet devir sözleşmesi imzalanacak, depo şirkete taşınacaktır. Kurucunun bir yükseköğretim kurumunda patent ya da başka hak sahipliği yoktur [DOĞRULA].
 
-Proje ile ortaya çıkacak hakların korunması:
-1. Marka: "Eko" ürün adı ve logosu ile özgün karakter adları (Bulut, Zıpzıp, Tontiş, Bip, Fıstık vb.) için TÜRKPATENT'e 9, 16, 28 ve 41. sınıflarda başvuru. "Eko" yaygın bir sözcük olduğu için ön araştırma yapılacak; tescil engeli çıkarsa ürün adı birleşik bir marka ("Eko Masal" vb.) olarak düzenlenecek.
-2. Endüstriyel tasarım: stand kasası ve özgün figürler için tasarım tescili.
-3. Patent/faydalı model: "Figür tanımalı, cihaz içinde önceden hikâye üretip kuyrukta saklayan ve canlı yazarken okuyan oyuncak sistemi" ve "ad süzgeçli aday seçimi" için patentlenebilirlik araştırması (patent vekili ile) ve uygun bulunursa faydalı model başvurusu.
-4. Ticari sır: veri üretim süreci, hakem kuralları ve eğitim tarifleri ticari sır olarak korunacak; çalışanlar ve danışmanlarla gizlilik ve buluş devri sözleşmeleri.
+Açık kaynak ve üçüncü taraf: Çıkarım motorunun temeli (ESP32'de PLE mimarili dil modeli çıkarımı) MIT lisanslı bir projedir; lisans ve atıf korunur. Eko'ya özgü olanlar: Türkçe model ve veri hattı, isim süzgeci, aday seçici, hikâye kuyruğu, konuşma sentezi ve uyandırma motorları, NFC/ışık/ayar yazılımı, figür kartları ve tasarımlar. Ön eğitim verisi TinyStories Türkçe (CDLA-Sharing-1.0; eğitilmiş model "sonuç" sayılır). Ses: VoxCPM2 (Apache-2.0) ile üretilen sentetik veri [REFERANS SESİN KAYNAĞI VE HAKKI: DOĞRULA]; uyandırma verisinde Supertonic (Open RAIL-M). Eğitim hikâyeleri yapay zekâ yazarlarıyla üretildi; hizmet koşulları ticari kullanıma izin veriyor. Yapay zekâ çıktısı FSEK'te eser sayılmayabileceği için veri seti veri tabanı yapımcısı hakkı ve ticari sır olarak korunacak. Lisans envanteri ekte verilecek.
 
-Faaliyet serbestliği: tonies'in figürle oynatma patentleri (EP3092043B2, US10960320B2) incelenecek; Eko'nun hikâyeyi kayıttan oynatmak yerine cihazda üretmesi ve tetikleme mekanizmasının (NFC stand) farklılığı patent vekiliyle değerlendirilecek. Halk masalı figürlerinin modern uyarlamalarına (TRT çizgi filmi, Disney) ait tasarım ve yan karakterler kullanılmayacak; bunun için kart ve veri denetimi yapılacak.
+Korunma planı: (1) Marka: "Eko" ve logo ile özgün karakter adları için TÜRKPATENT'e 9, 16, 28, 41. sınıflarda başvuru; "Eko" yaygın bir sözcük olduğundan ön araştırma yapılacak, gerekirse birleşik marka ("Eko Masal" vb.). (2) Endüstriyel tasarım: stand ve özgün figürler. (3) Faydalı model: "figür tanımalı, cihazda önceden hikâye üretip kuyrukta saklayan ve canlı yazarken okuyan oyuncak" ve "ad süzgeçli aday seçimi" için patent vekiliyle araştırma (Espacenet: A63H33, G06F40/56) ve uygun bulunursa başvuru. (4) Ticari sır: veri üretim süreci, kurallar ve eğitim tarifleri; çalışan ve danışmanlarla gizlilik ve buluş devri sözleşmeleri.
+
+Faaliyet serbestliği: tonies'in figürle oynatma patentleri (EP3092043B2, US10960320B2, EP4282503A1) incelenecek; Eko'nun kayıt oynatmak yerine hikâyeyi cihazda üretmesi patent vekiliyle değerlendirilecek. Halk masalı figürlerinin modern uyarlamalarına (TRT çizgi filmi, Disney) ait tasarım ve yan karakterler kullanılmayacak; Keloğlan kartındaki dizi kaynaklı yan karakterler anonim masal figürleriyle değiştirilecek.
 
 Marka ve logo: Çalışma adı "Eko" (uyandırma sözcüğü "Merhaba Eko"); logo hızlandırma programında tasarlanacak [LOGO HAZIRSA EKLE]."""
 
 ALANLAR["2_7_regulasyonlar"] = """1. Oyuncak Güvenliği Yönetmeliği (2009/48/AT uyumlu, RG 4.10.2016/29847): CE işareti, teknik dosya, uygunluk beyanı, Türkçe uyarılar. Standartlar: EN 71-1 (mekanik/fiziksel; figürlerin küçük parça testi), EN 71-2 (yanıcılık), EN 71-3 (ağır metal göçü). Piyasa gözetimi Ticaret Bakanlığı'ndadır.
-2. Elektrikli oyuncaklar: EN IEC 62115 (pil bölmesi tutsak vidalı, alet olmadan açılmaz; yüzey sıcaklığı). Eko 4 × AA pil ile çalışır; şarjlı Li-ion pil olmadığından IEC 62133 ve UN 38.3 yükü yoktur.
-3. Telsiz Ekipmanları Yönetmeliği (RED, BTK): NFC okuyucu (13,56 MHz) ve ayar modundaki Wi-Fi nedeniyle EN 300 330, EN 300 328, EN 301 489-1/-3/-17, EN 62479 testleri. RED siber güvenlik maddesi (EN 18031, 1.8.2025'ten itibaren): cihaz kişisel veri işlemediği ve internete bağlanmadığı için kapsam değerlendirmesi yapılacak; ayar Wi-Fi'ı için şifreli, kısa süreli ve yerel erişim, imzalı yazılım güncellemesi.
+2. Elektrikli oyuncaklar: EN IEC 62115 (pil bölmesi tutsak vidalı, alet olmadan açılmaz; yüzey sıcaklığı). Eko 4 × AA pil ile çalışır; şarjlı Li-ion pil olmadığından IEC 62133 ve UN 38.3 yükü yoktur (EVT'de şarjlı pil seçilirse eklenir).
+3. Telsiz Ekipmanları Yönetmeliği (RED, BTK): NFC okuyucu (13,56 MHz) ve ayar modundaki Wi-Fi nedeniyle EN 300 330, EN 300 328, EN 301 489-1/-3/-17, EN 62479 testleri. RED siber güvenlik maddesi (EN 18031, 1.8.2025'ten itibaren): cihaz internete bağlanmaz, ama ebeveynin isteğe bağlı girdiği çocuk adını yerel olarak saklar; bu nedenle 3(3)(e) kapsamı laboratuvarla değerlendirilecek; ayar Wi-Fi'ı için şifreli, kısa süreli ve yerel erişim, imzalı yazılım güncellemesi.
 4. RoHS, REACH, AEEE ve Atık Pil (TAP) kayıtları; 6502 sayılı Kanun kapsamında 2 yıl garanti ve Türkçe kullanım kılavuzu.
-5. Kişisel verilerin korunması (KVKK/GDPR): Cihaz ses kaydı tutmaz, veri göndermez; çocuğun adı yalnız cihazda, ebeveynin isteğiyle saklanır ve tek dokunuşla silinir. Ürün KVKK açısından kişisel veri işleme faaliyeti içermeyecek şekilde tasarlanmıştır; web sitesi ve ön satış için aydınlatma metni hazırlanacak.
+5. Kişisel verilerin korunması (KVKK/GDPR): Cihaz ses kaydı tutmaz, veri göndermez; çocuğun adı yalnız cihazda, ebeveynin isteğiyle saklanır ve tek dokunuşla silinir. Şirket hiçbir kullanıcı verisine erişmez; ad yalnız cihazda kalır; web sitesi ve ön satış için aydınlatma metni hazırlanacak.
 6. Yapay zekâ şeffaflığı: AB Yapay Zekâ Yasası md. 50 (2 Ağustos 2026'dan itibaren) yapay ses ve metin üreten sistemlerde çıktının yapay olduğunun belirtilmesini istiyor. Ambalajda ve kılavuzda "Hikâyeleri yapay zekâ yazar, ses yapay zekâ ile üretilmiştir" ibaresi; Supertonic/VoxCPM2 lisans koşulları da bu bildirimi gerektiriyor.
-7. Pilot çalışma ve etik: Ebeveyn anketleri, görüşmeler ve çocuklu ailelerle kullanım gözlemi için iş planı başvurusundan önce üniversite etik kurulu onayı alınacak; ebeveyn onam formu, çocuk sesinin kaydedilmemesi, anonim veri.
+7. Pilot çalışma ve etik: Ebeveyn anketleri, görüşmeler ve çocuklu ailelerle kullanım gözlemi için hızlandırma programı sırasında (2027 bahar) üniversite etik kuruluna başvurulacak, onay belgesi iş planı başvurusuna eklenecek; ebeveyn onam formu, çocuk sesinin kaydedilmemesi, anonim veri.
 8. İthalat ve ihracat: Bitmiş oyuncak ithalatında TAREKS denetimi gerektiği için son montaj Türkiye'de yapılacak; AB'ye satışta Pil Tüzüğü 2023/1542 (değiştirilebilir pil, 2027), CRA (2027) ve yeni AB Oyuncak Güvenliği Tüzüğü 2025/2509 (dijital ürün pasaportu, 2030) yol haritasına alınacak.
 
 Uyum planı: Tasarım DVT aşamasında akredite bir laboratuvarda (TÜV, SGS, Intertek, Türk Loydu vb.) ön uygunluk taramasından geçirilecek; seri üretim öncesi tam test ve teknik dosya. Belgelendirme bütçesi ve takvimi kritik iş adımlarında yer almaktadır."""
@@ -248,7 +243,7 @@ Proje yürütücüsü ve kurucu — [AD SOYAD] ([ÜNİVERSİTE, BÖLÜM, MEZUNİ
 
 Birlikte çalışma geçmişi: [VARSA YAZIN: ör. ortak proje, aynı bölüm, önceki işyeri.]
 
-Kanıtlanabilir çıktılar (ekte sunulabilir): çalışan masa üstü prototip, PC'de doğrulanmış kart yazılımı, eğitim ve değerlendirme günlükleri, kör kıyas raporları, örnek hikâye ve ses kayıtları, 3B kasa ve figür tasarımları.
+Kanıtlanabilir çıktılar (ekte sunulabilir): masa üstü prototip (gerçek kartta deneme [TARİH]), PC'de doğrulanmış kart yazılımı, eğitim ve değerlendirme günlükleri, kör kıyas raporları, örnek hikâye ve ses kayıtları, 3B kasa ve figür tasarımları.
 
 Not: Panel ölçütlerinde "ekip yetkinliği ve uyumu" ayrı puanlanır; tek kişilik başvurularda donanım/üretim yetkinliğinin bir kurucu ortak ya da yazılı taahhütlü danışmanla tamamlanması önerilir."""
 
@@ -275,10 +270,10 @@ ALANLAR["3_3_is_paylasimi"] = """Proje süresi 18 aydır (destek başlangıcı h
 [AD SOYAD / ARANIYOR] — Donanım ve üretim sorumlusu (CTO-donanım); 1.–18. ay [tam/yarı zamanlı]:
 • İP3 Donanım: EVT ve DVT devre kartı tasarımı, EMC/RED ön uyumu, kasa ve figür üretim tasarımı, EMS ve kalıp tedarikçileriyle çalışma, üretim test düzeneği.
 • İP4 Belgelendirme: laboratuvar seçimi, ön uygunluk taraması, teknik dosya.
-(Kurucu ortak bulunamazsa bu iş paketleri hizmet alımı (PCB tasarım ve DFM danışmanlığı, endüstriyel tasarım) ile yürütülür; bütçe buna göre planlanmıştır.)
+(Proje bütçesinde personel olarak yalnız proje yürütücüsü var. Donanım iş paketleri bütçedeki hizmet alımlarıyla yürütülür: PCB/DFM danışmanlığı 90.000 TL, endüstriyel tasarım 60.000 TL, test laboratuvarı 90.000 TL. Kurucu ortak katılırsa maaşı devam yatırımı ve ön satış gelirinden karşılanır, bütçe revize edilir.)
 
 Danışmanlar (yarı zamanlı, sözleşmeli):
-• Çocuk gelişimi uzmanı [AD SOYAD]: içerik kuralları, pilot tasarımı ve etik kurul başvurusu (2.–8. ay, ayda ≈1 gün).
+• Çocuk gelişimi uzmanı [AD SOYAD]: içerik kuralları, pilotun yürütülmesi ve değerlendirmesi (4.–8. ay, ayda ≈1 gün; etik kurul onayı hızlandırma programında alınır).
 • Pazarlama danışmanı [AD SOYAD]: marka konumlandırma, kitle fonlama ve pazaryeri (8.–18. ay, ayda ≈2 gün).
 • Mali müşavir: şirket muhasebesi (1.–18. ay).
 • Patent ve marka vekili: marka, tasarım ve faydalı model başvuruları (1.–6. ay).
@@ -321,13 +316,13 @@ Ortak değerler ve günlük karşılıkları:
 5. Kültüre saygı: Türkçeyi ve halk kültürünü özenle kullanırız; başkalarının fikri mülkiyetine saygı gösteririz (lisanslı karakterleri izinsiz kullanmayız).
 6. Sade ve sorumlu üretim: Uzun ömürlü, onarılabilir, aboneliksiz ürün; gereksiz özellik ve atık üretmeyiz.
 
-Ekibin girişime bağlılığı: Kurucular Yatırım ve Pay Sahipleri Sözleşmesi'ndeki tam zamanlı çalışma taahhüdünü kabul eder; ürün bugüne kadar kurucunun öz kaynaklarıyla geliştirildi ve çalışan bir prototip seviyesine getirildi."""
+Ekibin girişime bağlılığı: Kurucular Yatırım ve Pay Sahipleri Sözleşmesi'ndeki tam zamanlı çalışma taahhüdünü kabul eder; ürün bugüne kadar kurucunun öz kaynaklarıyla geliştirildi; yazılım ve modeller PC'de doğrulandı, kart üzerinde deneme aşamasına getirildi."""
 
 ALANLAR["4_1_is_modeli"] = """Gelir kaynakları ve iş modelleri:
 
 1. Cihaz satışı (B2C, firmadan tüketiciye) — ana gelir: Eko başlangıç seti 2.999 TL (KDV dahil). Kanallar: kendi web sitemiz, pazaryerleri (Trendyol, Hepsiburada, Amazon.com.tr), ikinci yıldan itibaren oyuncak ve kitap zincirleri. Ön satış: kitle fonlama (Fongogo) ve kaparolu ön sipariş; ilk üretim partisini ön satış finanse eder.
 
-2. Ek figür paketleri (tekrar eden gelir, abonelik yok): 3 figürlük paketler 449 TL (KDV dahil). Yeni karakterler cihaz yazılım/model güncellemesiyle eklenir; malzeme maliyeti düşük (≈60–80 TL) olduğu için yüksek marjlı. Hedef: cihaz başına ortalama 0,8 paket.
+2. Ek figür paketleri (tekrar eden gelir, abonelik yok): 3 figürlük paketler 449 TL (KDV dahil). Lansmanda başlangıç setinde olmayan 10 figür 3 paket halinde satılır (model bu figürleri zaten tanır). Yeni figürler yılda 1–2 paket: model yeniden eğitilir ve ebeveynin telefonundan, cihazın yerel ayar sayfasıyla yüklenir (internet gerekmez; bu güncelleme yolu Aşama 2'de geliştirilecek). Malzeme maliyeti düşük (≈60–80 TL), marj yüksek. Hedef: cihaz başına ortalama 0,8 paket.
 
 3. Kurumsal satış (B2B, firmadan kuruma): Okul öncesi seti (5 cihaz + 13 figür + öğretmen rehberi), 12.000 TL (KDV hariç). Müşteriler özel anaokulları, kreşler, belediye çocuk kütüphaneleri, çocuk hastaneleri oyun odaları. Doğrudan satış ve eğitim fuarları.
 
@@ -337,21 +332,21 @@ ALANLAR["4_1_is_modeli"] = """Gelir kaynakları ve iş modelleri:
 
 Gelir kalemlerinin beklenen payı (5. yıl, [V]): cihaz satışı ≈%85, ek figür paketleri ≈%10, kurumsal setler ≈%5 (kurum setleri cihaz adedine dahil edildi); teknoloji lisansı ve yurt dışı satış ek potansiyel olarak tutuldu.
 
-Maliyet yapısı: Birim değişken maliyet ≈1.357 TL (malzeme, montaj, kanal/dağıtım, garanti); sabit giderler personel, ofis, pazarlama, belgelendirme ve kalıp. Sunucu/bulut maliyeti yoktur; satılan cihaz başına sürekli işletme gideri sıfırdır. Bu, bulut yapay zekâ oyuncaklarına göre yapısal bir maliyet avantajıdır.
+Maliyet yapısı: Birim değişken maliyet ≈1.357 TL (malzeme, montaj, kanal/dağıtım, garanti); sabit giderler personel, ofis, pazarlama, belgelendirme ve kalıp. Sunucu/bulut maliyeti yoktur; şirket için satılan cihaz başına sürekli işletme gideri yoktur (kullanıcı için yalnız pil). Bu, bulut yapay zekâ oyuncaklarına göre yapısal bir maliyet avantajıdır.
 
 Birim ekonomisi (KDV hariç): liste fiyatı 2.499 TL − birim değişken maliyet 1.357 TL = ≈1.142 TL katkı payı (%46); ek paket başına ≈214 TL katkı payı. Müşteri yaşam boyu değeri (cihaz + 0,8 ek paket) ≈1.300 TL, hedef müşteri edinme maliyeti ≤450 TL (LTV/CAC ≈2,9)."""
 
 ALANLAR["4_2_musteriye_erisim"] = """1. Ön kayıt sayfası ve topluluk (hızlandırma programı – Aşama 2'nin 1.–9. ayı): Ürün videosu, örnek hikâye sesleri ve "veri toplamayan oyuncak" anlatımıyla ön kayıt sayfası; hedef 1.000 kayıt. Ebeveyn toplulukları (Facebook/WhatsApp anne grupları), çocuk gelişimci ve okul öncesi öğretmeni Instagram hesaplarıyla işbirliği (ücretsiz cihaz + içerik). Bu kanal hem talep testi hem kitle fonlama kitlesi olarak kullanılacak.
 
-2. Pilot ve referanslar (4.–9. ay): 30–50 aile ve 3–5 anaokulu; izinli ebeveyn yorumları ve video referansları, çocuk gelişimi uzmanı görüşü.
+2. Pilot ve referanslar (6.–8. ay): 30–50 aile ve 3–5 anaokulu; izinli ebeveyn yorumları ve video referansları, çocuk gelişimi uzmanı görüşü.
 
 3. Kitle fonlama ve ön satış (10.–12. ay): Fongogo'da ödüllü kampanya (hedef 600+ set, ≈1,5 milyon TL); kendi sitemizde kaparolu ön sipariş. Kampanya; basın bülteni (teknoloji ve ebeveyn medyası), "veri sızıntısı" haberlerine karşı "veri toplamayan oyuncak" hikâyesi ve teknopark/TÜBİTAK haberleriyle desteklenecek.
 
-4. Kendi web sitemiz (13. aydan itibaren): Komisyonsuz doğrudan satış, ek paketlerin satışı, kişisel veri istemeyen garanti kaydı. Performans pazarlaması (Instagram/YouTube, uyku rutini ve ekransız oyun içerikleri); hedef müşteri edinme maliyeti (CAC) ≤ 450 TL.
+4. Kendi web sitemiz (ön sipariş 10. aydan; teslimat ve satış 17.–18. aydan itibaren): Komisyonsuz doğrudan satış, ek paketlerin satışı, kişisel veri istemeyen garanti kaydı. Performans pazarlaması (Instagram/YouTube, uyku rutini ve ekransız oyun içerikleri); hedef müşteri edinme maliyeti (CAC) ≤ 450 TL.
 
-5. Pazaryerleri (15. aydan itibaren): Trendyol, Hepsiburada, Amazon.com.tr; 30 saniyelik ses örnekli ürün sayfaları, "Yerli Üretim" rozeti; yılbaşı, 23 Nisan ve karne dönemi kampanyaları. Komisyon (≈%18) fiyatlamada hesaba katıldı.
+5. Pazaryerleri (18. aydan itibaren, CE belgesi ve ilk üretimden sonra): Trendyol, Hepsiburada, Amazon.com.tr; 30 saniyelik ses örnekli ürün sayfaları, "Yerli Üretim" rozeti; yılbaşı, 23 Nisan ve karne dönemi kampanyaları. Komisyon (≈%18) fiyatlamada hesaba katıldı.
 
-6. Kurumsal satış (12. aydan itibaren): Özel anaokulu ve kreş zincirlerine doğrudan ziyaret, okul öncesi eğitim fuarları, belediye çocuk kütüphaneleri; pilot okullar referans. Öğretmen rehberi ve kurum faturası.
+6. Kurumsal satış (kurum ön siparişleri 12. aydan, teslimat 18. aydan): Özel anaokulu ve kreş zincirlerine doğrudan ziyaret, okul öncesi eğitim fuarları, belediye çocuk kütüphaneleri; pilot okullar referans. Öğretmen rehberi ve kurum faturası.
 
 7. Fiziksel perakende (ticarileşmenin 2. yılı): Toyzz Shop, D&R, idefix, kitapçılar; raf marjı (%35–50) için ayrı fiyat yapısı; mağaza içi "dinle" demo standı.
 
@@ -362,18 +357,18 @@ ALANLAR["4_2_musteriye_erisim"] = """1. Ön kayıt sayfası ve topluluk (hızlan
 # 4.3 Kritik iş adımları: (iş tanımı, tarih, başarım ölçütü) — tablo hücreleri tek satırlık ve dar; kısa yazıldı.
 KRITIK_ADIMLAR = [
     ("Şirket kuruluşu, İP devri", "Ocak 2028", "Tescil, devir sözleşmesi"),
-    ("Kartta uçtan uca prototip", "Şubat 2028", "Hikâye+ses+NFC+KWS çalışıyor"),
+    ("Kartta hız/ses/pil optimizasyonu", "Şubat 2028", "Ses gerçek zamanlı, tüketim ölçüldü"),
     ("Marka/tasarım başvurusu", "Mart 2028", "TÜRKPATENT başvuru no"),
-    ("EVT kartı (kendi PCB)", "Nisan 2028", "10 kart, pil ≥ 8 saat"),
-    ("Etik kurul onayı", "Nisan 2028", "Onay belgesi"),
-    ("Pilot (30–50 aile, 3–5 okul)", "Temmuz 2028", "≥%90 uygun hikâye"),
-    ("DVT: kasa+kart 60 adet", "Eylül 2028", "Ön uygunluk raporu"),
-    ("Kitle fonlama kampanyası", "Aralık 2028", "≥600 ön sipariş"),
+    ("EVT kartı (30 adet)", "Mart 2028", "NFC ≥ %99, ölçüm raporu"),
+    ("Pilot serisi (60 cihaz)", "Mayıs 2028", "60 cihaz teslim"),
+    ("Pilot (30–50 aile, 3–5 okul)", "Temmuz 2028", "≥ %90 uygun hikâye"),
+    ("DVT ve ön uygunluk testi", "Eylül 2028", "Ön uygunluk raporu"),
+    ("Kitle fonlama kampanyası", "Aralık 2028", "≥ 600 ön sipariş"),
     ("CE/RED belgelendirme", "Mart 2029", "Test raporları, DoC"),
     ("İlk üretim partisi", "Mayıs 2029", "1.000 set, fire < %3"),
-    ("Web ve pazaryeri satışı", "Haziran 2029", "İade < %5, puan ≥ 4,3"),
+    ("Teslimat, web ve pazaryeri", "Haziran 2029", "İade < %5, puan ≥ 4,3"),
     ("Okul öncesi kurum seti", "Eylül 2029", "≥ 20 kurum müşterisi"),
-    ("Ek figür paketleri", "Aralık 2029", "Bağlanma oranı ≥ 0,5"),
+    ("İlk yeni figür paketi", "Aralık 2029", "Yerel güncelleme çalışıyor"),
     ("Yurt dışı (Amazon.de)", "Eylül 2031", "≥ 2.000 set/yıl"),
     ("Yıllık 30.000+ set", "Haziran 2034", "Kümülatif 86.000 set"),
 ]
@@ -384,7 +379,7 @@ Finansman yol haritası:
 1. Tohum öncesi (Aşama 2): TÜBİTAK BİGG Fonu 1.350.000 TL (%3 pay). İlk dönem raporundan sonra tetikleyici koşullar (kitle fonlamada ≥600 ön sipariş, kurumsal sipariş, seri üretime geçiş) belgelenerek ≤1.350.000 TL devam yatırımı talebi (fon payı toplamda ≤ %5).
 2. Ön satış geliri: Kitle fonlama ve kaparolu ön sipariş (≈1,5 milyon TL hedef) ilk üretim partisinin malzeme ve kalıp giderlerini karşılar; hisse seyreltmesi olmadan çalışma sermayesi.
 3. Teşvikler ve sonraki projeler: Teknopark vergi istisnaları; bu iş planından ayrı yeni projeler (yeni dil ve ürün sürümleri) için ileride KOSGEB Ar-Ge ve İnovasyon ya da TÜBİTAK 1507. Bu iş planının giderleri için başka kamu hibesi kullanılmaz; kullanılırsa TÜBİTAK'a beyan edilir ve mahsup edilir.
-4. Tohum turu (Aşama 3, ticarileşmenin 1. yılı): BiGG+ tohum yatırım çağrısı (2026-1 çağrısında üst sınır 8 milyon TL, fon payı ≤ %10) ve melek yatırımcı/girişim sermayesi eş yatırımıyla toplam ≈12 milyon TL [V]; seri üretim (10.000 adet ölçeği), stok, pazarlama ve yurt dışı açılım için.
+4. Tohum turu (Aşama 3, ticarileşmenin 1. yılı): BiGG+ tohum yatırım çağrısı (2026-1 çağrısında üst sınır 8 milyon TL, fon payı ≤ %10) ve melek yatırımcı/girişim sermayesi eş yatırımıyla toplam ≈8 milyon TL [V] (BiGG+ ≈5 M TL, ≤ %10 pay; eş yatırımcı ≈3 M TL; değerleme o günkü satış verisine göre); seri üretim (10.000 adet ölçeği), stok, pazarlama ve yurt dışı açılım için.
 5. A serisi (3.–4. yıl): Çok dilli ürün ve teknoloji lisansı için oyuncak/eğitim teknolojisi odaklı girişim sermayesi fonları ya da stratejik yatırımcı (oyuncak üreticisi, yayınevi).
 
 Çıkış stratejisi öngörüleri: (a) Stratejik satın alma: küresel ses oyuncağı şirketleri (tonies, Yoto), oyuncak üreticileri ya da eğitim teknolojisi şirketleri için cihaz içi, gizlilik odaklı yapay zekâ teknolojisi ve Türkçe pazar erişimi değerli bir satın alma hedefi; (b) Sonraki turlarda erken yatırımcıların paylarının yeni yatırımcılara devri (ikincil satış); (c) Uzun vadede, ölçek yakalanırsa halka arz (Borsa İstanbul GİP). BİGG Fonu'nun 12 yıllık süresi ve 6 yıllık yatırım dönemi, çıkış planlamasında dikkate alınacaktır."""
@@ -395,19 +390,21 @@ RISKLER = [
      "Hazır hikâye kütüphanesi + seçici eşiği"),
     ("Ses sentezi kartta gerçek zamanlı değil", "SIMD optimizasyon, iki çekirdek", "Orta", "Orta",
      "Hafif vocoder ya da ses önbelleği"),
+    ("Pil ömrü kısa (4×AA ≈2–3 saat)", "Tüketim ölçümü, boşta üretim sınırı", "Yüksek", "Orta",
+     "USB-C güç girişi / şarjlı pil"),
     ("CE/RED belgelendirmede gecikme", "Erken ön tarama, uyumlu tasarım", "Orta", "Yüksek",
      "İkinci laboratuvar, takvime 2 ay pay"),
-    ("Bileşen fiyatı/kur artışı", "İkinci kaynak, ön satış fiyatı", "Yüksek", "Orta",
-     "Set içeriği ve fiyat güncellemesi"),
     ("Kitle fonlama hedefi tutmaz", "Ön kayıt ≥1.000, pilot referansı", "Orta", "Yüksek",
      "Kurumsal satış ve küçük parti üretim"),
-    ("Marka/karakter hukuki itirazı", "Avukat görüşü, marka araştırması", "Düşük", "Orta",
-     "Ürün/karakter adı değişikliği"),
+    ("Tek kişilik ekip, kilit kişi riski", "Kurucu ortak, yazılı danışman taahhüdü", "Orta", "Yüksek",
+     "Hizmet alımı; devam yatırımıyla işe alım"),
 ]
 
-RISK_AYRINTI = """1. **Hikâye kalitesi ebeveyni tatmin etmez** (olasılık orta, etki yüksek). Önlem: 5 aday üretip seçiciyle en iyisini saklama; isim süzgeci ve kapalı dünya; veri artırımı (kalite veriyle artıyor); pilotta kör kalite testi ve kabul eşiği. B planı: Her figür için önceden üretilmiş, hakemden geçmiş hikâyelerden oluşan bir başlangıç kütüphanesi kuyrukta hazır tutulur; seçici eşiği yükseltilir, eşiği geçemeyen hikâye okunmaz.
-2. **Ses sentezi kartta gerçek zamanlı değil** (orta/orta). PC ölçümüne göre ESP32-S3'te saniyelik ses için 0,7–1,4 sn hesap tahmin ediliyor. Önlem: ESP32-S3 vektör (SIMD) komutlarıyla vocoder, iki çekirdekte paralel işlem. B planı: Daha hafif vocoder ya da hikâyenin sesinin boşta önceden sentezlenip flaş/PSRAM önbelleğinde tutulması.
-3. **CE/RED belgelendirmede gecikme ya da başarısızlık** (orta/yüksek). Önlem: Standartlara uygun tasarım (vidalı pil kapağı, NFC anten uyumu), DVT'de ön uygunluk taraması. B planı: İkinci akredite laboratuvar; takvime 2 ay tampon; gerekirse Wi-Fi ayar modu yerine NFC-yalnız ayar.
-4. **Bileşen fiyatı ve kur artışı** (yüksek/orta). Önlem: ESP32 modülü için ikinci kaynak, ön satışta fiyat sabitleme, toplu alım. B planı: Set içeriği (figür sayısı) ve fiyatın dönemsel güncellenmesi.
-5. **Kitle fonlama hedefi tutmaz** (orta/yüksek). Önlem: Kampanya öncesi ≥1.000 ön kayıt, pilot referansları, basın. B planı: Kurumsal satış (anaokulları) ve 300 adetlik küçük parti; kalıp yerine 3B baskı/alüminyum kalıp ile düşük yatırım; devam yatırımı.
-6. **Marka ya da karakter tasarımına hukuki itiraz** (düşük/orta). Önlem: Avukat görüşü, TÜRKPATENT marka/tasarım araştırması, halk figürlerinin modern uyarlamalarından uzak durma. B planı: Ürün ya da karakter adının değiştirilmesi."""
+RISK_AYRINTI = """1. **Hikâye kalitesi ebeveyni tatmin etmez** (olasılık orta, etki yüksek). Önlem: 5 aday üretip seçiciyle en iyisini saklama; isim süzgeci ve kapalı dünya; veri artırımı (kalite veriyle artıyor); pilotta insan hakemli kör kalite testi ve kabul eşiği. B planı: Her figür için önceden üretilmiş, denetimden geçmiş hikâyelerden oluşan bir başlangıç kütüphanesi kuyrukta hazır tutulur; seçici eşiği yükseltilir, eşiği geçemeyen hikâye okunmaz.
+2. **Ses sentezi kartta gerçek zamanlı değil** (orta/orta). PC ölçümüne göre ESP32-S3'te saniyelik ses için 0,7–1,4 sn hesap tahmin ediliyor. Önlem: ESP32-S3 vektör (SIMD) komutlarıyla vocoder, iki çekirdekte paralel işlem. B planı: Daha hafif vocoder ya da hikâyenin sesinin boşta önceden sentezlenip önbellekte tutulması.
+3. **Pil ömrü kısa** (yüksek/orta). Kart 5 V'ta ≈0,5–0,9 A çekiyor; 4 × AA ile hesapla ≈2–3 saat okuma çıkıyor ve mikrofon sürekli dinlediği için kart derin uykuya giremiyor. Önlem: kartta tüketim ölçümü, halka parlaklığı ve ses düzeyi sınırı, boşta hikâye üretimini yalnız adaptörde yapma, okuma bitince uyku. B planı: USB-C güç girişi (adaptörle sürekli çalışma) ya da şarjlı pil paketi (IEC 62133 ve UN 38.3 testleri eklenir).
+4. **CE/RED belgelendirmede gecikme ya da başarısızlık** (orta/yüksek). Önlem: Standartlara uygun tasarım (vidalı pil kapağı, NFC anten uyumu), DVT'de ön uygunluk taraması. B planı: İkinci akredite laboratuvar; takvime 2 ay tampon; gerekirse Wi-Fi ayar modu yerine NFC-yalnız ayar.
+5. **Kitle fonlama hedefi tutmaz** (orta/yüksek). Önlem: Kampanya öncesi ≥1.000 ön kayıt, pilot referansları, basın. B planı: Kurumsal satış (anaokulları) ve 300 adetlik küçük parti; alüminyum kalıp ya da 3B baskı ile düşük yatırım; devam yatırımı.
+6. **Tek kişilik ekip, kilit kişi riski** (orta/yüksek). Önlem: Hızlandırma programında donanım/üretim kurucu ortağı ve yazılı taahhütlü danışmanlar; kod, veri ve süreçlerin belgelenmesi. B planı: Bütçedeki hizmet alımları; devam yatırımıyla donanım mühendisi işe alımı.
+7. **Bileşen fiyatı ve kur artışı** (yüksek/orta; tabloda yer kalmadı). Önlem: ESP32 modülü için ikinci kaynak, ön satışta fiyat sabitleme, toplu alım. B planı: Set içeriği ve fiyatın dönemsel güncellenmesi.
+8. **Marka ya da karakter tasarımına hukuki itiraz** (düşük/orta). Önlem: Avukat görüşü, TÜRKPATENT araştırması, Keloğlan kartındaki dizi kaynaklı yan karakterlerin değiştirilmesi. B planı: Ürün ya da karakter adının değiştirilmesi."""

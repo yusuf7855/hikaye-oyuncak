@@ -130,7 +130,7 @@ TÜBİTAK'ın 2026–2028 yatırım planındaki takvim (`resmi/1812-2026-2028_Ya
 **Güçlü:**
 
 - Çalışan bir yazılım ve eğitilmiş modeller var (TRL 4).
-- Kalite kör kıyaslarla ölçüldü.
+- Kalite kör kıyaslarla ölçüldü (bugün yapay zekâ hakemli; insan hakemli test pilotta).
 - Ölçülebilir bir teknik farklılaşma var: üç yapay zekâ modeli tek mikrodenetleyicide.
 - Gizlilik ve güvenlik konusundaki güncel kaygılara doğrudan cevap veriyor.
 - Türkçe ve yerel kültür vurgusu.

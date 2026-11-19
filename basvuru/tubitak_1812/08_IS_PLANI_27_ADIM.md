@@ -52,8 +52,9 @@
 
    **[DOĞRULA: anket sıralaması]**
 7. **TAM.**
-   - TAM: Türkiye ≈3,3 milyon hane × 2.999 TL ≈ 9,9 milyar TL; her yıl ≈0,93 milyon yeni çocuk.
-   - SAM: ≈1,0 milyon hane, ≈3,0 milyar TL.
+   - TAM: Türkiye ≈3,3 milyon hane × 2.499 TL (KDV hariç) ≈ 8,2 milyar TL; her yıl ≈0,93 milyon yeni çocuk
+     (≈2,3 milyar TL).
+   - SAM: ≈1,0 milyon hane, ≈2,5 milyar TL.
    - SOM (6,5 yıl): 86.000 set.
    - Komşu segmentler: kurumlar, diaspora, başka diller.
 
@@ -86,7 +87,7 @@
 
     | Bileşen | Bugün | Kanıt | Hedef (18. ay) |
     |---|---|---|---|
-    | Türkçe dil modeli | TRL 4 | 28.493 hikâyeyle eğitim, kör kıyaslar, golden testi (C = PyTorch) | TRL 7 (pilot), 8 (ürün) |
+    | Türkçe dil modeli | TRL 4 | 28.493 hikâyeyle eğitim, yapay zekâ hakemli kör kıyaslar, golden testi (C = PyTorch); insan hakemli test yok | TRL 7 (pilot), 8 (ürün) |
     | Kart yazılımı (seçici, kuyruk, NFC, halka, ayar) | TRL 4 | PC'de sahte ESP32 başlıklarıyla birebir aynı çıktı (52/52, 872/872), ürün akışı testleri | TRL 7–8 |
     | Konuşma sentezi | TRL 4 | C çıkarımı = PyTorch (SNR ≥ 79 dB); gerçek zamanlılık kartta ölçülmedi | TRL 7–8 |
     | "Merhaba Eko" ve komutlar | TRL 3–4 | Sentetik ve çocuk benzetimi seslerle: uyanma %87–93, saatte 0,3–1,9 yanlış uyanma; gerçek çocuk sesiyle denenmedi | TRL 6–7 (pilotta ebeveyn beyanıyla) |
@@ -105,7 +106,7 @@
     |---|---|---|
     | Kartta hikâye üretim hızı | ≥3,5 token/s, hikâye ≤40 sn; kuyruklu kullanımda bekleme ≤2 sn | Ay 1–2 |
     | Ses sentezi gerçek zamanlılık | Hesap süresi / ses süresi ≤1,0 (iki çekirdek) | Ay 1–3 |
-    | Pil ömrü (4×AA) | ≥8 saat aktif okuma; bekleme haftalarca | EVT, ay 4 |
+    | Pil ömrü ve tüketim | Kartta ölçüm; 4×AA ile hesap ≈2–3 saat okuma (kart 5 V'ta ≈0,5–0,9 A). Hedef: ≥3 saat okuma ya da USB-C güç girişi | Ay 1–3 (EVT) |
     | Uyanma sözcüğü ve komutlar | Çocuk sesinde uyanma ≥%85 (ebeveyn beyanı), yanlış uyanma ≤0,5/saat | Pilot, ay 5–7 |
     | NFC figür tanıma | ≥%99 ilk denemede | EVT, ay 4 |
     | İçerik kalitesi | Uygunsuz < %1, anlaşılır ≥%90 (kör ebeveyn testi) | Pilot |
@@ -157,9 +158,9 @@
 19. **Gelir modeli ve fiyat.** Cihaz satışı (2.999 TL), ek figür paketleri (449 TL), kurum seti (12.000 TL),
     ileride teknoloji lisansı. Abonelik yok. → §2.3, §4.1
 20. **LTV, CAC, LTV/CAC.**
-    - Cihaz katkı payı ≈1.132 TL.
+    - Cihaz katkı payı ≈1.142 TL.
     - Ek paket katkı payı ≈214 TL × 0,8 paket.
-    - LTV ≈1.300 TL.
+    - LTV ≈1.313 TL.
     - Hedef CAC ≤450 TL.
     - LTV/CAC ≈2,9. Hedef ≥3: paket bağlanma oranını ve organik payı artırarak.
 
@@ -173,12 +174,14 @@
     | Brüt katkı (M TL) | 0,97 | 4,65 | 11,28 | 20,85 |
     | Sabit gider (M TL) | 3,06 | 5,56 | 10,77 | 15,28 |
     | FAVÖK (M TL) | −2,08 | −0,91 | 0,51 | 5,57 |
-    | Dönem sonu kasa (M TL) | 0,20 | 10,03 | 8,44 | 11,07 |
+    | Dönem sonu kasa (M TL) | 0,20 | 6,03 | 4,44 | 7,07 |
     | Ekip (kişi) | 1 | 4 | 7 | 10 |
 
     Kasa şu finansmanı içerir:
     - Y0: BİGG 1,35 M + devam yatırımı 1,35 M;
-    - Y1: tohum turu ≈12 M.
+    - Y1: tohum turu ≈8 M (BiGG+ ≈5 M + eş yatırımcı ≈3 M).
+
+    Kötümser senaryo (satış −%40, devam yatırımı yok): Excel'deki "Kötümser senaryo" sayfası ve AGY 112 §4.4.
 
 ## Modül 6 — Operasyon ve ölçeklenme
 

@@ -39,7 +39,7 @@ komutu duyan model de. İnternet yok, uygulama yok, abonelik yok."
 
 Tek mikrodenetleyici (ESP32-S3; 16 MB flash, 8 MB PSRAM) üzerinde üç model:
 
-1. Türkçe dil modeli: 5,7 M parametre, 10,3 MB. Önce plan, sonra hikâye yazar.
+1. Türkçe dil modeli: ≈19,9 M parametre (5,7 M çekirdek), 10,3 MB. Önce plan, sonra hikâye yazar.
 2. Konuşma sentezi: 4,3 MB, kadın sesi, gece modu.
 3. "Merhaba Eko" ve 6 komut: 110 KB.
 
@@ -52,7 +52,7 @@ Güvenlik katmanları:
 
 ## Slayt 5 — Kanıt (bugüne kadar)
 
-- **28.493** özgün hikâyeyle eğitim. Kalite **kör kıyaslarla** ölçüldü:
+- **28.493** hikâyeyle eğitim. Kalite **kör kıyaslarla** ölçüldü (yapay zekâ hakemli; insan hakemli test pilotta):
   - son model ara modeli 102–78 ve 99–73 yendi;
   - Keloğlan'da önceki ürün modelini 34–14 yendi.
 - Kart yazılımı PC referansıyla **birebir aynı** (52/52 aday; seçicide 872/872).
@@ -64,8 +64,8 @@ Güvenlik katmanları:
 
 | Pazar | Büyüklük |
 |---|---|
-| Türkiye 3–6 yaş (2028) | ≈3,9 milyon çocuk, ≈3,3 milyon hane; toplam pazar ≈9,9 milyar TL |
-| Hedef segment (kentli, orta-üst gelir) | ≈1 milyon hane, ≈3 milyar TL |
+| Türkiye 3–6 yaş (2028) | ≈3,9 milyon çocuk, ≈3,3 milyon hane; toplam pazar ≈8,2 milyar TL (KDV hariç) |
+| Hedef segment (kentli, orta-üst gelir) | ≈1 milyon hane, ≈2,5 milyar TL |
 | Ek segmentler | okul öncesi kurumlar, yurt dışındaki Türk aileler |
 | Dünya | tonies 630 M€ (+%31), Yoto 95 M£ |
 
@@ -100,10 +100,10 @@ Kategori ekran kaygısıyla büyüyor.
 
 | Ay | Kilometre taşı |
 |---|---|
-| 1–2 | Şirket, fikri mülkiyet devri, kartta uçtan uca prototip |
-| 3–4 | Kendi devre kartımız (EVT), marka/tasarım başvurusu, etik kurul |
-| 5–7 | 30–50 aile + 3–5 anaokulu pilotu |
-| 8–9 | DVT 60 cihaz, ön uygunluk testi |
+| 1–2 | Şirket, fikri mülkiyet devri, kartta hız/ses/pil ölçümleri ve optimizasyon |
+| 3–4 | Kendi devre kartımız (EVT), marka/tasarım başvurusu |
+| 5–7 | 60 cihazlık pilot serisi; 30–50 aile + 3–5 anaokulu pilotu (etik kurul onayı önceden) |
+| 8–9 | DVT, ön uygunluk testi |
 | 12 | Kitle fonlama (≥600 ön sipariş) |
 | 15–17 | CE/RED belgeleri, ilk 1.000 set |
 | 18 | Satış |
@@ -125,8 +125,9 @@ Bütçe dağılımı: personel %54, hizmet alımı %29, malzeme %11, teçhizat %
 ## Sık sorulabilecek sorular ve kısa cevaplar
 
 - **"Küçük model saçmalarsa?"** 5 aday üretilir, seçici en iyisini seçer. Başka figür adları süzgeçle
-  engellenir; her figürün kapalı bir dünyası var. Kalite veriyle artıyor ve kör kıyasla ölçülüyor. Pilotta
-  ebeveynlerle kabul eşiği (≥%90 uygun) belirleyeceğiz.
+  engellenir; her figürün kapalı bir dünyası var. Kalite veriyle artıyor ve kör kıyasla ölçülüyor. Bugünkü
+  kıyaslarda hakemler yapay zekâ; pilotta ebeveynlerle insan hakemli kör test yapıp kabul eşiğini (≥%90 uygun)
+  doğrulayacağız. Hikâyeler kısa: ortalama ≈75 sözcük, ≈45–60 sn.
 - **"Hız yeterli mi?"** Hikâyeler boştayken önceden yazılıp kuyrukta saklanıyor; oyuncak konunca bekleme yok. Hazır
   hikâye yoksa cihaz yazarken okuyor. Hız ilk gerçek kart testinde ölçülecek. Ses sentezinin optimizasyonu
   planlı.
