@@ -448,16 +448,27 @@ def k1(blok, kayit, tohum, bg, ih, gece=None):
     for y in kayit["yan"]:
         if y not in d.yanlar:
             _ihlal(ih, "K1.yan", f"yan {y!r} kartta yok")
-    adlar = {kucuk(w) for a in bg.figurler + bg.eski + bg.cikarilanlar if not bg.yaygin(a) for w in a.split()}
-    adlar |= {kucuk(w) for w in kayit["figur"].split() if not bg.yaygin(w)}
+    # Tek kelimeli adlar kelime olarak, çok kelimeli adlar ("Tek Boynuzlu At") bütün olarak aranır; çok kelimeli adın
+    # tek kelimesi ancak sözlükte seyrekse ad sayılır ("boynuzlu" evet, "tek" hayır: "tek tek topladı" ad değildir).
+    hepsi = list(bg.figurler + bg.eski + bg.cikarilanlar) + [kayit["figur"]]
     for k in bg.kartlar.values():
-        adlar |= {kucuk(w) for y in k["yanlar"] if y["tip"] == "adli" for w in y["kisa_ad"].split()
-                  if not bg.yaygin(w)}
+        hepsi += [y["kisa_ad"] for y in k["yanlar"] if y["tip"] == "adli"]
+    adlar, ad_obekleri = set(), set()
+    for a in hepsi:
+        ws = a.split()
+        if len(ws) == 1:
+            if not bg.yaygin(a):
+                adlar.add(kucuk(a))
+        else:
+            ad_obekleri.add(" ".join(kucuk(w) for w in ws))
+            adlar |= {kucuk(w) for w in ws if bg.sozluk.tf.get(kucuk(w), 0) < 50 and not bg.yaygin(w)}
     for ad, p in (("sorun", kayit["sorun"]), ("çözüm", kayit["cozum"])):
         n = len(p.split())
         if not PLAN_BICIM.match(p) or not ESIK["plan_kelime"][0] <= n <= ESIK["plan_kelime"][1]:
             _ihlal(ih, "K1.plan", f"plan {ad} {n} kelime ya da küçük harf dışı karakter: {p[:50]!r}")
+        kel = [kucuk(w) for w in re.findall(rf"[{H}]+", p)]
         ozel = [w for w in re.findall(rf"[{H}]+", p) if kucuk(w) in adlar]
+        ozel += [o for o in ad_obekleri if f" {o} " in f" {' '.join(kel)} "]
         if ozel:
             _ihlal(ih, "K1.plan_ad", f"plan {ad} özel ad içeriyor: {ozel}")
     g = kayit["govde"]
