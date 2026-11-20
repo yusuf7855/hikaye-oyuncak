@@ -691,7 +691,7 @@ TEMALAR = {
     "yardim_etmek": ("figür başkasına yardım eder (hasta ya da yaralı hayvan değil)", "yan"),
     "kutlama_hazirlik": ("aynı sahnede küçük bir kutlama ya da sürpriz hazırlamak", "yan"),
     "doga_gozlem": ("doğada bir şeyi fark etmek (gökkuşağı, kelebekler, kardaki şekiller) ve küçük bir hedef", None),
-    "taklit_hayal": ("hayali oyun (kaptan, aşçı, bahçıvan olmak gibi) ve oyunda küçük bir hedef", None),
+    "taklit_hayal": ("hayali oyun (gemi yolculuğu, sofra kurma, pazar oyunu gibi; rol adı söylemeden) ve oyunda küçük bir hedef", None),
     "kaybolan_esya": ("kaybolan eşya", None),
     "yeni_sey_denemek": ("yeni bir şeyi denemek", None),
     "bir_sey_yapmak": ("bir şey yapmak", None),
