@@ -758,10 +758,10 @@ def _var_mi(desen, metin):
     return re.search(rf"(?<![{H}]){desen}(?![{H}])", metin) is not None
 
 
-def _lemma_var(lemma, govde, bg):
-    """Tohum lemması gövdede var mı (kök eşleşmesi; fiil 'koş-')."""
+def _lemma_var(lemma, govde, bg, fiil=True):
+    """Tohum lemması gövdede var mı (kök eşleşmesi; fiil 'koş-'). fiil=False: isim/sıfat ('ekmek' fiil sanılmaz)."""
     lemma = kucuk(lemma)
-    if lemma.endswith(("mak", "mek")) and not lemma.endswith("-"):
+    if fiil and lemma.endswith(("mak", "mek")) and not lemma.endswith("-"):
         lemma = lemma[:-3] + "-"
     govde_k = sade_sozluk.kelimeler(govde)
     kok = lemma.rstrip("-")
@@ -878,7 +878,7 @@ def k4(blok, kayit, tohum, bg, ih, nt, gece=None):
     for tur, lemma in beklenen.items():
         if not lemma:
             _ihlal(ih, "K4.tohum_kelime", f"tohumda {tur} yok")
-        elif not _lemma_var(lemma, g, bg):
+        elif not _lemma_var(lemma, g, bg, fiil=(tur == "fiil")):
             _ihlal(ih, "K4.tohum_kelime", f"tohum {tur}i gövdede yok: {lemma}")
 
 
